@@ -1,0 +1,4820 @@
+Tokens: 45669
+Repo: apache/flink-docker
+Commit: ecff93815f83994141b58ee2c3a2df886104e9bf
+Timestamp: 2026-03-02T20:53:55.356174
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .github
+│   └── workflows
+│       ├── docker-bake.hcl
+│       ├── docker_push.yml
+│       └── snapshot.yml
+├── .gitignore
+├── 1.20
+│   ├── scala_2.12-java11-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   ├── scala_2.12-java17-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   └── scala_2.12-java8-ubuntu
+│       ├── Dockerfile
+│       ├── docker-entrypoint.sh
+│       └── release.metadata
+├── 2.0
+│   ├── scala_2.12-java11-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   ├── scala_2.12-java17-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   └── scala_2.12-java21-ubuntu
+│       ├── Dockerfile
+│       ├── docker-entrypoint.sh
+│       └── release.metadata
+├── 2.1
+│   ├── scala_2.12-java11-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   ├── scala_2.12-java17-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   └── scala_2.12-java21-ubuntu
+│       ├── Dockerfile
+│       ├── docker-entrypoint.sh
+│       └── release.metadata
+├── 2.2
+│   ├── scala_2.12-java11-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   ├── scala_2.12-java17-ubuntu
+│   │   ├── Dockerfile
+│   │   ├── docker-entrypoint.sh
+│   │   └── release.metadata
+│   └── scala_2.12-java21-ubuntu
+│       ├── Dockerfile
+│       ├── docker-entrypoint.sh
+│       └── release.metadata
+├── LICENSE
+├── README.md
+├── common.sh
+├── generate-stackbrew-library-docker.sh
+├── generate-stackbrew-library.sh
+└── publish-to-dockerhub.sh
+
+--- Summary Report ---
+Total files scanned: 47
+Files included: 47
+Files skipped by rule: 0
+Files skipped by size: 0
+Detected languages count: 7
+Top 15 largest included files:
+  11558 bytes - LICENSE
+  9411 bytes - README.md
+  7010 bytes - publish-to-dockerhub.sh
+  6170 bytes - 1.20\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+  6170 bytes - 1.20\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+  6170 bytes - 1.20\scala_2.12-java8-ubuntu\docker-entrypoint.sh
+  6170 bytes - 2.0\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+  6170 bytes - 2.0\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+  6170 bytes - 2.0\scala_2.12-java21-ubuntu\docker-entrypoint.sh
+  6170 bytes - 2.1\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+  6170 bytes - 2.1\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+  6170 bytes - 2.1\scala_2.12-java21-ubuntu\docker-entrypoint.sh
+  6006 bytes - 2.2\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+  6006 bytes - 2.2\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+  6006 bytes - 2.2\scala_2.12-java21-ubuntu\docker-entrypoint.sh
+-----------------------
+
+---
+File: .asf.yaml
+Size: 218 bytes
+Lines: 10
+---
+github:
+  description: "Docker packaging for Apache Flink"
+  homepage: https://flink.apache.org/
+  labels:
+    - flink
+    - docker
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: true
+
+
+---
+File: .gitignore
+Size: 36 bytes
+Lines: 5
+---
+.*.swp
+.idea
+dev
+*.iml
+.vscode
+
+
+---
+File: common.sh
+Size: 2454 bytes
+Lines: 71
+---
+#!/usr/bin/env bash
+
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+# get the most recent commit which modified any of "$@"
+fileCommit() {
+    git log -1 --format='format:%H' HEAD -- "$@"
+}
+
+# get the most recent commit which modified "$1/Dockerfile" or any file COPY'd from "$1/Dockerfile"
+dirCommit() {
+    local dir="$1"; shift
+    (
+        cd "$dir"
+        fileCommit \
+            Dockerfile \
+            $(git show HEAD:./Dockerfile | awk '
+                toupper($1) == "COPY" {
+                    for (i = 2; i < NF; i++) {
+                        print $i
+                    }
+                }
+            ')
+    )
+}
+
+# Inputs:
+#  - tags: comma-seprated list of image tags
+#  - latestVersion: latest version
+# Output: comma-separated list of tags with "latest" removed if not latest version
+pruneTags() {
+    local tags=$1
+    local latestVersion=$2
+    # Escape dots in version for proper regex matching
+    local escapedVersion="${latestVersion//./\\.}"
+    if [[ $tags =~ (^|[, ])$escapedVersion([, -]|$) ]]; then
+        # tags contains latest version. keep "latest" tag
+        echo $tags
+    else
+        # remove "latest", any "scala_" or "javaXX" tag, unless it is the latest version
+        # the "scala" / "java" tags have a similar semantic as the "latest" tag in docker registries.
+        echo $tags | sed -E 's#, (scala|latest|java[0-9]{1,2})[-_.[:alnum:]]*##g'
+    fi
+}
+
+extractValue() {
+    local key="$1"
+    local file="$2"
+    local line=$(cat $file | grep "$key:")
+    echo $line | sed "s/${key}: //g"
+}
+
+# get latest flink version
+latest_version=`ls -1a | grep -E "[0-9]+.[0-9]+" | sort -V -r | head -n 1`
+
+
+---
+File: generate-stackbrew-library-docker.sh
+Size: 402 bytes
+Lines: 16
+---
+#!/usr/bin/env bash
+
+# How to recreate below docker image
+# 
+# $ cat Dockerfile
+# FROM ubuntu:16.04
+# RUN apt-get update ; apt-get install -y git bash
+# 
+# $ docker build -t rmetzger/git-and-bash:latest .
+# $ docker push rmetzger/git-and-bash:latest
+#
+
+exec docker run --rm \
+    --volume "${PWD}:/build:ro" \
+    rmetzger/git-and-bash:latest \
+    /build/generate-stackbrew-library.sh
+
+
+---
+File: generate-stackbrew-library.sh
+Size: 1981 bytes
+Lines: 61
+---
+#!/usr/bin/env bash
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# This script generates a manifest compatibile with the expectations set forth
+# by docker-library/official-images.
+#
+# It is not compatible with the version of Bash currently shipped with OS X due
+# to the use of features introduced in Bash 4.
+
+set -eu
+
+self="$(basename "$BASH_SOURCE")"
+cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
+
+source common.sh
+
+cat <<-EOH
+# this file is generated via https://github.com/apache/flink-docker/blob/$(fileCommit "$self")/$self
+
+Maintainers: The Apache Flink Project <dev@flink.apache.org> (@ApacheFlink)
+GitRepo: https://github.com/apache/flink-docker.git
+EOH
+
+
+for dockerfile in $(find . -name "Dockerfile" | sort -r); do
+    dir=$(dirname $dockerfile)
+
+    commit="$(dirCommit "$dir")"
+    metadata="$dir/release.metadata"
+    architectures=$(extractValue "Architectures" $metadata)
+    tags=$(extractValue "Tags" $metadata)
+    tags=$(pruneTags "$tags" $latest_version)
+
+    # newline
+    echo
+
+    # The tabs here are necessary for the heredoc to work right
+    cat <<-EOE
+		Tags: $tags
+		Architectures: $architectures
+		GitCommit: $commit
+		Directory: $dir
+	EOE
+
+done
+
+
+---
+File: LICENSE
+Size: 11558 bytes
+Lines: 201
+---
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "{}"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright {yyyy} {name of copyright owner}
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+---
+File: publish-to-dockerhub.sh
+Size: 7010 bytes
+Lines: 196
+---
+#!/usr/bin/env bash
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# This script copies Flink docker images from GHCR to Docker Hub.
+# It uses crane to efficiently copy images without pulling them locally.
+#
+# Prerequisites:
+#   - crane installed (https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md)
+#   - Authentication to Docker Hub (docker login)
+#
+# Usage:
+#   ./publish-to-dockerhub.sh [--dry-run]
+#   SOURCE_REGISTRY=ghcr.io/myorg/flink-docker TARGET_REGISTRY=myorg/flink ./publish-to-dockerhub.sh
+#   ./publish-to-dockerhub.sh --dry-run  # Test without actually copying
+
+set -euo pipefail
+
+# Parse command line arguments
+DRY_RUN=false
+for arg in "$@"; do
+    case $arg in
+        --dry-run|-n)
+            DRY_RUN=true
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [--dry-run]"
+            echo ""
+            echo "Options:"
+            echo "  --dry-run, -n    Show what would be copied without actually copying"
+            echo "  --help, -h       Show this help message"
+            echo ""
+            echo "Environment variables:"
+            echo "  SOURCE_REGISTRY  Source registry (default: ghcr.io/apache/flink-docker)"
+            echo "  TARGET_REGISTRY  Target registry (default: apache/flink)"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $arg"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+self="$(basename "$BASH_SOURCE")"
+cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
+
+source common.sh
+
+# Configuration
+SOURCE_REGISTRY=${SOURCE_REGISTRY:-"ghcr.io/apache/flink-docker"}
+TARGET_REGISTRY=${TARGET_REGISTRY:-"apache/flink"}
+
+echo "============================================"
+echo "Publishing Flink Docker Images"
+if [ "$DRY_RUN" = true ]; then
+    echo "🔍 DRY RUN MODE - No images will be copied"
+fi
+echo "============================================"
+echo "Source: $SOURCE_REGISTRY"
+echo "Target: $TARGET_REGISTRY"
+echo "============================================"
+echo ""
+
+# Confirmation check
+if [ "$DRY_RUN" = false ]; then
+    echo "⚠️  IMPORTANT: Before running this script, ensure that:"
+    echo ""
+    echo "1. The GitHub Actions workflow 'Build and Push Docker Images' has"
+    echo "   completed successfully for the release you want to publish"
+    echo ""
+    echo "2. All Docker images are available in GHCR at:"
+    echo "   https://github.com/orgs/apache/packages?repo_name=flink-docker"
+    echo "   (or https://github.com/users/${USER}/packages if using a fork)"
+    echo ""
+    echo "3. The images were built from the correct branch/tag"
+    echo "   - For releases: master branch"
+    echo "   - For testing: dev-* branches"
+    echo ""
+    echo "4. You are authenticated to Docker Hub:"
+    echo "   docker login"
+    echo ""
+    read -p "Have you verified the above? (yes/no): " -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+        echo "❌ Aborted. Please verify the build workflow completed successfully first."
+        exit 1
+    fi
+
+    echo "✅ Proceeding with image publication..."
+    echo ""
+else
+    echo "🔍 Dry-run mode: Will verify images exist and show what would be copied"
+    echo ""
+fi
+
+# Check if crane is installed
+if ! command -v crane &> /dev/null; then
+    echo "ERROR: crane is not installed"
+    echo "Please install crane from: https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md"
+    echo ""
+    echo "Quick install:"
+    echo "  macOS:   brew install crane"
+    echo "  Linux:   go install github.com/google/go-containerregistry/cmd/crane@latest"
+    exit 1
+fi
+
+# Process each Dockerfile
+for dockerfile in $(find . -name "Dockerfile" | sort); do
+    dir=$(dirname "$dockerfile")
+
+    # Extract version and java version from Dockerfile
+    FLINK_VERSION=$(grep "FLINK_TGZ_URL=" "$dockerfile" | head -1 | sed -E 's/.*flink-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+
+    # Extract java version from directory name (e.g., scala_2.12-java11-ubuntu -> java11)
+    JAVA_VERSION=$(basename "$dir" | sed -E 's/.*-java([0-9]+)-.*/\1/')
+
+    if [ -z "$FLINK_VERSION" ] || [ -z "$JAVA_VERSION" ]; then
+        echo "⚠️  Skipping $dir - could not extract version info"
+        continue
+    fi
+
+    # Construct source image tag
+    SOURCE_TAG="${FLINK_VERSION}-scala_2.12-java${JAVA_VERSION}"
+    SOURCE_IMAGE="${SOURCE_REGISTRY}:${SOURCE_TAG}"
+
+    # Read target tags from metadata
+    metadata="$dir/release.metadata"
+    if [ ! -f "$metadata" ]; then
+        echo "⚠️  Skipping $dir - no metadata file found"
+        continue
+    fi
+
+    tags=$(extractValue "Tags" "$metadata")
+    tags=$(pruneTags "$tags" "$latest_version")
+
+    echo "📦 Processing Flink ${FLINK_VERSION} Java ${JAVA_VERSION}"
+    echo "   Source: ${SOURCE_IMAGE}"
+
+    # Check if source image exists
+    if ! crane manifest "$SOURCE_IMAGE" &> /dev/null; then
+        echo "   ❌ ERROR: Source image not found in GHCR"
+        echo "   Please ensure the image was built and pushed by the CI workflow"
+        echo ""
+        echo "Aborting: Cannot proceed with missing images"
+        exit 1
+    fi
+
+    # Copy to each target tag
+    IFS=',' read -ra TAGS_ARRAY <<< "$tags"
+    for raw_tag in "${TAGS_ARRAY[@]}"; do
+        # Trim whitespace
+        tag=$(echo "$raw_tag" | xargs)
+        TARGET_IMAGE="${TARGET_REGISTRY}:${tag}"
+
+        if [ "$DRY_RUN" = true ]; then
+            echo "   🔍 Would copy to ${TARGET_IMAGE}"
+        else
+            echo "   📤 Copying to ${TARGET_IMAGE}"
+            if crane copy "$SOURCE_IMAGE" "$TARGET_IMAGE"; then
+                echo "      ✅ Success"
+            else
+                echo "      ❌ Failed"
+                exit 1
+            fi
+        fi
+    done
+
+    echo ""
+done
+
+echo "============================================"
+if [ "$DRY_RUN" = true ]; then
+    echo "🔍 Dry-run completed successfully!"
+    echo "Run without --dry-run to actually copy images."
+else
+    echo "✅ All images published successfully!"
+fi
+echo "============================================"
+
+
+---
+File: README.md
+Size: 9411 bytes
+Lines: 163
+---
+Apache Flink Docker Images
+==========================
+
+This repo contains Dockerfiles for building Docker images for Apache Flink, and are used to build
+the "official" [`flink`](https://hub.docker.com/_/flink) images hosted on Docker Hub (reviewed and build by Docker), as well as the images published on [`apache/flink` DockerHub](https://hub.docker.com/r/apache/flink) (maintained by Flink committers).
+
+These Dockerfiles are maintained by the Apache Flink community, but the Docker community is
+responsible for building and hosting the images on Docker Hub.
+
+[![Build Status](https://travis-ci.org/apache/flink-docker.svg?branch=master)](https://travis-ci.org/apache/flink-docker)
+
+
+Flink Docker image lifecycle
+----------------------------
+
+* For more information about how changes in this repo are reflected on Docker Hub, see [the "An
+  image's source changed in Git, now what?" FAQ entry](
+  https://github.com/docker-library/faq#an-images-source-changed-in-git-now-what)
+* For outstanding changes to the Apache Flink images on Docker Hub, see [PRs with the
+  "library/flink" label on the `official-images` repository](
+  https://github.com/docker-library/official-images/labels/library%2Fflink)
+* For the "source of truth" for which Dockerfile and revision is reflected in the Apache Flink
+  images on Docker Hub, see [the `library/flink` file in the `official-images` repository](
+  https://github.com/docker-library/official-images/blob/master/library/flink).
+
+
+Development workflow
+----------------------------
+
+The `master` branch of this repository serves as a pure publishing area for releases.
+
+Development happens on the various `dev-X` branches.
+
+Pull requests for a specific version should be opened against the respective `dev-<version>` branch.
+Pull requests for all versions, or for the next major Flink release, should be opened against the `dev-master` branch.
+
+For new major Flink releases, once the release branch is created in the [apache/flink](https://github.com/apache/flink/) repo, the corresponding `dev-x.y` 
+branch must be created in `apache/flink-docker`:
+1. Create the branch based on `dev-master`
+2. Update `.github/workflows/ci.yml` in the corresponding `dev-*` branches: Make sure that the correct 
+   snapshot version is stated; for `dev-x.y` it should point to `x.y-SNAPSHOT`, while for `dev-master` 
+   it should point to the most recent snapshot version (i.e. `x.(y+1)-SNAPSHOT`).
+3. Update `.github/workflows/snapshot.yml` in `master` mapping each (supported) version to the right branch.
+
+### CI
+
+The `dev-master` branch is tested against nightly Flink snapshots for the next major Flink version. This allows us to
+develop features in tandem with Flink.
+
+The `dev-1.x` branches are tested against the latest corresponding minor Flink release, to ensure any changes we make
+are compatible with the currently used Flink version.
+
+Workflow for new Flink releases
+-------------------------------
+
+### Notes for new Flink major (x.y.0) releases
+
+There are additional steps required when a new Flink major version (x.y.0) is released.
+
+* Since only the current and previous major versions of Flink are supported, the Dockerfiles for
+  older versions must be removed when adding the new version to this repo
+
+### Release workflow
+
+When a new release of Flink is available, the Dockerfiles in the `master` branch should be updated and a new
+manifest sent to the Docker Library [`official-images`](
+https://github.com/docker-library/official-images) repo.
+
+The Dockerfiles are generated on the respective `dev-<version>` branches, and copied over to the `master` branch for
+publishing.
+
+Updating the Dockerfiles involves the following steps:
+
+1. Generate the Dockerfiles
+    * Checkout the `dev-x.y`(minor release)/`dev-master`(major release) branch of the respective release, e.g., dev-1.9
+    * Update `add-version.sh` with the GPG key ID of the key used to sign the new release
+        * Be sure to use the full fingerprint of the GPG key (as shown in the example below), as the official images require this.
+        * Commit this change with message `Add GPG key for x.y.z release` <sup>\[[example](
+            https://github.com/apache/flink-docker/commit/94845f46c0f0f2de80d4a5ce309db49aff4655d0)]</sup>
+    * Create a pull request against the `dev-x.y`/`dev-master` branch containing this commit.
+    * Run `add-version.sh` with the appropriate arguments (`-r flink-major-version -f flink-full-version`)
+        * e.g. `./add-version.sh -r 1.2 -f 1.2.1`
+2. Update Dockerfiles on the the `master` branch
+    * Remove any existing Dockerfiles from the same major version
+        * e.g. `rm -r 1.2`, if the new Flink version is `1.2.1`
+    * Remove any not-supported versions (i.e. versions that are not meant to be released anymore)
+    * Copy the generated Dockerfiles from the `dev-x.y`/`dev-master` branch to `master`
+    * Commit the changes with message `Update Dockerfiles for x.y.z release` <sup>\[[example](
+      https://github.com/apache/flink-docker/commit/5920fd775ca1a8d03ee959d79bceeb5d6e8f35a1)]</sup>
+    * Create a pull request against the `master` branch containing this commit.
+
+Once the pull request has been merged, we can release the new docker images:
+
+For **publishing to DockerHub: apache/flink** , you need to perform the following steps:
+
+1. Make sure that you are authenticated with your Docker ID, and that your Docker ID has access to `apache/flink`: `docker login -u <username>`
+   1. If you do not have access, you should seek help via the mailing list. 
+      We have a limited number of seats which are full, see [INFRA-23623](https://issues.apache.org/jira/browse/INFRA-23623) for more information. See also [INFRA-21276](https://issues.apache.org/jira/browse/INFRA-21276).
+2. Generate and upload the new images: `./publish-to-dockerhub.sh`. (Do not execute on the arm platform machine, such as Apple Silicon)
+
+For **publishing as an official image**, a new manifest should be generated and a pull request opened
+on the Docker Library [`official-images`](https://github.com/docker-library/official-images) repo.
+
+1. Run `./generate-stackbrew-library.sh` to output the new manifest (see note [below](
+   #stackbrew-manifest) regarding usage of this script)
+2. In a clone of the [`official-images`](https://github.com/docker-library/official-images) repo,
+   overwrite the file `library/flink` with the new manifest
+3. Commit this change with message `Update to Flink x.y.z` <sup>\[[example](
+   https://github.com/docker-library/official-images/commit/396d6cfa03c4e6b41d3ba5b7c402d7b25f1db415
+   )]</sup>
+
+A pull request can then be opened on the [`official-images`](
+https://github.com/docker-library/official-images) repo with the new manifest. <sup>\[[example](
+https://github.com/docker-library/official-images/pull/10665)]</sup>
+
+Once the pull request has been merged (often within 1 business day), the new images will be
+available shortly thereafter.
+
+### Release checklist
+
+Checklist for the `dev` branch:
+- [ ] The GPG key ID of the key used to sign the release has been added to `add-version.sh` and
+      committed with the message `Add GPG key for x.y.z release`
+- [ ] `./add-version.sh -r x.y -f x.y.z` has been run on the respective dev branch
+
+Checklist for the `master` branch:
+- [ ] `.github/workflows/snapshot.yml` in `master` has each supported version being mapped to the right branch.
+  Deprecated versions should have been removed.
+- [ ] _(new major releases only)_ any unsupported Flink major version Dockerfiles have been removed
+      (only two `x.y/` directories should be present)
+- [ ] _(new minor releases only)_ any existing generated files for the same major version have been
+      removed
+- [ ] The updated Dockerfiles have been committed with the message `Update Dockerfiles for x.y.z release`
+- [ ] A pull request with the above changes has been opened on this repo and merged
+- [ ] The new library manifest has been generated with `generate-stackbrew-library.sh` and a pull
+      request opened on the `official-images` repo with commit message `Update to Flink x.y.z`
+
+
+### Stackbrew Manifest
+
+`generate-stackbrew-library.sh` is used to generate the library manifest file required for official
+Docker Hub images.
+
+When the Dockerfiles in this repo are updated, the output of this script should replace the contents
+of `library/flink` in the Docker [official-images](https://github.com/docker-library/official-images
+) repo via a pull request.
+
+Note: Since this script requires the `bashbrew` binary and a compatible version of Bash, the script
+`generate-stackbrew-library-docker.sh` can be executed on developer's local machine and it will invoke 
+the script in a Docker container, which will be pulled from the internet automatically, with the necessary dependencies.
+
+Example([official-images](https://github.com/docker-library/official-images) repo has been cloned locally):
+
+    ./generate-stackbrew-library-docker.sh > /path/to/official-images/library/flink
+
+
+License
+-------
+
+Licensed under the Apache License, Version 2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+Apache Flink, Flink®, Apache®, the squirrel logo, and the Apache feather logo are either
+registered trademarks or trademarks of The Apache Software Foundation.
+
+
+---
+File: .github\workflows\docker-bake.hcl
+Size: 1291 bytes
+Lines: 36
+---
+################################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+variable TAG {
+    default = "latest-snapshot"
+}
+
+variable DOCKER_FILE {
+    default = "Dockerfile"
+}
+
+target "bake-platform" {
+  inherits = ["docker-metadata-action"]
+  dockerfile = "$DOCKER_FILE"
+  context = "./"
+  tags = ["${TAG}"]
+  platforms = [
+    "linux/amd64",
+    "linux/arm64/v8",
+  ]
+}
+
+---
+File: .github\workflows\docker_push.yml
+Size: 5943 bytes
+Lines: 158
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: "Build and Push Docker Images"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - 'dev-*'
+    tags:
+      - '*-*.*'
+  pull_request:
+    branches:
+      - master
+      - 'dev-*'
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: ${{ github.repository_owner }}
+  IMAGE_REPO: flink-docker
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Flink 1.20.x
+          - flink_version: "1.20"
+            java_version: "8"
+            dockerfile: "1.20/scala_2.12-java8-ubuntu/Dockerfile"
+          - flink_version: "1.20"
+            java_version: "11"
+            dockerfile: "1.20/scala_2.12-java11-ubuntu/Dockerfile"
+          - flink_version: "1.20"
+            java_version: "17"
+            dockerfile: "1.20/scala_2.12-java17-ubuntu/Dockerfile"
+          # Flink 2.0.x
+          - flink_version: "2.0"
+            java_version: "11"
+            dockerfile: "2.0/scala_2.12-java11-ubuntu/Dockerfile"
+          - flink_version: "2.0"
+            java_version: "17"
+            dockerfile: "2.0/scala_2.12-java17-ubuntu/Dockerfile"
+          - flink_version: "2.0"
+            java_version: "21"
+            dockerfile: "2.0/scala_2.12-java21-ubuntu/Dockerfile"
+          # Flink 2.1.x
+          - flink_version: "2.1"
+            java_version: "11"
+            dockerfile: "2.1/scala_2.12-java11-ubuntu/Dockerfile"
+          - flink_version: "2.1"
+            java_version: "17"
+            dockerfile: "2.1/scala_2.12-java17-ubuntu/Dockerfile"
+          - flink_version: "2.1"
+            java_version: "21"
+            dockerfile: "2.1/scala_2.12-java21-ubuntu/Dockerfile"
+          # Flink 2.2.x (Latest)
+          - flink_version: "2.2"
+            java_version: "11"
+            dockerfile: "2.2/scala_2.12-java11-ubuntu/Dockerfile"
+          - flink_version: "2.2"
+            java_version: "17"
+            dockerfile: "2.2/scala_2.12-java17-ubuntu/Dockerfile"
+          - flink_version: "2.2"
+            java_version: "21"
+            dockerfile: "2.2/scala_2.12-java21-ubuntu/Dockerfile"
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine image tags
+        id: meta
+        run: |
+          FLINK_VERSION="${{ matrix.flink_version }}"
+          JAVA_VERSION="${{ matrix.java_version }}"
+
+          # Read full version from Dockerfile (e.g., 2.1.1)
+          # Extract from FLINK_TGZ_URL which contains the version
+          DOCKERFILE_PATH="${{ matrix.dockerfile }}"
+          FULL_VERSION=$(grep "FLINK_TGZ_URL=" "$DOCKERFILE_PATH" | head -1 | sed -E 's/.*flink-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+
+          if [ -z "$FULL_VERSION" ]; then
+            echo "ERROR: Could not extract version from $DOCKERFILE_PATH"
+            exit 1
+          fi
+
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+
+          # Build base image name
+          BASE_TAG="${FULL_VERSION}-scala_2.12-java${JAVA_VERSION}"
+
+          # Determine tags based on event type
+          TAGS="${REGISTRY}/${OWNER}/${IMAGE_REPO}:${BASE_TAG}"
+
+          # Add branch-specific tags for branch pushes
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_type }}" = "branch" ]; then
+            BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+            TAGS="${TAGS},${REGISTRY}/${OWNER}/${IMAGE_REPO}:${BRANCH_NAME}-java${JAVA_VERSION}"
+            TAGS="${TAGS},${REGISTRY}/${OWNER}/${IMAGE_REPO}:${BRANCH_NAME}-${FLINK_VERSION}-java${JAVA_VERSION}"
+          fi
+
+          # Add git sha tag
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          TAGS="${TAGS},${REGISTRY}/${OWNER}/${IMAGE_REPO}:${BASE_TAG}-${SHORT_SHA}"
+
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+          echo "Image tags: $TAGS"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.flink_version }}/scala_2.12-java${{ matrix.java_version }}-ubuntu
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64/v8
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "✅ Successfully built and pushed Flink ${{ steps.meta.outputs.full_version }} with Java ${{ matrix.java_version }}"
+          echo "Tags:"
+          echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n' | sed 's/^/  - /'
+
+
+---
+File: .github\workflows\snapshot.yml
+Size: 3153 bytes
+Lines: 86
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: "Publish SNAPSHOTs"
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Deploy every day
+  workflow_dispatch:
+
+env:
+  REGISTRY:    ghcr.io
+  OWNER:       apache
+  IMAGE_REPO:  flink-docker
+
+jobs:
+  snapshot:
+    # Do not run for forks.
+    if: github.repository_owner == 'apache'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      max-parallel: 1
+      matrix:
+        java_version: [8, 11, 17, 21]
+        flink_version: [ 2.2-SNAPSHOT, 2.1-SNAPSHOT, 2.0-SNAPSHOT, 1.20-SNAPSHOT ]
+        include:
+          - flink_version: 2.2-SNAPSHOT
+            branch: dev-master
+          - flink_version: 2.1-SNAPSHOT
+            branch: dev-2.1
+          - flink_version: 2.0-SNAPSHOT
+            branch: dev-2.0
+          - flink_version: 1.20-SNAPSHOT
+            branch: dev-1.20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: "Set up QEMU"
+        uses: docker/setup-qemu-action@v3
+
+      - name: "Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v3
+
+      - name: "Log in to the Container registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Prepare Dockerfiles and set env"
+        run: |
+          IMAGE_NAME=${{ matrix.flink_version }}-scala_2.12-java${{ matrix.java_version }}
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+          echo "TAG=${REGISTRY}/${OWNER}/${IMAGE_REPO}:${IMAGE_NAME}-debian" >> $GITHUB_ENV
+          ./add-custom.sh -u "https://s3.amazonaws.com/flink-nightly/flink-${{ matrix.flink_version }}-bin-scala_2.12.tgz" -j ${{ matrix.java_version }} -n ${IMAGE_NAME}
+          echo "DOCKER_FILE=$(ls ./*/*${{ matrix.flink_version }}*${{ matrix.java_version }}*/Dockerfile)" >> $GITHUB_ENV
+
+      - name: "List environment variables"
+        run: env
+
+      - name: "Build and push Docker images (supported platforms)"
+        uses: docker/bake-action@v4
+        with:
+          files: |
+            .github/workflows/docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          targets: bake-platform
+          push: ${{ github.event_name != 'pull_request' }}
+
+
+---
+File: 1.20\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 1.20\scala_2.12-java11-ubuntu\Dockerfile
+Size: 4638 bytes
+Lines: 103
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:11-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-1.20.3/flink-1.20.3-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-1.20.3/flink-1.20.3-bin-scala_2.12.tgz.asc \
+    GPG_KEY=5EE2CDBE52BDDB9CCB1C63B6E6BAF9CFABD4ED71 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="$FLINK_HOME/conf/flink-conf.yaml"; \
+  if [ ! -e "$FLINK_HOME/conf/flink-conf.yaml" ]; then \
+    CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+    /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+        "-repKV" "rest.address,localhost,0.0.0.0" \
+        "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+        "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+        "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+        "-rmKV" "taskmanager.host=localhost"; \
+  else \
+    sed -i 's/rest.address: localhost/rest.address: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/rest.bind-address: localhost/rest.bind-address: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/jobmanager.bind-host: localhost/jobmanager.bind-host: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/taskmanager.bind-host: localhost/taskmanager.bind-host: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i '/taskmanager.host: localhost/d' "$CONF_FILE"; \
+  fi;
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 1.20\scala_2.12-java11-ubuntu\release.metadata
+Size: 211 bytes
+Lines: 2
+---
+Tags: 1.20.3-scala_2.12-java11, 1.20-scala_2.12-java11, scala_2.12-java11, 1.20.3-scala_2.12, 1.20-scala_2.12, scala_2.12, 1.20.3-java11, 1.20-java11, java11, 1.20.3, 1.20, latest
+Architectures: amd64,arm64v8
+
+
+---
+File: 1.20\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 1.20\scala_2.12-java17-ubuntu\Dockerfile
+Size: 4638 bytes
+Lines: 103
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:17-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-1.20.3/flink-1.20.3-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-1.20.3/flink-1.20.3-bin-scala_2.12.tgz.asc \
+    GPG_KEY=5EE2CDBE52BDDB9CCB1C63B6E6BAF9CFABD4ED71 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="$FLINK_HOME/conf/flink-conf.yaml"; \
+  if [ ! -e "$FLINK_HOME/conf/flink-conf.yaml" ]; then \
+    CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+    /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+        "-repKV" "rest.address,localhost,0.0.0.0" \
+        "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+        "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+        "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+        "-rmKV" "taskmanager.host=localhost"; \
+  else \
+    sed -i 's/rest.address: localhost/rest.address: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/rest.bind-address: localhost/rest.bind-address: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/jobmanager.bind-host: localhost/jobmanager.bind-host: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/taskmanager.bind-host: localhost/taskmanager.bind-host: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i '/taskmanager.host: localhost/d' "$CONF_FILE"; \
+  fi;
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 1.20\scala_2.12-java17-ubuntu\release.metadata
+Size: 141 bytes
+Lines: 2
+---
+Tags: 1.20.3-scala_2.12-java17, 1.20-scala_2.12-java17, scala_2.12-java17, 1.20.3-java17, 1.20-java17, java17
+Architectures: amd64,arm64v8
+
+
+---
+File: 1.20\scala_2.12-java8-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 1.20\scala_2.12-java8-ubuntu\Dockerfile
+Size: 4637 bytes
+Lines: 103
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:8-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-1.20.3/flink-1.20.3-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-1.20.3/flink-1.20.3-bin-scala_2.12.tgz.asc \
+    GPG_KEY=5EE2CDBE52BDDB9CCB1C63B6E6BAF9CFABD4ED71 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="$FLINK_HOME/conf/flink-conf.yaml"; \
+  if [ ! -e "$FLINK_HOME/conf/flink-conf.yaml" ]; then \
+    CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+    /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+        "-repKV" "rest.address,localhost,0.0.0.0" \
+        "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+        "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+        "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+        "-rmKV" "taskmanager.host=localhost"; \
+  else \
+    sed -i 's/rest.address: localhost/rest.address: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/rest.bind-address: localhost/rest.bind-address: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/jobmanager.bind-host: localhost/jobmanager.bind-host: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i 's/taskmanager.bind-host: localhost/taskmanager.bind-host: 0.0.0.0/g' "$CONF_FILE"; \
+    sed -i '/taskmanager.host: localhost/d' "$CONF_FILE"; \
+  fi;
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 1.20\scala_2.12-java8-ubuntu\release.metadata
+Size: 135 bytes
+Lines: 2
+---
+Tags: 1.20.3-scala_2.12-java8, 1.20-scala_2.12-java8, scala_2.12-java8, 1.20.3-java8, 1.20-java8, java8
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.0\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 2.0\scala_2.12-java11-ubuntu\Dockerfile
+Size: 4057 bytes
+Lines: 94
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:11-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz.asc \
+    GPG_KEY=E60A9680590FF0FF13B9DE01224C2311410823C4 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.0\scala_2.12-java11-ubuntu\release.metadata
+Size: 137 bytes
+Lines: 2
+---
+Tags: 2.0.1-scala_2.12-java11, 2.0-scala_2.12-java11, scala_2.12-java11, 2.0.1-java11, 2.0-java11, java11
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.0\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 2.0\scala_2.12-java17-ubuntu\Dockerfile
+Size: 4057 bytes
+Lines: 94
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:17-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz.asc \
+    GPG_KEY=E60A9680590FF0FF13B9DE01224C2311410823C4 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.0\scala_2.12-java17-ubuntu\release.metadata
+Size: 203 bytes
+Lines: 2
+---
+Tags: 2.0.1-scala_2.12-java17, 2.0-scala_2.12-java17, scala_2.12-java17, 2.0.1-scala_2.12, 2.0-scala_2.12, scala_2.12, 2.0.1-java17, 2.0-java17, java17, 2.0.1, 2.0, latest
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.0\scala_2.12-java21-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 2.0\scala_2.12-java21-ubuntu\Dockerfile
+Size: 4057 bytes
+Lines: 94
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:21-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz.asc \
+    GPG_KEY=E60A9680590FF0FF13B9DE01224C2311410823C4 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.0\scala_2.12-java21-ubuntu\release.metadata
+Size: 137 bytes
+Lines: 2
+---
+Tags: 2.0.1-scala_2.12-java21, 2.0-scala_2.12-java21, scala_2.12-java21, 2.0.1-java21, 2.0-java21, java21
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.1\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 2.1\scala_2.12-java11-ubuntu\Dockerfile
+Size: 4057 bytes
+Lines: 94
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:11-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.1.1/flink-2.1.1-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.1.1/flink-2.1.1-bin-scala_2.12.tgz.asc \
+    GPG_KEY=5EAD34D67F105064591085E4AA69A48B2A51091D \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.1\scala_2.12-java11-ubuntu\release.metadata
+Size: 137 bytes
+Lines: 2
+---
+Tags: 2.1.1-scala_2.12-java11, 2.1-scala_2.12-java11, scala_2.12-java11, 2.1.1-java11, 2.1-java11, java11
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.1\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 2.1\scala_2.12-java17-ubuntu\Dockerfile
+Size: 4057 bytes
+Lines: 94
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:17-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.1.1/flink-2.1.1-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.1.1/flink-2.1.1-bin-scala_2.12.tgz.asc \
+    GPG_KEY=5EAD34D67F105064591085E4AA69A48B2A51091D \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.1\scala_2.12-java17-ubuntu\release.metadata
+Size: 203 bytes
+Lines: 2
+---
+Tags: 2.1.1-scala_2.12-java17, 2.1-scala_2.12-java17, scala_2.12-java17, 2.1.1-scala_2.12, 2.1-scala_2.12, scala_2.12, 2.1.1-java17, 2.1-java17, java17, 2.1.1, 2.1, latest
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.1\scala_2.12-java21-ubuntu\docker-entrypoint.sh
+Size: 6170 bytes
+Lines: 190
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+drop_privs_cmd() {
+    if [ $(id -u) != 0 ]; then
+        # Don't need to drop privs if EUID != 0
+        return
+    elif [ -x /sbin/su-exec ]; then
+        # Alpine
+        echo su-exec flink
+    else
+        # Others
+        echo gosu flink
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec $(drop_privs_cmd) "${args[@]}"
+
+
+---
+File: 2.1\scala_2.12-java21-ubuntu\Dockerfile
+Size: 4057 bytes
+Lines: 94
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:21-jre-jammy
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Grab gosu for easy step-down from root
+ENV GOSU_VERSION 1.11
+RUN set -ex; \
+  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
+  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in hkps://keys.openpgp.org $(shuf -e \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done && \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  gpgconf --kill all; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.1.1/flink-2.1.1-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.1.1/flink-2.1.1-bin-scala_2.12.tgz.asc \
+    GPG_KEY=5EAD34D67F105064591085E4AA69A48B2A51091D \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.1\scala_2.12-java21-ubuntu\release.metadata
+Size: 137 bytes
+Lines: 2
+---
+Tags: 2.1.1-scala_2.12-java21, 2.1-scala_2.12-java21, scala_2.12-java21, 2.1.1-java21, 2.1-java21, java21
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.2\scala_2.12-java11-ubuntu\docker-entrypoint.sh
+Size: 6006 bytes
+Lines: 185
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+check_priv_user() {
+    if [ $(id -u) == 0 ]; then
+        echo "WARNING: Running as root user is not recommended. Please use a non-root user to run Flink."
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+check_priv_user
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec "${args[@]}"
+
+
+---
+File: 2.2\scala_2.12-java11-ubuntu\Dockerfile
+Size: 3131 bytes
+Lines: 77
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:11-jre-noble
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.2.0/flink-2.2.0-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.2.0/flink-2.2.0-bin-scala_2.12.tgz.asc \
+    GPG_KEY=7BC9FA3EBE7E3DC7CD0EA0454C09617EAF241D76 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+USER flink
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.2\scala_2.12-java11-ubuntu\release.metadata
+Size: 137 bytes
+Lines: 2
+---
+Tags: 2.2.0-scala_2.12-java11, 2.2-scala_2.12-java11, scala_2.12-java11, 2.2.0-java11, 2.2-java11, java11
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.2\scala_2.12-java17-ubuntu\docker-entrypoint.sh
+Size: 6006 bytes
+Lines: 185
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+check_priv_user() {
+    if [ $(id -u) == 0 ]; then
+        echo "WARNING: Running as root user is not recommended. Please use a non-root user to run Flink."
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+check_priv_user
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec "${args[@]}"
+
+
+---
+File: 2.2\scala_2.12-java17-ubuntu\Dockerfile
+Size: 3131 bytes
+Lines: 77
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:17-jre-noble
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.2.0/flink-2.2.0-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.2.0/flink-2.2.0-bin-scala_2.12.tgz.asc \
+    GPG_KEY=7BC9FA3EBE7E3DC7CD0EA0454C09617EAF241D76 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+USER flink
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.2\scala_2.12-java17-ubuntu\release.metadata
+Size: 203 bytes
+Lines: 2
+---
+Tags: 2.2.0-scala_2.12-java17, 2.2-scala_2.12-java17, scala_2.12-java17, 2.2.0-scala_2.12, 2.2-scala_2.12, scala_2.12, 2.2.0-java17, 2.2-java17, java17, 2.2.0, 2.2, latest
+Architectures: amd64,arm64v8
+
+
+---
+File: 2.2\scala_2.12-java21-ubuntu\docker-entrypoint.sh
+Size: 6006 bytes
+Lines: 185
+---
+#!/usr/bin/env bash
+
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+COMMAND_STANDALONE="standalone-job"
+COMMAND_HISTORY_SERVER="history-server"
+
+# If unspecified, the hostname of the container is taken as the JobManager address
+JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
+CONF_FILE_DIR="${FLINK_HOME}/conf"
+
+check_priv_user() {
+    if [ $(id -u) == 0 ]; then
+        echo "WARNING: Running as root user is not recommended. Please use a non-root user to run Flink."
+    fi
+}
+
+copy_plugins_if_required() {
+  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
+    return 0
+  fi
+
+  echo "Enabling required built-in plugins"
+  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
+    echo "Linking ${target_plugin} to plugin directory"
+    plugin_name=${target_plugin%.jar}
+
+    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
+    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
+      echo "Plugin ${target_plugin} does not exist. Exiting."
+      exit 1
+    else
+      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
+      echo "Successfully enabled ${target_plugin}"
+    fi
+  done
+}
+
+set_config_options() {
+    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
+    local config_dir="$FLINK_HOME/conf"
+    local bin_dir="$FLINK_HOME/bin"
+    local lib_dir="$FLINK_HOME/lib"
+
+    local config_params=()
+
+    while [ $# -gt 0 ]; do
+        local key="$1"
+        local value="$2"
+
+        config_params+=("-D${key}=${value}")
+
+        shift 2
+    done
+
+    if [ "${#config_params[@]}" -gt 0 ]; then
+        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
+    fi
+}
+
+prepare_configuration() {
+    local config_options=()
+
+    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
+    config_options+=("blob.server.port" "6124")
+    config_options+=("query.server.port" "6125")
+
+    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
+        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
+    fi
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+
+    if [ -n "${FLINK_PROPERTIES}" ]; then
+        process_flink_properties "${FLINK_PROPERTIES}"
+    fi
+}
+
+process_flink_properties() {
+    local flink_properties_content=$1
+    local config_options=()
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+    for prop in $flink_properties_content; do
+        prop=$(echo $prop | tr -d '[:space:]')
+
+        if [ -z "$prop" ]; then
+            continue
+        fi
+
+        IFS=':' read -r key value <<< "$prop"
+
+        value=$(echo $value | envsubst)
+
+        config_options+=("$key" "$value")
+    done
+    IFS="$OLD_IFS"
+
+    if [ ${#config_options[@]} -ne 0 ]; then
+        set_config_options "${config_options[@]}"
+    fi
+}
+
+maybe_enable_jemalloc() {
+    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
+        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
+        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
+        if [ -f "$JEMALLOC_PATH" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
+        elif [ -f "$JEMALLOC_FALLBACK" ]; then
+            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
+        else
+            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
+                MSG_PATH=$JEMALLOC_PATH
+            else
+                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
+            fi
+            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
+        fi
+    fi
+}
+
+check_priv_user
+
+maybe_enable_jemalloc
+
+copy_plugins_if_required
+
+prepare_configuration
+
+args=("$@")
+if [ "$1" = "help" ]; then
+    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
+    printf "    Or $(basename "$0") help\n\n"
+    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
+    exit 0
+elif [ "$1" = "jobmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_STANDALONE} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Job Manager"
+
+    exec "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
+elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting History Server"
+
+    exec "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
+elif [ "$1" = "taskmanager" ]; then
+    args=("${args[@]:1}")
+
+    echo "Starting Task Manager"
+
+    exec "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
+fi
+
+args=("${args[@]}")
+
+# Running command in pass-through mode
+exec "${args[@]}"
+
+
+---
+File: 2.2\scala_2.12-java21-ubuntu\Dockerfile
+Size: 3131 bytes
+Lines: 77
+---
+###############################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+###############################################################################
+
+FROM eclipse-temurin:21-jre-noble
+
+# Install dependencies
+RUN set -ex; \
+  apt-get update; \
+  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
+  rm -rf /var/lib/apt/lists/*
+
+# Configure Flink version
+ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.2.0/flink-2.2.0-bin-scala_2.12.tgz \
+    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.2.0/flink-2.2.0-bin-scala_2.12.tgz.asc \
+    GPG_KEY=7BC9FA3EBE7E3DC7CD0EA0454C09617EAF241D76 \
+    CHECK_GPG=true
+
+# Prepare environment
+ENV FLINK_HOME=/opt/flink
+ENV PATH=$FLINK_HOME/bin:$PATH
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
+WORKDIR $FLINK_HOME
+
+# Install Flink
+RUN set -ex; \
+  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
+  \
+  if [ "$CHECK_GPG" = "true" ]; then \
+    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    for server in hkps://keys.openpgp.org $(shuf -e \
+                            keyserver.ubuntu.com \
+                            hkp://keyserver.ubuntu.com:80 \
+                            pgp.mit.edu) ; do \
+        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
+    done && \
+    gpg --batch --verify flink.tgz.asc flink.tgz; \
+    gpgconf --kill all; \
+    rm -rf "$GNUPGHOME" flink.tgz.asc; \
+  fi; \
+  \
+  tar -xf flink.tgz --strip-components=1; \
+  rm flink.tgz; \
+  \
+  chown -R flink:flink .; \
+  \
+  # Replace default REST/RPC endpoint bind address to use the container's network interface \
+  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
+  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
+    "-repKV" "rest.address,localhost,0.0.0.0" \
+    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
+    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
+    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
+    "-rmKV" "taskmanager.host=localhost";
+
+# Configure container
+USER flink
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
+EXPOSE 6123 8081
+CMD ["help"]
+
+
+---
+File: 2.2\scala_2.12-java21-ubuntu\release.metadata
+Size: 137 bytes
+Lines: 2
+---
+Tags: 2.2.0-scala_2.12-java21, 2.2-scala_2.12-java21, scala_2.12-java21, 2.2.0-java21, 2.2-java21, java21
+Architectures: amd64,arm64v8
+
