@@ -1,0 +1,2712 @@
+Tokens: 21905
+Repo: apache/cordova-plugin-battery-status
+Commit: 752759d8162df31bc5387e490a105299f66d9e12
+Timestamp: 2026-03-04T19:37:16.583105
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .eslintrc.yml
+├── .gitattributes
+├── .github
+│   ├── ISSUE_TEMPLATE
+│   │   ├── BUG_REPORT.md
+│   │   ├── FEATURE_REQUEST.md
+│   │   └── SUPPORT_QUESTION.md
+│   ├── ISSUE_TEMPLATE.md
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows
+│       ├── android.yml
+│       ├── chrome.yml
+│       ├── ios.yml
+│       └── lint.yml
+├── .gitignore
+├── .npmignore
+├── CONTRIBUTING.md
+├── LICENSE
+├── NOTICE
+├── README.md
+├── RELEASENOTES.md
+├── package-lock.json
+├── package.json
+├── plugin.xml
+├── src
+│   ├── android
+│   │   └── BatteryListener.java
+│   ├── browser
+│   │   └── BatteryProxy.js
+│   └── ios
+│       ├── CDVBattery.h
+│       └── CDVBattery.m
+├── tests
+│   ├── package.json
+│   ├── plugin.xml
+│   └── tests.js
+├── types
+│   └── index.d.ts
+└── www
+    └── battery.js
+
+--- Summary Report ---
+Total files scanned: 31
+Files included: 30
+Files skipped by rule: 0
+Files skipped by size: 1
+Detected languages count: 11
+Top 15 largest included files:
+  16349 bytes - tests/tests.js
+  11357 bytes - LICENSE
+  10601 bytes - RELEASENOTES.md
+  6100 bytes - .github/workflows/android.yml
+  5647 bytes - src/android/BatteryListener.java
+  5556 bytes - src/ios/CDVBattery.m
+  4149 bytes - README.md
+  3902 bytes - www/battery.js
+  3517 bytes - .github/workflows/ios.yml
+  3050 bytes - types/index.d.ts
+  2805 bytes - src/browser/BatteryProxy.js
+  2445 bytes - .github/workflows/chrome.yml
+  2366 bytes - plugin.xml
+  1469 bytes - .github/workflows/lint.yml
+  1403 bytes - .asf.yaml
+-----------------------
+
+---
+File: .npmignore
+Size: 9 bytes
+Lines: 2
+---
+.*
+tests
+
+
+---
+File: .asf.yaml
+Size: 1403 bytes
+Lines: 48
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+github:
+  description: Apache Cordova Battery Status Plugin
+  homepage: https://cordova.apache.org/
+
+  labels:
+    - android
+    - cordova
+    - hacktoberfest
+    - ios
+    - java
+    - javascript
+    - library
+    - mobile
+    - nodejs
+    - objective-c
+
+  features:
+    wiki: false
+    issues: true
+    projects: true
+
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: false
+
+notifications:
+  commits:              commits@cordova.apache.org
+  issues:               issues@cordova.apache.org
+  pullrequests_status:  issues@cordova.apache.org
+  pullrequests_comment: issues@cordova.apache.org
+
+
+---
+File: .eslintrc.yml
+Size: 927 bytes
+Lines: 23
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+root: true
+extends: "@cordova/eslint-config/browser"
+
+overrides:
+  - files: [tests/**/*.js]
+    extends: "@cordova/eslint-config/node-tests"
+
+
+---
+File: LICENSE
+Size: 11357 bytes
+Lines: 202
+---
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+---
+File: plugin.xml
+Size: 2366 bytes
+Lines: 63
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+      id="cordova-plugin-battery-status"
+      version="3.0.0-dev">
+    <name>Battery</name>
+    <description>Cordova Battery Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,battery</keywords>
+    <repo>https://github.com/apache/cordova-plugin-battery-status</repo>
+    <issue>https://github.com/apache/cordova-plugin-battery-status/issues</issue>
+
+    <js-module src="www/battery.js" name="battery">
+        <clobbers target="navigator.battery" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Battery" >
+                <param name="android-package" value="org.apache.cordova.batterystatus.BatteryListener"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/BatteryListener.java" target-dir="src/org/apache/cordova/batterystatus" />
+    </platform>
+
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Battery">
+                <param name="ios-package" value="CDVBattery" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/CDVBattery.h" />
+	    <source-file src="src/ios/CDVBattery.m" />
+    </platform>
+
+    <!-- browser -->
+    <platform name="browser">
+        <js-module src="src/browser/BatteryProxy.js" name="Battery">
+            <runs />
+        </js-module>
+    </platform>
+</plugin>
+
+
+---
+File: RELEASENOTES.md
+Size: 10601 bytes
+Lines: 161
+---
+<!--
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+-->
+
+# Release Notes
+
+### 2.0.3 (Jun 19, 2019)
+
+-   build: add `.gitattributes` to force LF (instead of possible CRLF on Windows) ([`aded849`](https://github.com/apache/cordova-plugin-battery-status/commit/aded849))
+-   build: add `.npmignore` to remove unneeded files from npm package ([`55bca62`](https://github.com/apache/cordova-plugin-battery-status/commit/55bca62))
+-   fix(types): remove version number ([`56b3d6c`](https://github.com/apache/cordova-plugin-battery-status/commit/56b3d6c))
+-   chore: update github repo and issue link in plugin.xml ([`9c5c510`](https://github.com/apache/cordova-plugin-battery-status/commit/9c5c510))
+-   docs: remove outdated translations ([`fb13300`](https://github.com/apache/cordova-plugin-battery-status/commit/fb13300))
+-   ci(travis): Update Travis CI configuration for new paramedic ([#75](https://github.com/apache/cordova-plugin-battery-status/issues/75)) ([`58a3c2d`](https://github.com/apache/cordova-plugin-battery-status/commit/58a3c2d))
+-   feat: update typings ([#72](https://github.com/apache/cordova-plugin-battery-status/issues/72)) ([`41d35b7`](https://github.com/apache/cordova-plugin-battery-status/commit/41d35b7))
+-   chore: drop Node.js v4 support ([#73](https://github.com/apache/cordova-plugin-battery-status/issues/73)) ([`83c6e44`](https://github.com/apache/cordova-plugin-battery-status/commit/83c6e44))
+-   chore(github): Add or update GitHub pull request and issue template ([`9c272a6`](https://github.com/apache/cordova-plugin-battery-status/commit/9c272a6))
+-   ci(travis): add android-27 to `android update sdk -u --filter` ([`53beb6d`](https://github.com/apache/cordova-plugin-battery-status/commit/53beb6d))
+
+### 2.0.2 (Apr 12, 2018)
+* [CB-10645](https://issues.apache.org/jira/browse/CB-10645) The battery status handler doesn't reinitialize on **Android** after `window.location.reload()`. Instead of throwing an error, rather remove the status handler and re-initialize.
+
+### 2.0.1 (Dec 27, 2017)
+* [CB-13700](https://issues.apache.org/jira/browse/CB-13700) Fix to allow 2.0.0 version install (#62)
+
+### 2.0.0 (Dec 15, 2017)
+* [CB-13667](https://issues.apache.org/jira/browse/CB-13667): Remove deprecated platforms
+
+### 1.2.5 (Nov 06, 2017)
+* [CB-13299](https://issues.apache.org/jira/browse/CB-13299) (CI) Fix **Android** builds
+* [CB-12895](https://issues.apache.org/jira/browse/CB-12895) added `eslint` and removed `jshint`
+* [CB-13028](https://issues.apache.org/jira/browse/CB-13028) (CI) Added **Browser** platform to Travis
+* [CB-13000](https://issues.apache.org/jira/browse/CB-13000) (CI) Speed up **Android** builds
+* [CB-12991](https://issues.apache.org/jira/browse/CB-12991) (CI) Updated CI badges
+* [CB-12847](https://issues.apache.org/jira/browse/CB-12847) added `bugs` entry to `package.json`.
+
+### 1.2.4 (Apr 27, 2017)
+* [CB-12622](https://issues.apache.org/jira/browse/CB-12622) (Android) Added **Android 6.0** build badge
+* [CB-12685](https://issues.apache.org/jira/browse/CB-12685) added `package.json` to tests folder
+* [CB-12639](https://issues.apache.org/jira/browse/CB-12639) (all) Tests: console.err() -> console.error()
+
+### 1.2.3 (Feb 28, 2017)
+* [CB-12369](https://issues.apache.org/jira/browse/CB-12369) Add plugin typings from `DefinitelyTyped`
+* [CB-12363](https://issues.apache.org/jira/browse/CB-12363) Added build badges for **iOS 9.3** and **iOS 10.0**
+
+### 1.2.2 (Dec 12, 2016)
+* [CB-12227](https://issues.apache.org/jira/browse/CB-12227) (windows) Fixed Browserify error
+* [CB-12236](https://issues.apache.org/jira/browse/CB-12236) - Fix RELEASENOTES.md for cordova-plugin-battery-status
+* [CB-12230](https://issues.apache.org/jira/browse/CB-12230) Removed Windows 8.1 build badges
+* [CB-12224](https://issues.apache.org/jira/browse/CB-12224) Incremented plugin version.
+
+### 1.2.1 (Dec 07, 2016)
+
+* [CB-12224](https://issues.apache.org/jira/browse/CB-12224) Updated version and RELEASENOTES.md for release 1.2.1
+* [CB-8929](https://issues.apache.org/jira/browse/CB-8929) Fix failing tests on iOS
+* [CB-8929](https://issues.apache.org/jira/browse/CB-8929) Use PowerManager to get battery state on Win 10
+* [CB-11917](https://issues.apache.org/jira/browse/CB-11917) - Remove pull request template checklist item: "iCLA has been submitted…"
+* [CB-11832](https://issues.apache.org/jira/browse/CB-11832) Incremented plugin version.
+
+### 1.2.0 (Sep 08, 2016)
+* [CB-11795](https://issues.apache.org/jira/browse/CB-11795) Add 'protective' entry to cordovaDependencies
+* Plugin uses Android Log class and not Cordova LOG class
+* Add badges for paramedic builds on Jenkins
+* Add pull request template.
+* [CB-10996](https://issues.apache.org/jira/browse/CB-10996) Adding front matter to README.md
+
+### 1.1.2 (Apr 15, 2016)
+* [CB-10720](https://issues.apache.org/jira/browse/CB-10720) Reorganizing and rewording docs.
+* [CB-10636](https://issues.apache.org/jira/browse/CB-10636) Add JSHint for plugins
+
+### 1.1.1 (Nov 18, 2015)
+* [CB-10035](https://issues.apache.org/jira/browse/CB-10035) Updated `RELEASENOTES` to be newest to oldest
+* Fixing contribute link.
+
+### 1.1.0 (Jun 17, 2015)
+* added missing license headers
+* [CB-7953](https://issues.apache.org/jira/browse/CB-7953) Add cordova-plugin-battery-status support for browser platform
+* [CB-9128](https://issues.apache.org/jira/browse/CB-9128) cordova-plugin-battery-status documentation translation: cordova-plugin-battery-status
+* attempt to fix npm issue
+
+### 1.0.0 (Apr 15, 2015)
+* [CB-8746](https://issues.apache.org/jira/browse/CB-8746) gave plugin major version bump
+* [CB-8808](https://issues.apache.org/jira/browse/CB-8808) Fixed tests to pass on Windows Phone 8.1
+* [CB-8831](https://issues.apache.org/jira/browse/CB-8831) Adds extra check for available API on Windows
+* [CB-8653](https://issues.apache.org/jira/browse/CB-8653) properly updated translated docs to use new id
+* [CB-8683](https://issues.apache.org/jira/browse/CB-8683) changed plugin-id to pacakge-name
+* [CB-8653](https://issues.apache.org/jira/browse/CB-8653) updated translated docs to use new id
+* Use TRAVIS_BUILD_DIR, install paramedic by npm
+* Doc correction, Use the apostrophe to show possession
+* Fix travis+paramedic pathing issue
+* add Android+FireOS warning to tell devs that prolonged use will drain the battery.
+* [CB-7971](https://issues.apache.org/jira/browse/CB-7971) Add cordova-plugin-battery-status support for Windows Phone 8.1
+* [CB-8659](https://issues.apache.org/jira/browse/CB-8659): ios: 4.0.x Compatibility: Remove use of initWithWebView method
+* added apache/travis badge - will not show until INFRA updates the github integration
+* add travis.yml for CI with paramedic
+* [CB-8538](https://issues.apache.org/jira/browse/CB-8538) Added package.json file
+
+### 0.2.12 (Dec 02, 2014)
+* [CB-7976](https://issues.apache.org/jira/browse/CB-7976) Android: Use webView's context rather than Activity's context for intent receiver
+* [CB-7700](https://issues.apache.org/jira/browse/CB-7700) cordova-plugin-battery-status documentation translation: cordova-plugin-battery-status
+* [CB-7571](https://issues.apache.org/jira/browse/CB-7571) Bump version of nested plugin to match parent plugin
+
+### 0.2.11 (Sep 17, 2014)
+* [CB-7249](https://issues.apache.org/jira/browse/CB-7249) cordova-plugin-battery-status documentation translation: cordova-plugin-battery-status
+* [CB-6724](https://issues.apache.org/jira/browse/CB-6724) re-add accidental removed of var keyword
+* [CB-6957](https://issues.apache.org/jira/browse/CB-6957) renamed folder to tests + added nested plugin.xml
+* added documentation for manual tests
+* [CB-6957](https://issues.apache.org/jira/browse/CB-6957) Style improvements on Manual tests
+
+### 0.2.10 (Aug 06, 2014)
+* [CB-6957](https://issues.apache.org/jira/browse/CB-6957) Ported Battery-status manual & automated
+* [CB-6127](https://issues.apache.org/jira/browse/CB-6127) Updated translations for docs
+
+### 0.2.9 (Jun 05, 2014)
+* [CB-6721](https://issues.apache.org/jira/browse/CB-6721) Test for batterycritical change before batterylow change
+* [CB-5611](https://issues.apache.org/jira/browse/CB-5611) firefoxos: battery-status plugin support added
+* [CB-4519](https://issues.apache.org/jira/browse/CB-4519), [CB-4520](https://issues.apache.org/jira/browse/CB-4520) low+critical weren't firing when level went from 21->19, and were when level went 19->20
+* [CB-6491](https://issues.apache.org/jira/browse/CB-6491) add CONTRIBUTING.md
+
+### 0.2.8 (Apr 17, 2014)
+* [CB-6465](https://issues.apache.org/jira/browse/CB-6465): Add license headers to Tizen code
+* [CB-6460](https://issues.apache.org/jira/browse/CB-6460): Update license headers
+* Add NOTICE file
+
+### 0.2.7 (Feb 05, 2014)
+* Add Tizen plugin.
+
+### 0.2.6 (Jan 02, 2014)
+* [CB-5658](https://issues.apache.org/jira/browse/CB-5658) Add doc/index.md for Battery Status.
+
+### 0.2.5 (Dec 4, 2013)
+* Merged WP8 support for level, but #def'd it out so the same code runs on wp7.  Updated docs to reflect WP8 support for battery level, and low+critical events
+* wp8 add support in level
+* add ubuntu platform
+* 1. Updated platform name amazon->amazon-fireos. Deleted src files. 2. Change to use amazon-fireos as the platform if user agent string contains 'cordova-amazon-fireos'
+
+### 0.2.4 (Oct 25, 2013)
+* [CB-5128](https://issues.apache.org/jira/browse/CB-5128): added repo + issue tag to plugin.xml for battery status plugin
+* [CB-4915](https://issues.apache.org/jira/browse/CB-4915) Incremented plugin version on dev branch.
+
+### 0.2.3 (Sept 25, 2013)
+* [CB-4889](https://issues.apache.org/jira/browse/CB-4889) bumping&resetting version
+* [CB-4752](https://issues.apache.org/jira/browse/CB-4752) Incremented plugin version on dev branch.
+* [CB-4889](https://issues.apache.org/jira/browse/CB-4889) renaming org.apache.cordova.core.battery-status to org.apache.cordova.battery-status
+
+
+---
+File: NOTICE
+Size: 163 bytes
+Lines: 5
+---
+Apache Cordova
+Copyright 2012 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+---
+File: README.md
+Size: 4149 bytes
+Lines: 107
+---
+---
+title: Battery Status
+description: Get events for device battery level.
+---
+<!--
+# license: Licensed to the Apache Software Foundation (ASF) under one
+#         or more contributor license agreements.  See the NOTICE file
+#         distributed with this work for additional information
+#         regarding copyright ownership.  The ASF licenses this file
+#         to you under the Apache License, Version 2.0 (the
+#         "License"); you may not use this file except in compliance
+#         with the License.  You may obtain a copy of the License at
+#
+#           http://www.apache.org/licenses/LICENSE-2.0
+#
+#         Unless required by applicable law or agreed to in writing,
+#         software distributed under the License is distributed on an
+#         "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#         KIND, either express or implied.  See the License for the
+#         specific language governing permissions and limitations
+#         under the License.
+-->
+
+# cordova-plugin-battery-status
+
+[![Android Testsuite](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/android.yml/badge.svg)](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/android.yml) [![Chrome Testsuite](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/chrome.yml/badge.svg)](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/chrome.yml) [![iOS Testsuite](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/ios.yml/badge.svg)](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/ios.yml) [![Lint Test](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/lint.yml/badge.svg)](https://github.com/apache/cordova-plugin-battery-status/actions/workflows/lint.yml)
+
+This plugin provides an implementation of an old version of the [Battery Status Events API][w3c_spec]. It adds the following three events to the `window` object:
+
+* batterystatus
+* batterycritical
+* batterylow
+
+Applications may use `window.addEventListener` to attach an event listener for any of the above events after the `deviceready` event fires.
+
+## Installation
+
+    cordova plugin add cordova-plugin-battery-status
+
+## Status object
+
+All events in this plugin return an object with the following properties:
+
+- __level__: The battery charge percentage (0-100). _(Number)_
+- __isPlugged__: A boolean that indicates whether the device is plugged in. _(Boolean)_
+
+## batterystatus event
+
+Fires when the battery charge percentage changes by at least 1 percent, or when the device is plugged in or unplugged. Returns an [object][status_object] containing battery status.
+
+### Example
+
+    window.addEventListener("batterystatus", onBatteryStatus, false);
+
+    function onBatteryStatus(status) {
+        console.log("Level: " + status.level + " isPlugged: " + status.isPlugged);
+    }
+
+### Supported Platforms
+
+- iOS
+- Android
+- Browser (Chrome, Firefox, Opera)
+
+### Quirks: Android
+
+**Warning**: the Android implementation is greedy and prolonged use will drain the device's battery.
+
+## batterylow event
+
+Fires when the battery charge percentage reaches the low charge threshold. This threshold value is device-specific. Returns an [object][status_object] containing battery status.
+
+### Example
+
+    window.addEventListener("batterylow", onBatteryLow, false);
+
+    function onBatteryLow(status) {
+        alert("Battery Level Low " + status.level + "%");
+    }
+
+### Supported Platforms
+
+- iOS
+- Android
+- Browser (Chrome, Firefox, Opera)
+
+## batterycritical event
+
+Fires when the battery charge percentage reaches the critical charge threshold. This threshold value is device-specific. Returns an [object][status_object] containing battery status.
+
+### Example
+
+    window.addEventListener("batterycritical", onBatteryCritical, false);
+
+    function onBatteryCritical(status) {
+        alert("Battery Level Critical " + status.level + "%\nRecharge Soon!");
+    }
+
+### Supported Platforms
+
+- iOS
+- Android
+- Browser (Chrome, Firefox, Opera)
+
+
+[w3c_spec]: https://www.w3.org/TR/battery-status/
+[status_object]: #status-object
+
+
+---
+File: .gitignore
+Size: 175 bytes
+Lines: 23
+---
+﻿#If ignorance is bliss, then somebody knock the smile off my face
+
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+*.DS_Store
+
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+node_modules
+
+
+
+
+
+
+
+ 
+
+---
+File: package.json
+Size: 851 bytes
+Lines: 39
+---
+{
+  "name": "cordova-plugin-battery-status",
+  "version": "3.0.0-dev",
+  "description": "Cordova Battery Plugin",
+  "types": "./types/index.d.ts",
+  "cordova": {
+    "id": "cordova-plugin-battery-status",
+    "platforms": [
+      "android",
+      "ios",
+      "browser"
+    ]
+  },
+  "repository": "github:apache/cordova-plugin-battery-status",
+  "bugs": "https://github.com/apache/cordova-plugin-battery-status/issues",
+  "keywords": [
+    "cordova",
+    "battery",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "eslint ."
+  },
+  "author": "Apache Software Foundation",
+  "license": "Apache-2.0",
+  "engines": {
+    "cordovaDependencies": {
+      "4.0.0": {
+        "cordova": ">100"
+      }
+    }
+  },
+  "devDependencies": {
+    "@cordova/eslint-config": "^3.0.0"
+  }
+}
+
+
+---
+File: CONTRIBUTING.md
+Size: 1374 bytes
+Lines: 37
+---
+<!--
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+-->
+
+# Contributing to Apache Cordova
+
+Anyone can contribute to Cordova. And we need your contributions.
+
+There are multiple ways to contribute: report bugs, improve the docs, and
+contribute code.
+  
+For instructions on this, start with the
+[contribution overview](http://cordova.apache.org/contribute/).
+
+The details are explained there, but the important items are:
+ - Check for Github issues that corresponds to your contribution and link or create them if necessary.
+ - Run the tests so your patch doesn't break existing functionality.
+
+We look forward to your contributions!
+
+
+
+---
+File: .gitattributes
+Size: 13 bytes
+Lines: 1
+---
+* text eol=lf
+
+---
+File: types/index.d.ts
+Size: 3050 bytes
+Lines: 46
+---
+// Type definitions for cordova-plugin-battery-status
+// Project: https://github.com/apache/cordova-plugin-battery-status
+// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
+//                 Tim Brust <https://github.com/timbru31>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+
+type batteryEvent = 'batterystatus' | 'batterycritical' | 'batterylow';
+
+interface Window {
+    onbatterystatus: (type: BatteryStatusEvent) => void;
+    onbatterycritical: (type: BatteryStatusEvent) => void;
+    onbatterylow: (type: BatteryStatusEvent) => void;
+    /**
+     * Adds a listener for an event from the BatteryStatus plugin.
+     * @param type       - The event to listen for.
+     * 
+     *                     `batterystatus`: event fires when the percentage of battery charge changes by at least 1 percent, or if the device is plugged in or unplugged.
+     * 
+     *                     `batterycritical`: event fires when the percentage of battery charge has reached the critical battery threshold. The value is device-specific.
+     * 
+     *                     `batterylow`: event fires when the percentage of battery charge has reached the low battery threshold, device-specific value.
+     * @param listener   - The function that executes when the event fires. The function is passed an BatteryStatusEvent object as a parameter.
+     * @param useCapture - A Boolean indicating whether events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+     */
+    addEventListener(type: batteryEvent, listener: (ev: BatteryStatusEvent) => any, useCapture?: boolean): void;
+    /**
+     * Removes a listener for an event from the BatteryStatus plugin.
+     * @param Atype      - The event to stop listening for.
+     * 
+     *                     `batterystatus`: event fires when the percentage of battery charge changes by at least 1 percent, or if the device is plugged in or unplugged.
+     *                    
+     *                     `batterycritical`: event fires when the percentage of battery charge has reached the critical battery threshold. The value is device-specific.
+     *                    
+     *                     `batterylow`: event fires when the percentage of battery charge has reached the low battery threshold, device-specific value.
+     * @param callback   - The function that executes when the event fires. The function is passed an BatteryStatusEvent object as a parameter.
+     * @param useCapture - A Boolean indicating whether events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+     */
+    removeEventListener(type: batteryEvent, listener: (ev: BatteryStatusEvent) => any, useCapture?: boolean): void;
+}
+
+interface BatteryStatusEvent extends Event {
+	/* The percentage of battery charge (0-100). */
+    level: number;
+	/* A boolean that indicates whether the device is plugged in. */
+    isPlugged: boolean;
+}
+
+
+---
+File: tests/plugin.xml
+Size: 1227 bytes
+Lines: 31
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:rim="http://www.blackberry.com/ns/widgets"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-plugin-battery-status-tests"
+    version="2.0.4-dev">
+    <name>Cordova Battery Plugin Tests</name>
+    <license>Apache 2.0</license>
+
+    <js-module src="tests.js" name="tests">
+    </js-module>
+</plugin>
+
+
+---
+File: tests/tests.js
+Size: 16349 bytes
+Lines: 519
+---
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+exports.defineAutoTests = function () {
+    var onEvent;
+
+    describe('Battery (navigator.battery)', function () {
+        it('battery.spec.1 should exist', function () {
+            expect(navigator.battery).toBeDefined();
+        });
+    });
+
+    describe('Battery Events', function () {
+        describe('batterystatus', function () {
+            afterEach(function () {
+                try {
+                    window.removeEventListener('batterystatus', onEvent, false);
+                } catch (e) {
+                    console.error('Error removing batterystatus event listener: ' + e);
+                }
+            });
+
+            it('battery.spec.2 should fire batterystatus events', function (done) {
+                onEvent = jasmine.createSpy('BatteryStatus');
+
+                // batterystatus -> 30
+                window.addEventListener('batterystatus', onEvent, false);
+
+                navigator.battery._status({
+                    level: 30,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+        });
+
+        describe('batterylow', function () {
+            afterEach(function () {
+                try {
+                    window.removeEventListener('batterylow', onEvent, false);
+                } catch (e) {
+                    console.error('Error removing batterylow event listener: ' + e);
+                }
+            });
+
+            it('battery.spec.3 should fire batterylow event (30 -> 20)', function (done) {
+                onEvent = jasmine.createSpy('BatteryLow');
+
+                // batterylow 30 -> 20
+                window.addEventListener('batterylow', onEvent, false);
+
+                navigator.battery._status({
+                    level: 30,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 20,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.3.1 should fire batterylow event (30 -> 19)', function (done) {
+                onEvent = jasmine.createSpy('BatteryLow');
+
+                // batterylow 30 -> 19
+                window.addEventListener('batterylow', onEvent, false);
+
+                navigator.battery._status({
+                    level: 30,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 19,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.3.2 should not fire batterylow event (5 -> 20)', function (done) {
+                onEvent = jasmine.createSpy('BatteryLow');
+
+                // batterylow should not fire when level increases (5->20) ( CB-4519 )
+                window.addEventListener('batterylow', onEvent, false);
+
+                navigator.battery._status({
+                    level: 5,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 20,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).not.toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.3.3 batterylow event(21 -> 20) should not fire if charging', function (done) {
+                onEvent = jasmine.createSpy('BatteryLow');
+
+                // batterylow should NOT fire if we are charging   ( CB-4520 )
+                window.addEventListener('batterylow', onEvent, false);
+
+                navigator.battery._status({
+                    level: 21,
+                    isPlugged: true
+                });
+
+                navigator.battery._status({
+                    level: 20,
+                    isPlugged: true
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).not.toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+        });
+
+        describe('batterycritical', function () {
+            afterEach(function () {
+                try {
+                    window.removeEventListener('batterycritical', onEvent, false);
+                } catch (e) {
+                    console.error('Error removing batterycritical event listener: ' + e);
+                }
+            });
+
+            it('battery.spec.4 should fire batterycritical event (19 -> 5)', function (done) {
+                onEvent = jasmine.createSpy('BatteryCritical');
+
+                // batterycritical 19->5
+                window.addEventListener('batterycritical', onEvent, false);
+
+                navigator.battery._status({
+                    level: 19,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 5,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.4.1 should fire batterycritical event (19 -> 4)', function (done) {
+                onEvent = jasmine.createSpy('BatteryCritical');
+
+                // batterycritical 19->4
+                window.addEventListener('batterycritical', onEvent, false);
+
+                navigator.battery._status({
+                    level: 19,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 4,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.4.2 should fire batterycritical event (100 -> 4) when decreases', function (done) {
+                onEvent = jasmine.createSpy('BatteryCritical');
+
+                // setup: batterycritical should fire when level decreases (100->4) ( CB-4519 )
+                window.addEventListener('batterycritical', onEvent, false);
+
+                navigator.battery._status({
+                    level: 100,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 4,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.4.3 should not fire batterycritical event (4 -> 5) when increasing', function (done) {
+                onEvent = jasmine.createSpy('BatteryCritical');
+
+                window.addEventListener('batterycritical', onEvent, false);
+
+                // batterycritical should not fire when level increases (4->5)( CB-4519 )
+                navigator.battery._status({
+                    level: 4,
+                    isPlugged: false
+                });
+
+                navigator.battery._status({
+                    level: 5,
+                    isPlugged: false
+                });
+
+                setTimeout(function () {
+                    expect(onEvent.calls.count()).toBeLessThan(2);
+                    done();
+                }, 100);
+            });
+
+            it('battery.spec.4.4 should not fire batterycritical event (6 -> 5) if charging', function (done) {
+                onEvent = jasmine.createSpy('BatteryCritical');
+
+                window.addEventListener('batterycritical', onEvent, false);
+
+                // batterycritical should NOT fire if we are charging   ( CB-4520 )
+                navigator.battery._status({
+                    level: 6,
+                    isPlugged: true
+                });
+
+                navigator.battery._status({
+                    level: 5,
+                    isPlugged: true
+                });
+
+                setTimeout(function () {
+                    expect(onEvent).not.toHaveBeenCalled();
+                    done();
+                }, 100);
+            });
+        });
+    });
+};
+
+//* *****************************************************************************************
+//* **************************************Manual Tests***************************************
+//* *****************************************************************************************
+
+exports.defineManualTests = function (contentEl, createActionButton) {
+    /* Battery */
+    function updateInfo (info) {
+        document.getElementById('levelValue').innerText = info.level;
+        document.getElementById('pluggedValue').innerText = info.isPlugged;
+        if (info.level > 5) {
+            document.getElementById('criticalValue').innerText = 'false';
+        }
+        if (info.level > 20) {
+            document.getElementById('lowValue').innerText = 'false';
+        }
+    }
+
+    function batteryLow (info) {
+        document.getElementById('lowValue').innerText = 'true';
+    }
+
+    function batteryCritical (info) {
+        document.getElementById('criticalValue').innerText = 'true';
+    }
+
+    function addBattery () {
+        window.addEventListener('batterystatus', updateInfo, false);
+    }
+
+    function removeBattery () {
+        window.removeEventListener('batterystatus', updateInfo, false);
+    }
+
+    function addLow () {
+        window.addEventListener('batterylow', batteryLow, false);
+    }
+
+    function removeLow () {
+        window.removeEventListener('batterylow', batteryLow, false);
+    }
+
+    function addCritical () {
+        window.addEventListener('batterycritical', batteryCritical, false);
+    }
+
+    function removeCritical () {
+        window.removeEventListener('batterycritical', batteryCritical, false);
+    }
+
+    // Generate Dynamic Table
+    function generateTable (tableId, rows, cells, elements) {
+        var table = document.createElement('table');
+        for (var r = 0; r < rows; r++) {
+            var row = table.insertRow(r);
+            for (var c = 0; c < cells; c++) {
+                var cell = row.insertCell(c);
+                cell.setAttribute('align', 'center');
+                for (var e in elements) {
+                    if (elements[e].position.row === r && elements[e].position.cell === c) {
+                        var htmlElement = document.createElement(elements[e].tag);
+                        var content;
+
+                        if (elements[e].content !== '') {
+                            content = document.createTextNode(elements[e].content);
+                            htmlElement.appendChild(content);
+                        }
+                        if (elements[e].type) {
+                            htmlElement.type = elements[e].type;
+                        }
+                        htmlElement.setAttribute('id', elements[e].id);
+                        cell.appendChild(htmlElement);
+                    }
+                }
+            }
+        }
+        table.setAttribute('align', 'center');
+        table.setAttribute('id', tableId);
+        return table;
+    }
+    // Battery Elements
+    var batteryElements = [
+        {
+            id: 'statusTag',
+            content: 'Status:',
+            tag: 'div',
+            position: {
+                row: 0,
+                cell: 0
+            }
+        },
+        {
+            id: 'statusValue',
+            content: '',
+            tag: 'div',
+            position: {
+                row: 0,
+                cell: 1
+            }
+        },
+        {
+            id: 'levelTag',
+            content: 'Level:',
+            tag: 'div',
+            position: {
+                row: 1,
+                cell: 0
+            }
+        },
+        {
+            id: 'levelValue',
+            content: '',
+            tag: 'div',
+            position: {
+                row: 1,
+                cell: 1
+            }
+        },
+        {
+            id: 'pluggedTag',
+            content: 'Plugged:',
+            tag: 'div',
+            position: {
+                row: 2,
+                cell: 0
+            }
+        },
+        {
+            id: 'pluggedValue',
+            content: '',
+            tag: 'div',
+            position: {
+                row: 2,
+                cell: 1
+            }
+        },
+        {
+            id: 'lowTag',
+            content: 'Low:',
+            tag: 'div',
+            position: {
+                row: 3,
+                cell: 0
+            }
+        },
+        {
+            id: 'lowValue',
+            content: '',
+            tag: 'div',
+            position: {
+                row: 3,
+                cell: 1
+            }
+        },
+        {
+            id: 'criticalTag',
+            content: 'Critical:',
+            tag: 'div',
+            position: {
+                row: 4,
+                cell: 0
+            }
+        },
+        {
+            id: 'criticalValue',
+            content: '',
+            tag: 'div',
+            position: {
+                row: 4,
+                cell: 1
+            }
+        }
+    ];
+
+    // Title audio results
+    var div = document.createElement('h2');
+    div.appendChild(document.createTextNode('Battery Status'));
+    div.setAttribute('align', 'center');
+    contentEl.appendChild(div);
+
+    var batteryTable = generateTable('info', 5, 3, batteryElements);
+    contentEl.appendChild(batteryTable);
+
+    div = document.createElement('h2');
+    div.appendChild(document.createTextNode('Actions'));
+    div.setAttribute('align', 'center');
+    contentEl.appendChild(div);
+
+    contentEl.innerHTML +=
+        '<h3>Battery Status Tests</h3>' +
+        'Will update values for level and plugged when they change. If battery low and critical values are false, they will get updated in status box, but only once' +
+        '<div id="addBS"></div><div id="remBs"></div>' +
+        '<h3>Battery Low Tests</h3>' +
+        '</p> Will update value for battery low to true when battery is below 20%' +
+        '<div id="addBl"></div><div id="remBl"></div>' +
+        '<h3>Battery Critical Tests</h3>' +
+        '</p> Will update value for battery critical to true when battery is below 5%' +
+        '<div id="addBc"></div><div id="remBc"></div>';
+
+    createActionButton(
+        'Add "batterystatus" listener',
+        function () {
+            addBattery();
+        },
+        'addBS'
+    );
+    createActionButton(
+        'Remove "batterystatus" listener',
+        function () {
+            removeBattery();
+        },
+        'remBs'
+    );
+    createActionButton(
+        'Add "batterylow" listener',
+        function () {
+            addLow();
+        },
+        'addBl'
+    );
+    createActionButton(
+        'Remove "batterylow" listener',
+        function () {
+            removeLow();
+        },
+        'remBl'
+    );
+    createActionButton(
+        'Add "batterycritical" listener',
+        function () {
+            addCritical();
+        },
+        'addBc'
+    );
+    createActionButton(
+        'Remove "batterycritical" listener',
+        function () {
+            removeCritical();
+        },
+        'remBc'
+    );
+};
+
+
+---
+File: tests/package.json
+Size: 276 bytes
+Lines: 14
+---
+{
+  "name": "cordova-plugin-battery-status-tests",
+  "version": "2.0.4-dev",
+  "description": "",
+  "cordova": {
+    "id": "cordova-plugin-battery-status-tests",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "",
+  "license": "Apache 2.0"
+}
+
+
+---
+File: www/battery.js
+Size: 3902 bytes
+Lines: 108
+---
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+/**
+ * This class contains information about the current battery status.
+ * @constructor
+ */
+var cordova = require('cordova');
+var exec = require('cordova/exec');
+
+var STATUS_CRITICAL = 5;
+var STATUS_LOW = 20;
+
+var Battery = function () {
+    this._level = null;
+    this._isPlugged = null;
+    // Create new event handlers on the window (returns a channel instance)
+    this.channels = {
+        batterystatus: cordova.addWindowEventHandler('batterystatus'),
+        batterylow: cordova.addWindowEventHandler('batterylow'),
+        batterycritical: cordova.addWindowEventHandler('batterycritical')
+    };
+    for (var key in this.channels) {
+        this.channels[key].onHasSubscribersChange = Battery.onHasSubscribersChange;
+    }
+};
+
+function handlers () {
+    return (
+        battery.channels.batterystatus.numHandlers + battery.channels.batterylow.numHandlers + battery.channels.batterycritical.numHandlers
+    );
+}
+
+/**
+ * Event handlers for when callbacks get registered for the battery.
+ * Keep track of how many handlers we have so we can start and stop the native battery listener
+ * appropriately (and hopefully save on battery life!).
+ */
+Battery.onHasSubscribersChange = function () {
+    // If we just registered the first handler, make sure native listener is started.
+    if (this.numHandlers === 1 && handlers() === 1) {
+        exec(battery._status, battery._error, 'Battery', 'start', []);
+    } else if (handlers() === 0) {
+        exec(null, null, 'Battery', 'stop', []);
+    }
+};
+
+/**
+ * Callback for battery status
+ *
+ * @param {Object} info            keys: level, isPlugged
+ */
+Battery.prototype._status = function (info) {
+    if (info) {
+        if (battery._level !== info.level || battery._isPlugged !== info.isPlugged) {
+            if (info.level === null && battery._level !== null) {
+                return; // special case where callback is called because we stopped listening to the native side.
+            }
+
+            // Something changed. Fire batterystatus event
+            cordova.fireWindowEvent('batterystatus', info);
+
+            // do not fire low/critical if we are charging. issue: CB-4520
+            if (!info.isPlugged) {
+                // note the following are NOT exact checks, as we want to catch a transition from
+                // above the threshold to below. issue: CB-4519
+                if (battery._level > STATUS_CRITICAL && info.level <= STATUS_CRITICAL) {
+                    // Fire critical battery event
+                    cordova.fireWindowEvent('batterycritical', info);
+                } else if (battery._level > STATUS_LOW && info.level <= STATUS_LOW) {
+                    // Fire low battery event
+                    cordova.fireWindowEvent('batterylow', info);
+                }
+            }
+            battery._level = info.level;
+            battery._isPlugged = info.isPlugged;
+        }
+    }
+};
+
+/**
+ * Error callback for battery start
+ */
+Battery.prototype._error = function (e) {
+    console.log('Error initializing Battery: ' + e);
+};
+
+var battery = new Battery();
+
+module.exports = battery;
+
+
+---
+File: .github/PULL_REQUEST_TEMPLATE.md
+Size: 1118 bytes
+Lines: 35
+---
+<!--
+Please make sure the checklist boxes are all checked before submitting the PR. The checklist is intended as a quick reference, for complete details please see our Contributor Guidelines:
+
+http://cordova.apache.org/contribute/contribute_guidelines.html
+
+Thanks!
+-->
+
+### Platforms affected
+
+
+
+### Motivation and Context
+<!-- Why is this change required? What problem does it solve? -->
+<!-- If it fixes an open issue, please link to the issue here. -->
+
+
+
+### Description
+<!-- Describe your changes in detail -->
+
+
+
+### Testing
+<!-- Please describe in detail how you tested your changes. -->
+
+
+
+### Checklist
+
+- [ ] I've run the tests to see all new and existing tests pass
+- [ ] I added automated test coverage as appropriate for this change
+- [ ] Commit is prefixed with `(platform)` if this change only applies to one platform (e.g. `(android)`)
+- [ ] If this Pull Request resolves an issue, I linked to the issue in the text above (and used the correct [keyword to close issues using keywords](https://help.github.com/articles/closing-issues-using-keywords/))
+- [ ] I've updated the documentation if necessary
+
+
+---
+File: .github/ISSUE_TEMPLATE.md
+Size: 1191 bytes
+Lines: 42
+---
+<!--
+Please have a look at the issue templates you get when you click "New issue" in the GitHub UI.
+We very much prefer issues created by using one of these templates.
+-->
+
+### Issue Type
+<!-- Please check the boxes by putting an x in the [ ] like so: [x] -->
+
+- [ ] Bug Report
+- [ ] Feature Request
+- [ ] Support Question
+
+## Description
+
+## Information
+<!-- Include all relevant information that might help understand and reproduce the problem -->
+
+### Command or Code
+<!-- What command or code is needed to reproduce the problem? -->
+
+### Environment, Platform, Device
+<!-- In what environment, on what platform or on which device are you experiencing the issue? -->
+
+
+
+### Version information
+<!-- 
+What are relevant versions you are using?
+For example:
+Cordova: Cordova CLI, Cordova Platforms, Cordova Plugins 
+Other Frameworks: Ionic Framework and CLI version
+Operating System, Android Studio, Xcode etc.
+-->
+
+
+
+## Checklist
+<!-- Please check the boxes by putting an `x` in the `[ ]` like so: `[x]` -->
+
+- [ ] I searched for already existing GitHub issues about this
+- [ ] I updated all Cordova tooling to their most recent version
+- [ ] I included all the necessary information above
+
+
+---
+File: .github/workflows/lint.yml
+Size: 1469 bytes
+Lines: 56
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Lint Test
+
+on:
+  push:
+    paths:
+      - '**.js'
+      - '.eslint*'
+      - '.github/workflow/lint.yml'
+  pull_request:
+    paths:
+      - '**.js'
+      - '.eslint*'
+      - '.github/workflow/lint.yml'
+
+jobs:
+  test:
+    name: Lint Test
+    runs-on: ubuntu-latest
+    env:
+      node-version: 20
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node-version }}
+
+      - name: Run Environment Information
+        run: |
+          node --version
+          npm --version
+
+      - name: Run npm install
+        run: |
+          npm ci
+
+      - name: Run lint test
+        run: |
+          npm run lint
+
+
+---
+File: .github/workflows/chrome.yml
+Size: 2445 bytes
+Lines: 73
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Chrome Testsuite
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.eslint*'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.eslint*'
+
+jobs:
+  test:
+    name: Chrome Latest Test
+    runs-on: ubuntu-latest
+
+    # hoist configurations to top that are expected to be updated
+    env:
+      # Storing a copy of the repo
+      repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      node-version: 20
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node-version }}
+
+      - name: Run install xvfb
+        run: sudo apt-get install xvfb
+
+      - name: Run Environment Information
+        run: |
+          node --version
+          npm --version
+
+      - name: Run npm install
+        run: |
+          npm i -g cordova@latest
+          npm ci
+
+      - name: Run paramedic install
+        if: ${{ endswith(env.repo, '/cordova-paramedic') != true }}
+        run: npm i -g github:apache/cordova-paramedic
+
+      - name: Run paramedic tests
+        env:
+          test_config: 'browser.config.json'
+          # Generally, this should automatically work for cordova-paramedic & plugins. If the path is unique, this can be manually changed.
+          test_plugin_path: ${{ endswith(env.repo, '/cordova-paramedic') && './spec/testable-plugin/' || './' }}
+          paramedic: ${{ endswith(env.repo, '/cordova-paramedic') && 'node main.js' || 'cordova-paramedic' }}
+        run: xvfb-run --auto-servernum ${{ env.paramedic }} --config ./pr/local/${{ env.test_config }} --plugin ${{ env.test_plugin_path }}
+
+
+---
+File: .github/workflows/ios.yml
+Size: 3517 bytes
+Lines: 97
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: iOS Testsuite
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.eslint*'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.eslint*'
+
+jobs:
+  test:
+    name: iOS ${{ matrix.versions.ios-version }} Test
+    runs-on: ${{ matrix.versions.os-version }}
+    continue-on-error: true
+
+    # hoist configurations to top that are expected to be updated
+    env:
+      # Storing a copy of the repo
+      repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      node-version: 20
+
+      # > Starting April 26, 2021, all iOS and iPadOS apps submitted to the App Store must be built with Xcode 12 and the iOS 14 SDK.
+      # Because of Apple's requirement, listed above, We will only be using the latest Xcode release for testing.
+      # To customize these options, add "xcode-version" to the strategy matrix with its overriding value.
+      default_xcode-version: latest-stable
+
+    strategy:
+      matrix:
+        versions:
+          - os-version: macos-12
+            ios-version: 15.x
+            xcode-version: 13.x
+
+          - os-version: macos-14
+            ios-version: 16.x
+            xcode-version: 14.x
+
+          - os-version: macos-14
+            ios-version: 17.x
+            xcode-version: 15.x
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node-version }}
+      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd
+        env:
+          xcode-version: ${{ matrix.versions.xcode-version == '' && env.default_xcode-version || matrix.versions.xcode-version }}
+        with:
+          xcode-version: ${{ env.xcode-version }}
+
+      - name: Run Environment Information
+        run: |
+          node --version
+          npm --version
+          xcodebuild -version
+
+      - name: Run npm install
+        run: |
+          npm i -g cordova@latest ios-deploy@latest
+          npm ci
+
+      - name: Run paramedic install
+        if: ${{ endswith(env.repo, '/cordova-paramedic') != true }}
+        run: npm i -g github:apache/cordova-paramedic
+
+      - name: Run paramedic tests
+        env:
+          test_config: 'ios-${{ matrix.versions.ios-version }}.config.json'
+          # Generally, this should automatically work for cordova-paramedic & plugins. If the path is unique, this can be manually changed.
+          test_plugin_path: ${{ endswith(env.repo, '/cordova-paramedic') && './spec/testable-plugin/' || './' }}
+          paramedic: ${{ endswith(env.repo, '/cordova-paramedic') && 'node main.js' || 'cordova-paramedic' }}
+        run: ${{ env.paramedic }} --config ./pr/local/${{ env.test_config }} --plugin ${{ env.test_plugin_path }}
+
+
+---
+File: .github/workflows/android.yml
+Size: 6100 bytes
+Lines: 161
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+name: Android Testsuite
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.eslint*'
+
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.eslint*'
+
+jobs:
+  test:
+    name: Android ${{ matrix.versions.android }} Test
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    # hoist configurations to top that are expected to be updated
+    env:
+      # Storing a copy of the repo
+      repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      node-version: 20
+
+      # These are the default Java configurations used by most tests.
+      # To customize these options, add "java-distro" or "java-version" to the strategy matrix with its overriding value.
+      default_java-distro: temurin
+      default_java-version: 17
+
+      # These are the default Android System Image configurations used by most tests.
+      # To customize these options, add "system-image-arch" or "system-image-target" to the strategy matrix with its overriding value.
+      default_system-image-arch: x86_64
+      default_system-image-target: google_apis # Most system images have a google_api option. Set this as default.
+
+    # configurations for each testing strategy (test matrix)
+    strategy:
+      matrix:
+        versions:
+          - android: 7
+            android-api: 24
+
+          - android: 7.1
+            android-api: 25
+
+          - android: 8
+            android-api: 26
+
+          - android: 8.1
+            android-api: 27
+            system-image-arch: x86
+
+          - android: 9
+            android-api: 28
+
+          - android: 10
+            android-api: 29
+
+          - android: 11
+            android-api: 30
+
+          - android: 12
+            android-api: 31
+
+          - android: 12L
+            android-api: 32
+
+          - android: 13
+            android-api: 33
+
+          - android: 14
+            android-api: 34
+
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.node-version }}
+      - uses: actions/setup-java@v4
+        env:
+          java-version: ${{ matrix.versions.java-version == '' && env.default_java-version || matrix.versions.java-version }}
+          java-distro: ${{ matrix.versions.java-distro == '' && env.default_java-distro || matrix.versions.java-distro }}
+        with:
+          distribution: ${{ env.java-distro }}
+          java-version: ${{ env.java-version }}
+
+      - name: Enable KVM group perms
+        run: |
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+
+      - name: Run Environment Information
+        run: |
+          node --version
+          npm --version
+          java -version
+
+      - name: Run npm install
+        run: |
+          export PATH="/usr/local/lib/android/sdk/platform-tools":$PATH
+          export JAVA_HOME=$JAVA_HOME_11_X64
+          npm i -g cordova@latest
+          npm ci
+
+      - name: Run paramedic install
+        if: ${{ endswith(env.repo, '/cordova-paramedic') != true }}
+        run: npm i -g github:apache/cordova-paramedic
+
+      - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          system-image-arch: ${{ matrix.versions.system-image-arch == '' && env.default_system-image-arch || matrix.versions.system-image-arch }}
+          system-image-target: ${{ matrix.versions.system-image-target == '' && env.default_system-image-target || matrix.versions.system-image-target }}
+        with:
+          api-level: ${{ matrix.versions.android-api }}
+          target: ${{ env.system-image-target }}
+          arch: ${{ env.system-image-arch }}
+          force-avd-creation: false
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: echo "Pregenerate the AVD before running Paramedic"
+
+      - name: Run paramedic tests
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          system-image-arch: ${{ matrix.versions.system-image-arch == '' && env.default_system-image-arch || matrix.versions.system-image-arch }}
+          system-image-target: ${{ matrix.versions.system-image-target == '' && env.default_system-image-target || matrix.versions.system-image-target }}
+          test_config: 'android-${{ matrix.versions.android }}.config.json'
+          # Generally, this should automatically work for cordova-paramedic & plugins. If the path is unique, this can be manually changed.
+          test_plugin_path: ${{ endswith(env.repo, '/cordova-paramedic') && './spec/testable-plugin/' || './' }}
+          paramedic: ${{ endswith(env.repo, '/cordova-paramedic') && 'node main.js' || 'cordova-paramedic' }}
+        with:
+          api-level: ${{ matrix.versions.android-api }}
+          target: ${{ env.system-image-target }}
+          arch: ${{ env.system-image-arch }}
+          force-avd-creation: false
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: ${{ env.paramedic }} --config ./pr/local/${{ env.test_config }} --plugin ${{ env.test_plugin_path }}
+
+
+---
+File: .github/ISSUE_TEMPLATE/FEATURE_REQUEST.md
+Size: 601 bytes
+Lines: 29
+---
+---
+name: 🚀 Feature Request
+about: A suggestion for a new functionality
+
+---
+
+# Feature Request
+
+## Motivation Behind Feature
+<!-- Why should this feature be implemented? What problem does it solve? -->
+
+
+
+## Feature Description
+<!-- 
+Describe your feature request in detail
+Please provide any code examples or screenshots of what this feature would look like
+Are there any drawbacks? Will this break anything for existing users? 
+-->
+
+
+
+## Alternatives or Workarounds
+<!-- 
+Describe alternatives or workarounds you are currently using 
+Are there ways to do this with existing functionality?
+-->
+
+
+
+
+---
+File: .github/ISSUE_TEMPLATE/BUG_REPORT.md
+Size: 998 bytes
+Lines: 50
+---
+---
+name: 🐛 Bug Report
+about: If something isn't working as expected.
+
+---
+
+# Bug Report
+
+## Problem
+
+### What is expected to happen?
+
+
+
+### What does actually happen?
+
+
+
+## Information
+<!-- Include all relevant information that might help understand and reproduce the problem -->
+
+
+
+### Command or Code
+<!-- What command or code is needed to reproduce the problem? -->
+
+
+
+### Environment, Platform, Device
+<!-- In what environment, on what platform or on which device are you experiencing the issue? -->
+
+
+
+### Version information
+<!-- 
+What are relevant versions you are using?
+For example:
+Cordova: Cordova CLI, Cordova Platforms, Cordova Plugins 
+Other Frameworks: Ionic Framework and CLI version
+Operating System, Android Studio, Xcode etc.
+-->
+
+
+
+## Checklist
+<!-- Please check the boxes by putting an x in the [ ] like so: [x] -->
+
+- [ ] I searched for existing GitHub issues
+- [ ] I updated all Cordova tooling to most recent version
+- [ ] I included all the necessary information above
+
+
+---
+File: .github/ISSUE_TEMPLATE/SUPPORT_QUESTION.md
+Size: 926 bytes
+Lines: 26
+---
+---
+name: 💬 Support Question
+about: If you have a question, please check out our Slack or StackOverflow!
+
+---
+
+<!------------^ Click "Preview" for a nicer view! -->
+
+Apache Cordova uses GitHub Issues as a feature request and bug tracker _only_.
+For usage and support questions, please check out the resources below. Thanks!
+
+---
+
+You can get answers to your usage and support questions about **Apache Cordova** on:
+
+* GitHub Discussions: https://github.com/apache/cordova/discussions
+* Slack Community Chat: https://cordova.slack.com (you can sign-up at https://s.apache.org/cordova-slack)
+* StackOverflow: https://stackoverflow.com/questions/tagged/cordova using the tag `cordova`
+
+---
+
+If you are using a tool that uses Cordova internally, like e.g. Ionic, check their support channels:
+
+* **Ionic Framework**
+  * [Ionic Community Forum](https://forum.ionicframework.com/)
+  * [Ionic Discord](https://ionic.link/discord)
+
+
+---
+File: src/ios/CDVBattery.h
+Size: 1346 bytes
+Lines: 40
+---
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+#import <Foundation/Foundation.h>
+#import <Cordova/CDVPlugin.h>
+
+@interface CDVBattery : CDVPlugin {
+    UIDeviceBatteryState state;
+    float level;
+    bool isPlugged;
+    NSString* callbackId;
+}
+
+@property (nonatomic) UIDeviceBatteryState state;
+@property (nonatomic) float level;
+@property (nonatomic) bool isPlugged;
+@property (strong) NSString* callbackId;
+
+- (void)updateBatteryStatus:(NSNotification*)notification;
+- (NSDictionary*)getBatteryStatus;
+- (void)start:(CDVInvokedUrlCommand*)command;
+- (void)stop:(CDVInvokedUrlCommand*)command;
+- (void)dealloc;
+@end
+
+
+---
+File: src/ios/CDVBattery.m
+Size: 5556 bytes
+Lines: 148
+---
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+#import "CDVBattery.h"
+
+@interface CDVBattery (PrivateMethods)
+- (void)updateOnlineStatus;
+@end
+
+@implementation CDVBattery
+
+@synthesize state, level, callbackId, isPlugged;
+
+/*  determining type of event occurs on JavaScript side
+- (void) updateBatteryLevel:(NSNotification*)notification
+{
+    // send batterylow event for less than 25% battery
+    // send batterycritical  event for less than 10% battery
+    // W3c says to send batteryStatus event when batterylevel changes by more than 1% (iOS seems to notify each 5%)
+    // always update the navigator.device.battery info
+    float currentLevel = [[UIDevice currentDevice] batteryLevel];
+    NSString* type = @"";
+    // no check for level == -1 since this api is only called when monitoring is enabled so level should be valid
+    if (currentLevel < 0.10){
+        type = @"batterycritical";
+    } else if (currentLevel < 0.25) {
+        type = @"batterylow";
+    } else {
+        float onePercent = 0.1;
+        if (self.level >= 0 ){
+            onePercent = self.level * 0.01;
+        }
+        if (fabsf(currentLevel - self.level) > onePercent){
+            // issue batteryStatus event
+            type = @"batterystatus";
+        }
+    }
+    // update the battery info and fire event
+    NSString* jsString = [NSString stringWithFormat:@"navigator.device.battery._status(\"%@\", %@)", type,[[self getBatteryStatus] JSONRepresentation]];
+    [super writeJavascript:jsString];
+}
+ */
+
+- (void)updateBatteryStatus:(NSNotification*)notification
+{
+    NSDictionary* batteryData = [self getBatteryStatus];
+
+    if (self.callbackId) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:batteryData];
+        [result setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+    }
+}
+
+/* Get the current battery status and level.  Status will be unknown and level will be -1.0 if
+ * monitoring is turned off.
+ */
+- (NSDictionary*)getBatteryStatus
+{
+    UIDevice* currentDevice = [UIDevice currentDevice];
+    UIDeviceBatteryState currentState = [currentDevice batteryState];
+
+    isPlugged = FALSE; // UIDeviceBatteryStateUnknown or UIDeviceBatteryStateUnplugged
+    if ((currentState == UIDeviceBatteryStateCharging) || (currentState == UIDeviceBatteryStateFull)) {
+        isPlugged = TRUE;
+    }
+    float currentLevel = [currentDevice batteryLevel];
+
+    if ((currentLevel != self.level) || (currentState != self.state)) {
+        self.level = currentLevel;
+        self.state = currentState;
+    }
+
+    // W3C spec says level must be null if it is unknown
+    NSObject* w3cLevel = nil;
+    if ((currentState == UIDeviceBatteryStateUnknown) || (currentLevel == -1.0)) {
+        w3cLevel = [NSNull null];
+    } else {
+        w3cLevel = [NSNumber numberWithFloat:(currentLevel * 100)];
+    }
+    NSMutableDictionary* batteryData = [NSMutableDictionary dictionaryWithCapacity:2];
+    [batteryData setObject:[NSNumber numberWithBool:isPlugged] forKey:@"isPlugged"];
+    [batteryData setObject:w3cLevel forKey:@"level"];
+    return batteryData;
+}
+
+/* turn on battery monitoring*/
+- (void)start:(CDVInvokedUrlCommand*)command
+{
+    self.callbackId = command.callbackId;
+
+    if ([UIDevice currentDevice].batteryMonitoringEnabled == NO) {
+        [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBatteryStatus:)
+                                                     name:UIDeviceBatteryStateDidChangeNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBatteryStatus:)
+                                                     name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+    }
+}
+
+/* turn off battery monitoring */
+- (void)stop:(CDVInvokedUrlCommand*)command
+{
+    // callback one last time to clear the callback function on JS side
+    if (self.callbackId) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getBatteryStatus]];
+        [result setKeepCallbackAsBool:NO];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+    }
+    self.callbackId = nil;
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:NO];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+}
+
+- (void)pluginInitialize
+{
+    self.state = UIDeviceBatteryStateUnknown;
+    self.level = -1.0;
+}
+
+- (void)dealloc
+{
+    [self stop:nil];
+}
+
+- (void)onReset
+{
+    [self stop:nil];
+}
+
+@end
+
+
+---
+File: src/browser/BatteryProxy.js
+Size: 2805 bytes
+Lines: 85
+---
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+/* global cordova */
+
+var w3cBattery;
+var winCallBack;
+
+function success () {
+    winCallBack({
+        level: w3cBattery.level * 100,
+        isPlugged: w3cBattery.charging
+    });
+}
+
+var Battery = {
+    start: function (win, fail, args, env) {
+        try {
+            var subscribe = function (battery) {
+                w3cBattery = battery;
+                winCallBack = win;
+
+                success();
+
+                if (typeof w3cBattery.addEventListener === 'function') {
+                    w3cBattery.addEventListener('levelchange', success, false);
+                    w3cBattery.addEventListener('chargingchange', success, false);
+                } else {
+                    w3cBattery.onlevelchange = success;
+                    w3cBattery.onchargingchange = success;
+                }
+            };
+
+            if (typeof navigator.getBattery === 'function') {
+                navigator.getBattery().then(function (battery) {
+                    subscribe(battery);
+                });
+            } else {
+                var origBattery = cordova.require('cordova/modulemapper').getOriginalSymbol(window, 'navigator.battery');
+
+                if (origBattery) {
+                    subscribe(origBattery);
+                } else {
+                    fail('Not supported');
+                }
+            }
+        } catch (e) {
+            fail(e);
+        }
+    },
+
+    stop: function () {
+        try {
+            if (typeof w3cBattery.removeEventListener === 'function') {
+                w3cBattery.removeEventListener('levelchange', success, false);
+                w3cBattery.removeEventListener('chargingchange', success, false);
+            } else {
+                w3cBattery.onlevelchange = null;
+                w3cBattery.onchargingchange = null;
+            }
+        } catch (e) {
+            console.warn('Error occured while trying to stop battery: ' + JSON.stringify(e));
+        }
+    }
+};
+
+require('cordova/exec/proxy').add('Battery', Battery);
+
+
+---
+File: src/android/BatteryListener.java
+Size: 5647 bytes
+Lines: 162
+---
+/*
+       Licensed to the Apache Software Foundation (ASF) under one
+       or more contributor license agreements.  See the NOTICE file
+       distributed with this work for additional information
+       regarding copyright ownership.  The ASF licenses this file
+       to you under the Apache License, Version 2.0 (the
+       "License"); you may not use this file except in compliance
+       with the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing,
+       software distributed under the License is distributed on an
+       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+       KIND, either express or implied.  See the License for the
+       specific language governing permissions and limitations
+       under the License.
+*/
+package org.apache.cordova.batterystatus;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.LOG;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+
+public class BatteryListener extends CordovaPlugin {
+
+    private static final String LOG_TAG = "BatteryManager";
+
+    BroadcastReceiver receiver;
+
+    private CallbackContext batteryCallbackContext = null;
+
+    /**
+     * Constructor.
+     */
+    public BatteryListener() {
+        this.receiver = null;
+    }
+
+    /**
+     * Executes the request.
+     *
+     * @param action        	The action to execute.
+     * @param args          	JSONArry of arguments for the plugin.
+     * @param callbackContext 	The callback context used when calling back into JavaScript.
+     * @return              	True if the action was valid, false if not.
+     */
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
+        if (action.equals("start")) {
+            if (this.batteryCallbackContext != null) {
+                removeBatteryListener();
+            }
+            this.batteryCallbackContext = callbackContext;
+
+            // We need to listen to power events to update battery status
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+            if (this.receiver == null) {
+                this.receiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        updateBatteryInfo(intent);
+                    }
+                };
+                webView.getContext().registerReceiver(this.receiver, intentFilter);
+            }
+
+            // Don't return any result now, since status results will be sent when events come in from broadcast receiver
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+            pluginResult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginResult);
+            return true;
+        }
+
+        else if (action.equals("stop")) {
+            removeBatteryListener();
+            this.sendUpdate(new JSONObject(), false); // release status callback in JS side
+            this.batteryCallbackContext = null;
+            callbackContext.success();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Stop battery receiver.
+     */
+    public void onDestroy() {
+        removeBatteryListener();
+    }
+
+    /**
+     * Stop battery receiver.
+     */
+    public void onReset() {
+        removeBatteryListener();
+    }
+
+    /**
+     * Stop the battery receiver and set it to null.
+     */
+    private void removeBatteryListener() {
+        if (this.receiver != null) {
+            try {
+                webView.getContext().unregisterReceiver(this.receiver);
+                this.receiver = null;
+            } catch (Exception e) {
+                LOG.e(LOG_TAG, "Error unregistering battery receiver: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Creates a JSONObject with the current battery information
+     *
+     * @param batteryIntent the current battery information
+     * @return a JSONObject containing the battery status information
+     */
+    private JSONObject getBatteryInfo(Intent batteryIntent) {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("level", batteryIntent.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, 0));
+            obj.put("isPlugged", batteryIntent.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1) > 0 ? true : false);
+        } catch (JSONException e) {
+            LOG.e(LOG_TAG, e.getMessage(), e);
+        }
+        return obj;
+    }
+
+    /**
+     * Updates the JavaScript side whenever the battery changes
+     *
+     * @param batteryIntent the current battery information
+     * @return
+     */
+    private void updateBatteryInfo(Intent batteryIntent) {
+        sendUpdate(this.getBatteryInfo(batteryIntent), true);
+    }
+
+    /**
+     * Create a new plugin result and send it back to JavaScript
+     *
+     * @param connection the network info to set as navigator.connection
+     */
+    private void sendUpdate(JSONObject info, boolean keepCallback) {
+        if (this.batteryCallbackContext != null) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK, info);
+            result.setKeepCallback(keepCallback);
+            this.batteryCallbackContext.sendPluginResult(result);
+        }
+    }
+}
+

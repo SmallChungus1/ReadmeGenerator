@@ -1,0 +1,1616 @@
+Tokens: 18090
+Repo: apache/tika-docker
+Commit: c62df6c4187c8cd2856402e2fd4934592706bd08
+Timestamp: 2026-03-04T19:37:29.496078
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .env
+├── .gitignore
+├── CHANGES.md
+├── LICENSE
+├── README.md
+├── docker-compose-tika-customocr.yml
+├── docker-compose-tika-grobid.yml
+├── docker-compose-tika-ner.yml
+├── docker-compose-tika-vision.yml
+├── docker-tool.sh
+├── full
+│   └── Dockerfile
+├── minimal
+│   └── Dockerfile
+├── republish-images.sh
+└── sample-configs
+    ├── customocr
+    │   ├── org
+    │   │   └── apache
+    │   │       └── tika
+    │   │           └── parser
+    │   │               └── ocr
+    │   │                   └── TesseractOCRConfig.properties
+    │   ├── tika-config-inline.xml
+    │   └── tika-config-rendered.xml
+    ├── grobid
+    │   ├── org
+    │   │   └── apache
+    │   │       └── tika
+    │   │           └── parser
+    │   │               └── journal
+    │   │                   └── GrobidExtractor.properties
+    │   └── tika-config.xml
+    ├── ner
+    │   ├── run_tika_server.sh
+    │   └── tika-config.xml
+    └── vision
+        ├── inception-rest-caption.xml
+        ├── inception-rest-video.xml
+        └── inception-rest.xml
+
+--- Summary Report ---
+Total files scanned: 24
+Files included: 24
+Files skipped by rule: 0
+Files skipped by size: 0
+Detected languages count: 7
+Top 15 largest included files:
+  11357 bytes - LICENSE
+  10953 bytes - README.md
+  4735 bytes - docker-tool.sh
+  4446 bytes - full/Dockerfile
+  3997 bytes - minimal/Dockerfile
+  3392 bytes - sample-configs/ner/run_tika_server.sh
+  2672 bytes - republish-images.sh
+  1959 bytes - docker-compose-tika-vision.yml
+  1771 bytes - CHANGES.md
+  1756 bytes - sample-configs/customocr/tika-config-rendered.xml
+  1552 bytes - sample-configs/vision/inception-rest-video.xml
+  1525 bytes - docker-compose-tika-customocr.yml
+  1515 bytes - sample-configs/vision/inception-rest-caption.xml
+  1514 bytes - sample-configs/vision/inception-rest.xml
+  1487 bytes - docker-compose-tika-grobid.yml
+-----------------------
+
+---
+File: .asf.yaml
+Size: 1028 bytes
+Lines: 26
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+github:
+  description: "Convenience Docker images for Apache Tika Server"
+  homepage: https://tika.apache.org/
+  labels:
+    - docker
+    - image
+    - tika
+
+notifications:
+  commits:      commits@tika.apache.org
+  issues:       dev@tika.apache.org
+  pullrequests: dev@tika.apache.org
+  jira_options: link label comment
+
+
+---
+File: docker-compose-tika-customocr.yml
+Size: 1525 bytes
+Lines: 34
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3.8"
+services:
+ 
+  ## Apache Tika Server 
+  tika:
+    image: apache/tika:${TAG}-full
+    # Override default so we can add configuration on classpath
+    entrypoint: [ "/bin/sh", "-c", "exec java -cp \"/customocr:/tika-server-standard-$${TIKA_VERSION}.jar:/tika-extras/*\" org.apache.tika.server.core.TikaServerCli -h 0.0.0.0 $$0 $$@"]
+    # Kept command as example but could be added to entrypoint too
+    command: -c /tika-config.xml
+    restart: on-failure
+    ports:
+      - "9998:9998"
+    volumes:
+      # Choose the configuration you want, or add your own custom one
+      # -  ./sample-configs/customocr/tika-config-inline.xml:/tika-config.xml
+      -  ./sample-configs/customocr/tika-config-rendered.xml:/tika-config.xml
+
+   
+
+
+---
+File: LICENSE
+Size: 11357 bytes
+Lines: 201
+---
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+---
+File: README.md
+Size: 10953 bytes
+Lines: 219
+---
+# tika-docker <!--- update this once we migrate to github actions(?) [![Build Status](https://api.travis-ci.com/apache/tika-docker.svg?branch=master)](https://travis-ci.com/github/apache/tika-docker) -->
+
+This repo is used to create convenience Docker images for Apache Tika Server published as [apache/tika](https://hub.docker.com/r/apache/tika) on DockerHub by the [Apache Tika](http://tika.apache.org) Dev team
+
+The images create a functional Apache Tika Server instance that contains the latest Ubuntu running the appropriate version's server on Port 9998 using Java 8 (until version 1.20), Java 11 (1.21 and 1.24.1), Java 14 (until 1.27/2.0.0), Java 16 (for 2.1.0), and Java 17 LTS for newer versions.
+
+There is a minimal version, which contains only Apache Tika and it's core dependencies, and a full version, which also includes dependencies for the GDAL and Tesseract OCR parsers. To balance showing functionality versus the size of the full image, this file currently installs the language packs for the following languages:
+* English
+* French
+* German
+* Italian
+* Spanish
+* Japanese
+
+To install more languages simply update the apt-get command to include the package containing the language you required, or include your own custom packs using an ADD command.
+
+## Available Tags
+
+Below are the most recent 3.x series tags:
+- `latest`, `3.2.3.0`: Apache Tika Server 3.2.3.0 (Minimal)
+- `latest-full`, `3.2.3.0-full`: Apache Tika Server 3.2.3.0 (Full)
+- `3.2.3.0`, `3.2.3.0`: Apache Tika Server 3.2.3.0 (Minimal)
+- `3.2.3.0`, `3.2.3.0-full`: Apache Tika Server 3.2.3.0 (Full)
+- `3.2.2.0`, `3.2.2.0`: Apache Tika Server 3.2.2.0 (Minimal)
+- `3.2.2.0`, `3.2.2.0-full`: Apache Tika Server 3.2.2.0 (Full)
+- `3.2.1.0`, `3.2.1.0`: Apache Tika Server 3.2.1.0 (Minimal)
+- `3.2.1.0`, `3.2.1.0-full`: Apache Tika Server 3.2.1.0 (Full)
+- `3.2.0.0`, `3.2.0.0`: Apache Tika Server 3.2.0.0 (Minimal)
+- `3.2.0.0`, `3.2.0.0-full`: Apache Tika Server 3.2.0.0 (Full)
+- `3.1.0.0`, `3.1.0.0`: Apache Tika Server 3.1.0.0 (Minimal)
+- `3.1.0.0`, `3.1.0.0-full`: Apache Tika Server 3.1.0.0 (Full)
+- `3.0.0.0`, `3.0.0.0`: Apache Tika Server 3.0.0.0 (Minimal)
+- `3.0.0.0`, `3.0.0.0-full`: Apache Tika Server 3.0.0.0 (Full)
+- `3.0.0.0-BETA2`, `3.0.0.0-BETA2`: Apache Tika Server 3.0.0.0-BETA2 (Minimal)
+- `3.0.0.0-BETA2`, `3.0.0.0-BETA2-full`: Apache Tika Server 3.0.0.0-BETA2 (Full)
+- `2.9.2.1`, `2.9.2.1`: Apache Tika Server 2.9.2.1 (Minimal)
+- `2.9.2.1`, `2.9.2.1-full`: Apache Tika Server 2.9.2.1 (Full)
+- `2.9.2.0`, `2.9.2.0`: Apache Tika Server 2.9.2.0 (Minimal)
+- `2.9.2.0`, `2.9.2.0-full`: Apache Tika Server 2.9.2.0 (Full)
+- `2.9.1.0`, `2.9.1.0`: Apache Tika Server 2.9.1.0 (Minimal)
+- `2.9.1.0`, `2.9.1.0-full`: Apache Tika Server 2.9.1.0 (Full)
+- `2.9.0.0`, `2.9.0.0`: Apache Tika Server 2.9.0.0 (Minimal)
+- `2.9.0.0`, `2.9.0.0-full`: Apache Tika Server 2.9.0.0 (Full)
+- `2.8.0.0`, `2.8.0.0`: Apache Tika Server 2.8.0.0 (Minimal)
+- `2.8.0.0`, `2.8.0.0-full`: Apache Tika Server 2.8.0.0 (Full)
+- `2.7.0.1`, `2.7.0.1`: Apache Tika Server 2.7.0.1 (Minimal)
+- `2.7.0.1`, `2.7.0.1-full`: Apache Tika Server 2.7.0.1 (Full)
+- `2.7.0.0`, `2.7.0.0`: Apache Tika Server 2.7.0.0 (Minimal)
+- `2.7.0.0`, `2.7.0.0-full`: Apache Tika Server 2.7.0.0 (Full)
+- `2.6.0.1`: Apache Tika Server 2.6.0.1 (Minimal)
+- `2.6.0.1-full`: Apache Tika Server 2.6.0.1 (Full)
+- `2.6.0.0`: Apache Tika Server 2.6.0.0 (Minimal)
+- `2.6.0.0-full`: Apache Tika Server 2.6.0.0 (Full)
+- `2.5.0.2`: Apache Tika Server 2.5.0.2 (Minimal)
+- `2.5.0.2-full`: Apache Tika Server 2.5.0.2 (Full)
+- `2.5.0.1`: Apache Tika Server 2.5.0.1 (Minimal)
+- `2.5.0.1-full`: Apache Tika Server 2.5.0.1 (Full)
+- `2.5.0`: Apache Tika Server 2.5.0 (Minimal)
+- `2.5.0-full`: Apache Tika Server 2.5.0 (Full)
+- `2.4.1`: Apache Tika Server 2.4.1 (Minimal)
+- `2.4.1-full`: Apache Tika Server 2.4.1 (Full)
+- `2.4.0`: Apache Tika Server 2.4.0 (Minimal)
+- `2.4.0-full`: Apache Tika Server 2.4.0 (Full)
+- `2.3.0`: Apache Tika Server 2.3.0 (Minimal)
+- `2.3.0-full`: Apache Tika Server 2.3.0 (Full)
+- `2.2.1`: Apache Tika Server 2.2.1 (Minimal)
+- `2.2.1-full`: Apache Tika Server 2.2.1 (Full)
+
+Below are the most recent 1.x series tags. **Note** that as of 30 September 2022, the 1.x branch is no longer supported.
+
+- `1.28.5`: Apache Tika Server 1.28.5 (Minimal)
+- `1.28.5-full`: Apache Tika Server 1.28.5 (Full)
+- `1.28.4`: Apache Tika Server 1.28.4 (Minimal)
+- `1.28.4-full`: Apache Tika Server 1.28.4 (Full)
+- `1.28.3`: Apache Tika Server 1.28.3 (Minimal)
+- `1.28.3-full`: Apache Tika Server 1.28.3 (Full)
+- `1.28.2`: Apache Tika Server 1.28.2 (Minimal)
+- `1.28.2-full`: Apache Tika Server 1.28.2 (Full)
+- `1.28.1`: Apache Tika Server 1.28.1 (Minimal)
+- `1.28.1-full`: Apache Tika Server 1.28.1 (Full)
+
+You can see a full set of tags for historical versions [here](https://hub.docker.com/r/apache/tika/tags?page=1&ordering=last_updated).
+
+## Supported Platforms
+
+The Docker images are published as multi-platform images supporting the following architectures:
+
+- `linux/amd64` - 64-bit x86 processors (Intel/AMD)
+- `linux/arm/v7` - 32-bit ARM processors
+- `linux/arm64/v8` - 64-bit ARM processors (Apple Silicon, AWS Graviton, etc.)
+- `linux/s390x` - IBM System z mainframes
+
+Docker will automatically pull the correct image for your platform when you use `docker pull` or `docker run`.
+
+## Usage
+
+### Default
+
+You can pull down the version you would like using:
+
+    docker pull apache/tika:<tag>
+
+Then to run the container, execute the following command:
+
+    docker run -d -p 127.0.0.1:9998:9998 apache/tika:<tag>
+
+Where <tag> is the DockerHub tag corresponding to the Apache Tika Server version - e.g. 1.23, 1.22, 1.23-full, 1.22-full.
+
+NOTE: The latest and latest-full tags are explicitly set to the latest released version when they are published.
+
+NOTE: In the example above, we recommend binding the server to localhost because Docker alters iptables and may expose
+your tika-server to the internet.  If you are confident that your tika-server is on an isolated network
+you can simply run:
+
+    docker run -d -p 9998:9998 apache/tika:<tag>
+
+### Custom Config
+
+From version 1.25 and 1.25-full of the image it is now easier to override the defaults and pass parameters to the running instance.
+
+So for example if you wish to disable the OCR parser in the full image you could write a custom configuration:
+
+```
+cat <<EOT >> tika-config.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+  <parsers>
+      <parser class="org.apache.tika.parser.DefaultParser">
+          <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
+      </parser>
+  </parsers>
+</properties>
+EOT
+```
+Then by mounting this custom configuration as a volume, you could pass the command line parameter to load it
+
+    docker run -d -p 127.0.0.1:9998:9998 -v `pwd`/tika-config.xml:/tika-config.xml apache/tika:2.5.0-full --config /tika-config.xml
+
+You can see more configuration examples [here](https://tika.apache.org/2.5.0/configuring.html).
+
+As of 2.5.0.2, if you'd like to add extra jars from your local `my-jars` directory to Tika's classpath, mount to `/tika-extras` like so:
+
+    docker run -d -p 127.0.0.1:9998:9998 -v `pwd`/my-jars:/tika-extras apache/tika:2.5.0.2-full
+
+You may want to do this to add optional components, such as the tika-eval metadata filter, or optional
+dependencies such as jai-imageio-jpeg2000 (check license compatibility first!).
+
+### Docker Compose Examples
+
+There are a number of sample Docker Compose files included in the repos to allow you to test some different scenarios.
+
+These files use docker-compose 3.x series and include:
+
+* docker-compose-tika-vision.yml - TensorFlow Inception REST API Vision examples
+* docker-compose-tika-grobid.yml - Grobid REST parsing example
+* docker-compose-tika-customocr.yml - Tesseract OCR example with custom configuration
+* docker-compose-tika-ner.yml - Named Entity Recognition example
+
+The Docker Compose files and configurations (sourced from _sample-configs_ directory) all have comments in them so you can try different options, or use them as a base to create your own custom configuration.
+
+**N.B.** You will want to create a environment variable (used in some bash scripts) matching the version of tika-docker you want to work with in the docker compositions e.g. `export TAG=1.26`. Similarly you should also consult `.env` which is used in the docker-compose `.yml` files.
+
+You can install docker-compose from [here](https://docs.docker.com/compose/install/).
+
+## Building
+
+To build the image from scratch, simply invoke:
+
+    docker build -t 'apache/tika' github.com/apache/tika-docker
+   
+You can then use the following command (using the name you allocated in the build command as part of -t option):
+
+    docker run -d -p 127.0.0.1:9998:9998 apache/tika
+    
+## More Information
+
+For more infomation on Apache Tika Server, go to the [Apache Tika Server documentation](https://cwiki.apache.org/confluence/display/TIKA/TikaServer).
+
+For more information on Apache Tika, go to the official [Apache Tika](http://tika.apache.org) project website.
+
+To meet up with others using Apache Tika, consider coming to one of the [Apache Tika Virtual Meetups](https://www.meetup.com/apache-tika-community/).
+
+For more information on the Apache Software Foundation, go to the [Apache Software Foundation](http://apache.org) website.
+
+For a full list of changes as of 2.5.0.1, visit [CHANGES.md](CHANGES.md).
+
+For our current release process, visit [tika-docker Release Process](https://cwiki.apache.org/confluence/display/TIKA/Release+Process+for+tika-docker)
+
+## Authors
+
+Apache Tika Dev Team (dev@tika.apache.org)
+   
+## Contributors
+
+There have been a range of [contributors](https://github.com/apache/tika-docker/graphs/contributors) on GitHub and via suggestions, including:
+
+- [@grossws](https://github.com/grossws)
+- [@arjunyel](https://github.com/arjunyel)
+- [@mpdude](https://github.com/mpdude)
+- [@laszlocsontosuw](https://github.com/laszlocsontosuw)
+- [@tallisonapache](https://github.com/tballison)
+
+## License
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ 
+## Disclaimer
+
+It is worth noting that whilst these Docker images download the binary JARs published by the Apache Tika Team on the Apache Software Foundation distribution sites, only the source release of an Apache Software Foundation project is an official release artefact. See [Release Distribution Policy](https://www.apache.org/dev/release-distribution.html) for more details.
+
+
+---
+File: .gitignore
+Size: 518 bytes
+Lines: 27
+---
+.svn
+target
+dependency-reduced-pom.xml
+.idea
+.classpath
+.project
+.settings
+*.iml
+*.ipr
+*.iws
+*.bin
+nbactions.xml
+nb-configuration.xml
+*.DS_Store
+*.tmp-inception
+*.snap
+.*.swp
+tika-deployment/tika-snap-app/parts/
+tika-deployment/tika-snap-app/prime/
+tika-deployment/tika-snap-app/snap/
+tika-deployment/tika-snap-app/stage/
+tika-deployment/tika-snap-app/test/
+tika-deployment/tika-snap-server/parts/
+tika-deployment/tika-snap-server/prime/
+tika-deployment/tika-snap-server/snap/
+tika-deployment/tika-snap-server/stage/
+
+
+
+---
+File: .env
+Size: 792 bytes
+Lines: 16
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+TAG=3.2.3.0
+
+---
+File: CHANGES.md
+Size: 1771 bytes
+Lines: 64
+---
+# Changes
+
+As of 2.5.0.1, we started adding a digit for Docker versions.  Going forward, we'll include
+a four digit version, where the first three are the Tika version and the last one is the docker version.
+As of 2.5.0.2, we started tagging release commits in our github repo.
+
+* 3.2.3.0 (15 Sep 2025)
+  * First 3.2.3 release
+
+* 3.2.2.0 (8 Aug 2025)
+  * First 3.2.2 release
+
+* 3.2.1.0 (9 Jul 2025)
+  * First 3.2.1 release
+
+* 3.2.0.0 (2 Jun 2025)
+  * First 3.2.0 release
+  * Update base to plucky
+  * Add Japanese language pack for tesseract
+  * Add ImageMagick
+  
+* 3.1.0.0 (31 Jan 2025)
+  * First 3.1.0 release
+  * Update base to oracular
+
+* 3.0.0.0 (21 Oct 2024)
+  * First 3.x stable release
+  * Bump jre to 21
+
+* 2.9.2.1 (21 May 2024)
+  * Updated to noble
+  * First multi-arch release
+
+* 2.9.2.0 (10 October 2023)
+  * Initial release for Tika 2.9.2
+
+* 2.9.1.0 (10 October 2023)
+  * Initial release for Tika 2.9.1
+
+* 2.9.0.0 (28 August 2023)
+  * Initial release for Tika 2.9.0
+
+* 2.8.0.0 (15 May 2023)
+  * Initial release for Tika 2.8.0
+
+
+* 2.7.0.1 (27 March 2023)
+  * More efficient build process and final image size via @stumpylog on [pr#17](https://github.com/apache/tika-docker/pull).
+
+* 2.7.0.0 (6 Feb 2023)
+  * Initial release for Tika 2.7.0
+
+* 2.6.0.1 (10 November 2022)
+  * Update operating system against OpenSSL CVE (TIKA-3926).
+
+* 2.6.0.0 (7 November 2022)
+  * Initial release for Tika 2.6.0
+
+* 2.5.0.2 (31 October 2022)
+  * Fixed root-user regression caused by differences in Docker behavior based on the build system's OS (TIKA-3912)
+  * Added tika-extras/ directory to pick up extra jars via mounted drive or for those using our image as a base image (TIKA-3907)
+* 
+* 2.5.0.1 (27 October 2022)
+  * Update to latest jammy to avoid recent CVEs (TIKA-3906)
+
+---
+File: docker-compose-tika-ner.yml
+Size: 1133 bytes
+Lines: 30
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3.8"
+services:
+ 
+  ## Apache Tika Server 
+  tika:
+    image: apache/tika:${TAG}-full
+    # Use custom script as entrypoint to go fetch models and setup recognisers
+    entrypoint: [ "/ner/run_tika_server.sh"]
+    restart: on-failure
+    ports:
+      - "9998:9998"
+    volumes:
+      -  ./sample-configs/ner/:/ner/
+    environment:
+      - TAG
+
+---
+File: docker-compose-tika-grobid.yml
+Size: 1487 bytes
+Lines: 40
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3.8"
+services:
+ 
+  ## Apache Tika Server 
+  tika:
+    image: apache/tika:${TAG}-full
+    # Override default so we can add configuration on classpath
+    entrypoint: [ "/bin/sh", "-c", "exec java -cp \"/grobid:/tika-server-standard-$${TIKA_VERSION}.jar:/tika-extras/*\" org.apache.tika.server.core.TikaServerCli -h 0.0.0.0 $$0 $$@"]
+    # Kept command as example but could be added to entrypoint too
+    command: -c /grobid/tika-config.xml
+    restart: on-failure
+    ports:
+      - "9998:9998"
+    volumes:
+      -  ./sample-configs/grobid:/grobid
+    depends_on:
+      - grobid
+
+  ## Grobid Service
+  grobid:
+    image: lfoppiano/grobid:0.6.1
+    ports:
+      - "8070:8070"
+      - "8071:8071"
+
+
+
+---
+File: republish-images.sh
+Size: 2672 bytes
+Lines: 71
+---
+#!/usr/bin/env bash
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing,
+#   software distributed under the License is distributed on an
+#   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#   KIND, either express or implied.  See the License for the
+#   specific language governing permissions and limitations
+#   under the License.
+
+
+##
+## Helper script to allow a republish of all versions released so far.
+## This was used to support the original seeding of the DockerHub repo
+##
+
+# Early releases on JRE 8
+for i in {6..13};
+do
+    docker build -t apache/tika:"1.$i" --build-arg TIKA_VERSION="1.$i" --build-arg JRE=openjdk-8-jre-headless - < minimal/Dockerfile
+    docker build -t apache/tika:"1.$i"-full --build-arg TIKA_VERSION="1.$i" --build-arg JRE=openjdk-8-jre-headless - < full/Dockerfile
+    ./docker-tool.sh test "1.$i"
+    if [ $? -eq 0 ]
+     then
+        ./docker-tool.sh publish "1.$i"
+     else
+        echo "Failed to test and publish version ${1.$i}"
+        echo "$(tput setaf 1)Failed to test and publish image : apache/tika:${1.$i}$(tput sgr0)"
+        exit 1
+    fi
+done;
+
+# Signing issues on these release where public key is not available
+for i in {14..19};
+do
+    docker build -t apache/tika:"1.$i" --build-arg TIKA_VERSION="1.$i" --build-arg JRE=openjdk-8-jre-headless --build-arg CHECK_SIG=false - < minimal/Dockerfile
+    docker build -t apache/tika:"1.$i"-full --build-arg TIKA_VERSION="1.$i" --build-arg JRE=openjdk-8-jre-headless --build-arg CHECK_SIG=false - < full/Dockerfile
+    ./docker-tool.sh test "1.$i"
+    if [ $? -eq 0 ]
+     then
+        ./docker-tool.sh publish "1.$i"
+     else
+        echo "Failed to test and publish version ${1.$i}"
+        echo "$(tput setaf 1)Failed to test and publish image : apache/tika:${1.$i}$(tput sgr0)"
+        exit 1
+    fi
+done;
+
+# Moved to JRE 11 by default
+for i in {20..23};
+do
+    ./docker-tool.sh build "1.$i"
+    ./docker-tool.sh test "1.$i"
+    if [ $? -eq 0 ]
+     then
+        ./docker-tool.sh publish "1.$i"
+     else
+        echo "Failed to test and publish version ${1.$i}"
+        echo "$(tput setaf 1)Failed to test and publish image : apache/tika:${1.$i}$(tput sgr0)"
+        exit 1
+    fi
+done;
+
+---
+File: docker-compose-tika-vision.yml
+Size: 1959 bytes
+Lines: 54
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3.8"
+services:
+ 
+  ## Apache Tika Server 
+  tika:
+    image: apache/tika:latest-full
+    command: -c /tika-config.xml
+    restart: on-failure
+    ports:
+      - "9998:9998"
+
+    volumes:
+      # Replace the below with the configuration you want to use, or with your own custom one 
+      # -  ./sample-configs/vision/inception-rest.xml:/tika-config.xml
+      # -  ./sample-configs/vision/inception-rest-video.xml:/tika-config.xml
+      -  ./sample-configs/vision/inception-rest-caption.xml:/tika-config.xml
+   
+    depends_on:
+      # You can comment out any you don't need here and in the Vision Service section below
+      - inception-rest
+      - inception-caption
+      - inception-video
+
+  ## Vision Services 
+  inception-rest:
+    build: https://raw.githubusercontent.com/dameikle/tika-dockers/patch-1/InceptionRestDockerfile
+    ports:
+      - "8764:8764"
+
+  inception-caption:
+    build: https://raw.githubusercontent.com/dameikle/tika-dockers/patch-1/Im2txtRestDockerfile
+    ports:
+      - "8765:8764"
+
+  inception-video:
+    build: https://raw.githubusercontent.com/dameikle/tika-dockers/patch-1/InceptionVideoRestDockerfile
+    ports:
+      - "8766:8764"
+
+
+
+---
+File: docker-tool.sh
+Size: 4735 bytes
+Lines: 131
+---
+#!/usr/bin/env bash
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing,
+#   software distributed under the License is distributed on an
+#   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#   KIND, either express or implied.  See the License for the
+#   specific language governing permissions and limitations
+#   under the License.
+
+image_name=apache/tika
+
+stop_and_die() {
+  docker buildx rm tika-builder || die "couldn't stop builder -- make sure to stop the builder manually! "
+  die "$*"
+}
+
+die() {
+  echo "$*" >&2
+  exit 1
+}
+
+while getopts ":h" opt; do
+  case ${opt} in
+    h )
+      echo "Usage:"
+      echo "    docker-tool.sh -h                      Display this help message."
+      echo "    docker-tool.sh build <TIKA_DOCKER_VERSION> <TIKA_VERSION>   Builds <TIKA_DOCKER_VERSION> images for <TIKA_VERSION>."
+      echo "    docker-tool.sh test <TIKA_DOCKER_VERSION>     Tests images for <TIKA_DOCKER_VERSION>."
+      echo "    docker-tool.sh publish <TIKA_DOCKER_VERSION> <TIKA_VERSION> Builds multi-arch images for <TIKA_DOCKER_VERSION> and pushes to Docker Hub."
+      exit 0
+      ;;
+   \? )
+     echo "Invalid Option: -$OPTARG" 1>&2
+     exit 1
+     ;;
+  esac
+done
+
+stop_test_container() {
+  container_name=$1
+  docker kill "$container_name"
+  docker rm "$container_name"
+}
+
+test_docker_image() {
+  container_name=$1
+  image=$image_name:$1
+  full=$2
+
+  docker run -d --name "$container_name" -p 127.0.0.1:9998:9998 "$image"
+  sleep 10
+  url=http://localhost:9998/
+  status=$(curl --head --location --connect-timeout 5 --write-out %{http_code} --silent --output /dev/null ${url})
+  user=$(docker inspect "$container_name" --format '{{.Config.User}}')
+
+  if [[ $status == '200' ]]
+  then
+    echo "$(tput setaf 2)Image: $image - Basic test passed$(tput sgr0)"
+  else
+    echo "$(tput setaf 1)Image: $image - Basic test failed$(tput sgr0)"
+    stop_test_container "$container_name"
+    exit 1
+  fi
+
+  #now test that the user is correctly set
+  if [[ $user == '35002:35002' ]]
+  then
+    echo "$(tput setaf 2)Image: $image - User passed$(tput sgr0)"
+  else
+    echo "$(tput setaf 1)Image: $image - User failed$(tput sgr0)"
+    stop_test_container "$container_name"
+    exit 1
+  fi
+
+  if [ $full == true ]
+  then
+    # Test ImageMagick is installed and runnable
+    if docker exec "$1" /usr/bin/convert -version >/dev/null
+    then
+      echo "$(tput setaf 2)Image: $image - ImageMagick passed$(tput sgr0)"
+    else
+      echo "$(tput setaf 1)Image: $image - ImageMagick failed$(tput sgr0)"
+      stop_test_container "$container_name"
+      exit 1
+    fi
+  fi
+
+  stop_test_container "$container_name"
+}
+
+shift $((OPTIND -1))
+subcommand=$1; shift
+tika_docker_version=$1; shift
+tika_version=$1; shift
+
+
+case "$subcommand" in
+  build)
+    # Build slim tika- with minimal dependencies
+    docker build -t ${image_name}:${tika_docker_version} --build-arg TIKA_VERSION=${tika_version} - < minimal/Dockerfile --no-cache || die "couldn't build minimal"
+    # Build full tika- with OCR, Fonts and GDAL
+    docker build -t ${image_name}:${tika_docker_version}-full --build-arg TIKA_VERSION=${tika_version} - < full/Dockerfile --no-cache || die "couldn't build full"
+    ;;
+
+  test)
+    # Test the images
+    test_docker_image ${tika_docker_version} false
+    test_docker_image "${tika_docker_version}-full" true
+    ;;
+
+  publish)
+    docker buildx create --use --name tika-builder || die "couldn't create builder"
+    # Build multi-arch with buildx and push
+    docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64,linux/s390x --output "type=image,push=true" \
+      --tag ${image_name}:latest --tag ${image_name}:${tika_docker_version} --build-arg TIKA_VERSION=${tika_version} --no-cache --builder tika-builder minimal || stop_and_die "couldn't build multi-arch minimal"
+    docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64,linux/s390x --output "type=image,push=true" \
+      --tag ${image_name}:latest-full --tag ${image_name}:${tika_docker_version}-full --build-arg TIKA_VERSION=${tika_version} --no-cache --builder tika-builder full || stop_and_die "couldn't build multi-arch full"
+    docker buildx rm tika-builder || die "couldn't stop builder -- make sure to stop the builder manually! "
+    ;;
+
+esac
+
+
+---
+File: full/Dockerfile
+Size: 4446 bytes
+Lines: 82
+---
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+# "random" uid/gid hopefully not used anywhere else
+# This needs to be set globally and then referenced in
+# the subsequent stages -- see TIKA-3912
+ARG UID_GID="35002:35002"
+
+FROM ubuntu:plucky AS base
+
+FROM base AS fetch_tika
+
+ARG TIKA_VERSION
+ARG CHECK_SIG=true
+
+ENV NEAREST_TIKA_SERVER_URL="https://dlcdn.apache.org/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar" \
+    ARCHIVE_TIKA_SERVER_URL="https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar" \
+    BACKUP_TIKA_SERVER_URL="https://downloads.apache.org/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar" \
+    DEFAULT_TIKA_SERVER_ASC_URL="https://downloads.apache.org/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar.asc" \
+    ARCHIVE_TIKA_SERVER_ASC_URL="https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar.asc" \
+    TIKA_VERSION=$TIKA_VERSION
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -y install gnupg2 wget ca-certificates \
+    && wget -t 10 --max-redirect 1 --retry-connrefused -qO- https://downloads.apache.org/tika/KEYS | gpg --import \
+    && wget -t 10 --max-redirect 1 --retry-connrefused $NEAREST_TIKA_SERVER_URL -O /tika-server-standard-${TIKA_VERSION}.jar || rm /tika-server-standard-${TIKA_VERSION}.jar \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar ]" || wget $ARCHIVE_TIKA_SERVER_URL -O /tika-server-standard-${TIKA_VERSION}.jar || rm /tika-server-standard-${TIKA_VERSION}.jar \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar ]" || wget $BACKUP_TIKA_SERVER_URL -O /tika-server-standard-${TIKA_VERSION}.jar || rm /tika-server-standard-${TIKA_VERSION}.jar \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar ]" || exit 1 \
+    && wget -t 10 --max-redirect 1 --retry-connrefused $DEFAULT_TIKA_SERVER_ASC_URL -O /tika-server-standard-${TIKA_VERSION}.jar.asc  || rm /tika-server-standard-${TIKA_VERSION}.jar.asc \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar.asc ]" || wget $ARCHIVE_TIKA_SERVER_ASC_URL -O /tika-server-standard-${TIKA_VERSION}.jar.asc || rm /tika-server-standard-${TIKA_VERSION}.jar.asc \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar.asc ]" || exit 1 \
+    && gpg --verify /tika-server-standard-${TIKA_VERSION}.jar.asc /tika-server-standard-${TIKA_VERSION}.jar
+
+#RUN if [ "$CHECK_SIG" = "true" ] ; then gpg --verify /tika-server-standard-${TIKA_VERSION}.jar.asc /tika-server-standard-${TIKA_VERSION}.jar; fi
+
+FROM base AS runtime
+ARG UID_GID
+ARG JRE='openjdk-21-jre-headless'
+RUN set -eux \
+    && apt-get update \
+    && apt-get install --yes --no-install-recommends gnupg2 software-properties-common \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends $JRE \
+        gdal-bin \
+        imagemagick \
+        tesseract-ocr \
+        tesseract-ocr-eng \
+        tesseract-ocr-ita \
+        tesseract-ocr-fra \
+        tesseract-ocr-spa \
+        tesseract-ocr-deu \
+        tesseract-ocr-jpn \
+    && echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        xfonts-utils \
+        fonts-freefont-ttf \
+        fonts-liberation \
+        ttf-mscorefonts-installer \
+        wget \
+        cabextract \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ARG TIKA_VERSION
+ENV TIKA_VERSION=$TIKA_VERSION
+
+COPY --from=fetch_tika /tika-server-standard-${TIKA_VERSION}.jar /tika-server-standard-${TIKA_VERSION}.jar
+USER $UID_GID
+
+EXPOSE 9998
+ENTRYPOINT [ "/bin/sh", "-c", "exec java -cp \"/tika-server-standard-${TIKA_VERSION}.jar:/tika-extras/*\" org.apache.tika.server.core.TikaServerCli -h 0.0.0.0 $0 $@"]
+
+LABEL maintainer="Apache Tika Developers dev@tika.apache.org"
+
+
+
+---
+File: minimal/Dockerfile
+Size: 3997 bytes
+Lines: 70
+---
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+# "random" uid/gid hopefully not used anywhere else
+# This needs to be set globally and then referenced in
+# the subsequent stages -- see TIKA-3912
+ARG UID_GID="35002:35002"
+
+FROM ubuntu:plucky AS base
+
+FROM base AS fetch_tika
+
+ARG TIKA_VERSION
+ARG CHECK_SIG=true
+
+ENV NEAREST_TIKA_SERVER_URL="https://dlcdn.apache.org/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar" \
+    ARCHIVE_TIKA_SERVER_URL="https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar" \
+    BACKUP_TIKA_SERVER_URL="https://downloads.apache.org/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar" \
+    DEFAULT_TIKA_SERVER_ASC_URL="https://downloads.apache.org/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar.asc" \
+    ARCHIVE_TIKA_SERVER_ASC_URL="https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-server-standard-${TIKA_VERSION}.jar.asc" \
+    TIKA_VERSION=$TIKA_VERSION
+
+RUN set -eux \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
+        gnupg2 \
+        wget \
+        ca-certificates \
+    && wget -t 10 --max-redirect 1 --retry-connrefused -qO- https://downloads.apache.org/tika/KEYS | gpg --import \
+    && wget -t 10 --max-redirect 1 --retry-connrefused $NEAREST_TIKA_SERVER_URL -O /tika-server-standard-${TIKA_VERSION}.jar || rm /tika-server-standard-${TIKA_VERSION}.jar \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar ]" || wget $ARCHIVE_TIKA_SERVER_URL -O /tika-server-standard-${TIKA_VERSION}.jar || rm /tika-server-standard-${TIKA_VERSION}.jar \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar ]" || wget $BACKUP_TIKA_SERVER_URL -O /tika-server-standard-${TIKA_VERSION}.jar || rm /tika-server-standard-${TIKA_VERSION}.jar \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar ]" || exit 1 \
+    && wget -t 10 --max-redirect 1 --retry-connrefused $DEFAULT_TIKA_SERVER_ASC_URL -O /tika-server-standard-${TIKA_VERSION}.jar.asc  || rm /tika-server-standard-${TIKA_VERSION}.jar.asc \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar.asc ]" || wget $ARCHIVE_TIKA_SERVER_ASC_URL -O /tika-server-standard-${TIKA_VERSION}.jar.asc || rm /tika-server-standard-${TIKA_VERSION}.jar.asc \
+    && sh -c "[ -f /tika-server-standard-${TIKA_VERSION}.jar.asc ]" || exit 1 \
+    && gpg --verify /tika-server-standard-${TIKA_VERSION}.jar.asc /tika-server-standard-${TIKA_VERSION}.jar
+
+# this used to work, but I'm getting "ERROR: failed to solve: failed to prepare $data as $data2: invalid argument"
+# when trying to build 2.9.2.0
+#RUN if [ "$CHECK_SIG" = "true" ] ; then gpg --verify /tika-server-standard-${TIKA_VERSION}.jar.asc /tika-server-standard-${TIKA_VERSION}.jar; fi
+
+FROM base AS runtime
+# must reference uid_gid
+ARG UID_GID
+ARG JRE='openjdk-21-jre-headless'
+RUN set -eux \
+    && apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        ${JRE} \
+        ca-certificates \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ARG TIKA_VERSION
+ENV TIKA_VERSION=$TIKA_VERSION
+COPY --from=fetch_tika /tika-server-standard-${TIKA_VERSION}.jar /tika-server-standard-${TIKA_VERSION}.jar
+USER $UID_GID
+EXPOSE 9998
+ENTRYPOINT [ "/bin/sh", "-c", "exec java -cp \"/tika-server-standard-${TIKA_VERSION}.jar:/tika-extras/*\" org.apache.tika.server.core.TikaServerCli -h 0.0.0.0 $0 $@"]
+
+LABEL maintainer="Apache Tika Developers dev@tika.apache.org"
+
+
+---
+File: sample-configs/ner/tika-config.xml
+Size: 1178 bytes
+Lines: 28
+---
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+    <parsers>
+        <parser class="org.apache.tika.parser.ner.NamedEntityParser">
+            <mime>application/pdf</mime>
+            <mime>text/plain</mime>
+            <mime>text/html</mime>
+            <mime>application/xhtml+xml</mime>
+        </parser>
+    </parsers>
+</properties>
+
+
+
+---
+File: sample-configs/ner/run_tika_server.sh
+Size: 3392 bytes
+Lines: 62
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+#############################################################################
+# See https://cwiki.apache.org/confluence/display/TIKA/TikaAndNER for details
+# on how to configure additional NER libraries
+#############################################################################
+
+# ------------------------------------
+# Download OpenNLP Models to classpath
+# ------------------------------------
+
+OPENNLP_LOCATION="/ner/org/apache/tika/parser/ner/opennlp"
+URL="http://opennlp.sourceforge.net/models-1.5"
+
+mkdir -p $OPENNLP_LOCATION
+if [ "$(ls -A $OPENNLP_LOCATION/*.bin)" ]; then
+    echo "OpenNLP models directory has files, so skipping fetch";
+else
+	echo "No OpenNLP models found, so fetching them"
+	wget "$URL/en-ner-person.bin" -O $OPENNLP_LOCATION/ner-person.bin
+	wget "$URL/en-ner-location.bin" -O $OPENNLP_LOCATION/ner-location.bin
+	wget "$URL/en-ner-organization.bin" -O $OPENNLP_LOCATION/ner-organization.bin;
+	wget "$URL/en-ner-date.bin" -O $OPENNLP_LOCATION/ner-date.bin
+	wget "$URL/en-ner-time.bin" -O $OPENNLP_LOCATION/ner-time.bin
+	wget "$URL/en-ner-percentage.bin" -O $OPENNLP_LOCATION/ner-percentage.bin
+	wget "$URL/en-ner-money.bin" -O $OPENNLP_LOCATION/ner-money.bin
+fi
+
+# --------------------------------------------
+# Create RexExp Example for Email on classpath
+# --------------------------------------------
+REGEXP_LOCATION="/ner/org/apache/tika/parser/ner/regex"
+mkdir -p $REGEXP_LOCATION
+echo "EMAIL=(?:[a-z0-9!#$%&'*+/=?^_\`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_\`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])" > $REGEXP_LOCATION/ner-regex.txt
+
+
+# -------------------
+# Now run Tika Server
+# -------------------
+
+# Can be a single implementation or comma seperated list for multiple for "ner.impl.class" property
+RECOGNISERS=org.apache.tika.parser.ner.opennlp.OpenNLPNERecogniser,org.apache.tika.parser.ner.regex.RegexNERecogniser
+# Set classpath to the Tika Server JAR and the /ner folder so it has the configuration and models from above
+CLASSPATH="/ner:/tika-server-standard-${TIKA_VERSION}.jar:/tika-extras/*"
+# Run the server with the custom configuration ner.impl.class property and custom /ner/tika-config.xml
+exec java -Dner.impl.class=$RECOGNISERS -cp $CLASSPATH org.apache.tika.server.core.TikaServerCli -h 0.0.0.0 -c /ner/tika-config.xml
+
+---
+File: sample-configs/customocr/tika-config-rendered.xml
+Size: 1756 bytes
+Lines: 38
+---
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+  <parsers>     
+        <!-- Load TesseractOCRParser (could use DefaultParser if you want others too) -->
+        <parser class="org.apache.tika.parser.ocr.TesseractOCRParser"/>   
+
+        <!-- OCR on Rendered Pages -->
+        <parser class="org.apache.tika.parser.pdf.PDFParser">
+            <params>
+                <!-- no_ocr - extract text only
+                     ocr_only - don't extract text and just attempt OCR
+                     ocr_and_text - extract text and attempt OCR (from Tika 1.24)
+                     auto - extract text but if < 10 characters try OCR
+                -->
+                <param name="ocrStrategy" type="string">ocr_only</param>
+                <param name="ocrImageType" type="string">rgb</param>
+                <param name="ocrDPI" type="int">100</param>
+            </params>
+        </parser>
+
+  </parsers>
+</properties>
+
+
+---
+File: sample-configs/customocr/tika-config-inline.xml
+Size: 1358 bytes
+Lines: 31
+---
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+  <parsers>     
+        <!-- Load TesseractOCRParser (could use DefaultParser if you want others too) -->
+        <parser class="org.apache.tika.parser.ocr.TesseractOCRParser"/>   
+
+        <!-- Extract and OCR Inline Images in PDF -->
+        <parser class="org.apache.tika.parser.pdf.PDFParser">
+            <params>
+                <param name="extractInlineImages" type="bool">true</param>
+            </params>
+        </parser>
+        
+  </parsers>
+</properties>
+
+
+---
+File: sample-configs/customocr/org/apache/tika/parser/ocr/TesseractOCRConfig.properties
+Size: 976 bytes
+Lines: 25
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# You customise or add the settings you want here
+language=eng+spa+fra+deu+ita
+timeout=240
+minFileSizeToOcr=1
+enableImageProcessing=0
+density=200
+depth=8
+filter=box
+resize=300
+applyRotation=true
+
+---
+File: sample-configs/vision/inception-rest-caption.xml
+Size: 1515 bytes
+Lines: 32
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+    <parsers>
+        <parser class="org.apache.tika.parser.recognition.ObjectRecognitionParser">
+            <mime>image/jpeg</mime>
+            <mime>image/png</mime>
+            <mime>image/gif</mime>
+            <params>
+                <param name="apiBaseUri" type="uri">http://inception-caption:8764/inception/v3</param>
+                <param name="captions" type="int">5</param>
+                <param name="maxCaptionLength" type="int">15</param>
+                <param name="class" type="string">org.apache.tika.parser.captioning.tf.TensorflowRESTCaptioner</param>
+            </params>
+        </parser>
+    </parsers>
+</properties>
+
+---
+File: sample-configs/vision/inception-rest-video.xml
+Size: 1552 bytes
+Lines: 32
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+    <parsers>
+        <parser class="org.apache.tika.parser.recognition.ObjectRecognitionParser">
+            <mime>video/mp4</mime>
+            <mime>video/quicktime</mime>
+            <params>
+                <param name="apiBaseUri" type="uri">http://inception-video:8764/inception/v4</param>
+                <param name="topN" type="int">4</param>
+                <param name="minConfidence" type="double">0.015</param>
+                <param name="mode" type="string">fixed</param>
+                <param name="class" type="string">org.apache.tika.parser.recognition.tf.TensorflowRESTVideoRecogniser</param>
+            </params>
+        </parser>
+    </parsers>
+</properties>
+
+---
+File: sample-configs/vision/inception-rest.xml
+Size: 1514 bytes
+Lines: 32
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+    <parsers>
+        <parser class="org.apache.tika.parser.recognition.ObjectRecognitionParser">
+            <mime>image/jpeg</mime>
+            <mime>image/png</mime>
+            <mime>image/gif</mime>
+            <params>
+                <param name="apiBaseUri" type="uri">http://inception-rest:8764/inception/v4</param>
+                <param name="topN" type="int">2</param>
+                <param name="minConfidence" type="double">0.015</param>
+                <param name="class" type="string">org.apache.tika.parser.recognition.tf.TensorflowRESTRecogniser</param>
+            </params>
+        </parser>
+    </parsers>
+</properties>
+
+
+---
+File: sample-configs/grobid/tika-config.xml
+Size: 1041 bytes
+Lines: 24
+---
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<properties>
+  <parsers>
+    <parser class="org.apache.tika.parser.journal.JournalParser">
+      <mime>application/pdf</mime>
+    </parser>
+  </parsers>
+</properties>
+
+
+---
+File: sample-configs/grobid/org/apache/tika/parser/journal/GrobidExtractor.properties
+Size: 817 bytes
+Lines: 16
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+grobid.server.url=http://grobid:8070

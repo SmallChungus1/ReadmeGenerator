@@ -1,0 +1,5148 @@
+Tokens: 40364
+Repo: apache/skywalking-client-js
+Commit: bb49e5d87877af6654507f8128304e794c0e417e
+Timestamp: 2026-03-04T19:37:20.143378
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .github
+│   └── workflows
+│       ├── build.yml
+│       └── e2e.yml
+├── .gitignore
+├── .licenserc.yaml
+├── .npmrc
+├── .prettierrc
+├── CHANGES.md
+├── LICENSE
+├── Makefile
+├── NOTICE
+├── README.md
+├── index.js
+├── package-lock.json
+├── package.json
+├── release.md
+├── src
+│   ├── errors
+│   │   ├── ajax.ts
+│   │   ├── frames.ts
+│   │   ├── index.ts
+│   │   ├── js.ts
+│   │   ├── promise.ts
+│   │   ├── resource.ts
+│   │   └── vue.ts
+│   ├── index.ts
+│   ├── monitor.ts
+│   ├── performance
+│   │   ├── fmp.ts
+│   │   ├── index.ts
+│   │   ├── perf.ts
+│   │   └── type.ts
+│   ├── services
+│   │   ├── apiDetectSupported.ts
+│   │   ├── base.ts
+│   │   ├── bfcache.ts
+│   │   ├── constant.ts
+│   │   ├── eventsListener.ts
+│   │   ├── getEntries.ts
+│   │   ├── getVisibilityObserver.ts
+│   │   ├── interactions.ts
+│   │   ├── observe.ts
+│   │   ├── report.ts
+│   │   ├── task.ts
+│   │   ├── types.ts
+│   │   └── uuid.ts
+│   ├── trace
+│   │   ├── interceptors
+│   │   │   ├── fetch.ts
+│   │   │   └── xhr.ts
+│   │   ├── segment.ts
+│   │   └── type.ts
+│   └── types.ts
+├── test
+│   ├── base-compose.yml
+│   ├── docker
+│   │   ├── Dockerfile.generate-traffic
+│   │   ├── Dockerfile.provider
+│   │   ├── Dockerfile.test-ui
+│   │   ├── nginx.conf
+│   │   ├── provider.py
+│   │   └── test.py
+│   ├── docker-compose.yml
+│   ├── e2e.yaml
+│   ├── env
+│   └── expected
+│       ├── dependency.yml
+│       ├── error-log.yml
+│       ├── metrics-has-value-percentile.yml
+│       ├── metrics-has-value.yml
+│       ├── page.yml
+│       ├── service.yml
+│       ├── trace-detail.yml
+│       ├── traces.yml
+│       └── version.yml
+├── tsconfig.json
+├── tslint.json
+└── webpack.config.js
+
+--- Summary Report ---
+Total files scanned: 69
+Files included: 68
+Files skipped by rule: 0
+Files skipped by size: 1
+Detected languages count: 12
+Top 15 largest included files:
+  11357 bytes - LICENSE
+  10389 bytes - README.md
+  9481 bytes - src/performance/fmp.ts
+  9306 bytes - src/performance/index.ts
+  8636 bytes - src/trace/interceptors/xhr.ts
+  7434 bytes - test/e2e.yaml
+  6514 bytes - src/monitor.ts
+  6260 bytes - src/trace/interceptors/fetch.ts
+  4285 bytes - release.md
+  3221 bytes - src/services/interactions.ts
+  3140 bytes - test/docker-compose.yml
+  2972 bytes - src/performance/perf.ts
+  2576 bytes - src/services/report.ts
+  2510 bytes - CHANGES.md
+  2342 bytes - src/errors/resource.ts
+-----------------------
+
+---
+File: .asf.yaml
+Size: 1386 bytes
+Lines: 41
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+github:
+  description: Client-side JavaScript exception and tracing library for Apache SkyWalking APM.
+  homepage: https://skywalking.apache.org/
+  labels:
+    - skywalking
+    - observability
+    - apm
+    - distributed-tracing
+    - dapper
+    - javascript
+    - web-performance
+  enabled_merge_buttons:
+    squash:  true
+    merge:   false
+    rebase:  false
+  protected_branches:
+    master:
+      required_status_checks:
+        strict: true
+        contexts:
+          - build
+      required_pull_request_reviews:
+        dismiss_stale_reviews: true
+        required_approving_review_count: 1 
+
+
+---
+File: LICENSE
+Size: 11357 bytes
+Lines: 201
+---
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright {yyyy} {name of copyright owner}
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+---
+File: Makefile
+Size: 1795 bytes
+Lines: 69
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+SHELL := /bin/bash -o pipefail
+
+VERSION ?= latest
+RELEASE_SRC = skywalking-client-js-${VERSION}-src
+
+GPG_UID :=
+
+# set gpg user id
+ifdef GPG_UID
+	GPG_UID_FLAG := -u $(GPG_UID)
+endif
+
+.PHONY: release-src
+release-src:
+	tar -zcvf $(RELEASE_SRC).tgz \
+	--exclude .git/ \
+	--exclude .idea/ \
+	--exclude .gitignore \
+	--exclude .DS_Store \
+	--exclude .github \
+	--exclude lib \
+	--exclude node_modules \
+	--exclude release \
+	--exclude $(RELEASE_SRC).tgz \
+	.
+
+	gpg $(GPG_UID_FLAG) --batch --yes --armor --detach-sig $(RELEASE_SRC).tgz
+	shasum -a 512 $(RELEASE_SRC).tgz > $(RELEASE_SRC).tgz.sha512
+
+	mkdir -p release
+	mv $(RELEASE_SRC).tgz release/$(RELEASE_SRC).tgz
+	mv $(RELEASE_SRC).tgz.asc release/$(RELEASE_SRC).tgz.asc
+	mv $(RELEASE_SRC).tgz.sha512 release/$(RELEASE_SRC).tgz.sha512
+
+.PHONY: install
+install:
+	npm install
+
+.PHONY: clean
+clean:
+	rm -rf ./node_modules && \
+	rm -rf ./lib
+
+.PHONY: build
+build:
+	npm run build
+
+.PHONY: rebuild
+rebuild:
+	npm run rebuild
+
+.PHONY: publish
+publish: rebuild
+	npm publish
+
+
+---
+File: index.js
+Size: 858 bytes
+Lines: 20
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import './lib/index';
+
+export default ClientMonitor;
+
+
+---
+File: .npmrc
+Size: 828 bytes
+Lines: 16
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+
+
+---
+File: webpack.config.js
+Size: 1729 bytes
+Lines: 62
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const path = require('path');
+const webpack = require('webpack');
+const WebpackConcatPlugin = require('webpack-concat-files-plugin');
+
+const isDev = process.env.NODE_ENV !== 'production';
+const config = {
+  entry: './src/index.ts',
+  devtool: 'inline-source-map',
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+    mainFiles: ['index'],
+  },
+  output: {
+    filename: 'index.js',
+    path: path.resolve(__dirname, 'lib'),
+    publicPath: '/',
+  },
+  plugins: [
+    new WebpackConcatPlugin({
+      bundles: [
+        {
+          dest: './lib/src/types.ts',
+          src: './src/**/*.ts',
+        },
+      ],
+    }),
+  ],
+  optimization: {
+    moduleIds: 'named',
+  },
+};
+if (isDev) {
+  config.mode = 'development';
+} else {
+  config.mode = 'production';
+}
+module.exports = config;
+
+
+---
+File: NOTICE
+Size: 170 bytes
+Lines: 5
+---
+Apache SkyWalking
+Copyright 2017-2025 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+---
+File: README.md
+Size: 10389 bytes
+Lines: 227
+---
+Apache SkyWalking Client JS
+==========
+
+<img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
+
+[Apache SkyWalking](https://github.com/apache/skywalking) Client-side JavaScript exception and tracing library.
+- Provide metrics and error collection to SkyWalking backend.
+- Lightweight
+- Make browser as a start of whole distributed tracing
+
+NOTICE,  SkyWalking Client JS 1.0+ and later versions require SkyWalking 10.2+.
+# Usage
+
+## Install  
+The `skywalking-client-js` runtime library is available at [npm](https://www.npmjs.com/package/skywalking-client-js).
+
+```
+npm install skywalking-client-js --save
+```
+
+## Quick Start
+
+**`skywalking-client-js` requires SkyWalking v10, and 10.2+ provides complete features.**
+
+User could use `register` method to load and report data automatically.
+
+```js
+import ClientMonitor from 'skywalking-client-js';
+```
+```js
+// Report collected data to `http:// + window.location.host + /browser/perfData` in default
+ClientMonitor.register({
+  # Use core/default/restPort in the OAP server.
+  # If External Communication Channels are activated, `receiver-sharing-server/default/restPort`,
+  # ref to https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-expose/
+  collector: 'http://127.0.0.1:12800', 
+  service: 'test-ui',
+  pagePath: '/current/page/name',
+  serviceVersion: 'v1.0.0',
+});
+```
+
+### Parameters 
+The register method supports the following parameters.
+
+|Parameter|Type|Description|Required|Default Value|
+|----|----|----|----|----|
+|collector|String|In default, the collected data would be reported to current domain(`/browser/perfData`. Then, typically, we recommend you use a Gateway/proxy to redirect the data to the OAP(`resthost:restport`). If you set this, the data could be reported to another domain, NOTE [the Cross-Origin Resource Sharing (CORS) issuse and solution](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). |false|-|
+|service|String|project ID.|true|-|
+|serviceVersion|String|project verison|true|-|
+|pagePath|String|project path|true|-|
+|jsErrors|Boolean|Support js errors monitoring|false|true|
+|apiErrors|Boolean|Support API errors monitoring|false|true|
+|resourceErrors|Boolean|Support resource errors monitoring|false|true|
+|useFmp|Boolean|Collect FMP (first meaningful paint) data of the first screen. Deprecated: This is no longer recommended. Please use the `useWebVitals` instead. |false|false|
+|enableSPA|Boolean|Monitor the page hashchange event and report PV, which is suitable for [single page application scenarios](https://github.com/apache/skywalking-client-js#spa-page). |false|false|
+|autoTracePerf|Boolean|Support sending of performance data automatically.|false|true|
+|vue|Vue|Support vue2 errors monitoring. Deprecated: This is no longer recommended. Please use the [Catching errors in frames](https://github.com/apache/skywalking-client-js#catching-errors-in-frames-including-react-angular-vue) scenario instead. |false|undefined|
+|traceSDKInternal|Boolean|Support tracing SDK internal RPC.|false|false|
+|detailMode|Boolean|Support tracing http method and url as tags in spans.|false|true|
+|noTraceOrigins|(string \| RegExp)[]|Origin in the `noTraceOrigins` list will not be traced.|false|[]|
+|traceTimeInterval|Number|Support setting time interval to report segments.|false|60000|
+|customTags|Array|Custom Tags|false|-|
+|useWebVitals|Boolean|Collect three core web vitals. NOTE, Safari does not support all core web vitals, and Firefox does not support `CLS`.|false|false|
+
+## Collect Metrics Manually
+Use the `setPerformance` method to report metrics at the moment of page loaded or any other moment meaningful.
+
+1. Set the SDK configuration item autoTracePerf to false to turn off automatic reporting performance metrics and wait for manual triggering of escalation.  
+2. Call `ClientMonitor.setPerformance(object)` method to report
+
+- Examples
+```js
+import ClientMonitor from 'skywalking-client-js';
+
+ClientMonitor.setPerformance({
+  collector: 'http://127.0.0.1:12800',
+  service: 'browser-app',
+  serviceVersion: '1.0.0',
+  pagePath: location.href,
+  useWebVitals: true
+});
+```
+
+## Special scene
+
+### SPA Page 
+In spa (single page application) single page application, the page will be refreshed only once. The traditional method only reports PV once after the page loading, but cannot count the PV of each sub-page, and can't make other types of logs aggregate by sub-page.  
+The SDK provides two processing methods for spa pages:
+
+1. Enable spa automatic parsing  
+This method is suitable for most single page application scenarios with URL hash as the route.  
+In the initialized configuration item, set enableSPA to true, which will turn on the page's hashchange event listening (trigger re reporting PV), and use URL hash as the page field in other data reporting.  
+2. Manual reporting  
+This method can be used in all single page application scenarios. This method can be used if the first method is invalid.    
+The SDK provides a set page method to manually update the page name when data is reported. When this method is called, the page PV will be re reported by default. For details, see setPerformance().  
+```js
+app.on('routeChange', function (next) {
+  ClientMonitor.setPerformance({
+    collector: 'http://127.0.0.1:12800',
+    service: 'browser-app',
+    serviceVersion: '1.0.0',
+    pagePath: location.href,
+    useWebVitals: true
+  });
+});   
+```
+
+## Tracing range of data requests in the browser
+
+Support tracking these([XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) and [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)) two modes of data requests. At the same time, Support tracking libraries and tools that base on XMLHttpRequest and fetch, such as [Axios](https://github.com/axios/axios), [SuperAgent](https://github.com/visionmedia/superagent), [OpenApi](https://www.openapis.org/) and so on.
+
+## Catching errors in frames, including React, Angular, Vue.
+
+```js
+// Angular
+import { ErrorHandler } from '@angular/core';
+import ClientMonitor from 'skywalking-client-js';
+export class AppGlobalErrorhandler implements ErrorHandler {
+  handleError(error) {
+    ClientMonitor.reportFrameErrors({
+      collector: 'http://127.0.0.1:12800',
+      service: 'angular-demo',
+      pagePath: '/app',
+      serviceVersion: 'v1.0.0',
+    }, error);
+  }
+}
+@NgModule({
+  ...
+  providers: [{provide: ErrorHandler, useClass: AppGlobalErrorhandler}]
+})
+class AppModule {}
+```
+
+```js
+// React
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // You can also log the error to an error reporting service
+    ClientMonitor.reportFrameErrors({
+      collector: 'http://127.0.0.1:12800',
+      service: 'react-demo',
+      pagePath: '/app',
+      serviceVersion: 'v1.0.0',
+    }, error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children; 
+  }
+}
+<ErrorBoundary>
+  <MyWidget />
+</ErrorBoundary>
+```
+
+```js
+// Vue
+Vue.config.errorHandler = (error) => {
+  ClientMonitor.reportFrameErrors({
+    collector: 'http://127.0.0.1:12800',
+    service: 'vue-demo',
+    pagePath: '/app',
+    serviceVersion: 'v1.0.0',
+  }, error);
+}
+```
+
+## According to different pages or modules, add custom tags to spans.
+
+```js
+app.on('routeChange', function () {
+  ClientMonitor.setCustomTags([
+    { key: 'key1', value: 'value1' },
+    { key: 'key2', value: 'value2' },
+  ]);
+});
+```
+
+# Security Notice
+The SkyWalking client-js agent would be deployed and running outside of your datacenter. This means when you introduce this component you should be aware of the security impliciations.
+There are various kinds of telemetry relative data would be reported to backend separately or through your original HTTP requests.
+
+In order to implement **distributed tracing from the browser**, an HTTP header with the name `sw8` will be added to HTTP requests
+according to [Cross Process Propagation Headers Protocol v3](https://skywalking.apache.org/docs/main/latest/en/api/x-process-propagation-headers-v3/). 
+`client-js` will also report spans and browser telemetry data through [Trace Data Protocol v3](https://skywalking.apache.org/docs/main/latest/en/api/trace-data-protocol-v3/) and 
+[Browser Protocol](https://skywalking.apache.org/docs/main/latest/en/api/browser-protocol/).
+
+Because all of this data is reported from an unsecured environment, users should make sure to:
+1. Not expose OAP server to the internet directly.
+1. Set up TLS/HTTPs between browser and OAP server.
+1. Set up authentification(such as TOKEN based) for client-js reporting.
+1. Validate all fields in the body of the HTTP headers and telemetry data mentioned above to detect and reject malicious data. Without such protections, an attacker could embed executable Javascript code in those fields, causing XSS or even Remote Code Execution (RCE) issues.
+
+Please consult your security team before introducing this feature in your production environment. Don't expose the OAP server's IP/port(s) and URI without a security audit.
+
+# Demo project
+
+Demo project provides instrumented web application with necessary environment, you could just simple use it to see the data SkyWalking collected and how SkyWalking visualizes on the UI. 
+See more information, [click here](https://github.com/SkyAPMTest/skywalking-client-test).
+
+# Contact Us
+* Submit an [issue](https://github.com/apache/skywalking/issues)
+* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
+* Join `#skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNzc2ODE3MjI1MDk1LTAyZGJmNTg1NWZhNmVmOWZjMjA2MGUyOGY4MjE5ZGUwOTQxY2Q3MDBmNTM5YTllNGU4M2QyMzQ4M2U4ZjQ5YmY). If the linke is not working, find the latest one at [Apache INFRA WIKI](https://cwiki.apache.org/confluence/display/INFRA/Slack+Guest+Invites).
+
+# Release Guide
+All committers should follow [Release Guide](release.md) to publish the official release.
+
+# License
+Apache 2.0
+
+
+---
+File: release.md
+Size: 4285 bytes
+Lines: 160
+---
+# Release Guide
+All committer should follow these steps to do release for this repo.
+
+1. Update the [package version](package.json) and [CHANGES.md](CHANGES.md) to prepare the official release.
+
+2. Package the source release.
+
+```shell
+> export VERSION=x.y.z
+> make release-src
+```
+
+Use SVN to upload the files(tgz, asc and sha512) in the `release` folder to `https://dist.apache.org/repos/dist/dev/skywalking/client-js/x.y.z`.
+
+3. Make the internal announcements. Send an announcement mail in dev mail list.
+
+```
+[ANNOUNCE] SkyWalking Client JS x.y.z test build available
+
+The test build of x.y.z is available.
+
+We welcome any comments you may have, and will take all feedback into
+account if a quality vote is called for this build.
+
+Release notes:
+
+ * https://github.com/apache/skywalking-client-js/blob/vx.y.z/CHANGES.md
+
+Release Candidate:
+
+ * https://dist.apache.org/repos/dist/dev/skywalking/client-js/x.y.z/
+ * sha512 checksums
+   - xxxxxxx  skywalking-client-js-x.y.z-src.tgz
+
+Release Tag :
+
+ * vx.y.z
+
+Release CommitID :
+
+ * https://github.com/apache/skywalking-client-js/tree/xxxxxxxxxx
+
+Keys to verify the Release Candidate :
+
+ * https://dist.apache.org/repos/dist/release/skywalking/KEYS
+
+
+A vote regarding the quality of this test build will be initiated
+within the next couple of days.
+```
+
+4. Wait at least 48 hours for test responses. If there is a critical issue found and confirmed by the PMC, this release should be cancelled.
+
+5. Call for a vote. Call a vote in dev@skywalking.apache.org
+
+```
+[VOTE] Release SkyWalking Client JS x.y.z
+
+This is a call for vote to release Apache SkyWalking Client JS version x.y.z.
+
+Release notes:
+
+ * https://github.com/apache/skywalking-client-js/blob/vx.y.z/CHANGES.md
+
+Release Candidate:
+
+ * https://dist.apache.org/repos/dist/dev/skywalking/client-js/x.y.z/
+ * sha512 checksums
+   - xxxxxxx  skywalking-client-js-x.y.z-src.tgz
+
+Release Tag :
+
+ * vx.y.z
+
+Release CommitID :
+
+ * https://github.com/apache/skywalking-client-js/tree/xxxxxxxxxx
+
+Keys to verify the Release Candidate :
+
+ * https://dist.apache.org/repos/dist/release/skywalking/KEYS
+
+
+Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PMC members to give their vote.
+[ ] +1 Release this package.
+[ ] +0 No opinion.
+[ ] -1 Do not release this package because....
+
+```
+
+5. Publish release, if vote passed.
+
+Move the release from RC folder to the dist folder. This will begin the file sync across the global Apache mirrors.
+```
+> export SVN_EDITOR=vim
+> svn mv https://dist.apache.org/repos/dist/dev/skywalking/client-js/x.y.z https://dist.apache.org/repos/dist/release/skywalking/client-js
+....
+enter your apache password
+....
+```
+
+Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`, the sender should use Apache email account.
+```
+Mail title: [ANNOUNCE] Release Apache SkyWalking Client JS version x.y.z
+
+Mail content:
+Hi all,
+
+Apache SkyWalking  Team is glad to announce the first release of Apache SkyWalking Client JS x.y.z
+
+SkyWalking: APM (application performance monitor) tool for distributed systems,
+especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
+
+Skywalking Client Js provide browser metrics and error collection to SkyWalking backend.
+
+This release contains a number of new features, bug fixes and improvements compared to
+version a.b.c(last release). The notable changes since x.y.z include:
+
+(Highlight key changes)
+1. ...
+2. ...
+3. ...
+
+Please refer to the change log for the complete list of changes:
+https://github.com/apache/skywalking-client-js/blob/x.y.z/CHANGES.md
+
+Apache SkyWalking website:
+http://skywalking.apache.org/
+
+Downloads:
+http://skywalking.apache.org/downloads/
+
+Twitter:
+https://twitter.com/ASFSkyWalking
+
+SkyWalking Resources:
+- GitHub: https://github.com/apache/skywalking
+- Issue: https://github.com/apache/skywalking/issues
+- Mailing list: dev@skywalkiing.apache.org
+
+
+- Apache SkyWalking Team
+```
+
+6. publish package to NPM
+
+Login to NPM, the username is `apache-skywalking` and the password has been sent to `private@skwalking.apache.org`.
+
+```bash
+> export NPM_TOKEN=npm_token_here
+> npm login
+> Username: apache-skywalking
+> Password:
+```
+
+Then publish the package to NPM.
+
+```
+> make publish
+```
+
+---
+File: .gitignore
+Size: 157 bytes
+Lines: 19
+---
+# dependencies
+/node_modules
+
+# production
+/lib
+
+# misc
+.DS_Store
+
+.idea
+*.iml
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock*
+
+# release
+release/
+
+---
+File: package.json
+Size: 1542 bytes
+Lines: 66
+---
+{
+  "name": "skywalking-client-js",
+  "version": "1.0.0",
+  "description": "Client-side JavaScript exception and tracing library for Apache SkyWalking APM",
+  "main": "index.js",
+  "types": "lib/src/index.ts",
+  "repository": "apache/skywalking-client-js",
+  "homepage": "skywalking.apache.org",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/apache/skywalking/issues",
+    "email": "dev@skywalking.apache.org"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.1",
+    "minimist": "^1.2.3",
+    "prettier": "^2.1.1",
+    "ts-loader": "^9.2.1",
+    "tslint": "^5.20.1",
+    "typescript": "^4.9.5",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-concat-files-plugin": "^0.5.2",
+    "webpack-dev-server": "^5.2.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "rebuild": "rm -rf ./node_modules && rm -rf ./lib && npm install && npm run build",
+    "start": "npx webpack serve",
+    "release": "make release-src"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "files": [
+    "LICENSE",
+    "NOTICE",
+    "CHANGES.md",
+    "README.md",
+    "index.js",
+    "lib/",
+    "dist/licenses"
+  ],
+  "keywords": [
+    "skywalking",
+    "observability",
+    "apm",
+    "distributed-tracing",
+    "dapper",
+    "javascript",
+    "web-performance"
+  ],
+  "dependencies": {
+    "js-base64": "^3.6.0"
+  }
+}
+
+
+---
+File: tslint.json
+Size: 1184 bytes
+Lines: 36
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+  "defaultSeverity": "warning",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**"
+    ]
+  },
+  "rules": {
+    "quotemark": [true, "single"],
+    "indent": [true, "spaces", 2],
+    "interface-name": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-consecutive-blank-lines": false
+  }
+}
+
+
+---
+File: .licenserc.yaml
+Size: 1073 bytes
+Lines: 35
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Apache Software Foundation
+
+  paths-ignore:
+    - 'lib'
+    - 'dist'
+    - 'LICENSE'
+    - 'NOTICE'
+    - '.gitignore'
+    - '.prettierrc'
+    - '.browserslistrc'
+    - '**/*.md'
+    - '**/*.json'
+
+  comment: on-failure
+
+
+---
+File: .prettierrc
+Size: 159 bytes
+Lines: 9
+---
+{
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "arrowParens": "always"
+}
+
+
+---
+File: CHANGES.md
+Size: 2510 bytes
+Lines: 94
+---
+# Changes
+
+## 1.0.0
+
+1. Monitor Core Web Vitals.
+2. Monitor static resource metrics.
+3. Bump up `infra-e2e`.
+4. Bump dependencies to fix vulnerabilities.
+5. Adjust readme for 1.0 release.
+6. Fix can't catch the resource error.
+7. Fix append http method to tags error.
+8. Bump up `test ui`.
+9. Fix the caught fetch request does not work when it receives a URL.
+
+## 0.12.0
+1. Fix native fetch implementation when using Request object.
+2. Fix fetch implementation when using the Header object in http queries.
+3. Bump dependencies.
+
+## 0.11.0
+
+1. Fixed the bug that navigator.sendBeacon sent json to backend report "No suitable request converter found for a @RequestObject List".
+2. Fix reading property from null.
+3. Pin selenium version and update license CI.
+4. Bump dependencies.
+5. Update README.
+
+## 0.10.0
+
+1. Fix the ability of Fetch constructure.
+2. Update README.
+3. Bump dependencies.
+
+## 0.9.0
+
+1. Fix custom configurations when the page router changed for SPA.
+2. Fix reporting data by navigator.sendbeacon when pages is closed.
+3. Bump dependencies.
+4. Add Security Notice.
+5. Support adding custom tags to spans.
+6. Validate custom parameters for register.
+
+## 0.8.0
+
+1. Fix fmp metric.
+2. Add e2e tese based on skywaling-infra-e2e.
+3. Update metric and events.
+4. Remove ServiceTag by following SkyWalking v9 new layer model.
+
+## 0.7.0
+
+1. Support setting time interval to report segments.
+2. Fix segments report only send once.
+3. Fix apache/skywalking#7335.
+4. Fix apache/skywalking#7793.
+5. Fix firstReportedError for SPA.
+
+## 0.6.0
+
+1. Separate production and development environments when building.
+2. Upgrade packages to fix vulnerabilities.
+3. Fix headers could be null .
+4. Fix catching errors for http requests.
+5. Fix the firstReportedError is calculated with more types of errors.
+
+## 0.5.1
+
+1. Add `noTraceOrigins` option.
+2. Fix wrong URL when using relative path.
+3. Catch frames errors.
+4. Get `response.body` as a stream with the fetch API.
+5. Support reporting multiple logs.
+6. Support typescript project.
+
+## 0.4.0
+
+1. Update stack and message in logs.
+2. Fix wrong URL when using relative path in xhr.
+
+## 0.3.0
+
+1. Support tracing starting at the browser.
+2. Add traceSDKInternal SDK for tracing SDK internal RPC.
+3. Add detailMode SDK for tracing http method and url as tags in spans.
+4. Fix conditions of http status.
+
+## 0.2.0
+
+1. Fix: `secureConnectionStart` is zero bug.
+2. Fix: `response.status` judge bug.
+
+## 0.1.0
+
+1. Establish the browser exception and tracing core.
+
+---
+File: tsconfig.json
+Size: 1044 bytes
+Lines: 28
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+{
+  "compilerOptions": {
+    "outDir": "./lib/",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "module": "es6",
+    "target": "es5",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node"
+  }
+}
+
+---
+File: test/base-compose.yml
+Size: 1764 bytes
+Lines: 54
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    image: ghcr.io/apache/skywalking/oap:7a5fec56fed0eef60e36f619a8db09f823200201
+    expose:
+      - 11800
+      - 12800
+      - 10051
+      - 5005
+    networks:
+      - e2e
+    restart: on-failure
+    environment:
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_STORAGE_ES_CLUSTER_NODES: es:9200
+      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
+      SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
+      JAVA_OPTS: >-
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -zn 127.0.0.1 11800"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  ui:
+    image: ghcr.io/apache/skywalking/ui:7a5fec56fed0eef60e36f619a8db09f823200201
+    expose:
+      - 8080
+    networks:
+      - e2e
+    environment:
+      - SW_OAP_ADDRESS=oap:12800
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -zn 127.0.0.1 8080" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+
+---
+File: test/e2e.yaml
+Size: 7434 bytes
+Lines: 143
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 1200
+  init-system-environment: env
+  steps:
+    - name: install yq
+      command: |-
+        BASE_DIR=/tmp/skywalking-infra-e2e
+        BIN_DIR=/usr/local/bin
+
+        if ! command -v yq &> /dev/null; then
+          mkdir -p $BASE_DIR/yq && cd $BASE_DIR/yq
+          curl -kLo yq.tar.gz https://github.com/mikefarah/yq/archive/v4.11.1.tar.gz
+          tar -zxf yq.tar.gz --strip=1
+          go install && go build -ldflags -s && cp yq $BIN_DIR/
+        fi
+    - name: install swctl
+      command: |-
+        BASE_DIR=/tmp/skywalking-infra-e2e
+        BIN_DIR=/usr/local/bin
+
+        if ! command -v swctl &> /dev/null; then
+          mkdir -p $BASE_DIR/swctl && cd $BASE_DIR/swctl
+          curl -kLo skywalking-cli.tar.gz https://github.com/apache/skywalking-cli/archive/${SW_CTL_COMMIT}.tar.gz
+          tar -zxf skywalking-cli.tar.gz --strip=1
+          utype=$(uname | awk '{print tolower($0)}')
+          make $utype && mv bin/swctl-*-$utype-amd64 $BIN_DIR/swctl
+        fi
+cleanup:
+  # always never success failure
+  on: always
+
+trigger:
+  action: http
+  interval: 3s
+  times: 5
+  url: http://127.0.0.1:${ui_8080}/
+  method: GET
+
+verify:
+  # verify with retry strategy
+  retry:
+    # max retry count
+    count: 20
+    # the interval between two retries, in millisecond.
+    interval: 3s
+  cases:
+    # service
+    - expected: expected/service.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql browser service ls test-ui
+    # version
+    - expected: expected/version.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql browser version ls --service-name test-ui
+    # page
+    - expected: expected/page.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql browser page ls --service-name test-ui
+    # browser error log
+    - expected: expected/error-log.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql browser logs ls --service-name test-ui --version-name v1.0.0
+    # browser service metrics
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_pv --service-id dGVzdC11aQ==.1 |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_error_sum --service-id dGVzdC11aQ==.1 |yq e 'to_entries' -
+    # browser version metrics
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_single_version_pv --service-id dGVzdC11aQ==.1 --instance-name v1.0.0 |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_single_version_error_sum --service-id dGVzdC11aQ==.1 --instance-name v1.0.0 |yq e 'to_entries' -
+    # browser page metrics
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_pv --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_error_sum --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_js_error_sum --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    #  # browser performance metrics
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_dom_analysis_avg --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_dom_ready_avg --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_load_page_avg --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    - expected: expected/metrics-has-value.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=browser_app_page_ttl_avg --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries' -
+    - expected: expected/metrics-has-value-percentile.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+          --name=browser_app_page_dom_ready_percentile --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - expected: expected/metrics-has-value-percentile.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+          --name=browser_app_page_load_page_percentile --service-id dGVzdC11aQ==.1 --endpoint-name index.html |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    # dependency service
+    - expected: expected/dependency.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-id dGVzdC11aQ==.1
+    # trace
+    - expected: expected/traces.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+    - expected: expected/trace-detail.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls | grep -A 5 'index.html' | tail -n1 | awk -F ' ' '{print $2}')
+
+
+---
+File: test/env
+Size: 974 bytes
+Lines: 19
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+SW_AGENT_PYTHON_COMMIT=c8479000eb729cc86509222fd48b942edcaaca74
+SW_AGENT_CLIENT_JS_TEST_COMMIT=7be42cbfd826ac62093a66792b9c66a2c4012772
+
+SW_CTL_COMMIT=d2f1cff71f3ea9f325ff1c0d99dd0c40a35e527c
+
+
+---
+File: test/docker-compose.yml
+Size: 3140 bytes
+Lines: 126
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    environment:
+      SW_STORAGE: h2
+
+  ui:
+    extends:
+      file: base-compose.yml
+      service: ui
+    ports:
+      - 8080
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  provider:
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile.provider
+      args:
+        - SW_AGENT_PYTHON_COMMIT=${SW_AGENT_PYTHON_COMMIT}
+    command: [ 'python3', '/entrypoint.py' ]
+    networks:
+      - e2e
+    expose:
+      - 9091
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_AGENT_LOGGING_LEVEL: DEBUG
+    volumes:
+      - ./docker/provider.py:/entrypoint.py
+    depends_on:
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9091" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  testui:
+    build:
+      context: ../
+      dockerfile: test/docker/Dockerfile.test-ui
+      args:
+        - SW_AGENT_CLIENT_JS_TEST_COMMIT=${SW_AGENT_CLIENT_JS_TEST_COMMIT}
+    networks:
+      - e2e
+    ports:
+      - 80
+    depends_on:
+      provider:
+        condition: service_healthy
+      oap:
+        condition: service_healthy
+
+  selenium-hub:
+    image: selenium/hub:4.0.0-alpha-7-prerelease-20201009
+    networks:
+      - e2e
+    expose:
+      - 4444
+    depends_on:
+      testui:
+        condition: service_started
+      provider:
+        condition: service_healthy
+
+  chrome:
+    image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
+    networks:
+      - e2e
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      selenium-hub:
+        condition: service_started
+      testui:
+        condition: service_started
+      provider:
+        condition: service_healthy
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+  generate-traffic:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.generate-traffic
+    networks:
+      - e2e
+    restart: always
+    depends_on:
+      selenium-hub:
+        condition: service_started
+      chrome:
+        condition: service_started
+      provider:
+        condition: service_healthy
+      testui:
+        condition: service_started
+
+networks:
+  e2e:
+
+
+---
+File: test/docker/Dockerfile.generate-traffic
+Size: 884 bytes
+Lines: 22
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FROM python:3.7
+
+COPY docker/test.py .
+
+RUN pip3 install selenium==4.9.1
+
+CMD ["python3", "/test.py"]
+
+
+---
+File: test/docker/Dockerfile.test-ui
+Size: 1573 bytes
+Lines: 41
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FROM node:18.12 AS builder
+
+ADD . /skywalking-client-js
+WORKDIR /skywalking-client-js
+RUN npm run rebuild \
+    && npm link
+
+# download and build skywalking client test
+ARG SW_AGENT_CLIENT_JS_TEST_COMMIT
+ARG CLIENT_JS_TEST_CODE=${SW_AGENT_CLIENT_JS_TEST_COMMIT}.tar.gz
+ARG CLIENT_JS_TEST_CODE_URL=https://github.com/SkyAPMTest/skywalking-client-test/archive/${CLIENT_JS_TEST_CODE}
+
+WORKDIR /skywalking-client-test
+ADD ${CLIENT_JS_TEST_CODE_URL} .
+RUN tar -xf ${CLIENT_JS_TEST_CODE} --strip 1 \
+    && rm ${CLIENT_JS_TEST_CODE}
+
+RUN npm install \
+    && rm -rf node_modules/skywalking-client-js \
+    && npm link skywalking-client-js \
+    && npm run build
+
+FROM nginx:1.19
+
+COPY --from=builder /skywalking-client-test/dist/ /etc/nginx/html/
+COPY test/docker/nginx.conf /etc/nginx/nginx.conf
+
+
+---
+File: test/docker/provider.py
+Size: 2028 bytes
+Lines: 57
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+import time
+
+from urllib import request
+
+from skywalking import agent, config
+
+if __name__ == '__main__':
+    config.service_name = 'provider-py'
+    config.logging_level = 'DEBUG'
+    agent.start()
+
+    import socketserver
+    from http.server import BaseHTTPRequestHandler
+
+    class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+
+        def _send_cors_headers(self):
+            """ sets headers required for cors """
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "*")
+            self.send_header("Access-Control-Allow-Headers", "*")
+
+        def do_OPTIONS(self):
+            self.send_response(200)
+            self._send_cors_headers()
+            self.end_headers()
+
+        def do_POST(self):
+            time.sleep(0.5)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write('{"name": "whatever"}'.encode('ascii'))
+
+    PORT = 9091
+    Handler = SimpleHTTPRequestHandler
+
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print("serving at port", PORT)
+        httpd.serve_forever()
+
+
+---
+File: test/docker/test.py
+Size: 1384 bytes
+Lines: 42
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os
+import time
+
+from selenium import webdriver as wd
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities as DC
+
+hub_remote_url = os.environ.get("HUB_REMOTE_URL", "http://selenium-hub:4444/wd/hub")
+test_url = os.environ.get("TEST_URL", "http://testui:80/")
+
+
+def test_screenshot():
+    try:
+        driver.get(test_url)
+    except Exception as e:
+        print(e)
+
+try:
+    driver = wd.Remote(
+        command_executor=hub_remote_url,
+        desired_capabilities=DC.CHROME)
+
+    while True:
+        test_screenshot()
+        time.sleep(10)
+
+finally:
+    driver.quit()
+
+
+---
+File: test/docker/Dockerfile.provider
+Size: 1012 bytes
+Lines: 25
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FROM python:3.7
+ARG SW_AGENT_PYTHON_COMMIT
+
+WORKDIR /app
+
+RUN git clone https://github.com/apache/skywalking-python.git $(pwd)
+
+RUN git reset --hard ${SW_AGENT_PYTHON_COMMIT} && git submodule update --init
+
+RUN make setup install
+
+
+---
+File: test/docker/nginx.conf
+Size: 1276 bytes
+Lines: 40
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+worker_processes  auto;
+events {
+  worker_connections 1024;
+}
+http {
+  server_tokens off;
+  client_header_timeout 10;
+  client_body_timeout 10;
+  # limit_conn_zone $binary_remote_addr zone=addr:5m;
+  # limit_conn addr 100;
+  index index.html;
+  include mime.types;
+  server {
+    listen 80;
+    location /browser {
+        proxy_pass http://oap:12800;
+    }
+    location /v3 {
+        proxy_pass http://oap:12800;
+    }
+    location /info {
+        proxy_pass http://provider:9091;
+    }
+  }
+}
+
+
+---
+File: test/expected/page.yml
+Size: 858 bytes
+Lines: 17
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- id: {{ b64enc "test-ui" }}.1_{{ b64enc "index.html" }}
+  name: index.html
+
+
+---
+File: test/expected/version.yml
+Size: 950 bytes
+Lines: 20
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- id: {{ b64enc "test-ui" }}.1_{{ b64enc "v1.0.0" }}
+  name: v1.0.0
+  attributes: []
+  language: UNKNOWN
+  instanceuuid: {{ b64enc "test-ui" }}.1_{{ b64enc "v1.0.0" }}
+
+
+---
+File: test/expected/service.yml
+Size: 841 bytes
+Lines: 18
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- id: {{ b64enc "test-ui" }}.1
+  name: test-ui
+  group: ""
+
+
+---
+File: test/expected/dependency.yml
+Size: 1240 bytes
+Lines: 37
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nodes:
+{{- contains .nodes }}
+- id: {{ b64enc "provider-py"}}.1
+  name: provider-py
+  type: Python
+  isreal: true
+- id: {{ b64enc "test-ui"}}.1
+  name: test-ui
+  type: null
+  isreal: true
+{{- end }}
+calls:
+{{- contains .calls }}
+- source: {{ b64enc "test-ui"}}.1
+  sourcecomponents: []
+  target: {{ b64enc "provider-py"}}.1
+  targetcomponents: []
+  id: {{ b64enc "test-ui"}}.1-{{ b64enc "provider-py"}}.1
+  detectpoints:
+    - CLIENT
+    - SERVER
+{{- end }}
+
+
+---
+File: test/expected/trace-detail.yml
+Size: 2116 bytes
+Lines: 68
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+spans:
+{{- contains .spans }}
+  - traceid: {{ notEmpty .traceid }}
+    segmentid: {{ notEmpty .segmentid }}
+    spanid: 0
+    parentspanid: -1
+    refs: []
+    servicecode: test-ui
+    serviceinstancename: "v1.0.0"
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: index.html
+    type: Exit
+    peer: provider:9091
+    component: ajax
+    iserror: false
+    layer: Http
+    tags:
+      - key: http.method
+        value: POST
+      - key: url
+        value: http://provider:9091/info
+    logs: []
+  - traceid: {{ notEmpty .traceid }}
+    segmentid: {{ notEmpty .segmentid }}
+    spanid: 0
+    parentspanid: -1
+    refs:
+      {{- contains .refs }}
+      - traceid: {{ notEmpty .traceid }}
+        parentsegmentid: {{ notEmpty .parentsegmentid }}
+        parentspanid: 0
+        type: CROSS_PROCESS
+      {{- end }}
+    servicecode: provider-py
+    serviceinstancename: {{ notEmpty .serviceinstancename }}
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: /info
+    type: Entry
+    peer: {{ notEmpty .peer  }}
+    component: Python
+    iserror: false
+    layer: Http
+    tags:
+      - key: http.method
+        value: POST
+      - key: http.url
+        value: http://provider:9091/info
+      - key: http.status.code
+        value: "200"
+    logs: []
+{{- end }}
+
+
+---
+File: test/expected/metrics-has-value-percentile.yml
+Size: 1381 bytes
+Lines: 47
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- contains . }}
+- key: 0
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 1
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 2
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 3
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+- key: 4
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value: {{ ge .value 1 }}
+  {{- end }}
+{{- end }}
+
+
+---
+File: test/expected/metrics-has-value.yml
+Size: 865 bytes
+Lines: 19
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- contains . }}
+- key: {{ notEmpty .key }}
+  value: {{ ge .value 1 }}
+{{- end }}
+
+
+---
+File: test/expected/traces.yml
+Size: 1054 bytes
+Lines: 27
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+traces:
+{{- contains .traces }}
+- segmentid: {{ notEmpty .segmentid }}
+  endpointnames:
+  - index.html
+  duration: {{ gt .duration 0 }}
+  start: "{{ notEmpty .start}}"
+  iserror: false
+  traceids:
+  - {{ notEmpty (index .traceids 0) }}
+{{- end }}
+total: {{ gt .total 0 }}
+
+
+---
+File: test/expected/error-log.yml
+Size: 1167 bytes
+Lines: 30
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+logs:
+{{- contains .logs }}
+- service: test-ui
+  serviceversion: v1.0.0
+  time: {{ gt .time  0 }}
+  pagepath: index.html
+  category: {{ notEmpty .category }}
+  grade: {{ notEmpty .grade }}
+  message: {{ notEmpty .message }}
+  line: 0
+  col: 0
+  stack: {{ .stack }}
+  errorurl: {{ notEmpty .errorurl }}
+  firstreportederror: {{ .firstreportederror }}
+{{- end }}
+total: {{ gt .total 0 }}
+
+
+---
+File: .github/workflows/e2e.yml
+Size: 1252 bytes
+Lines: 39
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: E2E
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  JavaScriptClient:
+    name: JavaScript Client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+      - uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+        with:
+          e2e-file: test/e2e.yaml
+
+
+---
+File: .github/workflows/build.yml
+Size: 1750 bytes
+Lines: 58
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Node CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  check-license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check License
+        uses: apache/skywalking-eyes@9bd5feb86b5817aa6072b008f9866a2c3bbc8587
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install and build
+      run: |
+        npm ci
+        npm run build --if-present
+      env:
+        CI: true
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: [check-license, build-and-test]
+    steps:
+      - name: Placeholder
+        run: echo "Just to make the GitHub merge button green"
+
+
+---
+File: src/types.ts
+Size: 1377 bytes
+Lines: 43
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export interface CustomOptionsType extends CustomReportOptions {
+  jsErrors?: boolean;
+  apiErrors?: boolean;
+  resourceErrors?: boolean;
+  autoTracePerf?: boolean;
+  enableSPA?: boolean;
+  vue?: any;
+  traceSDKInternal?: boolean;
+  detailMode?: boolean;
+  noTraceOrigins?: (string | RegExp)[];
+  traceTimeInterval?: number;
+  customTags?: TagOption[];
+  useWebVitals?: boolean;
+}
+
+export interface CustomReportOptions {
+  collector?: string;
+  service: string;
+  pagePath: string;
+  serviceVersion: string;
+}
+
+export type TagOption = {
+  key: string;
+  value: string;
+};
+
+
+---
+File: src/index.ts
+Size: 923 bytes
+Lines: 22
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import ClientMonitor from './monitor';
+
+(window as any).ClientMonitor = ClientMonitor;
+
+export default ClientMonitor;
+
+
+---
+File: src/monitor.ts
+Size: 6514 bytes
+Lines: 208
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { CustomOptionsType, CustomReportOptions, TagOption } from './types';
+import { JSErrors, PromiseErrors, AjaxErrors, ResourceErrors, VueErrors, FrameErrors } from './errors/index';
+import tracePerf from './performance/index';
+import traceSegment, { setConfig } from './trace/segment';
+
+const ClientMonitor = {
+  customOptions: {
+    collector: location.origin, // report serve
+    jsErrors: true, // vue, js and promise errors
+    apiErrors: true,
+    resourceErrors: true,
+    autoTracePerf: true, // trace performance detail
+    useWebVitals: false,
+    enableSPA: false,
+    traceSDKInternal: false,
+    detailMode: true,
+    noTraceOrigins: [],
+    traceTimeInterval: 60000, // 1min
+  } as CustomOptionsType,
+
+  register(configs: CustomOptionsType) {
+    this.customOptions = {
+      ...this.customOptions,
+      ...configs,
+    };
+    this.validateOptions();
+    this.catchErrors(this.customOptions);
+    if (!this.customOptions.enableSPA) {
+      this.performance(this.customOptions);
+    }
+
+    traceSegment(this.customOptions);
+  },
+  performance(configs: any) {
+    tracePerf.getPerf(configs);
+    if (configs.enableSPA) {
+      // hash router
+      window.addEventListener(
+        'hashchange',
+        () => {
+          tracePerf.getPerf(configs);
+        },
+        false,
+      );
+    }
+  },
+
+  catchErrors(options: CustomOptionsType) {
+    const { service, pagePath, serviceVersion, collector } = options;
+
+    if (options.jsErrors) {
+      JSErrors.handleErrors({ service, pagePath, serviceVersion, collector });
+      PromiseErrors.handleErrors({ service, pagePath, serviceVersion, collector });
+      if (options.vue) {
+        VueErrors.handleErrors({ service, pagePath, serviceVersion, collector }, options.vue);
+      }
+    }
+    if (options.apiErrors) {
+      AjaxErrors.handleError({ service, pagePath, serviceVersion, collector });
+    }
+    if (options.resourceErrors) {
+      ResourceErrors.handleErrors({ service, pagePath, serviceVersion, collector });
+    }
+  },
+  setPerformance(configs: CustomReportOptions) {
+    // history router
+    this.customOptions = {
+      ...this.customOptions,
+      ...configs,
+    };
+    this.validateOptions();
+    this.performance(this.customOptions);
+    const { service, pagePath, serviceVersion, collector } = this.customOptions;
+    if (this.customOptions.jsErrors) {
+      JSErrors.setOptions({ service, pagePath, serviceVersion, collector });
+      PromiseErrors.setOptions({ service, pagePath, serviceVersion, collector });
+      if (this.customOptions.vue) {
+        VueErrors.setOptions({ service, pagePath, serviceVersion, collector });
+      }
+    }
+    if (this.customOptions.apiErrors) {
+      AjaxErrors.setOptions({ service, pagePath, serviceVersion, collector });
+    }
+    if (this.customOptions.resourceErrors) {
+      ResourceErrors.setOptions({ service, pagePath, serviceVersion, collector });
+    }
+    setConfig(this.customOptions);
+  },
+  reportFrameErrors(configs: CustomReportOptions, error: Error) {
+    FrameErrors.handleErrors(configs, error);
+  },
+  validateTags(customTags?: TagOption[]) {
+    if (!customTags) {
+      return false;
+    }
+    if (!Array.isArray(customTags)) {
+      this.customOptions.customTags = undefined;
+      console.error('customTags error');
+      return false;
+    }
+    let isTags = true;
+    for (const ele of customTags) {
+      if (!(ele && ele.key && ele.value)) {
+        isTags = false;
+      }
+    }
+    if (!isTags) {
+      this.customOptions.customTags = undefined;
+      console.error('customTags error');
+      return false;
+    }
+    return true;
+  },
+  validateOptions() {
+    const {
+      collector,
+      service,
+      pagePath,
+      serviceVersion,
+      jsErrors,
+      apiErrors,
+      resourceErrors,
+      autoTracePerf,
+      useWebVitals,
+      enableSPA,
+      traceSDKInternal,
+      detailMode,
+      noTraceOrigins,
+      traceTimeInterval,
+      customTags,
+      vue,
+    } = this.customOptions;
+    this.validateTags(customTags);
+    if (typeof collector !== 'string') {
+      this.customOptions.collector = location.origin;
+    }
+    if (typeof service !== 'string') {
+      this.customOptions.service = '';
+    }
+    if (typeof pagePath !== 'string') {
+      this.customOptions.pagePath = '';
+    }
+    if (typeof serviceVersion !== 'string') {
+      this.customOptions.serviceVersion = '';
+    }
+    if (typeof jsErrors !== 'boolean') {
+      this.customOptions.jsErrors = true;
+    }
+    if (typeof apiErrors !== 'boolean') {
+      this.customOptions.apiErrors = true;
+    }
+    if (typeof resourceErrors !== 'boolean') {
+      this.customOptions.resourceErrors = true;
+    }
+    if (typeof autoTracePerf !== 'boolean') {
+      this.customOptions.autoTracePerf = true;
+    }
+    if (typeof useWebVitals !== 'boolean') {
+      this.customOptions.useWebVitals = false;
+    }
+    if (typeof enableSPA !== 'boolean') {
+      this.customOptions.enableSPA = false;
+    }
+    if (typeof traceSDKInternal !== 'boolean') {
+      this.customOptions.traceSDKInternal = false;
+    }
+    if (typeof detailMode !== 'boolean') {
+      this.customOptions.detailMode = true;
+    }
+    if (typeof detailMode !== 'boolean') {
+      this.customOptions.detailMode = true;
+    }
+    if (!Array.isArray(noTraceOrigins)) {
+      this.customOptions.noTraceOrigins = [];
+    }
+    if (typeof traceTimeInterval !== 'number') {
+      this.customOptions.traceTimeInterval = 60000;
+    }
+    if (typeof vue !== 'function') {
+      this.customOptions.vue = undefined;
+    }
+  },
+  setCustomTags(tags: TagOption[]) {
+    const opt = { ...this.customOptions, customTags: tags };
+    if (this.validateTags(tags)) {
+      setConfig(opt);
+    }
+  },
+};
+
+export default ClientMonitor;
+
+
+---
+File: src/trace/segment.ts
+Size: 1801 bytes
+Lines: 48
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import xhrInterceptor, { setOptions } from './interceptors/xhr';
+import windowFetch, { setFetchOptions } from './interceptors/fetch';
+import Report from '../services/report';
+import { SegmentFields } from './type';
+import { CustomOptionsType } from '../types';
+
+export default function traceSegment(options: CustomOptionsType) {
+  const segments = [] as SegmentFields[];
+  // inject interceptor
+  xhrInterceptor(options, segments);
+  windowFetch(options, segments);
+  window.addEventListener('beforeunload', () => {
+    if (!segments.length) {
+      return;
+    }
+    new Report('SEGMENTS', options.collector).sendByBeacon(segments);
+  });
+  //report per options.traceTimeInterval min
+  setInterval(() => {
+    if (!segments.length) {
+      return;
+    }
+    new Report('SEGMENTS', options.collector).sendByXhr(segments);
+    segments.splice(0, segments.length);
+  }, options.traceTimeInterval);
+}
+
+export function setConfig(opt: CustomOptionsType) {
+  setOptions(opt);
+  setFetchOptions(opt);
+}
+
+
+---
+File: src/trace/type.ts
+Size: 1208 bytes
+Lines: 38
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export interface SegmentFields {
+  traceId: string;
+  service: string;
+  spans: SpanFields[];
+  serviceInstance: string;
+  traceSegmentId: string;
+}
+
+export interface SpanFields {
+  operationName: string;
+  startTime: number;
+  endTime: number;
+  spanId: number;
+  spanLayer: string;
+  spanType: string;
+  isError: boolean;
+  parentSpanId: number;
+  componentId: number;
+  peer: string;
+  tags?: any;
+}
+
+
+---
+File: src/trace/interceptors/xhr.ts
+Size: 8636 bytes
+Lines: 237
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { ComponentId, ReadyStatus, ReportTypes, SpanLayer, SpanType } from '../../services/constant';
+import uuid from '../../services/uuid';
+import { encode } from 'js-base64';
+import { CustomOptionsType } from '../../types';
+import { SegmentFields, SpanFields } from '../type';
+
+interface EnhancedXMLHttpRequest extends XMLHttpRequest {
+  getRequestConfig?: any;
+}
+
+let customConfig: CustomOptionsType = {} as CustomOptionsType;
+export default function xhrInterceptor(options: CustomOptionsType, segments: SegmentFields[]) {
+  setOptions(options);
+  const originalXHR = window.XMLHttpRequest as any;
+
+  if (!originalXHR || !originalXHR.prototype || !originalXHR.prototype.open || !originalXHR.prototype.send) {
+    console.error('Tracing is not supported - XMLHttpRequest not available');
+    return;
+  }
+
+  function ajaxEventTrigger(this: EnhancedXMLHttpRequest, event: string): void {
+    const ajaxEvent = new CustomEvent(event, { detail: this });
+
+    window.dispatchEvent(ajaxEvent);
+  }
+
+  function customizedXHR(): EnhancedXMLHttpRequest {
+    // Create a new XMLHttpRequest instance using the original constructor
+    const liveXHR = new originalXHR();
+
+    // Store the original methods before overriding
+    const originalOpen = liveXHR.open;
+    const originalSend = liveXHR.send;
+
+    // Add the readystatechange event listener for tracing
+    liveXHR.addEventListener(
+      'readystatechange',
+      function () {
+        ajaxEventTrigger.call(this, 'xhrReadyStateChange');
+      },
+      false,
+    );
+
+    // Override the open method to capture request configuration
+    liveXHR.open = function (
+      method: string,
+      url: string,
+      async: boolean,
+      username?: string | null,
+      password?: string | null,
+    ) {
+      // Store the request configuration for later use in tracing
+      (this as EnhancedXMLHttpRequest).getRequestConfig = arguments;
+      
+      // Call the original open method with the correct context
+      return originalOpen.apply(this, arguments);
+    };
+
+    // Override the send method and keeping original functionality
+    liveXHR.send = function (body?: Document | BodyInit | null) {
+      return originalSend.apply(this, arguments);
+    };
+
+    return liveXHR;
+  }
+
+  // Preserve the prototype chain by setting the prototype of our custom constructor
+  Object.defineProperty(customizedXHR, 'prototype', {
+    value: originalXHR.prototype,
+    writable: false,
+    configurable: false,
+    enumerable: false,
+  });
+  
+  // Ensure the constructor property points to our custom constructor and make it non-writable
+  Object.defineProperty(customizedXHR.prototype, 'constructor', {
+    value: customizedXHR,
+    writable: true,
+    configurable: true,
+    enumerable: false,
+  });
+
+  // Set the prototype of our custom constructor to inherit static properties from original XMLHttpRequest
+  // This automatically provides access to all static properties like UNSENT, OPENED, etc.
+  Object.setPrototypeOf(customizedXHR, originalXHR);
+
+  (window as any).XMLHttpRequest = customizedXHR;
+
+  const segCollector: { event: EnhancedXMLHttpRequest; startTime: number; traceId: string; traceSegmentId: string }[] = [];
+
+  window.addEventListener('xhrReadyStateChange', (event: CustomEvent<EnhancedXMLHttpRequest>) => {
+    let segment = {
+      traceId: '',
+      service: customConfig.service,
+      spans: [],
+      serviceInstance: customConfig.serviceVersion,
+      traceSegmentId: '',
+    } as SegmentFields;
+    const xhrState = event.detail.readyState;
+    const config = event.detail.getRequestConfig;
+    if (!config || config.length < 2) {
+      return;
+    }
+    let url: URL;
+    
+    const urlString = config[1] as string;
+    if (!urlString) {
+      return;
+    }
+    
+    try {
+      if (urlString.startsWith('http://') || urlString.startsWith('https://')) {
+        url = new URL(urlString);
+      } else if (urlString.startsWith('//')) {
+        url = new URL(`${window.location.protocol}${urlString}`);
+      } else {
+        url = new URL(window.location.href);
+        url.pathname = urlString;
+      }
+    } catch (error) {
+      console.warn('Invalid URL in XHR request:', urlString, error);
+      return;
+    }
+
+    const noTraceOrigins = customConfig.noTraceOrigins?.some((rule: string | RegExp): boolean => {
+      if (typeof rule === 'string') {
+        return rule === url.origin;
+      } else if (rule instanceof RegExp) {
+        return rule.test(url.origin);
+      }
+      return false;
+    }) || false;
+    if (noTraceOrigins) {
+      return;
+    }
+
+    const cURL = new URL(customConfig.collector);
+    const pathname = cURL.pathname === '/' ? url.pathname : url.pathname.replace(new RegExp(`^${cURL.pathname}`), '');
+    const internals = [ReportTypes.ERROR, ReportTypes.ERRORS, ReportTypes.PERF, ReportTypes.SEGMENTS] as string[];
+    const isSDKInternal = internals.includes(pathname);
+
+    if (isSDKInternal && !customConfig.traceSDKInternal) {
+      return;
+    }
+
+    // The values of xhrState are from https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
+    if (xhrState === ReadyStatus.OPENED) {
+      const traceId = uuid();
+      const traceSegmentId = uuid();
+
+      segCollector.push({
+        event: event.detail,
+        startTime: new Date().getTime(),
+        traceId,
+        traceSegmentId,
+      });
+
+      const traceIdStr = String(encode(traceId));
+      const segmentId = String(encode(traceSegmentId));
+      const service = String(encode(segment.service));
+      const instance = String(encode(segment.serviceInstance));
+      const endpoint = String(encode(customConfig.pagePath));
+      const peer = String(encode(url.host));
+      const index = segment.spans.length;
+      const values = `${1}-${traceIdStr}-${segmentId}-${index}-${service}-${instance}-${endpoint}-${peer}`;
+
+      event.detail.setRequestHeader('sw8', values);
+    }
+
+    if (xhrState === ReadyStatus.DONE) {
+      const endTime = new Date().getTime();
+      for (let i = 0; i < segCollector.length; i++) {
+        if (segCollector[i].event.readyState === ReadyStatus.DONE) {
+          let responseURL: URL | null = null;
+          if (segCollector[i].event.status && segCollector[i].event.responseURL) {
+            try {
+              responseURL = new URL(segCollector[i].event.responseURL);
+            } catch (error) {
+              console.warn('Invalid response URL:', segCollector[i].event.responseURL, error);
+            }
+          }
+          const tags = [
+            {
+              key: 'http.method',
+              value: config[0],
+            },
+            {
+              key: 'url',
+              value: segCollector[i].event.responseURL || `${url.protocol}//${url.host}${url.pathname}`,
+            },
+          ];
+          const combinedTags = customConfig.detailMode ? [...tags, ...(customConfig.customTags || [])] : undefined;
+          const exitSpan: SpanFields = {
+            operationName: customConfig.pagePath,
+            startTime: segCollector[i].startTime,
+            endTime,
+            spanId: segment.spans.length,
+            spanLayer: SpanLayer,
+            spanType: SpanType,
+            isError: event.detail.status === 0 || event.detail.status >= 400, // when requests failed, the status is 0
+            parentSpanId: segment.spans.length - 1,
+            componentId: ComponentId,
+            peer: responseURL?.host || url.host,
+            tags: combinedTags,
+          };
+          segment = {
+            ...segment,
+            traceId: segCollector[i].traceId,
+            traceSegmentId: segCollector[i].traceSegmentId,
+          };
+          segment.spans.push(exitSpan);
+          segCollector.splice(i, 1);
+        }
+      }
+      segments.push(segment);
+    }
+  });
+}
+export function setOptions(opt: CustomOptionsType) {
+  customConfig = { ...customConfig, ...opt };
+}
+
+
+---
+File: src/trace/interceptors/fetch.ts
+Size: 6260 bytes
+Lines: 163
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { encode } from 'js-base64';
+import uuid from '../../services/uuid';
+import { SegmentFields, SpanFields } from '../type';
+import { CustomOptionsType } from '../../types';
+import Base from '../../services/base';
+import { ComponentId, ReportTypes, SpanLayer, SpanType, ErrorsCategory, GradeTypeEnum } from '../../services/constant';
+let customConfig: any = {};
+export default function windowFetch(options: CustomOptionsType, segments: SegmentFields[]) {
+  const originFetch: any = window.fetch;
+  setFetchOptions(options);
+
+  window.fetch = async (...args: any) => {
+    const startTime = new Date().getTime();
+    const traceId = uuid();
+    const traceSegmentId = uuid();
+    let segment = {
+      traceId: '',
+      service: customConfig.service,
+      spans: [],
+      serviceInstance: customConfig.serviceVersion,
+      traceSegmentId: '',
+    } as SegmentFields;
+    let url = {} as URL;
+    // for args[0] is Request object see: https://developer.mozilla.org/zh-CN/docs/Web/API/fetch
+    if (Object.prototype.toString.call(args[0]) === '[object URL]') {
+      url = args[0];
+    } else if (Object.prototype.toString.call(args[0]) === '[object Request]') {
+      url = new URL(args[0].url);
+    } else {
+      if (args[0].startsWith('http://') || args[0].startsWith('https://')) {
+        url = new URL(args[0]);
+      } else if (args[0].startsWith('//')) {
+        url = new URL(`${window.location.protocol}${args[0]}`);
+      } else {
+        url = new URL(window.location.href);
+        url.pathname = args[0];
+      }
+    }
+
+    const noTraceOrigins = customConfig.noTraceOrigins.some((rule: string | RegExp) => {
+      if (typeof rule === 'string') {
+        if (rule === url.origin) {
+          return true;
+        }
+      } else if (rule instanceof RegExp) {
+        if (rule.test(url.origin)) {
+          return true;
+        }
+      }
+    });
+    const cURL = new URL(customConfig.collector);
+    const pathname = cURL.pathname === '/' ? url.pathname : url.pathname.replace(new RegExp(`^${cURL.pathname}`), '');
+    const internals = [ReportTypes.ERROR, ReportTypes.ERRORS, ReportTypes.PERF, ReportTypes.SEGMENTS] as string[];
+    const isSDKInternal = internals.includes(pathname);
+    const hasTrace = !noTraceOrigins || (isSDKInternal && customConfig.traceSDKInternal);
+
+    if (hasTrace) {
+      const traceIdStr = String(encode(traceId));
+      const segmentId = String(encode(traceSegmentId));
+      const service = String(encode(segment.service));
+      const instance = String(encode(segment.serviceInstance));
+      const endpoint = String(encode(customConfig.pagePath));
+      const peer = String(encode(url.host));
+      const index = segment.spans.length;
+      const values = `${1}-${traceIdStr}-${segmentId}-${index}-${service}-${instance}-${endpoint}-${peer}`;
+
+      if (args[0] instanceof Request) {
+        args[0].headers.append('sw8', values);
+      } else {
+        if (!args[1]) {
+          args[1] = {};
+        }
+        if (!args[1].headers) {
+          args[1].headers = new Headers();
+        }
+        if (args[1].headers instanceof Headers) {
+          args[1].headers.append('sw8', values);
+        } else {
+          args[1].headers['sw8'] = values;
+        }
+      }
+    }
+
+    const response = await originFetch(...args);
+
+    try {
+      if (response && (response.status === 0 || response.status >= 400)) {
+        const logInfo = {
+          uniqueId: uuid(),
+          service: customConfig.service,
+          serviceVersion: customConfig.serviceVersion,
+          pagePath: customConfig.pagePath,
+          category: ErrorsCategory.AJAX_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: (response && response.url) || `${url.protocol}//${url.host}${url.pathname}`,
+          message: `status: ${response ? response.status : 0}; statusText: ${response && response.statusText};`,
+          collector: customConfig.collector,
+          stack: 'Fetch: ' + response && response.statusText,
+        };
+        new Base().traceInfo(logInfo);
+      }
+      if (hasTrace) {
+        const tags = [
+          {
+            key: 'http.method',
+            value: args[0] instanceof Request ? args[0].method : args[1]?.method || 'GET',
+          },
+          {
+            key: 'url',
+            value: (response && response.url) || `${url.protocol}//${url.host}${url.pathname}`,
+          },
+        ];
+        const endTime = new Date().getTime();
+        const exitSpan: SpanFields = {
+          operationName: customConfig.pagePath,
+          startTime: startTime,
+          endTime,
+          spanId: segment.spans.length,
+          spanLayer: SpanLayer,
+          spanType: SpanType,
+          isError: response && (response.status === 0 || response.status >= 400), // when requests failed, the status is 0
+          parentSpanId: segment.spans.length - 1,
+          componentId: ComponentId,
+          peer: url.host,
+          tags: customConfig.detailMode
+            ? customConfig.customTags
+              ? [...tags, ...customConfig.customTags]
+              : tags
+            : undefined,
+        };
+        segment = {
+          ...segment,
+          traceId: traceId,
+          traceSegmentId: traceSegmentId,
+        };
+        segment.spans.push(exitSpan);
+        segments.push(segment);
+      }
+    } catch (e) {
+      throw e;
+    }
+    return response.clone();
+  };
+}
+export function setFetchOptions(opt: CustomOptionsType) {
+  customConfig = { ...customConfig, ...opt };
+}
+
+
+---
+File: src/errors/vue.ts
+Size: 1864 bytes
+Lines: 57
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class VueErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions, Vue: any) {
+    this.infoOpt = options;
+    if (!(Vue && Vue.config)) {
+      return;
+    }
+    Vue.config.errorHandler = (error: Error, vm: any, info: string) => {
+      try {
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.VUE_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: location.href,
+          message: info,
+          collector: options.collector,
+          stack: error.stack,
+        };
+        this.traceInfo();
+      } catch (error) {
+        throw error;
+      }
+    };
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+
+export default new VueErrors();
+
+
+---
+File: src/errors/ajax.ts
+Size: 2315 bytes
+Lines: 70
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory, ReportTypes } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class AjaxErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  // get http error info
+  public handleError(options: CustomReportOptions) {
+    // XMLHttpRequest Object
+    if (!window.XMLHttpRequest) {
+      return;
+    }
+    this.infoOpt = options;
+    window.addEventListener(
+      'xhrReadyStateChange',
+      (event: CustomEvent<XMLHttpRequest & { getRequestConfig: any[] }>) => {
+        const detail = event.detail;
+
+        if (detail.readyState !== 4) {
+          return;
+        }
+        if (detail.getRequestConfig[1] === options.collector + ReportTypes.ERRORS) {
+          return;
+        }
+        if (detail.status !== 0 && detail.status < 400) {
+          return;
+        }
+
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.AJAX_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: detail.getRequestConfig[1],
+          message: `status: ${detail.status}; statusText: ${detail.statusText};`,
+          collector: options.collector,
+          stack: detail.responseText,
+        };
+        this.traceInfo();
+      },
+    );
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+
+export default new AjaxErrors();
+
+
+---
+File: src/errors/frames.ts
+Size: 1602 bytes
+Lines: 44
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class FrameErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions, error: Error) {
+    this.infoOpt = options;
+    this.logInfo = {
+      ...this.infoOpt,
+      uniqueId: uuid(),
+      category: ErrorsCategory.JS_ERROR,
+      grade: GradeTypeEnum.ERROR,
+      errorUrl: error.name || location.href,
+      message: error.message,
+      collector: options.collector || location.origin,
+      stack: error.stack,
+    };
+    this.traceInfo();
+  }
+}
+export default new FrameErrors();
+
+
+---
+File: src/errors/resource.ts
+Size: 2342 bytes
+Lines: 66
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class ResourceErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions) {
+    this.infoOpt = options;
+    window.addEventListener('error', (event) => {
+      try {
+        if (!event) {
+          return;
+        }
+        const target: any = event.target;
+        const isElementTarget =
+          target instanceof HTMLScriptElement ||
+          target instanceof HTMLLinkElement ||
+          target instanceof HTMLImageElement;
+
+        if (!isElementTarget) {
+          // return js error
+          return;
+        }
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.RESOURCE_ERROR,
+          grade: target.tagName === 'IMG' ? GradeTypeEnum.WARNING : GradeTypeEnum.ERROR,
+          errorUrl: (target as HTMLScriptElement).src || (target as HTMLLinkElement).href || location.href,
+          message: `load ${target.tagName} resource error`,
+          collector: options.collector,
+          stack: `load ${target.tagName} resource error`,
+        };
+        this.traceInfo();
+      } catch (error) {
+        throw error;
+      }
+    },true);
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+export default new ResourceErrors();
+
+
+---
+File: src/errors/js.ts
+Size: 1720 bytes
+Lines: 50
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+class JSErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions) {
+    this.infoOpt = options;
+    window.onerror = (message, url, line, col, error) => {
+      this.logInfo = {
+        ...this.infoOpt,
+        uniqueId: uuid(),
+        category: ErrorsCategory.JS_ERROR,
+        grade: GradeTypeEnum.ERROR,
+        errorUrl: url,
+        line,
+        col,
+        message,
+        collector: options.collector,
+        stack: error ? error.stack : '',
+      };
+      this.traceInfo();
+    };
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+export default new JSErrors();
+
+
+---
+File: src/errors/index.ts
+Size: 1103 bytes
+Lines: 25
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import JSErrors from './js';
+import PromiseErrors from './promise';
+import AjaxErrors from './ajax';
+import ResourceErrors from './resource';
+import VueErrors from './vue';
+import FrameErrors from './frames';
+
+export { JSErrors, PromiseErrors, AjaxErrors, ResourceErrors, VueErrors, FrameErrors };
+
+
+---
+File: src/errors/promise.ts
+Size: 2044 bytes
+Lines: 61
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class PromiseErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions) {
+    this.infoOpt = options;
+    window.addEventListener('unhandledrejection', (event) => {
+      try {
+        let url = '';
+        if (!event || !event.reason) {
+          return;
+        }
+        if (event.reason.config && event.reason.config.url) {
+          url = event.reason.config.url;
+        }
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.PROMISE_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: url || location.href,
+          message: event.reason.message,
+          stack: event.reason.stack,
+          collector: options.collector,
+        };
+
+        this.traceInfo();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+export default new PromiseErrors();
+
+
+---
+File: src/performance/type.ts
+Size: 2112 bytes
+Lines: 56
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {LargestContentfulPaint, LayoutShift, PerformanceEventTiming} from "../services/types";
+export interface ICalScore {
+  dpss: ICalScore[];
+  st: number;
+  els: ElementList;
+  root?: Element;
+}
+export type ElementList = Array<{
+  ele: Element;
+  st: number;
+  weight: number;
+}>;
+export type IPerfDetail = {
+  redirectTime: number | undefined; // Time of redirection
+  dnsTime: number | undefined; // DNS query time
+  ttfbTime: number | undefined; // Time to First Byte
+  tcpTime: number | undefined; // Tcp connection time
+  transTime: number | undefined; // Content transfer time
+  domAnalysisTime: number | undefined; // Dom parsing time
+  fptTime: number | undefined; // First Paint Time or Blank Screen Time
+  domReadyTime: number | undefined; // Dom ready time
+  loadPageTime: number | undefined; // Page full load time
+  resTime: number | undefined; // Synchronous load resources in the page
+  sslTime: number | undefined; // Only valid for HTTPS
+  ttlTime: number | undefined; // Time to interact
+  firstPackTime: number | undefined; // first pack time
+};
+export interface LCPMetric {
+  name: 'LCP';
+  entries: LargestContentfulPaint[];
+}
+
+export interface INPMetric {
+  name: 'INP';
+  entries: PerformanceEventTiming[];
+}
+export interface CLSMetric {
+  name: 'CLS';
+  entries: LayoutShift[];
+}
+
+
+---
+File: src/performance/index.ts
+Size: 9306 bytes
+Lines: 276
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {CustomOptionsType} from '../types';
+import Report from '../services/report';
+import {prerenderChangeListener, onHidden, runOnce, idlePeriod} from '../services/eventsListener';
+import pagePerf from './perf';
+import FMP from './fmp';
+import {observe} from '../services/observe';
+import {LCPMetric, INPMetric, CLSMetric} from './type';
+import {LayoutShift} from '../services/types';
+import {getVisibilityObserver} from '../services/getVisibilityObserver';
+import {getActivationStart, getResourceEntry} from '../services/getEntries';
+import {onBFCacheRestore} from '../services/bfcache';
+import {handleInteractionEntry, clearInteractions, getLongestInteraction, DEFAULT_DURATION_THRESHOLD} from '../services/interactions';
+import {isLayoutShiftSupported, isEventSupported, isLargestContentfulPaintSupported} from '../services/apiDetectSupported';
+
+const handler = {
+  set(target: {[key: string]: unknown}, prop: string, value: unknown) {
+    if (target[prop] !== undefined) {
+      return true
+    }
+    target[prop] = value;
+    const source: {[key: string]: unknown} = {
+      ...target,
+      collector: undefined,
+      useWebVitals: undefined,
+    };
+    if (target.useWebVitals && !isNaN(Number(target.fmpTime)) && !isNaN(Number(target.lcpTime)) && !isNaN(Number(target.cls))) {
+      new TracePerf().reportPerf(source, String(target.collector));
+    }
+    return true;
+  }
+};
+const reportedMetricNames: Record<string, boolean> = {};
+const InitiatorTypes = ["beacon", "xmlhttprequest", "fetch"];
+class TracePerf {
+  private options: CustomOptionsType = {
+    pagePath: '',
+    serviceVersion: '',
+    service: '',
+    collector: ''
+  };
+  private perfInfo = {};
+  private coreWebMetrics: Record<string, unknown> = {};
+  private resources: {name: string, duration: number, size: number, protocol: string, resourceType: string}[] = [];
+  private inpList: Record<string, string|number>[] = [];
+  public getPerf(options: CustomOptionsType) {
+    this.options = options;
+    this.perfInfo = {
+      pagePath: options.pagePath,
+      serviceVersion: options.serviceVersion,
+      service: options.service,
+    }
+    this.coreWebMetrics = new Proxy({...this.perfInfo, collector: options.collector, useWebVitals: options.useWebVitals}, handler);
+    this.observeResources();
+    // trace and report perf data and pv to serve when page loaded
+    if (document.readyState === 'complete') {
+      this.getBasicPerf();
+    } else {
+      window.addEventListener('load', () => this.getBasicPerf());
+    }
+    this.getCorePerf();
+    window.addEventListener('beforeunload', () => {
+      this.reportINP();
+      this.reportResources();
+    });
+  }
+  private observeResources() {    
+    observe('resource', (list) => {
+      const newResources = list.filter((d: PerformanceResourceTiming) => !InitiatorTypes.includes(d.initiatorType))
+      .map((d: PerformanceResourceTiming) => ({
+        service: this.options.service,
+        serviceVersion: this.options.serviceVersion,
+        pagePath: this.options.pagePath,
+        name: d.name,
+        duration: Math.floor(d.duration),
+        size: d.transferSize,
+        protocol: d.nextHopProtocol,
+        resourceType: d.initiatorType,
+      }));
+      this.resources.push(...newResources);
+    });
+  }
+  private reportResources() {
+    const newResources = getResourceEntry().filter((d: PerformanceResourceTiming) => !InitiatorTypes.includes(d.initiatorType))
+      .map((d: PerformanceResourceTiming) => ({
+        service: this.options.service,
+        serviceVersion: this.options.serviceVersion,
+        pagePath: this.options.pagePath,
+        name: d.name,
+        duration: Math.floor(d.duration),
+        size: d.transferSize, 
+        protocol: d.nextHopProtocol,
+        resourceType: d.initiatorType,
+      }));
+    const list = [...newResources, ...this.resources];
+    if (!list.length) {
+      return;
+    }
+    new Report('RESOURCES', this.options.collector).sendByBeacon(list);
+  }
+  private getCorePerf() {
+    if (!this.options.useWebVitals) {
+      return;
+    }
+    this.LCP();
+    this.INP();
+    this.CLS();
+    setTimeout(() => {
+      this.coreWebMetrics.fmpTime = isNaN(FMP.fmpTime) ? -1 : Math.floor(FMP.fmpTime);
+    }, 5000);
+  }
+  private CLS() {
+    if (!isLayoutShiftSupported()) {
+      return this.coreWebMetrics.cls = -1;
+    }
+    let partValue = 0;
+    let entryList: LayoutShift[] = [];
+
+    const handleEntries = (entries: LayoutShift[]) => {
+      entries.forEach((entry) => {
+        // Count layout shifts without recent user input only
+        if (!entry.hadRecentInput) {
+          const firstEntry = entryList[0];
+          const lastEntry = entryList[entryList.length - 1];
+          if (
+            partValue &&
+            entry.startTime - lastEntry.startTime < 1000 &&
+            entry.startTime - firstEntry.startTime < 5000
+          ) {
+            partValue += entry.value;
+          } else {
+            partValue = entry.value;
+          }
+          entryList.push(entry);
+        }
+      });
+      if (partValue > 0) {
+        setTimeout(() => {
+          this.coreWebMetrics.cls = partValue;
+        }, 3000);
+      }
+    };
+
+    const obs = observe('layout-shift', handleEntries);
+
+    if (!obs) {
+      return;
+    }
+    onHidden(() => {
+      handleEntries(obs.takeRecords() as CLSMetric['entries']);
+      obs!.disconnect();
+    });
+  }
+  private LCP() {
+    if (!isLargestContentfulPaintSupported()) {
+      return this.coreWebMetrics.lcpTime = -1;
+    }
+    prerenderChangeListener(() => {
+      const visibilityObserver = getVisibilityObserver();
+      const processEntries = (entries: LCPMetric['entries']) => {
+        entries = entries.slice(-1);
+        for (const entry of entries) {
+          if (entry.startTime < visibilityObserver.firstHiddenTime) {
+            this.coreWebMetrics.lcpTime = Math.floor(Math.max(entry.startTime - getActivationStart(), 0));
+          }
+        }
+      };
+  
+      const obs = observe('largest-contentful-paint', processEntries);
+      if (!obs) {
+        return;
+      }
+      const disconnect = runOnce(() => {
+        if (!reportedMetricNames['lcp']) {
+          processEntries(obs!.takeRecords() as LCPMetric['entries']);
+          obs!.disconnect();
+          reportedMetricNames['lcp'] = true;
+        }
+      });
+      ['keydown', 'click'].forEach((type) => {
+        addEventListener(type, () => idlePeriod(disconnect), true);
+      });
+      onHidden(disconnect);
+    })
+  }
+  private INP() {
+    if (!isEventSupported()) {
+      return;
+    }
+    prerenderChangeListener(() => {
+      const processEntries = (entries: INPMetric['entries']) => {
+        idlePeriod(() => {
+          entries.forEach(handleInteractionEntry);
+          const interaction = getLongestInteraction();
+          const len = this.inpList.length;
+
+          if (interaction && (!len ||  this.inpList[len - 1].inpTime !== Math.floor(interaction.latency))) {
+            const param = {
+              inpTime: Math.floor(interaction.latency),
+              ...this.perfInfo,
+            };
+            this.inpList.push(param);
+          }
+        })
+      };
+      const obs = observe('event', processEntries, {
+        durationThreshold: DEFAULT_DURATION_THRESHOLD,
+      });
+      if (!obs) {
+        return;
+      }
+      obs.observe({type: 'first-input', buffered: true});
+      onHidden(
+        runOnce(() => {
+          processEntries(obs.takeRecords() as INPMetric['entries']);
+          obs.disconnect();
+        }),
+      );
+      onBFCacheRestore(() => {
+        clearInteractions();
+        this.inpList.length = 0;
+      })
+    })
+  }
+  private reportINP() {
+    if (!this.inpList.length) {
+      return;
+    }
+
+    new Report('WEBINTERACTIONS', this.options.collector).sendByBeacon(this.inpList);
+  }
+  private getBasicPerf() {
+    // auto report pv and perf data
+    const perfDetail = this.options.autoTracePerf ? new pagePerf().getPerfTiming() : {};
+    const perfInfo = {
+      ...perfDetail,
+      ...this.perfInfo,
+    };
+    new Report('PERF', this.options.collector).sendByXhr(perfInfo);
+    // clear perf data
+    this.clearPerf();
+  }
+
+  public reportPerf(data: {[key: string]: unknown}, collector: string) {
+    const perf = {
+      ...data,
+      ...this.perfInfo
+    };
+    new Report('WEBVITALS', collector).sendByXhr(perf);
+  }
+
+  private clearPerf() {
+    if (!(window.performance && window.performance.clearResourceTimings)) {
+      return;
+    }
+    window.performance.clearResourceTimings();
+  }
+}
+
+export default new TracePerf();
+
+
+---
+File: src/performance/fmp.ts
+Size: 9481 bytes
+Lines: 290
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { ICalScore, ElementList } from './type';
+
+const getStyle = (element: Element | any, attr: any) => {
+  if (window.getComputedStyle) {
+    return window.getComputedStyle(element, null)[attr];
+  } else {
+    return element.currentStyle[attr];
+  }
+};
+// element weight for calculate score
+enum ELE_WEIGHT {
+  SVG = 2,
+  IMG = 2,
+  CANVAS = 4,
+  OBJECT = 4,
+  EMBED = 4,
+  VIDEO = 4,
+}
+
+const START_TIME: number = performance.now();
+const IGNORE_TAG_SET: string[] = ['SCRIPT', 'STYLE', 'META', 'HEAD', 'LINK'];
+const LIMIT: number = 3000;
+const WW: number = window.innerWidth;
+const WH: number = window.innerHeight;
+const DELAY: number = 2000; // fmp retry interval
+
+class FMPTiming {
+  public fmpTime: number = 0;
+  private statusCollector: Array<{ time: number }> = []; // nodes change time
+  private flag: boolean = true;
+  private observer: MutationObserver = null;
+  private callbackCount: number = 0;
+  private entries: any = {};
+
+  constructor() {
+    if (!performance || !performance.getEntries) {
+      console.log('your browser do not support performance.getEntries');
+      return;
+    }
+    this.initObserver();
+  }
+  private getFirstSnapShot() {
+    const time: number = performance.now();
+    const $body: HTMLElement = document.body;
+    if ($body) {
+      this.setTag($body, this.callbackCount);
+    }
+    this.statusCollector.push({
+      time,
+    });
+  }
+  private initObserver() {
+    this.getFirstSnapShot();
+    this.observer = new MutationObserver(() => {
+      this.callbackCount += 1;
+      const time = performance.now();
+      const $body: HTMLElement = document.body;
+      if ($body) {
+        this.setTag($body, this.callbackCount);
+      }
+      this.statusCollector.push({
+        time,
+      });
+    });
+    // observe all child nodes
+    this.observer.observe(document, {
+      childList: true,
+      subtree: true,
+    });
+    this.calculateFinalScore();
+  }
+  private calculateFinalScore() {
+    if (!this.flag) {
+      return;
+    }
+    if (!MutationObserver) {
+      return;
+    }
+    if (this.checkNeedCancel(START_TIME)) {
+      // cancel observer for dom change
+      this.observer.disconnect();
+      this.flag = false;
+      const res = this.getTreeScore(document.body);
+      let tp: ICalScore = null;
+      for (const item of res.dpss) {
+        if (tp && tp.st) {
+          if (tp.st < item.st) {
+            tp = item;
+          }
+        } else {
+          tp = item;
+        }
+      }
+      // Get all of soures load time
+      performance.getEntries().forEach((item: PerformanceResourceTiming) => {
+        this.entries[item.name] = item.responseEnd;
+      });
+      if (!tp) {
+        return false;
+      }
+      const resultEls: ElementList = this.filterResult(tp.els);
+      this.fmpTime = this.getFmpTime(resultEls);
+    } else {
+      setTimeout(() => {
+        this.calculateFinalScore();
+      }, DELAY);
+    }
+  }
+  private getFmpTime(resultEls: ElementList): number {
+    let rt = 0;
+    for (const item of resultEls) {
+      let time: number = 0;
+      if (item.weight === 1) {
+        const index: number = parseInt(item.ele.getAttribute('fmp_c'), 10);
+        time = this.statusCollector[index] && this.statusCollector[index].time;
+      } else if (item.weight === 2) {
+        if (item.ele.tagName === 'IMG') {
+          time = this.entries[(item.ele as HTMLImageElement).src];
+        } else if (item.ele.tagName === 'SVG') {
+          const index: number = parseInt(item.ele.getAttribute('fmp_c'), 10);
+          time = this.statusCollector[index] && this.statusCollector[index].time;
+        } else {
+          const match = getStyle(item.ele, 'background-image').match(/url\(\"(.*?)\"\)/);
+          let url: string = '';
+          if (match && match[1]) {
+            url = match[1];
+            if (!url.includes('http')) {
+              url = location.protocol + match[1];
+            }
+          }
+          time = this.entries[url];
+        }
+      } else if (item.weight === 4) {
+        if (item.ele.tagName === 'CANVAS') {
+          const index: number = parseInt(item.ele.getAttribute('fmp_c'), 10);
+          time = this.statusCollector[index] && this.statusCollector[index].time;
+        } else if (item.ele.tagName === 'VIDEO') {
+          time = this.entries[(item.ele as HTMLVideoElement).src];
+          if (!time) {
+            time = this.entries[(item.ele as HTMLVideoElement).poster];
+          }
+        }
+      }
+      if (typeof time !== 'number') {
+        time = 0;
+      }
+      if (rt < time) {
+        rt = time;
+      }
+    }
+    return rt;
+  }
+  /**
+   * The nodes with the highest score in the visible area are collected and the average value is taken,
+   * and the low score ones are eliminated
+   */
+  private filterResult(els: ElementList): ElementList {
+    if (els.length === 1) {
+      return els;
+    }
+    let sum: number = 0;
+    els.forEach((item: any) => {
+      sum += item.st;
+    });
+    const avg: number = sum / els.length;
+    return els.filter((item: any) => {
+      return item.st > avg;
+    });
+  }
+  private checkNeedCancel(start: number): boolean {
+    const time: number = performance.now() - start;
+    const lastCalTime: number =
+      this.statusCollector.length > 0 ? this.statusCollector[this.statusCollector.length - 1].time : 0;
+    return time > LIMIT || time - lastCalTime > 1000;
+  }
+  private getTreeScore(node: Element): ICalScore | any {
+    if (!node) {
+      return {};
+    }
+    const dpss = [];
+    const children: any = node.children;
+    for (const child of children) {
+      // Only calculate marked elements
+      if (!child.getAttribute('fmp_c')) {
+        continue;
+      }
+      const s = this.getTreeScore(child);
+      if (s.st) {
+        dpss.push(s);
+      }
+    }
+
+    return this.calcaulteGrades(node, dpss);
+  }
+  private calcaulteGrades(ele: Element, dpss: ICalScore[]): ICalScore {
+    const { width, height, left, top } = ele.getBoundingClientRect();
+    let isInViewPort: boolean = true;
+    if (WH < top || WW < left) {
+      isInViewPort = false;
+    }
+    let sdp: number = 0;
+    dpss.forEach((item: any) => {
+      sdp += item.st;
+    });
+    let weight: number = Number(ELE_WEIGHT[ele.tagName as any]) || 1;
+    // If there is a common element of the background image, it is calculated according to the picture
+    if (
+      weight === 1 &&
+      getStyle(ele, 'background-image') &&
+      getStyle(ele, 'background-image') !== 'initial' &&
+      getStyle(ele, 'background-image') !== 'none'
+    ) {
+      weight = ELE_WEIGHT.IMG;
+    }
+    // score = the area of element
+    let st: number = isInViewPort ? width * height * weight : 0;
+    let els = [{ ele, st, weight }];
+    const root = ele;
+    // The percentage of the current element in the viewport
+    const areaPercent = this.calculateAreaParent(ele);
+    // If the sum of the child's weights is greater than the parent's true weight
+    if (sdp > st * areaPercent || areaPercent === 0) {
+      st = sdp;
+      els = [];
+      for (const item of dpss) {
+        els = els.concat(item.els);
+      }
+    }
+    return {
+      dpss,
+      st,
+      els,
+      root,
+    };
+  }
+  private calculateAreaParent(ele: Element): number {
+    const { left, right, top, bottom, width, height } = ele.getBoundingClientRect();
+    const winLeft: number = 0;
+    const winTop: number = 0;
+    const winRight: number = WW;
+    const winBottom: number = WH;
+    const overlapX = right - left + (winRight - winLeft) - (Math.max(right, winRight) - Math.min(left, winLeft));
+    const overlapY = bottom - top + (winBottom - winTop) - (Math.max(bottom, winBottom) - Math.min(top, winTop));
+
+    if (overlapX <= 0 || overlapY <= 0) {
+      return 0;
+    }
+    return (overlapX * overlapY) / (width * height);
+  }
+  // Depth first traversal to mark nodes
+  private setTag(target: Element, callbackCount: number): void {
+    const tagName: string = target.tagName;
+    if (IGNORE_TAG_SET.indexOf(tagName) === -1) {
+      const $children: HTMLCollection = target.children;
+      if ($children && $children.length > 0) {
+        for (let i = $children.length - 1; i >= 0; i--) {
+          const $child: Element = $children[i];
+          const hasSetTag = $child.getAttribute('fmp_c') !== null;
+          // If it is not marked, whether the marking condition is met is detected
+          if (!hasSetTag) {
+            const { left, top, width, height } = $child.getBoundingClientRect();
+            if (WH < top || WW < left || width === 0 || height === 0) {
+              continue;
+            }
+            $child.setAttribute('fmp_c', `${callbackCount}`);
+          }
+          this.setTag($child, callbackCount);
+        }
+      }
+    }
+  }
+}
+
+export default new FMPTiming();
+
+
+---
+File: src/performance/perf.ts
+Size: 2972 bytes
+Lines: 66
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { IPerfDetail } from './type';
+import {getNavigationEntry} from '../services/getEntries';
+class PagePerf {
+  public getPerfTiming(): IPerfDetail {
+    try {
+      let { timing } = window.performance as PerformanceNavigationTiming | any; // PerformanceTiming
+      if (typeof window.PerformanceNavigationTiming === 'function') {
+        const nt2Timing = getNavigationEntry();
+
+        if (nt2Timing) {
+          timing = nt2Timing;
+        }
+      }
+      let redirectTime = 0;
+
+      if (timing.navigationStart !== undefined) {
+        redirectTime = Math.floor(timing.fetchStart - timing.navigationStart);
+      } else if (timing.redirectEnd !== undefined) {
+        redirectTime = Math.floor(timing.redirectEnd - timing.redirectStart);
+      } else {
+        redirectTime = 0;
+      }
+
+      return {
+        redirectTime,
+        dnsTime: Math.floor(timing.domainLookupEnd - timing.domainLookupStart),
+        ttfbTime: Math.floor(timing.responseStart - timing.requestStart), // Time to First Byte
+        tcpTime: Math.floor(timing.connectEnd - timing.connectStart),
+        transTime: Math.floor(timing.responseEnd - timing.responseStart),
+        domAnalysisTime: Math.floor(timing.domInteractive - timing.responseEnd),
+        fptTime: Math.floor(timing.responseEnd - timing.fetchStart), // First Paint Time or Blank Screen Time
+        domReadyTime: Math.floor(timing.domContentLoadedEventEnd - timing.fetchStart),
+        loadPageTime: Math.floor(timing.loadEventStart - timing.fetchStart), // Page full load time
+        // Synchronous load resources in the page
+        resTime: Math.floor(timing.loadEventStart - timing.domContentLoadedEventEnd),
+        // Only valid for HTTPS
+        sslTime:
+          location.protocol === 'https:' && timing.secureConnectionStart > 0
+            ? Math.floor(timing.connectEnd - timing.secureConnectionStart)
+            : undefined,
+        ttlTime: Math.floor(timing.domInteractive - timing.fetchStart), // time to interact
+        firstPackTime: Math.floor(timing.responseStart - timing.domainLookupStart), // first pack time
+      };
+    } catch (e) {
+      throw e;
+    }
+  }
+}
+
+export default PagePerf;
+
+
+---
+File: src/services/apiDetectSupported.ts
+Size: 1176 bytes
+Lines: 27
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export function isLayoutShiftSupported() {
+  return PerformanceObserver.supportedEntryTypes.includes('layout-shift');
+}
+
+export function isLargestContentfulPaintSupported() {
+  return PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint');
+}
+
+export function isEventSupported() {
+  return PerformanceObserver.supportedEntryTypes.includes('event');
+}
+
+
+---
+File: src/services/base.ts
+Size: 2235 bytes
+Lines: 66
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import Task from './task';
+import { ErrorsCategory, GradeTypeEnum } from './constant';
+import { ErrorInfoFields, ReportFields } from './types';
+
+let pageHasjsError: { [key: string]: boolean } = {};
+let interval: NodeJS.Timeout;
+export default class Base {
+  public logInfo: ErrorInfoFields & ReportFields & { collector: string } = {
+    uniqueId: '',
+    service: '',
+    serviceVersion: '',
+    pagePath: '',
+    category: ErrorsCategory.UNKNOWN_ERROR,
+    grade: GradeTypeEnum.INFO,
+    errorUrl: '',
+    line: 0,
+    col: 0,
+    message: '',
+    firstReportedError: false,
+    collector: '',
+  };
+
+  public traceInfo(logInfo?: ErrorInfoFields & ReportFields & { collector: string }) {
+    this.logInfo = logInfo || this.logInfo;
+    const ExcludeErrorTypes: string[] = [
+      ErrorsCategory.AJAX_ERROR,
+      ErrorsCategory.RESOURCE_ERROR,
+      ErrorsCategory.UNKNOWN_ERROR,
+    ];
+    // mark js error pv
+    if (!pageHasjsError[location.href] && !ExcludeErrorTypes.includes(this.logInfo.category)) {
+      pageHasjsError = {
+        [location.href]: true,
+      };
+      this.logInfo.firstReportedError = true;
+    }
+    const collector = this.logInfo.collector;
+
+    delete this.logInfo.collector;
+    Task.addTask(this.logInfo, collector);
+    Task.finallyFireTasks();
+    if (interval) {
+      return;
+    }
+    // report errors within 1min
+    interval = setInterval(() => {
+      Task.fireTasks();
+    }, 60000);
+  }
+}
+
+
+---
+File: src/services/uuid.ts
+Size: 1085 bytes
+Lines: 27
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export default function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    /* tslint:disable */
+    const r = (Math.random() * 16) | 0;
+    /* tslint:disable */
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+
+    return v.toString(16);
+  });
+}
+
+
+---
+File: src/services/report.ts
+Size: 2576 bytes
+Lines: 87
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { ReportTypes } from './constant';
+class Report {
+  private url: string = '';
+
+  constructor(type: string, collector: string) {
+    const typesMap: Record<string, string> = {
+      ERROR: ReportTypes.ERROR,
+      ERRORS: ReportTypes.ERRORS,
+      SEGMENT: ReportTypes.SEGMENT,
+      SEGMENTS: ReportTypes.SEGMENTS,
+      PERF: ReportTypes.PERF,
+      WEBVITALS: ReportTypes.WEBVITALS,
+      WEBINTERACTIONS: ReportTypes.WEBINTERACTIONS,
+      RESOURCES: ReportTypes.RESOURCES,
+    };
+
+    this.url = `${collector}${typesMap[type]}`;
+  }
+
+  public sendByFetch(data: any) {
+    delete data.collector;
+    if (!this.url) {
+      return;
+    }
+    const sendRequest = new Request(this.url, { method: 'POST', body: JSON.stringify(data) });
+
+    fetch(sendRequest)
+      .then((response) => {
+        if (response.status >= 400 || response.status === 0) {
+          throw new Error('Something went wrong on api server!');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  public sendByXhr(data: any) {
+    if (!this.url) {
+      return;
+    }
+    const xhr = new XMLHttpRequest();
+
+    xhr.open('post', this.url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status < 400) {
+        console.log('Report successfully');
+      }
+    };
+    xhr.send(JSON.stringify(data));
+  }
+
+  public sendByBeacon(data: any) {
+    if (!this.url) {
+      return;
+    }
+    if (typeof navigator.sendBeacon === 'function') {
+      navigator.sendBeacon(
+        this.url,
+        new Blob([JSON.stringify(data)], {
+          type: 'application/json'
+        })
+      );
+      return;
+    }
+
+    this.sendByXhr(data);
+  }
+}
+export default Report;
+
+
+---
+File: src/services/getEntries.ts
+Size: 1522 bytes
+Lines: 45
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export function getNavigationEntry() {
+  const navigationEntry: PerformanceEntry | any =
+    self.performance &&
+    performance.getEntriesByType &&
+    performance.getEntriesByType('navigation')[0];
+
+  if (
+    navigationEntry &&
+    navigationEntry.responseStart > 0 &&
+    navigationEntry.responseStart < performance.now()
+  ) {
+    return navigationEntry;
+  }
+};
+
+
+export function getActivationStart() {
+  const entry = getNavigationEntry();
+  return (entry && entry.activationStart) || 0;
+};
+
+export function getResourceEntry() {
+  const resourceEntry: PerformanceEntry | any =
+    self.performance &&
+    performance.getEntriesByType &&
+    performance.getEntriesByType('resource');
+    return resourceEntry;
+};
+
+---
+File: src/services/constant.ts
+Size: 1564 bytes
+Lines: 48
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export enum ErrorsCategory {
+  AJAX_ERROR = 'ajax',
+  RESOURCE_ERROR = 'resource',
+  VUE_ERROR = 'vue',
+  PROMISE_ERROR = 'promise',
+  JS_ERROR = 'js',
+  UNKNOWN_ERROR = 'unknown',
+}
+export enum GradeTypeEnum {
+  INFO = 'Info',
+  WARNING = 'Warning',
+  ERROR = 'Error',
+}
+export enum ReportTypes {
+  ERROR = '/browser/errorLog',
+  ERRORS = '/browser/errorLogs',
+  PERF = '/browser/perfData',
+  WEBVITALS = '/browser/perfData/webVitals',
+  WEBINTERACTIONS = '/browser/perfData/webInteractions',
+  RESOURCES = '/browser/perfData/resources',
+  SEGMENT = '/v3/segment',
+  SEGMENTS = '/v3/segments',
+}
+
+export const SpanLayer = 'Http';
+export const SpanType = 'Exit';
+
+export enum ReadyStatus {
+  OPENED = 1,
+  DONE = 4,
+}
+export const ComponentId = 10001; // ajax
+
+
+---
+File: src/services/interactions.ts
+Size: 3221 bytes
+Lines: 91
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { Interaction, EntryPreProcessingHook, PerformanceEventTiming } from "./types";
+
+export const DEFAULT_DURATION_THRESHOLD = 40;
+// Longest interactions list
+export const interactionList: Interaction[] = [];
+export const interactionsMap: Map<number, Interaction> = new Map();
+export const entryPreProcessingCallbacks: EntryPreProcessingHook[] = [];
+
+const MAX_INTERACTIONS_TO_CONSIDER = 10;
+
+let prevInteractionCount = 0;
+
+export function handleInteractionEntry (entry: PerformanceEventTiming) {
+  entryPreProcessingCallbacks.forEach((cb) => cb(entry));
+
+  if (!(entry.interactionId || entry.entryType === 'first-input')) return;
+
+  const minLongestInteraction = interactionList[interactionList.length - 1];
+
+  const existingInteraction = interactionsMap.get(entry.interactionId!);
+
+  if (
+    existingInteraction || interactionList.length < MAX_INTERACTIONS_TO_CONSIDER ||
+    entry.duration > minLongestInteraction.latency
+  ) {
+    if (existingInteraction) {
+      if (entry.duration > existingInteraction.latency) {
+        existingInteraction.entries = [entry];
+        existingInteraction.latency = entry.duration;
+      } else if (
+        entry.duration === existingInteraction.latency &&
+        entry.startTime === existingInteraction.entries[0].startTime
+      ) {
+        existingInteraction.entries.push(entry);
+      }
+    } else {
+      const interaction = {
+        id: entry.interactionId!,
+        latency: entry.duration,
+        entries: [entry],
+      };
+      interactionsMap.set(interaction.id, interaction);
+      interactionList.push(interaction);
+    }
+
+    // Sort the entries by latency
+    interactionList.sort((a, b) => b.latency - a.latency);
+    if (interactionList.length > MAX_INTERACTIONS_TO_CONSIDER) {
+      interactionList
+        .splice(MAX_INTERACTIONS_TO_CONSIDER)
+        .forEach((i) => interactionsMap.delete(i.id));
+    }
+  }
+};
+
+function getInteractionCountForNavigation() {
+  return getInteractionCount() - prevInteractionCount;
+};
+
+export function getLongestInteraction() {
+  const index = Math.min(interactionList.length - 1, Math.floor(getInteractionCountForNavigation() / 50));
+
+  return interactionList[index];
+};
+
+export function clearInteractions() {
+  prevInteractionCount = getInteractionCount();
+  interactionList.length = 0;
+  interactionsMap.clear();
+};
+
+export function getInteractionCount() {
+  return (performance.eventCounts as any).size || 0;
+};
+
+
+---
+File: src/services/getVisibilityObserver.ts
+Size: 1970 bytes
+Lines: 61
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {onBFCacheRestore} from './bfcache';
+
+let firstHiddenTime = -1;
+
+function initHiddenTime () {
+  return document.visibilityState === 'hidden' && !(document as any).prerendering
+    ? 0
+    : Infinity;
+};
+
+function onVisibilityUpdate(event: Event) {
+  if (document.visibilityState === 'hidden' && firstHiddenTime > -1) {
+    firstHiddenTime = event.type === 'visibilitychange' ? event.timeStamp : 0;
+    removeChangeListeners();
+  }
+};
+
+function addChangeListeners() {
+  addEventListener('visibilitychange', onVisibilityUpdate, true);
+  addEventListener('prerenderingchange', onVisibilityUpdate, true);
+};
+
+function removeChangeListeners() {
+  removeEventListener('visibilitychange', onVisibilityUpdate, true);
+  removeEventListener('prerenderingchange', onVisibilityUpdate, true);
+};
+
+export function getVisibilityObserver() {
+  if (firstHiddenTime < 0) {
+    firstHiddenTime = initHiddenTime();
+    addChangeListeners();
+    onBFCacheRestore(() => {
+      setTimeout(() => {
+        firstHiddenTime = initHiddenTime();
+        addChangeListeners();
+      }, 0);
+    });
+  }
+  return {
+    get firstHiddenTime() {
+      return firstHiddenTime;
+    },
+  };
+};
+
+
+---
+File: src/services/observe.ts
+Size: 1796 bytes
+Lines: 52
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {LargestContentfulPaint, LayoutShift, PerformanceEventTiming, PerformanceObserverInit} from "./types";
+interface PerformanceEntryObj {
+  'layout-shift': LayoutShift[];
+  'largest-contentful-paint': LargestContentfulPaint[];
+  'resource': PerformanceResourceTiming[];
+  'event': PerformanceEventTiming[];
+}
+
+export function observe <K extends keyof PerformanceEntryObj>(
+  type: K,
+  callback: (entries: PerformanceEntryObj[K]) => void,
+  opts?: PerformanceObserverInit,
+): PerformanceObserver {
+  try {
+    if (PerformanceObserver.supportedEntryTypes.includes(type)) {
+      const perfObs = new PerformanceObserver((list) => {
+
+        Promise.resolve().then(() => {
+          callback(list.getEntries() as PerformanceEntryObj[K]);
+        });
+      });
+      perfObs.observe(
+        Object.assign(
+          {
+            type,
+            buffered: true,
+          },
+          opts || {},
+        ),
+      );
+      return perfObs;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+---
+File: src/services/types.ts
+Size: 2027 bytes
+Lines: 68
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export interface ErrorInfoFields {
+  uniqueId: string;
+  category: string;
+  grade: string;
+  message: any;
+  errorUrl: string;
+  line?: number;
+  col?: number;
+  stack?: string;
+  firstReportedError?: boolean;
+}
+
+export interface ReportFields {
+  service: string;
+  serviceVersion: string;
+  pagePath: string;
+}
+export interface LargestContentfulPaint extends PerformanceEntry {
+  readonly renderTime: DOMHighResTimeStamp;
+  readonly loadTime: DOMHighResTimeStamp;
+  readonly size: number;
+  readonly id: string;
+  readonly url: string;
+  readonly element: Element | null;
+}
+
+interface LayoutShiftAttribution {
+  node?: Node;
+  previousRect: DOMRectReadOnly;
+  currentRect: DOMRectReadOnly;
+}
+export interface LayoutShift extends PerformanceEntry {
+  value: number;
+  sources: LayoutShiftAttribution[];
+  hadRecentInput: boolean;
+}
+export interface PerformanceEventTiming extends PerformanceEntry {
+  duration: DOMHighResTimeStamp;
+  interactionId: number;
+}
+export interface Interaction {
+  id: number;
+  latency: number;
+  entries: PerformanceEventTiming[];
+}
+export interface EntryPreProcessingHook {
+  (entry: PerformanceEventTiming): void;
+}
+export interface PerformanceObserverInit {
+  durationThreshold?: number;
+}
+
+---
+File: src/services/eventsListener.ts
+Size: 1665 bytes
+Lines: 55
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export function prerenderChangeListener(callback: () => void) {
+  if ((document as any).prerendering) {
+    addEventListener('prerenderingchange', callback, true);
+    return;
+  }
+  callback();
+}
+
+export function onHidden (cb: () => void) {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      cb();
+    }
+  });
+};
+
+export function runOnce (callback: () => void) {
+  let called = false;
+  return () => {
+    if (!called) {
+      callback();
+      called = true;
+    }
+  };
+};
+
+export function idlePeriod(callback: () => void): number {
+  const func = window.requestIdleCallback || window.setTimeout;
+
+  let handle = -1;
+  callback = runOnce(callback);
+  if (document.visibilityState === 'hidden') {
+    callback();
+  } else {
+    handle = func(callback);
+    onHidden(callback);
+  }
+  return handle;
+};
+
+
+---
+File: src/services/bfcache.ts
+Size: 1222 bytes
+Lines: 37
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+interface onBFCacheRestoreCallback {
+  (event: PageTransitionEvent): void;
+}
+
+let bfcacheRestoreTime = -1;
+
+export const getBFCacheRestoreTime = () => bfcacheRestoreTime;
+
+export function onBFCacheRestore(cb: onBFCacheRestoreCallback) {
+  addEventListener(
+    'pageshow',
+    (event) => {
+      if (event.persisted) {
+        bfcacheRestoreTime = event.timeStamp;
+        cb(event);
+      }
+    },
+    true,
+  );
+};
+
+
+---
+File: src/services/task.ts
+Size: 1600 bytes
+Lines: 48
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { ErrorInfoFields, ReportFields } from './types';
+import Report from './report';
+
+class TaskQueue {
+  private queues: ((ErrorInfoFields & ReportFields) | undefined)[] = [];
+  private collector: string = '';
+
+  public addTask(data: ErrorInfoFields & ReportFields, collector: string) {
+    this.queues.push(data);
+    this.collector = collector;
+  }
+
+  public fireTasks() {
+    if (!(this.queues && this.queues.length)) {
+      return;
+    }
+
+    new Report('ERRORS', this.collector).sendByXhr(this.queues);
+    this.queues = [];
+  }
+
+  public finallyFireTasks() {
+    window.addEventListener('beforeunload', () => {
+      if (!this.queues.length) {
+        return;
+      }
+      new Report('ERRORS', this.collector).sendByBeacon(this.queues);
+    });
+  }
+}
+
+export default new TaskQueue();
+

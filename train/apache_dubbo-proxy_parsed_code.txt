@@ -1,0 +1,1877 @@
+Tokens: 13406
+Repo: apache/dubbo-proxy
+Commit: 9faa6a115e97fc19e83887a50073c1df5e57a994
+Timestamp: 2026-03-04T19:37:22.702133
+
+--- Repository Structure ---
+.
+├── .gitignore
+├── README.md
+├── README_zh.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── org
+    │   │       └── apache
+    │   │           └── dubbo
+    │   │               └── proxy
+    │   │                   ├── Config.java
+    │   │                   ├── DubboProxyApplication.java
+    │   │                   ├── dao
+    │   │                   │   ├── ServiceDefinition.java
+    │   │                   │   └── ServiceMapping.java
+    │   │                   ├── metadata
+    │   │                   │   ├── MetadataCollector.java
+    │   │                   │   └── impl
+    │   │                   │       └── ZookeeperMetadataCollector.java
+    │   │                   ├── server
+    │   │                   │   ├── HttpProcessHandler.java
+    │   │                   │   └── NettyServer.java
+    │   │                   ├── service
+    │   │                   │   └── GenericInvoke.java
+    │   │                   ├── utils
+    │   │                   │   ├── Constants.java
+    │   │                   │   ├── InetAddressUtil.java
+    │   │                   │   ├── NamingThreadFactory.java
+    │   │                   │   ├── ResultCode.java
+    │   │                   │   └── Tool.java
+    │   │                   └── worker
+    │   │                       └── RequestWorker.java
+    │   └── resources
+    │       ├── META-INF
+    │       │   └── dubbo
+    │       │       └── internal
+    │       │           └── org.apache.dubbo.proxy.metadata.MetadataCollector
+    │       └── application.yml
+    └── test
+        └── java
+            └── org
+                └── apache
+                    └── dubbo
+                        └── proxy
+                            └── DubboProxyApplicationTests.java
+
+--- Summary Report ---
+Total files scanned: 24
+Files included: 24
+Files skipped by rule: 0
+Files skipped by size: 0
+Detected languages count: 7
+Top 15 largest included files:
+  9114 bytes - mvnw
+  5811 bytes - mvnw.cmd
+  5734 bytes - src/main/java/org/apache/dubbo/proxy/worker/RequestWorker.java
+  4504 bytes - src/main/java/org/apache/dubbo/proxy/server/NettyServer.java
+  4300 bytes - src/main/java/org/apache/dubbo/proxy/service/GenericInvoke.java
+  3597 bytes - pom.xml
+  3441 bytes - src/main/java/org/apache/dubbo/proxy/server/HttpProcessHandler.java
+  3104 bytes - src/main/java/org/apache/dubbo/proxy/Config.java
+  2438 bytes - src/main/java/org/apache/dubbo/proxy/metadata/impl/ZookeeperMetadataCollector.java
+  2387 bytes - src/main/java/org/apache/dubbo/proxy/utils/InetAddressUtil.java
+  1297 bytes - src/main/java/org/apache/dubbo/proxy/utils/Tool.java
+  1197 bytes - README.md
+  1146 bytes - README_zh.md
+  1094 bytes - src/main/java/org/apache/dubbo/proxy/utils/NamingThreadFactory.java
+  1078 bytes - src/main/java/org/apache/dubbo/proxy/dao/ServiceDefinition.java
+-----------------------
+
+---
+File: mvnw.cmd
+Size: 5811 bytes
+Lines: 161
+---
+@REM ----------------------------------------------------------------------------
+@REM Licensed to the Apache Software Foundation (ASF) under one
+@REM or more contributor license agreements.  See the NOTICE file
+@REM distributed with this work for additional information
+@REM regarding copyright ownership.  The ASF licenses this file
+@REM to you under the Apache License, Version 2.0 (the
+@REM "License"); you may not use this file except in compliance
+@REM with the License.  You may obtain a copy of the License at
+@REM
+@REM    https://www.apache.org/licenses/LICENSE-2.0
+@REM
+@REM Unless required by applicable law or agreed to in writing,
+@REM software distributed under the License is distributed on an
+@REM "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+@REM KIND, either express or implied.  See the License for the
+@REM specific language governing permissions and limitations
+@REM under the License.
+@REM ----------------------------------------------------------------------------
+
+@REM ----------------------------------------------------------------------------
+@REM Maven2 Start Up Batch script
+@REM
+@REM Required ENV vars:
+@REM JAVA_HOME - location of a JDK home dir
+@REM
+@REM Optional ENV vars
+@REM M2_HOME - location of maven2's installed home dir
+@REM MAVEN_BATCH_ECHO - set to 'on' to enable the echoing of the batch commands
+@REM MAVEN_BATCH_PAUSE - set to 'on' to wait for a key stroke before ending
+@REM MAVEN_OPTS - parameters passed to the Java VM when running Maven
+@REM     e.g. to debug Maven itself, use
+@REM set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+@REM MAVEN_SKIP_RC - flag to disable loading of mavenrc files
+@REM ----------------------------------------------------------------------------
+
+@REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
+@echo off
+@REM set title of command window
+title %0
+@REM enable echoing my setting MAVEN_BATCH_ECHO to 'on'
+@if "%MAVEN_BATCH_ECHO%" == "on"  echo %MAVEN_BATCH_ECHO%
+
+@REM set %HOME% to equivalent of $HOME
+if "%HOME%" == "" (set "HOME=%HOMEDRIVE%%HOMEPATH%")
+
+@REM Execute a user defined script before this one
+if not "%MAVEN_SKIP_RC%" == "" goto skipRcPre
+@REM check for pre script, once with legacy .bat ending and once with .cmd ending
+if exist "%HOME%\mavenrc_pre.bat" call "%HOME%\mavenrc_pre.bat"
+if exist "%HOME%\mavenrc_pre.cmd" call "%HOME%\mavenrc_pre.cmd"
+:skipRcPre
+
+@setlocal
+
+set ERROR_CODE=0
+
+@REM To isolate internal variables from possible post scripts, we use another setlocal
+@setlocal
+
+@REM ==== START VALIDATION ====
+if not "%JAVA_HOME%" == "" goto OkJHome
+
+echo.
+echo Error: JAVA_HOME not found in your environment. >&2
+echo Please set the JAVA_HOME variable in your environment to match the >&2
+echo location of your Java installation. >&2
+echo.
+goto error
+
+:OkJHome
+if exist "%JAVA_HOME%\bin\java.exe" goto init
+
+echo.
+echo Error: JAVA_HOME is set to an invalid directory. >&2
+echo JAVA_HOME = "%JAVA_HOME%" >&2
+echo Please set the JAVA_HOME variable in your environment to match the >&2
+echo location of your Java installation. >&2
+echo.
+goto error
+
+@REM ==== END VALIDATION ====
+
+:init
+
+@REM Find the project base dir, i.e. the directory that contains the folder ".mvn".
+@REM Fallback to current working directory if not found.
+
+set MAVEN_PROJECTBASEDIR=%MAVEN_BASEDIR%
+IF NOT "%MAVEN_PROJECTBASEDIR%"=="" goto endDetectBaseDir
+
+set EXEC_DIR=%CD%
+set WDIR=%EXEC_DIR%
+:findBaseDir
+IF EXIST "%WDIR%"\.mvn goto baseDirFound
+cd ..
+IF "%WDIR%"=="%CD%" goto baseDirNotFound
+set WDIR=%CD%
+goto findBaseDir
+
+:baseDirFound
+set MAVEN_PROJECTBASEDIR=%WDIR%
+cd "%EXEC_DIR%"
+goto endDetectBaseDir
+
+:baseDirNotFound
+set MAVEN_PROJECTBASEDIR=%EXEC_DIR%
+cd "%EXEC_DIR%"
+
+:endDetectBaseDir
+
+IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config" goto endReadAdditionalConfig
+
+@setlocal EnableExtensions EnableDelayedExpansion
+for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do set JVM_CONFIG_MAVEN_PROPS=!JVM_CONFIG_MAVEN_PROPS! %%a
+@endlocal & set JVM_CONFIG_MAVEN_PROPS=%JVM_CONFIG_MAVEN_PROPS%
+
+:endReadAdditionalConfig
+
+SET MAVEN_JAVA_EXE="%JAVA_HOME%\bin\java.exe"
+set WRAPPER_JAR="%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar"
+set WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
+
+set DOWNLOAD_URL="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.4.2/maven-wrapper-0.4.2.jar"
+FOR /F "tokens=1,2 delims==" %%A IN (%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties) DO (
+	IF "%%A"=="wrapperUrl" SET DOWNLOAD_URL=%%B 
+)
+
+@REM Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
+@REM This allows using the maven wrapper in projects that prohibit checking in binary data.
+if exist %WRAPPER_JAR% (
+    echo Found %WRAPPER_JAR%
+) else (
+    echo Couldn't find %WRAPPER_JAR%, downloading it ...
+	echo Downloading from: %DOWNLOAD_URL%
+    powershell -Command "(New-Object Net.WebClient).DownloadFile('%DOWNLOAD_URL%', '%WRAPPER_JAR%')"
+    echo Finished downloading %WRAPPER_JAR%
+)
+@REM End of extension
+
+%MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
+if ERRORLEVEL 1 goto error
+goto end
+
+:error
+set ERROR_CODE=1
+
+:end
+@endlocal & set ERROR_CODE=%ERROR_CODE%
+
+if not "%MAVEN_SKIP_RC%" == "" goto skipRcPost
+@REM check for post script, once with legacy .bat ending and once with .cmd ending
+if exist "%HOME%\mavenrc_post.bat" call "%HOME%\mavenrc_post.bat"
+if exist "%HOME%\mavenrc_post.cmd" call "%HOME%\mavenrc_post.cmd"
+:skipRcPost
+
+@REM pause the script if MAVEN_BATCH_PAUSE is set to 'on'
+if "%MAVEN_BATCH_PAUSE%" == "on" pause
+
+if "%MAVEN_TERMINATE_CMD%" == "on" exit %ERROR_CODE%
+
+exit /B %ERROR_CODE%
+
+
+---
+File: pom.xml
+Size: 3597 bytes
+Lines: 133
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.dubbo.proxy</groupId>
+	<artifactId>dubbo-proxy</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>dubbo-proxy</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<netty.version>4.1.35.Final</netty.version>
+		<slf4j.version>1.7.26</slf4j.version>
+		<log4j.version>1.2.17</log4j.version>
+		<curator.version>2.12.0</curator.version>
+		<dubbo.version>2.7.3</dubbo.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-all</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.dubbo</groupId>
+				<artifactId>dubbo</artifactId>
+				<version>${dubbo.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-framework</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-recipes</artifactId>
+				<version>${curator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>1.2.54</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.dubbo</groupId>
+			<artifactId>dubbo</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-framework</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-recipes</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.zookeeper</groupId>
+					<artifactId>zookeeper</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+---
+File: README.md
+Size: 1197 bytes
+Lines: 35
+---
+[中文版本](README_zh.md)  
+## Dubbo Proxy
+Dubbo Proxy, a gateway of Dubbo, switch from HTTP request to Dubbo protocol，then invoke Dubbo service and return to the result. Later Dubbo Proxy would combine several features, including circuit breaker, current-limiting, api management. 
+
+
+### instructions
+ 
+HTTP request format:
+
+```
+{application Name}/​{Interface name}?version={version}&group={group}
+```
+Group and version is the mapping data in Dubbo service. 
+
+http POST body: 
+
+```json
+{
+    "methodName" : "sayHello",
+    "paramTypes" : ["org.apache.dubbo.demo.model.User"],
+    "paramValues": [
+        {
+            "id": 23,
+            "username": "testUser"
+        }
+    ]
+}
+```
+
+* In the Dubbo 2.7 version  and later updates versions, paramTypes is optional data, if not filled in, Dubbo Proxy would get related mapping data from metadata center.
+* You can set registry address and metadata center address in `application.yml`
+```
+proxy.registry.address: zookeeper://127.0.0.1:2181   #registry center address, same as Dubbo service's 
+proxy.metadata-report.address: zookeeper://127.0.0.1:2181  #metadata center address, used by paramType search, support for dubbo 2.7 or later
+```
+
+
+---
+File: .gitignore
+Size: 249 bytes
+Lines: 30
+---
+# maven ignore
+target/
+*.jar
+!.mvn/wrapper/*
+*.war
+*.zip
+*.tar
+*.tar.gz
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# temp ignore
+*.log*
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# system ignore
+.DS_Store
+Thumbs.db
+
+
+---
+File: README_zh.md
+Size: 1146 bytes
+Lines: 32
+---
+[English Version](README.md)  
+### Dubbo Proxy
+Dubbo Proxy是一个Dubbo网关，可以将Http请求转换成Dubbo的协议，调用Dubbo服务并且返回结果，后续还会集成熔断，限流，api管理等功能。
+
+### 用法
+http请求格式如下： 
+```
+POST {application Name}/​{Interface name}?version={version}&group={group}
+```
+其中group和version是Dubbo服务对应的group和version，为可选参数
+
+http POST body如下: 
+
+```json
+{
+    "methodName" : "sayHello",
+    "paramTypes" : ["org.apache.dubbo.demo.model.User"],
+    "paramValues": [
+        {
+            "id": 23,
+            "username": "testUser"
+        }
+    ]
+}
+```
+
+* 在Dubbo 2.7及后续版本中，paramTypes为可选，如果不填写，Dubbo Proxy会在元数据中心获取对应的参数类型。
+* 可以在`application.yml`中指定注册中心和元数据中心的地址
+```
+proxy.registry.address: zookeeper://127.0.0.1:2181   #注册中心地址，和Dubbo服务的注册中心相同
+proxy.metadata-report.address: zookeeper://127.0.0.1:2181  #元数据中心的地址，未指定paramTypes时查找使用，支持Dubbo 2.7及以后版本
+```
+
+
+---
+File: mvnw
+Size: 9114 bytes
+Lines: 286
+---
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Maven2 Start Up Batch script
+#
+# Required ENV vars:
+# ------------------
+#   JAVA_HOME - location of a JDK home dir
+#
+# Optional ENV vars
+# -----------------
+#   M2_HOME - location of maven2's installed home dir
+#   MAVEN_OPTS - parameters passed to the Java VM when running Maven
+#     e.g. to debug Maven itself, use
+#       set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
+#   MAVEN_SKIP_RC - flag to disable loading of mavenrc files
+# ----------------------------------------------------------------------------
+
+if [ -z "$MAVEN_SKIP_RC" ] ; then
+
+  if [ -f /etc/mavenrc ] ; then
+    . /etc/mavenrc
+  fi
+
+  if [ -f "$HOME/.mavenrc" ] ; then
+    . "$HOME/.mavenrc"
+  fi
+
+fi
+
+# OS specific support.  $var _must_ be set to either true or false.
+cygwin=false;
+darwin=false;
+mingw=false
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+  MINGW*) mingw=true;;
+  Darwin*) darwin=true
+    # Use /usr/libexec/java_home if available, otherwise fall back to /Library/Java/Home
+    # See https://developer.apple.com/library/mac/qa/qa1170/_index.html
+    if [ -z "$JAVA_HOME" ]; then
+      if [ -x "/usr/libexec/java_home" ]; then
+        export JAVA_HOME="`/usr/libexec/java_home`"
+      else
+        export JAVA_HOME="/Library/Java/Home"
+      fi
+    fi
+    ;;
+esac
+
+if [ -z "$JAVA_HOME" ] ; then
+  if [ -r /etc/gentoo-release ] ; then
+    JAVA_HOME=`java-config --jre-home`
+  fi
+fi
+
+if [ -z "$M2_HOME" ] ; then
+  ## resolve links - $0 may be a link to maven's home
+  PRG="$0"
+
+  # need this for relative symlinks
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
+    else
+      PRG="`dirname "$PRG"`/$link"
+    fi
+  done
+
+  saveddir=`pwd`
+
+  M2_HOME=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  M2_HOME=`cd "$M2_HOME" && pwd`
+
+  cd "$saveddir"
+  # echo Using m2 at $M2_HOME
+fi
+
+# For Cygwin, ensure paths are in UNIX format before anything is touched
+if $cygwin ; then
+  [ -n "$M2_HOME" ] &&
+    M2_HOME=`cygpath --unix "$M2_HOME"`
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+  [ -n "$CLASSPATH" ] &&
+    CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
+fi
+
+# For Mingw, ensure paths are in UNIX format before anything is touched
+if $mingw ; then
+  [ -n "$M2_HOME" ] &&
+    M2_HOME="`(cd "$M2_HOME"; pwd)`"
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
+  # TODO classpath?
+fi
+
+if [ -z "$JAVA_HOME" ]; then
+  javaExecutable="`which javac`"
+  if [ -n "$javaExecutable" ] && ! [ "`expr \"$javaExecutable\" : '\([^ ]*\)'`" = "no" ]; then
+    # readlink(1) is not available as standard on Solaris 10.
+    readLink=`which readlink`
+    if [ ! `expr "$readLink" : '\([^ ]*\)'` = "no" ]; then
+      if $darwin ; then
+        javaHome="`dirname \"$javaExecutable\"`"
+        javaExecutable="`cd \"$javaHome\" && pwd -P`/javac"
+      else
+        javaExecutable="`readlink -f \"$javaExecutable\"`"
+      fi
+      javaHome="`dirname \"$javaExecutable\"`"
+      javaHome=`expr "$javaHome" : '\(.*\)/bin'`
+      JAVA_HOME="$javaHome"
+      export JAVA_HOME
+    fi
+  fi
+fi
+
+if [ -z "$JAVACMD" ] ; then
+  if [ -n "$JAVA_HOME"  ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+      # IBM's JDK on AIX uses strange locations for the executables
+      JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+      JAVACMD="$JAVA_HOME/bin/java"
+    fi
+  else
+    JAVACMD="`which java`"
+  fi
+fi
+
+if [ ! -x "$JAVACMD" ] ; then
+  echo "Error: JAVA_HOME is not defined correctly." >&2
+  echo "  We cannot execute $JAVACMD" >&2
+  exit 1
+fi
+
+if [ -z "$JAVA_HOME" ] ; then
+  echo "Warning: JAVA_HOME environment variable is not set."
+fi
+
+CLASSWORLDS_LAUNCHER=org.codehaus.plexus.classworlds.launcher.Launcher
+
+# traverses directory structure from process work directory to filesystem root
+# first directory with .mvn subdirectory is considered project base directory
+find_maven_basedir() {
+
+  if [ -z "$1" ]
+  then
+    echo "Path not specified to find_maven_basedir"
+    return 1
+  fi
+
+  basedir="$1"
+  wdir="$1"
+  while [ "$wdir" != '/' ] ; do
+    if [ -d "$wdir"/.mvn ] ; then
+      basedir=$wdir
+      break
+    fi
+    # workaround for JBEAP-8937 (on Solaris 10/Sparc)
+    if [ -d "${wdir}" ]; then
+      wdir=`cd "$wdir/.."; pwd`
+    fi
+    # end of workaround
+  done
+  echo "${basedir}"
+}
+
+# concatenates all lines of a file
+concat_lines() {
+  if [ -f "$1" ]; then
+    echo "$(tr -s '\n' ' ' < "$1")"
+  fi
+}
+
+BASE_DIR=`find_maven_basedir "$(pwd)"`
+if [ -z "$BASE_DIR" ]; then
+  exit 1;
+fi
+
+##########################################################################################
+# Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
+# This allows using the maven wrapper in projects that prohibit checking in binary data.
+##########################################################################################
+if [ -r "$BASE_DIR/.mvn/wrapper/maven-wrapper.jar" ]; then
+    if [ "$MVNW_VERBOSE" = true ]; then
+      echo "Found .mvn/wrapper/maven-wrapper.jar"
+    fi
+else
+    if [ "$MVNW_VERBOSE" = true ]; then
+      echo "Couldn't find .mvn/wrapper/maven-wrapper.jar, downloading it ..."
+    fi
+    jarUrl="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.4.2/maven-wrapper-0.4.2.jar"
+    while IFS="=" read key value; do
+      case "$key" in (wrapperUrl) jarUrl="$value"; break ;;
+      esac
+    done < "$BASE_DIR/.mvn/wrapper/maven-wrapper.properties"
+    if [ "$MVNW_VERBOSE" = true ]; then
+      echo "Downloading from: $jarUrl"
+    fi
+    wrapperJarPath="$BASE_DIR/.mvn/wrapper/maven-wrapper.jar"
+
+    if command -v wget > /dev/null; then
+        if [ "$MVNW_VERBOSE" = true ]; then
+          echo "Found wget ... using wget"
+        fi
+        wget "$jarUrl" -O "$wrapperJarPath"
+    elif command -v curl > /dev/null; then
+        if [ "$MVNW_VERBOSE" = true ]; then
+          echo "Found curl ... using curl"
+        fi
+        curl -o "$wrapperJarPath" "$jarUrl"
+    else
+        if [ "$MVNW_VERBOSE" = true ]; then
+          echo "Falling back to using Java to download"
+        fi
+        javaClass="$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.java"
+        if [ -e "$javaClass" ]; then
+            if [ ! -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
+                if [ "$MVNW_VERBOSE" = true ]; then
+                  echo " - Compiling MavenWrapperDownloader.java ..."
+                fi
+                # Compiling the Java class
+                ("$JAVA_HOME/bin/javac" "$javaClass")
+            fi
+            if [ -e "$BASE_DIR/.mvn/wrapper/MavenWrapperDownloader.class" ]; then
+                # Running the downloader
+                if [ "$MVNW_VERBOSE" = true ]; then
+                  echo " - Running MavenWrapperDownloader.java ..."
+                fi
+                ("$JAVA_HOME/bin/java" -cp .mvn/wrapper MavenWrapperDownloader "$MAVEN_PROJECTBASEDIR")
+            fi
+        fi
+    fi
+fi
+##########################################################################################
+# End of extension
+##########################################################################################
+
+export MAVEN_PROJECTBASEDIR=${MAVEN_BASEDIR:-"$BASE_DIR"}
+if [ "$MVNW_VERBOSE" = true ]; then
+  echo $MAVEN_PROJECTBASEDIR
+fi
+MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS"
+
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin; then
+  [ -n "$M2_HOME" ] &&
+    M2_HOME=`cygpath --path --windows "$M2_HOME"`
+  [ -n "$JAVA_HOME" ] &&
+    JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
+  [ -n "$CLASSPATH" ] &&
+    CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+  [ -n "$MAVEN_PROJECTBASEDIR" ] &&
+    MAVEN_PROJECTBASEDIR=`cygpath --path --windows "$MAVEN_PROJECTBASEDIR"`
+fi
+
+WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
+
+exec "$JAVACMD" \
+  $MAVEN_OPTS \
+  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
+  "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
+  ${WRAPPER_LAUNCHER} $MAVEN_CONFIG "$@"
+
+
+---
+File: src/test/java/org/apache/dubbo/proxy/DubboProxyApplicationTests.java
+Size: 343 bytes
+Lines: 16
+---
+package org.apache.dubbo.proxy;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class DubboProxyApplicationTests {
+
+	@Test
+	public void contextLoads() {
+	}
+
+}
+
+
+---
+File: src/main/resources/application.yml
+Size: 315 bytes
+Lines: 15
+---
+netty.port: 8000
+business.thread.count: 100
+proxy.registry.address: zookeeper://127.0.0.1:2181
+proxy.registry.group: dubbo
+proxy.metadata-report.address: zookeeper://127.0.0.1:2181
+
+
+
+mapping:
+  services:
+   -
+    name: demoservice
+    interfaze: org.apache.dubbo.api.DemoService
+    group: test
+    version: 1.0.0
+
+
+---
+File: src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.proxy.metadata.MetadataCollector
+Size: 74 bytes
+Lines: 1
+---
+zookeeper=org.apache.dubbo.proxy.metadata.impl.ZookeeperMetadataCollector
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/DubboProxyApplication.java
+Size: 454 bytes
+Lines: 15
+---
+package org.apache.dubbo.proxy;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
+@EnableConfigurationProperties({ Config.class })
+@SpringBootApplication
+public class DubboProxyApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DubboProxyApplication.class, args);
+	}
+
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/Config.java
+Size: 3104 bytes
+Lines: 111
+---
+package org.apache.dubbo.proxy;
+
+import org.apache.dubbo.proxy.dao.ServiceMapping;
+import org.apache.dubbo.proxy.metadata.MetadataCollector;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.extension.ExtensionLoader;
+import org.apache.dubbo.common.utils.StringUtils;
+import org.apache.dubbo.registry.Registry;
+import org.apache.dubbo.registry.RegistryFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+
+
+@ConfigurationProperties(prefix = "mapping")
+@Configuration
+public class Config {
+
+
+    @Value("${proxy.registry.address}")
+    private String registryAddress;
+
+    @Value("${proxy.registry.group}")
+    private String group;
+
+    @Value("${proxy.metadata-report.address:}")
+    private String metadataAddress;
+
+    private List<Mapping> services;
+
+    public List<Mapping> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Mapping> services) {
+        this.services = services;
+    }
+
+    @Bean
+    public ServiceMapping getServiceMapping() {
+        ServiceMapping serviceMapping = new ServiceMapping();
+        serviceMapping.setMappings(services);
+        return serviceMapping;
+    }
+
+    @Bean
+    Registry getRegistry() {
+        URL url = URL.valueOf(registryAddress);
+        if (StringUtils.isNotEmpty(group)) {
+            url = url.addParameter(org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY, group);
+        }
+        RegistryFactory registryFactory = ExtensionLoader.getExtensionLoader(RegistryFactory.class).getAdaptiveExtension();
+        Registry registry = registryFactory.getRegistry(url);
+        return registry;
+    }
+
+    @Bean
+    MetadataCollector getMetadataCollector() {
+        MetadataCollector metaDataCollector = null;
+        if (StringUtils.isNotEmpty(metadataAddress)) {
+            URL metadataUrl = URL.valueOf(metadataAddress);
+            metaDataCollector = ExtensionLoader.getExtensionLoader(MetadataCollector.class).
+                    getExtension(metadataUrl.getProtocol());
+        }
+        return metaDataCollector;
+    }
+
+
+
+    public static class Mapping {
+        private String name;
+        private String interfaze;
+        private String group;
+        private String version;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getInterfaze() {
+            return interfaze;
+        }
+
+        public void setInterfaze(String interfaze) {
+            this.interfaze = interfaze;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+
+        public void setGroup(String group) {
+            this.group = group;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/dao/ServiceDefinition.java
+Size: 1078 bytes
+Lines: 51
+---
+package org.apache.dubbo.proxy.dao;
+
+
+public class ServiceDefinition {
+
+    private String application;
+    private String serviceID;
+    private String methodName;
+    private Object[] paramValues;
+    private String[] paramTypes;
+
+    public String getApplication() {
+        return application;
+    }
+
+    public void setApplication(String application) {
+        this.application = application;
+    }
+
+    public String getServiceID() {
+        return serviceID;
+    }
+
+    public void setServiceID(String serviceID) {
+        this.serviceID = serviceID;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public Object[] getParamValues() {
+        return paramValues;
+    }
+
+    public void setParamValues(Object[] paramValues) {
+        this.paramValues = paramValues;
+    }
+
+    public String[] getParamTypes() {
+        return paramTypes;
+    }
+
+    public void setParamTypes(String[] paramTypes) {
+        this.paramTypes = paramTypes;
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/dao/ServiceMapping.java
+Size: 350 bytes
+Lines: 18
+---
+package org.apache.dubbo.proxy.dao;
+
+import org.apache.dubbo.proxy.Config;
+
+import java.util.List;
+
+public class ServiceMapping {
+
+    List<Config.Mapping> mappings;
+
+    public List<Config.Mapping> getMappings() {
+        return mappings;
+    }
+
+    public void setMappings(List<Config.Mapping> mappings) {
+        this.mappings = mappings;
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/server/HttpProcessHandler.java
+Size: 3441 bytes
+Lines: 88
+---
+package org.apache.dubbo.proxy.server;
+
+import com.alibaba.fastjson.JSON;
+import org.apache.dubbo.proxy.dao.ServiceDefinition;
+import org.apache.dubbo.proxy.dao.ServiceMapping;
+import org.apache.dubbo.proxy.metadata.MetadataCollector;
+import org.apache.dubbo.proxy.utils.NamingThreadFactory;
+import org.apache.dubbo.proxy.worker.RequestWorker;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.util.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+
+@ChannelHandler.Sharable
+public class HttpProcessHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private ExecutorService businessThreadPool;
+    private MetadataCollector metadataCollector;
+    private ServiceMapping serviceMapping;
+    private Logger logger = LoggerFactory.getLogger(HttpProcessHandler.class);
+
+
+    public HttpProcessHandler(int businessThreadCount, ServiceMapping serviceMapping, MetadataCollector metadataCollector) {
+        super();
+        this.businessThreadPool = Executors.newFixedThreadPool(businessThreadCount, new NamingThreadFactory("Dubbo-proxy-request-worker"));
+        this.metadataCollector = metadataCollector;
+        this.serviceMapping = serviceMapping;
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) {
+
+        QueryStringDecoder queryStringDecoder = new QueryStringDecoder(msg.uri());
+        String path = queryStringDecoder.rawPath();
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        if (path.contains("/")) {
+            String application = path.split("/")[0];
+            String service = path.split("/")[1];
+            Map<String, List<String>> params = queryStringDecoder.parameters();
+            if (params.containsKey("group")) {
+                service = params.get("group").get(0) + "/" + service;
+            }
+            if (params.containsKey("version")) {
+                service = service + ":" + params.get("version").get(0);
+            }
+            ByteBuf raw = msg.content();
+            String info = raw.toString(CharsetUtil.UTF_8);
+            ServiceDefinition serviceDefinition = JSON.parseObject(info, ServiceDefinition.class);
+            serviceDefinition.setServiceID(service);
+            serviceDefinition.setApplication(application);
+            doRequest(ctx, serviceDefinition, msg);
+        }  else {
+            //TODO error handle
+        }
+    }
+
+    private void doRequest(ChannelHandlerContext ctx, ServiceDefinition serviceDefinition, HttpRequest msg) {
+        businessThreadPool.execute(new RequestWorker(serviceDefinition, ctx, msg, metadataCollector, serviceMapping));
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/server/NettyServer.java
+Size: 4504 bytes
+Lines: 128
+---
+package org.apache.dubbo.proxy.server;
+
+import org.apache.dubbo.proxy.dao.ServiceMapping;
+import org.apache.dubbo.proxy.metadata.MetadataCollector;
+import org.apache.dubbo.proxy.service.GenericInvoke;
+import org.apache.dubbo.proxy.utils.InetAddressUtil;
+import org.apache.dubbo.proxy.utils.NamingThreadFactory;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import org.apache.dubbo.registry.Registry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@Component
+public class NettyServer {
+
+    private Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private ServerBootstrap bootstrap;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+    private final ExecutorService serverStartor = Executors
+            .newSingleThreadExecutor(new NamingThreadFactory(
+                    "Dubbo-proxy-starter"));
+
+    @Value("${netty.port}")
+    private int port;
+
+    @Value("${business.thread.count}")
+    private int businessThreadCount;
+
+    @Autowired
+    private MetadataCollector metadataCollector;
+
+    @Autowired
+    private ServiceMapping serviceMapping;
+
+    @Autowired
+    private Registry registry;
+
+
+
+
+    @PostConstruct
+    public void start() {
+        serverStartor.execute(() -> {
+            init();
+            String inetHost = InetAddressUtil.getLocalIP();
+            try {
+                ChannelFuture f = bootstrap.bind(inetHost, port).sync();
+                logger.info("Dubbo proxy started, host is {} , port is {}.",
+                        inetHost, port);
+                f.channel().closeFuture().sync();
+                logger.info("Dubbo proxy closed, host is {} , port is {}.",
+                        inetHost, port);
+            } catch (InterruptedException e) {
+                logger.error("dubbo proxy start failed", e);
+            } finally {
+                destroy();
+            }
+        });
+
+    }
+
+    private void init() {
+        GenericInvoke.setRegistry(this.registry);
+        bootstrap = new ServerBootstrap();
+        bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), new NamingThreadFactory("" +
+                "Dubbo-Proxy-Boss"));
+        workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2,
+                new NamingThreadFactory("Dubbo-Proxy-Work"));
+        HttpProcessHandler processHandler = new HttpProcessHandler(businessThreadCount, serviceMapping, metadataCollector);
+        bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new ProxyChannelInitializer(processHandler))
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
+        }
+        serverStartor.shutdown();
+    }
+
+    private class ProxyChannelInitializer extends
+            ChannelInitializer<SocketChannel> {
+
+        private HttpProcessHandler httpProcessHandler;
+
+        public ProxyChannelInitializer(HttpProcessHandler httpProcessHandler) {
+            this.httpProcessHandler = httpProcessHandler;
+
+        }
+
+        @Override
+        protected void initChannel(SocketChannel ch) throws Exception {
+
+            ch.pipeline().addLast(
+                    new LoggingHandler(NettyServer.class, LogLevel.DEBUG),
+                    new HttpServerCodec(), new HttpObjectAggregator(512*1024*1024),
+                     httpProcessHandler);
+        }
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/utils/NamingThreadFactory.java
+Size: 1094 bytes
+Lines: 34
+---
+package org.apache.dubbo.proxy.utils;
+
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class NamingThreadFactory implements ThreadFactory {
+    private final ThreadGroup group;
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final String namePrefix;
+    private final boolean isDaemon;
+
+    public NamingThreadFactory(String name) {
+
+        this(name, false);
+    }
+
+    public NamingThreadFactory(String name, boolean isDaemon) {
+        SecurityManager s = System.getSecurityManager();
+        group = (s != null) ? s.getThreadGroup() : Thread.currentThread()
+                .getThreadGroup();
+        namePrefix = name + "-pool-"+ "thread-";
+        this.isDaemon = isDaemon;
+    }
+
+    @Override
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(group, r, namePrefix
+                + threadNumber.getAndIncrement(), 0);
+        t.setDaemon(isDaemon);
+        if (t.getPriority() != Thread.NORM_PRIORITY)
+            t.setPriority(Thread.NORM_PRIORITY);
+        return t;
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/utils/Tool.java
+Size: 1297 bytes
+Lines: 43
+---
+package org.apache.dubbo.proxy.utils;
+
+import org.apache.dubbo.metadata.definition.model.MethodDefinition;
+
+public class Tool {
+    public static String getInterface(String service) {
+        if (service != null && service.length() > 0) {
+            int i = service.indexOf('/');
+            if (i >= 0) {
+                service = service.substring(i + 1);
+            }
+            i = service.lastIndexOf(':');
+            if (i >= 0) {
+                service = service.substring(0, i);
+            }
+        }
+        return service;
+    }
+
+    public static String getGroup(String service) {
+        if (service != null && service.length() > 0) {
+            int i = service.indexOf('/');
+            if (i >= 0) {
+                return service.substring(0, i);
+            }
+        }
+        return null;
+    }
+
+    public static String getVersion(String service) {
+        if (service != null && service.length() > 0) {
+            int i = service.lastIndexOf(':');
+            if (i >= 0) {
+                return service.substring(i + 1);
+            }
+        }
+        return null;
+    }
+
+    public static boolean sameMethod(MethodDefinition m, String methodName, int paramLen) {
+        return (m.getName().equals(methodName) && m.getParameterTypes().length == paramLen);
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/utils/InetAddressUtil.java
+Size: 2387 bytes
+Lines: 74
+---
+package org.apache.dubbo.proxy.utils;
+
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
+public class InetAddressUtil {
+
+    private static String localIP = null;
+
+    public static List<String> getLocalIPList() {
+        List<String> ipList = new ArrayList<String>();
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface
+                    .getNetworkInterfaces();
+            NetworkInterface networkInterface;
+            Enumeration<InetAddress> inetAddresses;
+            InetAddress inetAddress;
+            String ip;
+            while (networkInterfaces.hasMoreElements()) {
+                networkInterface = networkInterfaces.nextElement();
+                inetAddresses = networkInterface.getInetAddresses();
+                while (inetAddresses.hasMoreElements()) {
+                    inetAddress = inetAddresses.nextElement();
+                    if (inetAddress != null
+                            && inetAddress instanceof Inet4Address) { // IPV4
+                        ip = inetAddress.getHostAddress();
+                        ipList.add(ip);
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return ipList;
+    }
+
+    public static String getLocalIP() {
+
+        if (null != localIP) {
+            return localIP;
+        }
+
+        try {
+
+            Enumeration<NetworkInterface> interfaces = NetworkInterface
+                    .getNetworkInterfaces();
+            InetAddress address;
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface ni = interfaces.nextElement();
+                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    address = addresses.nextElement();
+                    if (!address.isLoopbackAddress()
+                            && address.getHostAddress().indexOf(":") == -1) {
+                        localIP = address.getHostAddress();
+                        return localIP;
+                    }
+                }
+            }
+
+            return "";
+        } catch (Throwable t) {
+
+            return "";
+        }
+
+    }
+
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/utils/ResultCode.java
+Size: 297 bytes
+Lines: 25
+---
+package org.apache.dubbo.proxy.utils;
+
+public enum ResultCode {
+
+    OK(0),
+
+    TIMEOUT(1),
+
+    BIZERROR(2),
+
+    NETWORKERROR(3),
+
+    SERIALIZATION(4);
+
+
+    private int code;
+
+    ResultCode(int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/utils/Constants.java
+Size: 231 bytes
+Lines: 8
+---
+package org.apache.dubbo.proxy.utils;
+
+public class Constants {
+
+    public static final String GROUP_KEY = "group";
+    public static final String PATH_SEPARATOR = "/";
+    public static final String PROVIDER_SIDE = "provider";
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/service/GenericInvoke.java
+Size: 4300 bytes
+Lines: 103
+---
+package org.apache.dubbo.proxy.service;
+
+import org.apache.dubbo.proxy.utils.ResultCode;
+import org.apache.dubbo.config.ApplicationConfig;
+import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.registry.Registry;
+import org.apache.dubbo.rpc.RpcException;
+import org.apache.dubbo.rpc.service.GenericService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class GenericInvoke {
+
+    private static ApplicationConfig applicationConfig;
+    private static volatile AtomicBoolean init = new AtomicBoolean(false);
+
+    private static Registry registry;
+
+    public static void setRegistry(Registry registry) {
+        GenericInvoke.registry = registry;
+    }
+
+    private static void init() {
+        RegistryConfig registryConfig = new RegistryConfig();
+        registryConfig.setAddress(registry.getUrl().getProtocol() + "://" + registry.getUrl().getAddress());
+        registryConfig.setGroup(registry.getUrl().getParameter(org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY));
+        applicationConfig = new ApplicationConfig();
+        applicationConfig.setName("dubbo-proxy");
+        applicationConfig.setRegistry(registryConfig);
+    }
+
+    private static ConcurrentHashMap<String, ReferenceConfig<GenericService>> cachedConfig = new ConcurrentHashMap<>();
+    private static Logger logger = LoggerFactory.getLogger(GenericInvoke.class);
+
+    public static Object genericCall(String interfaceName, String group,
+                                     String version, String methodName, String[] paramTypes,
+                                     Object[] paramObjs) {
+        if (init.compareAndSet(false, true)) {
+            init();
+        }
+        ReferenceConfig<GenericService> reference;
+        reference = addNewReference(interfaceName, group, version);
+
+        try {
+            GenericService svc = reference.get();
+            logger.info("dubbo generic invoke, service is {}, method is {} , paramTypes is {} , paramObjs is {} , svc" +
+                            " is {}.", interfaceName
+                    , methodName,paramTypes,paramObjs,svc);
+            return svc.$invoke(methodName, paramTypes, paramObjs);
+        } catch (Exception e) {
+            logger.error("Generic invoke failed",e);
+            if (e instanceof RpcException) {
+                RpcException e1 = (RpcException)e;
+                if (e1.isTimeout()) {
+                    return ResultCode.TIMEOUT;
+                }
+                if (e1.isBiz()) {
+                    return ResultCode.BIZERROR;
+                }
+                if (e1.isNetwork()) {
+                    return ResultCode.NETWORKERROR;
+                }
+                if (e1.isSerialization()) {
+                    return ResultCode.SERIALIZATION;
+                }
+            }
+            throw e;
+        }
+    }
+
+    private static ReferenceConfig<GenericService> addNewReference(String interfaceName,
+                                                                   String group, String version) {
+        ReferenceConfig<GenericService> reference;
+        String cachedKey = interfaceName + group + version;
+        reference = cachedConfig.get(cachedKey);
+        if (reference == null) {
+            ReferenceConfig<GenericService> newReference = initReference(interfaceName, group,
+                    version);
+            ReferenceConfig<GenericService> oldReference = cachedConfig.putIfAbsent(cachedKey, newReference);
+            if (oldReference != null) {
+                reference = oldReference;
+            } else {
+                reference = newReference;
+            }
+        }
+        return reference;
+    }
+
+    private static ReferenceConfig<GenericService> initReference(String interfaceName, String group,
+                                                                 String version) {
+        ReferenceConfig<GenericService> reference = new ReferenceConfig<>();
+        reference.setGeneric(true);
+        reference.setApplication(applicationConfig);
+        reference.setGroup(group);
+        reference.setVersion(version);
+        reference.setInterface(interfaceName);
+        return reference;
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/worker/RequestWorker.java
+Size: 5734 bytes
+Lines: 133
+---
+package org.apache.dubbo.proxy.worker;
+
+import com.alibaba.fastjson.JSON;
+
+import org.apache.dubbo.proxy.dao.ServiceDefinition;
+import org.apache.dubbo.proxy.dao.ServiceMapping;
+import org.apache.dubbo.proxy.metadata.MetadataCollector;
+import org.apache.dubbo.proxy.service.GenericInvoke;
+import org.apache.dubbo.proxy.utils.Constants;
+import org.apache.dubbo.proxy.utils.Tool;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.netty.util.CharsetUtil;
+import org.apache.dubbo.metadata.definition.model.FullServiceDefinition;
+import org.apache.dubbo.metadata.definition.model.MethodDefinition;
+import org.apache.dubbo.metadata.identifier.MetadataIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Set;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+
+public class RequestWorker implements Runnable {
+
+    private ServiceDefinition serviceDefinition;
+    private ChannelHandlerContext ctx;
+    private HttpRequest msg;
+    private Logger logger = LoggerFactory.getLogger(RequestWorker.class);
+
+    private MetadataCollector metadataCollector;
+
+    private ServiceMapping serviceMapping;
+
+
+    public RequestWorker(ServiceDefinition serviceDefinition, ChannelHandlerContext ctx, HttpRequest msg,
+                         MetadataCollector metadataCollector, ServiceMapping serviceMapping) {
+        this.serviceDefinition = serviceDefinition;
+        this.ctx = ctx;
+        this.msg = msg;
+        this.serviceMapping = serviceMapping;
+        this.metadataCollector = metadataCollector;
+    }
+
+    @Override
+    public void run() {
+        String serviceID = serviceDefinition.getServiceID();
+        String interfaze = Tool.getInterface(serviceID);
+        String group = Tool.getGroup(serviceID);
+        String version = Tool.getVersion(serviceID);
+        if (serviceDefinition.getParamTypes() == null && serviceDefinition.getParamValues() != null) {
+            String[] types = getTypesFromMetadata(serviceDefinition.getApplication(), interfaze, group, version,
+                    serviceDefinition.getMethodName(), serviceDefinition.getParamValues().length);
+            serviceDefinition.setParamTypes(types);
+        }
+        Object result;
+        try {
+            result = GenericInvoke.genericCall(interfaze,group, version,
+                    serviceDefinition.getMethodName(),
+                    serviceDefinition.getParamTypes(), serviceDefinition.getParamValues());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = e;
+        }
+        if (!writeResponse(ctx, result)) {
+            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
+    }
+
+    private boolean writeResponse(ChannelHandlerContext ctx, Object result) {
+        // Decide whether to close the connection or not.
+        // Build the response object.
+        boolean keepAlive = HttpUtil.isKeepAlive(this.msg);
+        FullHttpResponse response = new DefaultFullHttpResponse(
+                HTTP_1_1, OK,
+                Unpooled.copiedBuffer(JSON.toJSONString(result), CharsetUtil.UTF_8));
+
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+        if (keepAlive) {
+            // Add 'Content-Length' header only for a keep-alive connection.
+            response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+            // Add keep alive header as per:
+            // - http://www.w3.org/Protocols/HTTP/1.1/draft-ietf-http-v11-spec-01.html#Connection
+            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        }
+
+//         Encode the cookie.
+        String cookieString = msg.headers().get(HttpHeaderNames.COOKIE);
+        if (cookieString != null) {
+            Set<Cookie> cookies = ServerCookieDecoder.STRICT.decode(cookieString);
+            if (!cookies.isEmpty()) {
+                // Reset the cookies if necessary.
+                for (Cookie cookie : cookies) {
+                    response.headers().add(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode(cookie));
+                }
+            }
+        }
+
+        // Write the response.
+        ctx.writeAndFlush(response);
+
+        return keepAlive;
+    }
+
+    private String[] getTypesFromMetadata(String application, String interfaze, String group, String version, String methodName, int paramLen) {
+        MetadataIdentifier identifier = new MetadataIdentifier(interfaze, version, group, Constants.PROVIDER_SIDE, application);
+        String metadata = metadataCollector.getProviderMetaData(identifier);
+        FullServiceDefinition serviceDefinition = JSON.parseObject(metadata, FullServiceDefinition.class);
+        List<MethodDefinition> methods = serviceDefinition.getMethods();
+        if (methods != null) {
+            for (MethodDefinition m : methods) {
+                if (Tool.sameMethod(m, methodName, paramLen)) {
+                    return m.getParameterTypes();
+                }
+            }
+        }
+        return null;
+    }
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/metadata/MetadataCollector.java
+Size: 366 bytes
+Lines: 16
+---
+package org.apache.dubbo.proxy.metadata;
+
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.extension.SPI;
+import org.apache.dubbo.metadata.identifier.MetadataIdentifier;
+
+@SPI("zookeeper")
+public interface MetadataCollector {
+    void setUrl(URL url);
+
+    URL getUrl();
+
+    void init();
+
+    String getProviderMetaData(MetadataIdentifier key);
+}
+
+
+---
+File: src/main/java/org/apache/dubbo/proxy/metadata/impl/ZookeeperMetadataCollector.java
+Size: 2438 bytes
+Lines: 74
+---
+package org.apache.dubbo.proxy.metadata.impl;
+
+import org.apache.dubbo.proxy.metadata.MetadataCollector;
+import org.apache.dubbo.proxy.utils.Constants;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
+import org.apache.dubbo.metadata.identifier.MetadataIdentifier;
+
+public class ZookeeperMetadataCollector implements MetadataCollector {
+
+    private static final Logger logger = LoggerFactory.getLogger(ZookeeperMetadataCollector.class);
+    private CuratorFramework client;
+    private URL url;
+    private String root;
+    private final static String METADATA_NODE_NAME = "service.data";
+    private final static String DEFAULT_ROOT = "dubbo";
+
+
+    @Override
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    @Override
+    public URL getUrl() {
+        return this.url;
+    }
+
+    @Override
+    public void init() {
+        String group = url.getParameter(Constants.GROUP_KEY, DEFAULT_ROOT);
+        if (!group.startsWith(Constants.PATH_SEPARATOR)) {
+            group = Constants.PATH_SEPARATOR + group;
+        }
+        root = group;
+        client = CuratorFrameworkFactory.newClient(url.getAddress(), new ExponentialBackoffRetry(1000, 3));
+        client.start();
+    }
+
+    @Override
+    public String getProviderMetaData(MetadataIdentifier key) {
+        return doGetMetadata(key);
+    }
+
+    private String getNodePath(MetadataIdentifier metadataIdentifier) {
+        return toRootDir() + metadataIdentifier.getUniqueKey(MetadataIdentifier.KeyTypeEnum.PATH) +
+                Constants.PATH_SEPARATOR + METADATA_NODE_NAME;
+    }
+
+    private String toRootDir() {
+        if (root.equals(Constants.PATH_SEPARATOR)) {
+            return root;
+        }
+        return root + Constants.PATH_SEPARATOR;
+    }
+
+    private String doGetMetadata(MetadataIdentifier identifier) {
+        //TODO error handing
+        try {
+            String path = getNodePath(identifier);
+            if (client.checkExists().forPath(path) == null) {
+                return null;
+            }
+            return new String(client.getData().forPath(path));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
+    }
+}
+

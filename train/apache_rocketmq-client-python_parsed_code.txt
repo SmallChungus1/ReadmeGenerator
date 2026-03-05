@@ -1,0 +1,2345 @@
+Tokens: 19063
+Repo: apache/rocketmq-client-python
+Commit: 143af507040d30173908b96b81f338e34e1f81e9
+Timestamp: 2026-03-04T19:37:13.915426
+
+--- Repository Structure ---
+.
+├── .bumpversion.cfg
+├── .coveragerc
+├── .github
+│   └── ISSUE_TEMPLATE
+│       └── issue_template.md
+├── .gitignore
+├── .travis.yml
+├── CONTRIBUTING.md
+├── LICENSE
+├── MANIFEST.in
+├── NOTICE
+├── PULL_REQUEST_TEMPLATE.md
+├── README.md
+├── ci
+│   └── Dockerfile
+├── dev-requirements.txt
+├── manylinux.sh
+├── pytest.ini
+├── rocketmq
+│   ├── __init__.py
+│   ├── client.py
+│   ├── consts.py
+│   ├── exceptions.py
+│   └── ffi.py
+├── samples
+│   ├── __init__.py
+│   ├── consumer.py
+│   └── producer.py
+├── setup.cfg
+├── setup.py
+└── tests
+    ├── conftest.py
+    ├── test_consumer.py
+    └── test_producer.py
+
+--- Summary Report ---
+Total files scanned: 28
+Files included: 28
+Files skipped by rule: 0
+Files skipped by size: 0
+Detected languages count: 9
+Top 15 largest included files:
+  15843 bytes - rocketmq/client.py
+  11393 bytes - rocketmq/ffi.py
+  11333 bytes - LICENSE
+  4202 bytes - samples/producer.py
+  3864 bytes - README.md
+  2948 bytes - setup.py
+  2920 bytes - tests/test_consumer.py
+  2792 bytes - tests/test_producer.py
+  2588 bytes - rocketmq/exceptions.py
+  2215 bytes - .travis.yml
+  2010 bytes - ci/Dockerfile
+  1943 bytes - .github/ISSUE_TEMPLATE/issue_template.md
+  1599 bytes - rocketmq/consts.py
+  1488 bytes - tests/conftest.py
+  1440 bytes - samples/consumer.py
+-----------------------
+
+---
+File: manylinux.sh
+Size: 1078 bytes
+Lines: 28
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cp /usr/local/lib/librocketmq.so /io/rocketmq/librocketmq.so
+
+# Build wheels
+which linux32 && LINUX32=linux32
+$LINUX32 /opt/python/cp27-cp27mu/bin/python setup.py bdist_wheel
+
+# Audit wheels
+for wheel in dist/*-linux_*.whl; do
+  auditwheel -v repair $wheel -w dist/
+  rm $wheel
+done
+
+
+---
+File: pytest.ini
+Size: 822 bytes
+Lines: 17
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+[pytest]
+testpaths = tests
+timeout = 600
+
+
+---
+File: LICENSE
+Size: 11333 bytes
+Lines: 201
+---
+ Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (properties) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+---
+File: dev-requirements.txt
+Size: 865 bytes
+Lines: 20
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+pytest
+pytest-timeout
+pytest-faulthandler
+pytest-cov
+futures; python_version < '3'
+
+
+---
+File: .bumpversion.cfg
+Size: 870 bytes
+Lines: 22
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+[bumpversion]
+files = setup.py
+commit = True
+tag = True
+current_version = 2.0.1rc1
+
+
+
+---
+File: PULL_REQUEST_TEMPLATE.md
+Size: 1252 bytes
+Lines: 19
+---
+## What is the purpose of the change
+
+XXXXX
+
+## Brief changelog
+
+XX
+
+## Verifying this change
+
+XXXX
+
+Follow this checklist to help us incorporate your contribution quickly and easily. Notice, `it would be helpful if you could finish the following 5 checklist(the last one is not necessary)before request the community to review your PR`.
+
+- [x] Make sure there is a [Github issue](https://github.com/apache/rocketmq/issues) filed for the change (usually before you start working on it). Trivial changes like typos do not require a Github issue. Your pull request should address just this issue, without pulling in other changes - one PR resolves one issue. 
+- [x] Format the pull request title like `[ISSUE #123] Fix UnknownException when host config not exist`. Each commit in the pull request should have a meaningful subject line and body.
+- [x] Write a pull request description that is detailed enough to understand what the pull request does, how, and why.
+- [x] Write necessary unit-test(over 80% coverage) to verify your logic correction, more mock a little better when a cross-module dependency exists.
+- [ ] If this contribution is large, please file an [Apache Individual Contributor License Agreement](http://www.apache.org/licenses/#clas).
+
+
+---
+File: MANIFEST.in
+Size: 175 bytes
+Lines: 3
+---
+include README.md rocketmq/librocketmq.dylib rocketmq/librocketmq_client_core.dylib rocketmq/librocketmq.so rocketmq/librocketmq_client_core.so
+
+recursive-exclude * .DS_Store
+
+
+---
+File: .coveragerc
+Size: 174 bytes
+Lines: 10
+---
+[run]
+source = rocketmq
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+
+
+---
+File: NOTICE
+Size: 169 bytes
+Lines: 5
+---
+Apache RocketMQ
+Copyright 2016-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+---
+File: README.md
+Size: 3864 bytes
+Lines: 98
+---
+# rocketmq-client-python
+
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build Status](https://travis-ci.org/apache/rocketmq-client-python.svg?branch=master)](https://travis-ci.org/apache/rocketmq-client-python)
+[![codecov](https://codecov.io/gh/apache/rocketmq-client-python/branch/ctypes/graph/badge.svg)](https://codecov.io/gh/apache/rocketmq-client-python/branch/ctypes)
+[![PyPI](https://img.shields.io/pypi/v/rocketmq-client-python.svg)](https://pypi.org/project/rocketmq-client-python)
+[![GitHub release](https://img.shields.io/badge/release-download-default.svg)](https://github.com/apache/rocketmq-client-python/releases)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/apache/rocketmq-client-python.svg)](http://isitmaintained.com/project/apache/rocketmq-client-python "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/apache/rocketmq-client-python.svg)](http://isitmaintained.com/project/apache/rocketmq-client-python "Percentage of issues still open")
+![Twitter Follow](https://img.shields.io/twitter/follow/ApacheRocketMQ?style=social)
+
+RocketMQ Python client, based on [rocketmq-client-cpp](https://github.com/apache/rocketmq-client-cpp), supports Linux and macOS
+## Prerequisites
+
+### Install `librocketmq`
+rocketmq-client-python is a lightweight wrapper around [rocketmq-client-cpp](https://github.com/apache/rocketmq-client-cpp), so you need install 
+`librocketmq` first.
+
+#### Download by binary release.
+download specific release according you OS: [rocketmq-client-cpp-2.0.0](https://github.com/apache/rocketmq-client-cpp/releases/tag/2.0.0)
+- centos
+    
+    take centos7 as example, you can install the library in centos6 by the same method.
+    ```bash
+        wget https://github.com/apache/rocketmq-client-cpp/releases/download/2.0.0/rocketmq-client-cpp-2.0.0-centos7.x86_64.rpm
+        sudo rpm -ivh rocketmq-client-cpp-2.0.0-centos7.x86_64.rpm
+    ```
+- debian
+    ```bash
+        wget https://github.com/apache/rocketmq-client-cpp/releases/download/2.0.0/rocketmq-client-cpp-2.0.0.amd64.deb
+        sudo dpkg -i rocketmq-client-cpp-2.0.0.amd64.deb
+    ```
+- macOS
+    ```bash
+        wget https://github.com/apache/rocketmq-client-cpp/releases/download/2.0.0/rocketmq-client-cpp-2.0.0-bin-release.darwin.tar.gz
+        tar -xzf rocketmq-client-cpp-2.0.0-bin-release.darwin.tar.gz
+        cd rocketmq-client-cpp
+        mkdir /usr/local/include/rocketmq
+        cp include/* /usr/local/include/rocketmq
+        cp lib/* /usr/local/lib
+        install_name_tool -id "@rpath/librocketmq.dylib" /usr/local/lib/librocketmq.dylib
+    ```
+#### Build from source
+you can also build it manually from source according to [Build and Install](https://github.com/apache/rocketmq-client-cpp/tree/master#build-and-install)
+
+## Installation
+
+```bash
+pip install rocketmq-client-python
+```
+
+## Usage
+
+### Producer
+
+```python
+from rocketmq.client import Producer, Message
+
+producer = Producer('PID-XXX')
+producer.set_name_server_address('127.0.0.1:9876')
+producer.start()
+
+msg = Message('YOUR-TOPIC')
+msg.set_keys('XXX')
+msg.set_tags('XXX')
+msg.set_body('XXXX')
+ret = producer.send_sync(msg)
+print(ret.status, ret.msg_id, ret.offset)
+producer.shutdown()
+```
+
+### PushConsumer
+
+```python
+import time
+
+from rocketmq.client import PushConsumer, ConsumeStatus
+
+
+def callback(msg):
+    print(msg.id, msg.body)
+    return ConsumeStatus.CONSUME_SUCCESS
+
+
+consumer = PushConsumer('CID_XXX')
+consumer.set_name_server_address('127.0.0.1:9876')
+consumer.subscribe('YOUR-TOPIC', callback)
+consumer.start()
+
+while True:
+    time.sleep(3600)
+
+consumer.shutdown()
+
+```
+
+## License
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
+
+
+---
+File: setup.py
+Size: 2948 bytes
+Lines: 91
+---
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import os
+import sys
+import struct
+
+from setuptools import setup, find_packages
+from setuptools.command.install import install
+
+readme = 'README.md'
+with open(readme) as f:
+    long_description = f.read()
+
+# from https://stackoverflow.com/questions/45150304/how-to-force-a-python-wheel-to-be-platform-specific-when-building-it # noqa
+cmdclass = {}
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+
+
+    class bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            # Mark us as not a pure python package (we have platform specific C/C++ code)
+            self.root_is_pure = False
+
+        def get_tag(self):
+            # this set's us up to build generic wheels.
+            python, abi, plat = _bdist_wheel.get_tag(self)
+            python, abi = 'py2.py3', 'none'
+            return python, abi, plat
+
+
+    cmdclass['bdist_wheel'] = bdist_wheel
+
+except ImportError:
+    pass
+
+
+class InstallPlatlib(install):
+    def finalize_options(self):
+        install.finalize_options(self)
+        # force platlib
+        self.install_lib = self.install_platlib
+
+
+cmdclass['install'] = InstallPlatlib
+
+setup(
+    name='rocketmq-client-python',
+    version='2.0.1rc1',
+    author='apache.rocketmq',
+    author_email='dev@rocketmq.apache.org',
+    packages=find_packages(exclude=('tests', 'tests.*')),
+    keywords='rocketmq',
+    description='RocketMQ Python Client',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    include_package_data=True,
+    install_requires=[
+        "enum34; python_version<='3.4'",
+    ],
+    cmdclass=cmdclass,
+    classifiers=[
+        'Operating System :: MacOS',
+        'Operating System :: POSIX',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+    ]
+)
+
+
+---
+File: .gitignore
+Size: 741 bytes
+Lines: 77
+---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+include/
+man/
+etc/
+share/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# pyenv
+.python-version
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage*
+.cache
+nosetests.xml
+coverage.xml
+
+# Profiling
+prof/
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
+# PyCharm
+.idea/
+
+# Vagrant
+.vagrant/
+
+.mypy_cache/
+
+# dylib
+rocketmq/*.dylib
+rocketmq/*.so
+rocketmq/*.dll
+
+
+---
+File: CONTRIBUTING.md
+Size: 226 bytes
+Lines: 2
+---
+## How to Contribute
+  Contributions are warmly welcome! Be it trivial cleanup, major new feature or other suggestion. Read this [how to contribute](http://rocketmq.apache.org/docs/how-to-contribute/) guide for more details. 
+
+
+---
+File: setup.cfg
+Size: 998 bytes
+Lines: 25
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+[aliases]
+release = sdist bdist_wheel
+
+[bdist_wheel]
+universal = 0
+
+[flake8]
+exclude = .svn,CVS,.bzr,.hg,.git,__pycache,.ropeproject
+max-line-length = 120
+import-order-style = pep8
+application-import-names = rocketmq
+
+
+---
+File: .travis.yml
+Size: 2215 bytes
+Lines: 61
+---
+sudo: required
+
+matrix:
+  include:
+    - dist: trusty
+      language: python
+      python: 2.7
+      services:
+        - docker
+      script:
+        - docker pull apacherocketmq/rocketmq-client-python-ci:latest
+        - docker run --rm -it -v `pwd`:/io -w /io apacherocketmq/rocketmq-client-python-ci:latest /io/manylinux.sh
+        - ls dist/
+        - sudo rm -rf build *.egg-info
+        - pip install -Ur dev-requirements.txt
+        - pip install -e .
+        - pytest --cov=rocketmq -v tests
+        - pip install codecov && codecov
+        # Try to install binary wheel
+        - pip install --force-reinstall dist/*.whl
+    - dist: trusty
+      language: python
+      python: 3.6
+      services:
+        - docker
+      script:
+        - docker pull apacherocketmq/rocketmq-client-python-ci:latest
+        - docker run --rm -it -v `pwd`:/io -w /io apacherocketmq/rocketmq-client-python-ci:latest /io/manylinux.sh
+        - ls dist/
+        - sudo rm -rf build *.egg-info
+        - pip install -Ur dev-requirements.txt
+        - pip install -e .
+        - pytest --cov=rocketmq -v tests
+        - pip install codecov && codecov
+        # Try to install binary wheel
+        - pip install --force-reinstall dist/*.whl
+        # Build source distribution
+        - if [[ "${TRAVIS_TAG:-}" != "" ]]; then sudo python setup.py sdist; fi
+
+before_script:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then export JAVA_HOME=$(/usr/libexec/java_home); fi
+  - wget https://archive.apache.org/dist/rocketmq/4.5.2/rocketmq-all-4.5.2-bin-release.zip
+  - unzip rocketmq-all-4.5.2-bin-release.zip
+  - cd rocketmq-all-4.5.2-bin-release
+  - perl -i -pe's/-Xms8g -Xmx8g -Xmn4g/-Xms2g -Xmx2g -Xmn1g/g' bin/runbroker.sh
+  - nohup sh bin/mqnamesrv &
+  - nohup sh bin/mqbroker -n localhost:9876 &
+  - sleep 10
+  - ./bin/mqadmin updateTopic -b '127.0.0.1:10911' –n '127.0.0.1:9876' -t test
+  - ./bin/mqadmin updateSubGroup -b '127.0.0.1:10911' –n '127.0.0.1:9876' -g testGroup
+  - cd ..
+
+after_failure:
+  - cat ~/logs/rocketmq-cpp/*.log.*
+
+after_success:
+  - |
+    if [[ "${TRAVIS_TAG:-}" != "" && $TRAVIS_PYTHON_VERSION != "2.7" ]]; then
+      sudo python -m pip install -U twine;
+      twine upload --skip-existing dist/*;
+    fi
+
+
+---
+File: ci/Dockerfile
+Size: 2010 bytes
+Lines: 38
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+FROM quay.io/pypa/manylinux1_x86_64:latest
+
+RUN yum install -y wget curl gcc libtool unzip automake autoconf bzip2-devel && ln -s `which cmake28` /usr/bin/cmake
+
+# Install zlib
+RUN curl -sqL https://zlib.net/zlib-1.2.11.tar.gz | tar -xz -C /tmp && \
+  cd /tmp/zlib-1.2.11/ && \
+  ./configure --prefix=/usr && \
+  make && \
+  make install && \
+  cd -  && \
+  rm -rf /tmp/zlib-1.2.11
+
+# Build rocketmq-client-cpp
+RUN git clone --depth=1 --branch=master https://github.com/apache/rocketmq-client-cpp.git /tmp/rocketmq-client-cpp && \
+  mkdir -p /tmp/rocketmq-client-cpp/tmp_down_dir && \
+  curl -sqL -o /tmp/rocketmq-client-cpp/tmp_down_dir/libevent-release-2.1.8-stable.zip https://github.com/libevent/libevent/archive/release-2.1.8-stable.zip  && \
+  curl -sqL -o /tmp/rocketmq-client-cpp/tmp_down_dir/jsoncpp-0.10.7.zip https://github.com/open-source-parsers/jsoncpp/archive/0.10.7.zip && \
+  curl -sqL -o /tmp/rocketmq-client-cpp/tmp_down_dir/boost_1_58_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz && \
+  cd /tmp/rocketmq-client-cpp && bash build.sh && cd - && \
+  cp /tmp/rocketmq-client-cpp/bin/librocketmq.so /usr/local/lib/librocketmq.so && \
+  rm -rf /tmp/rocketmq-client-cpp
+
+
+---
+File: tests/conftest.py
+Size: 1488 bytes
+Lines: 46
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import pytest
+from rocketmq.client import Producer, PushConsumer
+
+
+@pytest.fixture(scope='session')
+def producer():
+    prod = Producer('producer_group')
+    prod.set_name_server_address('127.0.0.1:9876')
+    prod.start()
+    yield prod
+    prod.shutdown()
+
+
+@pytest.fixture(scope='session')
+def orderly_producer():
+    prod = Producer('orderly_producer_group', True)
+    prod.set_name_server_address('127.0.0.1:9876')
+    prod.start()
+    yield prod
+    prod.shutdown()
+
+
+@pytest.fixture(scope='function')
+def push_consumer():
+    consumer = PushConsumer('push_consumer_group')
+    consumer.set_name_server_address('127.0.0.1:9876')
+    yield consumer
+    consumer.shutdown()
+
+
+---
+File: tests/test_producer.py
+Size: 2792 bytes
+Lines: 89
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+from concurrent.futures import ThreadPoolExecutor
+import time
+import threading
+import sys
+
+from rocketmq.client import Message, SendStatus, TransactionMQProducer, TransactionStatus
+
+PY_VERSION = sys.version_info[0]
+
+
+def test_producer_send_sync(producer):
+    msg = Message('test')
+    msg.set_keys('send_sync')
+    msg.set_tags('XXX')
+    msg.set_body('XXXX')
+    ret = producer.send_sync(msg)
+    assert ret.status == SendStatus.OK
+
+
+def test_producer_send_sync_multi_thread(producer):
+    executor = ThreadPoolExecutor(max_workers=5)
+    futures = []
+    for _ in range(5):
+        futures.append(executor.submit(test_producer_send_sync, producer))
+
+    for future in futures:
+        _ret = future.result()
+
+
+def test_producer_send_oneway(producer):
+    msg = Message('test')
+    msg.set_keys('send_oneway')
+    msg.set_tags('XXX')
+    msg.set_body('XXXX')
+    producer.send_oneway(msg)
+
+
+def test_producer_send_orderly_with_sharding_key(orderly_producer):
+    msg = Message('test')
+    msg.set_keys('sharding_message')
+    msg.set_tags('sharding')
+    msg.set_body('sharding message')
+    msg.set_property('property', 'test')
+    ret = orderly_producer.send_orderly_with_sharding_key(msg, 'order1')
+    assert ret.status == SendStatus.OK
+
+
+def test_transaction_producer():
+    stop_event = threading.Event()
+    msg_body = 'XXXX'
+
+    def on_local_execute(msg, user_args):
+        return TransactionStatus.UNKNOWN
+
+    def on_check(msg):
+        stop_event.set()
+        assert msg.body.decode('utf-8') == msg_body
+        return TransactionStatus.COMMIT
+
+    producer = TransactionMQProducer('transactionTestGroup' + str(PY_VERSION), on_check)
+    producer.set_name_server_address('127.0.0.1:9876')
+    producer.start()
+    msg = Message('test')
+    msg.set_keys('transaction')
+    msg.set_tags('XXX')
+    msg.set_body(msg_body)
+    producer.send_message_in_transaction(msg, on_local_execute)
+    while not stop_event.is_set():
+        time.sleep(2)
+    producer.shutdown()
+
+
+
+---
+File: tests/test_consumer.py
+Size: 2920 bytes
+Lines: 93
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import time
+import threading
+
+import pytest
+
+from rocketmq.client import Message, SendStatus, ConsumeStatus, PushConsumer
+from rocketmq.exceptions import PushConsumerStartFailed
+
+
+def _send_test_msg(producer):
+    msg = Message('test')
+    msg.set_keys('XXX')
+    msg.set_tags('XXX')
+    msg.set_body('XXXX')
+    msg.set_property('property', 'test')
+    ret = producer.send_sync(msg)
+    assert ret.status == SendStatus.OK
+
+
+def test_push_consumer_no_subscription_start_fail():
+    consumer = PushConsumer('testGroup')
+    consumer.set_name_server_address("127.0.0.1:9876")
+    with pytest.raises(PushConsumerStartFailed):
+        consumer.start()
+
+
+def test_push_consumer(producer, push_consumer):
+    stop_event = threading.Event()
+    _send_test_msg(producer)
+    errors = []
+
+    def on_message(msg):
+        stop_event.set()
+        try:
+            assert msg.body.decode('utf-8') == 'XXXX'
+            assert msg.keys.decode('utf-8') == 'XXX'
+            assert msg.get_property('property').decode('utf-8') == 'test'
+            return ConsumeStatus.CONSUME_SUCCESS
+        except Exception as exc:
+            errors.append(exc)
+            return ConsumeStatus.RECONSUME_LATER
+
+    push_consumer.subscribe('test', on_message)
+    push_consumer.start()
+    while not stop_event.is_set():
+        time.sleep(2)
+    if errors:
+        raise errors[0]
+
+
+def test_push_consumer_reconsume_later(producer, push_consumer):
+    stop_event = threading.Event()
+    _send_test_msg(producer)
+    raised_exc = threading.Event()
+    errors = []
+
+    def on_message(msg):
+        if not raised_exc.is_set():
+            raised_exc.set()
+            return ConsumeStatus.RECONSUME_LATER
+
+        stop_event.set()
+        try:
+            assert msg.body.decode('utf-8') == 'XXXX'
+            assert msg.keys.decode('utf-8') == 'XXX'
+        except Exception as exc:
+            errors.append(exc)
+            return ConsumeStatus.CONSUME_SUCCESS
+
+    push_consumer.subscribe('test', on_message)
+    push_consumer.start()
+    while not stop_event.is_set():
+        time.sleep(2)
+    if errors:
+        raise errors[0]
+
+
+---
+File: samples/__init__.py
+Size: 0 bytes
+Lines: 0
+---
+
+
+---
+File: samples/producer.py
+Size: 4202 bytes
+Lines: 137
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+from rocketmq.client import Producer, Message, TransactionMQProducer, TransactionStatus
+
+import time
+import threading
+
+topic = 'TopicTest'
+gid = 'test'
+name_srv = '127.0.0.1:9876'
+MUTEX = threading.Lock()
+
+def create_message():
+    msg = Message(topic)
+    msg.set_keys('XXX')
+    msg.set_tags('XXX')
+    msg.set_property('property', 'test')
+    msg.set_body('message body')
+    return msg
+
+
+def send_message_sync(count):
+    producer = Producer(gid)
+    producer.set_name_server_address(name_srv)
+    producer.start()
+    for n in range(count):
+        msg = create_message()
+        ret = producer.send_sync(msg)
+        print ('send message status: ' + str(ret.status) + ' msgId: ' + ret.msg_id)
+    print ('send sync message done')
+    producer.shutdown()
+
+
+def send_message_multi_threaded(retry_time):
+    producer = Producer(gid)
+    producer.set_name_server_address(name_srv)
+    msg = create_message()
+
+    global MUTEX
+    MUTEX.acquire()
+    try:
+        producer.start()
+    except Exception as e:
+        print('ProducerStartFailed:', e)
+        MUTEX.release()
+        return
+
+    try:
+        for i in range(retry_time):
+            ret = producer.send_sync(msg)
+            if ret.status == 0:
+                print('send message status: ' + str(ret.status) + ' msgId: ' + ret.msg_id)
+                break
+            else:
+                print('send message to MQ failed.')
+            if i == (retry_time - 1):
+                print('send message to MQ failed after retries.')
+    except Exception as e:
+        print('ProducerSendSyncFailed:', e)
+    finally:
+        producer.shutdown()
+        MUTEX.release()
+        return
+
+
+def send_orderly_with_sharding_key(count):
+    producer = Producer(gid, True)
+    producer.set_name_server_address(name_srv)
+    producer.start()
+    for n in range(count):
+        msg = create_message()
+        ret = producer.send_orderly_with_sharding_key(msg, 'orderId')
+        print ('send message status: ' + str(ret.status) + ' msgId: ' + ret.msg_id)
+    print ('send sync order message done')
+    producer.shutdown()
+
+
+def check_callback(msg):
+    print ('check: ' + msg.body.decode('utf-8'))
+    return TransactionStatus.COMMIT
+
+
+def local_execute(msg, user_args):
+    print ('local:   ' + msg.body.decode('utf-8'))
+    return TransactionStatus.UNKNOWN
+
+
+def send_transaction_message(count):
+    producer = TransactionMQProducer(gid, check_callback)
+    producer.set_name_server_address(name_srv)
+    producer.start()
+    for n in range(count):
+        msg = create_message()
+        ret = producer.send_message_in_transaction(msg, local_execute, None)
+        print ('send message status: ' + str(ret.status) + ' msgId: ' + ret.msg_id)
+    print ('send transaction message done')
+
+    while True:
+        time.sleep(3600)
+
+
+def send_message_with_ssl(count):
+    producer = Producer(gid)
+    producer.set_name_server_address(name_srv)
+    producer.set_ssl_enable(True)
+    producer.set_ssl_property_file("/etc/rocketmq/tls.properties")
+    producer.start()
+    for n in range(count):
+        msg = create_message()
+    producer.start()
+    for n in range(count):
+        msg = create_message()
+        ret = producer.send_sync(msg)
+        print ('send message status: ' + str(ret.status) + ' msgId: ' + ret.msg_id)
+    print ('send sync message done')
+    producer.shutdown()
+
+
+if __name__ == '__main__':
+    send_message_sync(10)
+
+
+
+---
+File: samples/consumer.py
+Size: 1440 bytes
+Lines: 40
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+from rocketmq.client import PushConsumer, ConsumeStatus
+import time
+
+def callback(msg):
+    print(msg.id, msg.body,  msg.get_property('property'))
+    return ConsumeStatus.CONSUME_SUCCESS
+
+def start_consume_message():
+    consumer = PushConsumer('consumer_group')
+    consumer.set_name_server_address('127.0.0.1:9876')
+    consumer.subscribe('BenchmarkTest', callback)
+    # consumer.set_ssl_enable(True)
+    # consumer.set_ssl_property_file("/etc/rocketmq/tls.properties")
+    print ('start consume message')
+    consumer.start()
+
+    while True:
+        time.sleep(3600)
+
+if __name__ == '__main__':
+    start_consume_message()
+
+---
+File: .github/ISSUE_TEMPLATE/issue_template.md
+Size: 1943 bytes
+Lines: 48
+---
+---
+name: ISSUE_TEMPLATE
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+The issue tracker is **ONLY** used for the python client (feature request of RocketMQ need to follow [RIP process](https://github.com/apache/rocketmq/wiki/RocketMQ-Improvement-Proposal)). Keep in mind, please check whether there is an existing same report before your raise a new one.
+
+Alternately (especially if your communication is not a bug report), you can send mail to our [mailing lists](http://rocketmq.apache.org/about/contact/). We welcome any friendly suggestions, bug fixes, collaboration, and other improvements.
+
+Please ensure that your bug report is clear and that it is complete. Otherwise, we may be unable to understand it or to reproduce it, either of which would prevent us from fixing the bug. We strongly recommend the report(bug report or feature request) could include some hints as to the following:
+
+**BUG REPORT**
+
+1. Please describe the issue you observed:
+
+- What did you do (The steps to reproduce)?
+
+- What did you expect to see?
+
+- What did you see instead?
+
+2. Please tell us about your environment:
+
+ - What is your OS?
+
+ - What is your client version?
+
+ - What is your RocketMQ version?
+
+3. Other information (e.g. detailed explanation, logs, related issues, suggestions on how to fix, etc):
+
+**FEATURE REQUEST**
+
+1. Please describe the feature you are requesting.
+
+2. Provide any additional detail on your proposed use case for this feature.
+
+2. Indicate the importance of this issue to you (blocker, must-have, should-have, nice-to-have). Are you currently using any workarounds to address this issue?
+
+4. If there are some sub-tasks using -[] for each subtask and create a corresponding issue to map to the sub task:
+
+- [sub-task1-issue-number](example_sub_issue1_link_here): sub-task1 description here, 
+- [sub-task2-issue-number](example_sub_issue2_link_here): sub-task2 description here,
+- ...
+
+
+---
+File: rocketmq/client.py
+Size: 15843 bytes
+Lines: 462
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import sys
+import ctypes
+from enum import IntEnum
+from collections import namedtuple
+
+from .ffi import (
+    dll, _CSendResult, MSG_CALLBACK_FUNC, MessageModel, TRANSACTION_CHECK_CALLBACK,
+    LOCAL_TRANSACTION_EXECUTE_CALLBACK, TraceModel
+)
+from .exceptions import (
+    ffi_check, NullPointerException,
+)
+from .consts import MessageProperty
+
+__all__ = ['SendStatus', 'Message', 'ReceivedMessage', 'Producer', 'PushConsumer', 'TransactionMQProducer',
+           'TransactionStatus', 'ConsumeStatus']
+
+PY2 = sys.version_info[0] == 2
+if PY2:
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
+
+SendResult = namedtuple('SendResult', ['status', 'msg_id', 'offset'])
+
+
+class SendStatus(IntEnum):
+    OK = 0
+    FLUSH_DISK_TIMEOUT = 1
+    FLUSH_SLAVE_TIMEOUT = 2
+    SLAVE_NOT_AVAILABLE = 3
+
+
+class TransactionStatus(IntEnum):
+    COMMIT = 0
+    ROLLBACK = 1
+    UNKNOWN = 2
+
+
+class ConsumeStatus(IntEnum):
+    CONSUME_SUCCESS = 0
+    RECONSUME_LATER = 1
+
+
+def _to_bytes(s):
+    if isinstance(s, text_type):
+        return s.encode('utf-8')
+    return s
+
+
+class Message(object):
+    def __init__(self, topic):
+        self._handle = dll.CreateMessage(_to_bytes(topic))
+        
+    def __del__(self):
+        dll.DestroyMessage(self._handle)
+
+    def set_keys(self, keys):
+        ffi_check(dll.SetMessageKeys(self._handle, _to_bytes(keys)))
+
+    def set_tags(self, tags):
+        ffi_check(dll.SetMessageTags(self._handle, _to_bytes(tags)))
+
+    def set_body(self, body):
+        ffi_check(dll.SetMessageBody(self._handle, _to_bytes(body)))
+
+    def set_property(self, key, value):
+        ffi_check(dll.SetMessageProperty(self._handle, _to_bytes(key), _to_bytes(value)))
+
+    def set_delay_time_level(self, delay_time_level):
+        ffi_check(dll.SetDelayTimeLevel(self._handle, delay_time_level))
+
+    @property
+    def _as_parameter_(self):
+        return self._handle
+
+
+def maybe_decode(val):
+    if isinstance(val, binary_type):
+        return val.decode('utf-8')
+    elif isinstance(val, text_type):
+        return val
+    raise TypeError('Expects string types, but got %s', type(val))
+
+
+class ReceivedMessage(object):
+    def __init__(self, handle):
+        self._handle = handle
+
+    @property
+    def topic(self):
+        return maybe_decode(dll.GetMessageTopic(self._handle))
+
+    @property
+    def tags(self):
+        return dll.GetMessageTags(self._handle)
+
+    @property
+    def keys(self):
+        return dll.GetMessageKeys(self._handle)
+
+    @property
+    def body(self):
+        return dll.GetMessageBody(self._handle)
+
+    @property
+    def id(self):
+        return maybe_decode(dll.GetMessageId(self._handle))
+
+    @property
+    def delay_time_level(self):
+        return dll.GetMessageDelayTimeLevel(self._handle)
+
+    @property
+    def queue_id(self):
+        return dll.GetMessageQueueId(self._handle)
+
+    @property
+    def reconsume_times(self):
+        return dll.GetMessageReconsumeTimes(self._handle)
+
+    @property
+    def store_size(self):
+        return dll.GetMessageStoreSize(self._handle)
+
+    @property
+    def born_timestamp(self):
+        return dll.GetMessageBornTimestamp(self._handle)
+
+    @property
+    def store_timestamp(self):
+        return dll.GetMessageStoreTimestamp(self._handle)
+
+    @property
+    def queue_offset(self):
+        return dll.GetMessageQueueOffset(self._handle)
+
+    @property
+    def commit_log_offset(self):
+        return dll.GetMessageCommitLogOffset(self._handle)
+
+    @property
+    def prepared_transaction_offset(self):
+        return dll.GetMessagePreparedTransactionOffset(self._handle)
+
+    def get_property(self, prop):
+        if isinstance(prop, MessageProperty):
+            prop = prop.value
+        val = dll.GetMessageProperty(self._handle, _to_bytes(prop))
+        return val
+
+    def __getitem__(self, key):
+        return self.get_property(key)
+
+    def __str__(self):
+        return self.body.decode('utf-8')
+
+    def __bytes__(self):
+        return self.body
+
+    def __repr__(self):
+        return '<ReceivedMessage topic={} id={} body={}>'.format(
+            repr(self.topic),
+            repr(self.id),
+            repr(self.body),
+        )
+
+
+class Producer(object):
+    def __init__(self, group_id, orderly=False, timeout=None, compress_level=None, max_message_size=None):
+        if orderly:
+            self._handle = dll.CreateOrderlyProducer(_to_bytes(group_id))
+        else:
+            self._handle = dll.CreateProducer(_to_bytes(group_id))
+        if self._handle is None:
+            raise NullPointerException('Returned null pointer when create Producer')
+        if timeout is not None:
+            self.set_timeout(timeout)
+        if compress_level is not None:
+            self.set_compress_level(compress_level)
+        if max_message_size is not None:
+            self.set_max_message_size(max_message_size)
+        self._callback_refs = []
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, exec_type, value, traceback):
+        self.shutdown()
+
+    def send_sync(self, msg):
+        c_result = _CSendResult()
+        ffi_check(dll.SendMessageSync(self._handle, msg, ctypes.pointer(c_result)))
+        return SendResult(
+            SendStatus(c_result.sendStatus),
+            c_result.msgId.decode('utf-8'),
+            c_result.offset
+        )
+
+    def send_oneway(self, msg):
+        ffi_check(dll.SendMessageOneway(self._handle, msg))
+
+    def send_orderly_with_sharding_key(self, msg, sharding_key):
+        c_result = _CSendResult()
+        ffi_check(
+            dll.SendMessageOrderlyByShardingKey(self._handle, msg, _to_bytes(sharding_key), ctypes.pointer(c_result)))
+        return SendResult(
+            SendStatus(c_result.sendStatus),
+            c_result.msgId.decode('utf-8'),
+            c_result.offset
+        )
+
+    def set_group(self, group_name):
+        ffi_check(dll.SetProducerGroupName(self._handle, _to_bytes(group_name)))
+
+    def set_instance_name(self, name):
+        ffi_check(dll.SetProducerInstanceName(self._handle, _to_bytes(name)))
+
+    def set_name_server_address(self, addr):
+        ffi_check(dll.SetProducerNameServerAddress(self._handle, _to_bytes(addr)))
+
+    def set_name_server_domain(self, domain):
+        ffi_check(dll.SetProducerNameServerDomain(self._handle, _to_bytes(domain)))
+
+    def set_session_credentials(self, access_key, access_secret, channel):
+        ffi_check(dll.SetProducerSessionCredentials(
+            self._handle,
+            _to_bytes(access_key),
+            _to_bytes(access_secret),
+            _to_bytes(channel)
+        ))
+
+    def set_timeout(self, timeout):
+        ffi_check(dll.SetProducerSendMsgTimeout(self._handle, timeout))
+
+    def set_compress_level(self, level):
+        ffi_check(dll.SetProducerCompressLevel(self._handle, level))
+
+    def set_max_message_size(self, max_size):
+        ffi_check(dll.SetProducerMaxMessageSize(self._handle, max_size))
+
+    def set_message_trace(self, message_trace):
+        ffi_check(dll.SetProducerMessageTrace(self._handle, message_trace and TraceModel.OPEN or TraceModel.CLOSE))
+
+    def set_ssl_enable(self, enable):
+        ssl_enable_code = 1 if enable else 0
+        ffi_check(dll.SetProducerSsl(self._handle, ssl_enable_code))
+
+    def set_ssl_property_file(self, file_path):
+        ffi_check(dll.SetProducerSslPropertyFile(self._handle, _to_bytes(file_path)))
+
+    def start(self):
+        ffi_check(dll.StartProducer(self._handle))
+
+    def shutdown(self):
+        ffi_check(dll.ShutdownProducer(self._handle))
+
+
+class TransactionMQProducer(Producer):
+    def __init__(self, group_id, checker_callback, user_args=None, timeout=None, compress_level=None,
+                 max_message_size=None):
+        super(TransactionMQProducer, self).__init__(group_id, timeout, compress_level, max_message_size)
+        self._callback_refs = []
+
+        def _on_check(producer, c_message, user_data):
+            exc = None
+            try:
+                py_message = ReceivedMessage(c_message)
+                check_result = checker_callback(py_message)
+                if check_result != TransactionStatus.UNKNOWN and check_result != TransactionStatus.COMMIT \
+                        and check_result != TransactionStatus.ROLLBACK:
+                    raise ValueError(
+                        'Check transaction status error, please use enum \'TransactionStatus\' as response')
+                return check_result
+            except BaseException as e:
+                exc = e
+                return TransactionStatus.UNKNOWN
+            finally:
+                if exc:
+                    raise exc
+
+        transaction_checker_callback = TRANSACTION_CHECK_CALLBACK(_on_check)
+        self._callback_refs.append(transaction_checker_callback)
+
+        self._handle = dll.CreateTransactionProducer(_to_bytes(group_id), transaction_checker_callback, user_args)
+        if self._handle is None:
+            raise NullPointerException('Returned null pointer when create transaction producer')
+        if timeout is not None:
+            self.set_timeout(timeout)
+        if compress_level is not None:
+            self.set_compress_level(compress_level)
+        if max_message_size is not None:
+            self.set_max_message_size(max_message_size)
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, exec_type, value, traceback):
+        self.shutdown()
+
+    def set_name_server_address(self, addr):
+        ffi_check(dll.SetProducerNameServerAddress(self._handle, _to_bytes(addr)))
+
+    def set_message_trace(self, message_trace):
+        ffi_check(dll.SetProducerMessageTrace(self._handle, message_trace and TraceModel.OPEN or TraceModel.CLOSE))
+
+    def start(self):
+        ffi_check(dll.StartProducer(self._handle))
+
+    def send_message_in_transaction(self, message, local_execute, user_args=None):
+
+        def _on_local_execute(producer, c_message, usr_args):
+            exc = None
+            try:
+                py_message = ReceivedMessage(c_message)
+                local_result = local_execute(py_message, usr_args)
+                if local_result != TransactionStatus.UNKNOWN and local_result != TransactionStatus.COMMIT \
+                        and local_result != TransactionStatus.ROLLBACK:
+                    raise ValueError(
+                        'Local transaction status error, please use enum \'TransactionStatus\' as response')
+                return local_result
+            except BaseException as e:
+                exc = e
+                return TransactionStatus.UNKNOWN
+            finally:
+                if exc:
+                    raise exc
+
+        local_execute_callback = LOCAL_TRANSACTION_EXECUTE_CALLBACK(_on_local_execute)
+        self._callback_refs.append(local_execute_callback)
+
+        result = _CSendResult()
+        try:
+            ffi_check(
+                dll.SendMessageTransaction(self._handle,
+                                           message,
+                                           local_execute_callback,
+                                           user_args,
+                                           ctypes.pointer(result)))
+        finally:
+            self._callback_refs.remove(local_execute_callback)
+
+        return SendResult(
+            SendStatus(result.sendStatus),
+            result.msgId.decode('utf-8'),
+            result.offset
+        )
+
+
+class PushConsumer(object):
+    def __init__(self, group_id, orderly=False, message_model=MessageModel.CLUSTERING):
+        self._handle = dll.CreatePushConsumer(_to_bytes(group_id))
+        if self._handle is None:
+            raise NullPointerException('Returned null pointer when create PushConsumer')
+        self._orderly = orderly
+        self.set_message_model(message_model)
+        self._callback_refs = []
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, exec_type, value, traceback):
+        self.shutdown()
+
+    def set_message_model(self, model):
+        ffi_check(dll.SetPushConsumerMessageModel(self._handle, model))
+
+    def start(self):
+        ffi_check(dll.StartPushConsumer(self._handle))
+
+    def shutdown(self):
+        ffi_check(dll.ShutdownPushConsumer(self._handle))
+
+    def set_group(self, group_id):
+        ffi_check(dll.SetPushConsumerGroupID(self._handle, _to_bytes(group_id)))
+
+    def set_name_server_address(self, addr):
+        ffi_check(dll.SetPushConsumerNameServerAddress(self._handle, _to_bytes(addr)))
+
+    def set_name_server_domain(self, domain):
+        ffi_check(dll.SetPushConsumerNameServerDomain(self._handle, _to_bytes(domain)))
+
+    def set_session_credentials(self, access_key, access_secret, channel):
+        ffi_check(dll.SetPushConsumerSessionCredentials(
+            self._handle,
+            _to_bytes(access_key),
+            _to_bytes(access_secret),
+            _to_bytes(channel)
+        ))
+
+    def set_ssl_enable(self, enable):
+        ssl_enable_code = 1 if enable else 0
+        ffi_check(dll.SetPushConsumerSsl(self._handle, ssl_enable_code))
+
+    def set_ssl_property_file(self, file_path):
+        ffi_check(dll.SetPushConsumerSslPropertyFile(self._handle, _to_bytes(file_path)))
+
+    def subscribe(self, topic, callback, expression='*'):
+        def _on_message(consumer, msg):
+            exc = None
+            try:
+                consume_result = callback(ReceivedMessage(msg))
+                if consume_result != ConsumeStatus.CONSUME_SUCCESS and consume_result != ConsumeStatus.RECONSUME_LATER:
+                    raise ValueError('Consume status error, please use enum \'ConsumeStatus\' as response')
+                return consume_result
+            except BaseException as e:
+                exc = e
+                return ConsumeStatus.RECONSUME_LATER
+            finally:
+                if exc:
+                    raise exc
+
+        ffi_check(dll.Subscribe(self._handle, _to_bytes(topic), _to_bytes(expression)))
+        self._register_callback(_on_message)
+
+    def _register_callback(self, callback):
+        if self._orderly:
+            register_func = dll.RegisterMessageCallbackOrderly
+        else:
+            register_func = dll.RegisterMessageCallback
+
+        func = MSG_CALLBACK_FUNC(callback)
+        self._callback_refs.append(func)
+        ffi_check(register_func(self._handle, func))
+
+    def _unregister_callback(self):
+        if self._orderly:
+            ffi_check(dll.UnregisterMessageCallbackOrderly(self._handle))
+        ffi_check(dll.UnregisterMessageCallback(self._handle))
+        self._callback_refs = []
+
+    def set_thread_count(self, thread_count):
+        ffi_check(dll.SetPushConsumerThreadCount(self._handle, thread_count))
+
+    def set_message_batch_max_size(self, max_size):
+        ffi_check(dll.SetPushConsumerMessageBatchMaxSize(self._handle, max_size))
+
+    def set_instance_name(self, name):
+        ffi_check(dll.SetPushConsumerInstanceName(self._handle, _to_bytes(name)))
+
+    def set_message_trace(self, message_trace):
+        ffi_check(dll.SetPushConsumerMessageTrace(self._handle, message_trace and TraceModel.OPEN or TraceModel.CLOSE))
+
+
+---
+File: rocketmq/__init__.py
+Size: 810 bytes
+Lines: 18
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+---
+File: rocketmq/consts.py
+Size: 1599 bytes
+Lines: 44
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+from enum import Enum
+
+
+class MessageProperty(Enum):
+    TRACE_SWITCH = "TRACE_ON"
+    MSG_REGION = "MSG_REGION"
+    KEYS = "KEYS"
+    TAGS = "TAGS"
+    WAIT_STORE_MSG_OK = "WAIT"
+    DELAY_TIME_LEVEL = "DELAY"
+    RETRY_TOPIC = "RETRY_TOPIC"
+    REAL_TOPIC = "REAL_TOPIC"
+    REAL_QUEUE_ID = "REAL_QID"
+    TRANSACTION_PREPARED = "TRAN_MSG"
+    PRODUCER_GROUP = "PGROUP"
+    MIN_OFFSET = "MIN_OFFSET"
+    MAX_OFFSET = "MAX_OFFSET"
+    BUYER_ID = "BUYER_ID"
+    ORIGIN_MESSAGE_ID = "ORIGIN_MESSAGE_ID"
+    TRANSFER_FLAG = "TRANSFER_FLAG"
+    CORRECTION_FLAG = "CORRECTION_FLAG"
+    MQ2_FLAG = "MQ2_FLAG"
+    RECONSUME_TIME = "RECONSUME_TIME"
+    UNIQ_CLIENT_MESSAGE_ID_KEYIDX = "UNIQ_KEY"
+    MAX_RECONSUME_TIMES = "MAX_RECONSUME_TIMES"
+    CONSUME_START_TIMESTAMP = "CONSUME_START_TIME"
+
+
+---
+File: rocketmq/exceptions.py
+Size: 2588 bytes
+Lines: 102
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import re
+
+from .ffi import dll, _CStatus
+
+
+_EXCEPTION_MAP = {}
+
+
+def _register(status_code):
+    def register(cls):
+        _EXCEPTION_MAP[status_code] = cls
+        return cls
+    return register
+
+
+def ffi_check(status_code):
+    if status_code == _CStatus.OK:
+        return
+    exc_cls = _EXCEPTION_MAP.get(status_code, RocketMQException)
+    msg = dll.GetLatestErrorMessage()
+    if msg is not None:
+        msg = msg.decode('utf-8')
+        msg = re.sub('<.*?(rocketmq-client-cpp/)(.*)>', '\\1\\2', msg)
+        if msg.startswith('msg: '):
+            msg = msg[5:]
+    raise exc_cls(msg)
+
+
+class RocketMQException(Exception):
+    '''RocketMQ exception base class'''
+    pass
+
+
+@_register(_CStatus.NULL_POINTER)
+class NullPointerException(RocketMQException):
+    pass
+
+
+@_register(_CStatus.MALLOC_FAILED)
+class MallocFailed(RocketMQException):
+    pass
+
+
+class ProducerException(RocketMQException):
+    pass
+
+
+@_register(_CStatus.PRODUCER_START_FAILED)
+class ProducerStartFailed(ProducerException):
+    pass
+
+
+@_register(_CStatus.PRODUCER_SEND_SYNC_FAILED)
+class ProducerSendSyncFailed(ProducerException):
+    pass
+
+
+@_register(_CStatus.PRODUCER_SEND_ONEWAY_FAILED)
+class ProducerSendOnewayFailed(ProducerException):
+    pass
+
+
+@_register(_CStatus.PRODUCER_SEND_ORDERLY_FAILED)
+class ProducerSendOrderlyFailed(ProducerException):
+    pass
+
+
+class ProducerSendAsyncFailed(ProducerException):
+    def __init__(self, msg, error, file, line, type):
+        super(ProducerSendAsyncFailed, self).__init__(msg)
+        self.error = error
+        self.file = file
+        self.line = line
+        self.type = type
+
+
+class ConsumerException(RocketMQException):
+    pass
+
+
+@_register(_CStatus.PUSH_CONSUMER_START_FAILED)
+class PushConsumerStartFailed(ConsumerException):
+    pass
+
+
+
+---
+File: rocketmq/ffi.py
+Size: 11393 bytes
+Lines: 291
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import os
+import sys
+import ctypes
+from ctypes.util import find_library
+from ctypes import c_char, c_char_p, c_void_p, c_int, c_long, c_longlong, Structure, POINTER
+from enum import IntEnum
+
+_DYLIB_SUFFIX = '.so'
+if sys.platform.lower() == 'darwin':
+    _DYLIB_SUFFIX = '.dylib'
+elif sys.platform.lower() == 'win32':
+    raise NotImplementedError('rocketmq-python does not support Windows')
+
+_CURR_DIR = os.path.abspath(os.path.dirname(__file__))
+_PKG_DYLIB_PATH = os.path.join(_CURR_DIR, 'librocketmq' + _DYLIB_SUFFIX)
+_DYLIB_PATH = find_library('rocketmq')
+if os.path.exists(_PKG_DYLIB_PATH):
+    # Prefer packaged librocketmq dylib
+    _DYLIB_PATH = _PKG_DYLIB_PATH
+
+if not _DYLIB_PATH:
+    raise ImportError('rocketmq dynamic library not found')
+
+dll = ctypes.cdll.LoadLibrary(_DYLIB_PATH)
+
+
+class CtypesEnum(IntEnum):
+    """A ctypes-compatible IntEnum superclass."""
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)
+
+
+class _CStatus(CtypesEnum):
+    OK = 0
+    NULL_POINTER = 1
+    MALLOC_FAILED = 2
+    # producer
+    PRODUCER_START_FAILED = 10
+    PRODUCER_SEND_SYNC_FAILED = 11
+    PRODUCER_SEND_ONEWAY_FAILED = 12
+    PRODUCER_SEND_ORDERLY_FAILED = 13
+    PRODUCER_SEND_ASYNC_FAILED = 14
+    # push consumer
+    PUSH_CONSUMER_START_FAILED = 20
+
+    NOT_SUPPORT_NOW = -1
+
+
+class _CLogLevel(CtypesEnum):
+    FATAL = 1
+    ERROR = 2
+    WARN = 3
+    INFO = 4
+    DEBUG = 5
+    TRACE = 6
+    LEVEL_NUM = 7
+
+
+class MessageModel(CtypesEnum):
+    BROADCASTING = 0
+    CLUSTERING = 1
+
+
+class TraceModel(CtypesEnum):
+    OPEN = 0
+    CLOSE = 1
+
+
+class _CSendResult(Structure):
+    _fields_ = [
+        ('sendStatus', c_int),
+        ('msgId', c_char * 256),
+        ('offset', c_longlong),
+    ]
+
+
+class _CMessageQueue(Structure):
+    _fields_ = [
+        ('topic', c_char * 512),
+        ('brokerName', c_char * 256),
+        ('queueId', c_int),
+    ]
+
+
+class _CMQException(Structure):
+    _fields_ = [
+        ('error', c_int),
+        ('line', c_int),
+        ('file', c_char * 512),
+        ('msg', c_char * 512),
+        ('type', c_char * 512),
+    ]
+
+
+# Message
+dll.CreateMessage.argtypes = [c_char_p]
+dll.CreateMessage.restype = c_void_p
+dll.DestroyMessage.argtypes = [c_void_p]
+dll.DestroyMessage.restype = _CStatus
+dll.SetMessageKeys.argtypes = [c_void_p, c_char_p]
+dll.SetMessageKeys.restype = _CStatus
+dll.SetMessageTags.argtypes = [c_void_p, c_char_p]
+dll.SetMessageTags.restype = _CStatus
+dll.SetMessageBody.argtypes = [c_void_p, c_char_p]
+dll.SetMessageBody.restype = _CStatus
+dll.SetByteMessageBody.argtypes = [c_void_p, c_char_p, c_int]
+dll.SetByteMessageBody.restype = _CStatus
+dll.SetMessageProperty.argtypes = [c_void_p, c_char_p, c_char_p]
+dll.SetMessageProperty.restype = _CStatus
+dll.SetDelayTimeLevel.argtypes = [c_void_p, c_int]
+dll.SetDelayTimeLevel.restype = _CStatus
+dll.GetMessageTopic.argtypes = [c_void_p]
+dll.GetMessageTopic.restype = c_char_p
+dll.GetMessageTags.argtypes = [c_void_p]
+dll.GetMessageTags.restype = c_char_p
+dll.GetMessageKeys.argtypes = [c_void_p]
+dll.GetMessageKeys.restype = c_char_p
+dll.GetMessageBody.argtypes = [c_void_p]
+dll.GetMessageBody.restype = c_char_p
+dll.GetMessageProperty.argtypes = [c_void_p, c_char_p]
+dll.GetMessageProperty.restype = c_char_p
+dll.GetMessageId.argtypes = [c_void_p]
+dll.GetMessageId.restype = c_char_p
+dll.GetMessageDelayTimeLevel.argtypes = [c_void_p]
+dll.GetMessageDelayTimeLevel.restype = c_int
+dll.GetMessageQueueId.argtypes = [c_void_p]
+dll.GetMessageQueueId.restype = c_int
+dll.GetMessageReconsumeTimes.argtypes = [c_void_p]
+dll.GetMessageReconsumeTimes.restype = c_int
+dll.GetMessageStoreSize.argtypes = [c_void_p]
+dll.GetMessageStoreSize.restype = c_int
+dll.GetMessageBornTimestamp.argtypes = [c_void_p]
+dll.GetMessageBornTimestamp.restype = c_longlong
+dll.GetMessageStoreTimestamp.argtypes = [c_void_p]
+dll.GetMessageStoreTimestamp.restype = c_longlong
+dll.GetMessageQueueOffset.argtypes = [c_void_p]
+dll.GetMessageQueueOffset.restype = c_longlong
+dll.GetMessageCommitLogOffset.argtypes = [c_void_p]
+dll.GetMessageCommitLogOffset.restype = c_longlong
+dll.GetMessagePreparedTransactionOffset.argtypes = [c_void_p]
+dll.GetMessagePreparedTransactionOffset.restype = c_longlong
+dll.CreateBatchMessage.argtypes = []
+dll.CreateBatchMessage.restype = c_void_p
+dll.AddMessage.argtypes = [c_void_p, c_void_p]
+dll.AddMessage.restype = _CStatus
+dll.DestroyBatchMessage.argtypes = [c_void_p]
+dll.DestroyBatchMessage.restype = _CStatus
+
+# Producer
+QUEUE_SELECTOR_CALLBACK = ctypes.CFUNCTYPE(c_int, c_int, c_void_p, c_void_p)
+SEND_SUCCESS_CALLBACK = ctypes.CFUNCTYPE(None, POINTER(_CSendResult))
+SEND_EXCEPTION_CALLBACK = ctypes.CFUNCTYPE(None, _CMQException)
+TRANSACTION_CHECK_CALLBACK = ctypes.CFUNCTYPE(c_int, c_void_p, c_void_p, c_void_p)
+LOCAL_TRANSACTION_EXECUTE_CALLBACK = ctypes.CFUNCTYPE(c_int, c_void_p, c_void_p, c_void_p)
+
+dll.CreateProducer.argtypes = [c_char_p]
+dll.CreateProducer.restype = c_void_p
+dll.CreateOrderlyProducer.argtypes = [c_char_p]
+dll.CreateOrderlyProducer.restype = c_void_p
+dll.DestroyProducer.argtypes = [c_void_p]
+dll.DestroyProducer.restype = _CStatus
+dll.StartProducer.argtypes = [c_void_p]
+dll.StartProducer.restype = _CStatus
+dll.ShutdownProducer.argtypes = [c_void_p]
+dll.ShutdownProducer.restype = _CStatus
+dll.SetProducerNameServerAddress.argtypes = [c_void_p, c_char_p]
+dll.SetProducerNameServerAddress.restype = _CStatus
+dll.SetProducerNameServerDomain.argtypes = [c_void_p, c_char_p]
+dll.SetProducerNameServerDomain.restype = _CStatus
+dll.SetProducerGroupName.argtypes = [c_void_p, c_char_p]
+dll.SetProducerGroupName.restype = _CStatus
+dll.SetProducerInstanceName.argtypes = [c_void_p, c_char_p]
+dll.SetProducerInstanceName.restype = _CStatus
+dll.SetProducerSessionCredentials.argtypes = [c_void_p, c_char_p, c_char_p, c_char_p]
+dll.SetProducerSessionCredentials.restype = _CStatus
+dll.SetProducerLogPath.argtypes = [c_void_p, c_char_p]
+dll.SetProducerLogPath.restype = _CStatus
+dll.SetProducerLogFileNumAndSize.argtypes = [c_void_p, c_int, c_long]
+dll.SetProducerLogFileNumAndSize.restype = _CStatus
+dll.SetProducerLogLevel.argtypes = [c_void_p, _CLogLevel]
+dll.SetProducerLogLevel.restype = _CStatus
+dll.SetProducerSendMsgTimeout.argtypes = [c_void_p, c_int]
+dll.SetProducerSendMsgTimeout.restype = _CStatus
+dll.SetProducerCompressLevel.argtypes = [c_void_p, c_int]
+dll.SetProducerCompressLevel.restype = _CStatus
+dll.SetProducerMaxMessageSize.argtypes = [c_void_p, c_int]
+dll.SetProducerMaxMessageSize.restype = _CStatus
+dll.SetProducerMessageTrace.argtypes = [c_void_p, TraceModel]
+dll.SetProducerMessageTrace.restype = _CStatus
+try:
+    dll.SetProducerSsl.argtypes = [c_void_p, c_int]
+    dll.SetProducerSsl.restype = _CStatus
+    dll.SetProducerSslPropertyFile.argtypes = [c_void_p, c_char_p]
+    dll.SetProducerSslPropertyFile.restype = _CStatus
+except AttributeError:
+    pass
+dll.SendMessageSync.argtypes = [c_void_p, c_void_p, POINTER(_CSendResult)]
+dll.SendMessageSync.restype = _CStatus
+dll.SendMessageOneway.argtypes = [c_void_p, c_void_p]
+dll.SendMessageOneway.restype = _CStatus
+dll.SendBatchMessage.argtypes = [c_void_p, c_void_p, POINTER(_CSendResult)]
+dll.SendBatchMessage.restype = _CStatus
+
+dll.SendMessageOrderlyByShardingKey.argtypes = [c_void_p, c_void_p, c_char_p, POINTER(_CSendResult)]
+dll.SendMessageOrderlyByShardingKey.restype = _CStatus
+
+dll.CreateTransactionProducer.argtypes = [c_char_p, TRANSACTION_CHECK_CALLBACK, c_void_p]
+dll.CreateTransactionProducer.restype = c_void_p
+
+dll.SendMessageTransaction.argtypes = [c_void_p, c_void_p, LOCAL_TRANSACTION_EXECUTE_CALLBACK, c_void_p,
+                                       POINTER(_CSendResult)]
+dll.SendMessageTransaction.restype = c_int
+
+# Push Consumer
+MSG_CALLBACK_FUNC = ctypes.CFUNCTYPE(c_int, c_void_p, c_void_p)
+dll.CreatePushConsumer.argtypes = [c_char_p]
+dll.CreatePushConsumer.restype = c_void_p
+dll.DestroyPushConsumer.argtypes = [c_void_p]
+dll.DestroyPushConsumer.restype = _CStatus
+dll.StartPushConsumer.argtypes = [c_void_p]
+dll.StartPushConsumer.restype = _CStatus
+dll.ShutdownPushConsumer.argtypes = [c_void_p]
+dll.ShutdownPushConsumer.restype = _CStatus
+dll.SetPushConsumerGroupID.argtypes = [c_void_p, c_char_p]
+dll.SetPushConsumerGroupID.restype = _CStatus
+dll.GetPushConsumerGroupID.argtypes = [c_void_p]
+dll.GetPushConsumerGroupID.restype = c_char_p
+dll.SetPushConsumerNameServerAddress.argtypes = [c_void_p, c_char_p]
+dll.SetPushConsumerNameServerAddress.restype = _CStatus
+dll.SetPushConsumerNameServerDomain.argtypes = [c_void_p, c_char_p]
+dll.SetPushConsumerNameServerDomain.restype = _CStatus
+dll.Subscribe.argtypes = [c_void_p, c_char_p, c_char_p]
+dll.Subscribe.restype = _CStatus
+dll.RegisterMessageCallbackOrderly.argtypes = [c_void_p, MSG_CALLBACK_FUNC]
+dll.RegisterMessageCallbackOrderly.restype = _CStatus
+dll.RegisterMessageCallback.argtypes = [c_void_p, MSG_CALLBACK_FUNC]
+dll.RegisterMessageCallback.restype = _CStatus
+dll.UnregisterMessageCallbackOrderly.argtypes = [c_void_p]
+dll.UnregisterMessageCallbackOrderly.restype = _CStatus
+dll.UnregisterMessageCallback.argtypes = [c_void_p]
+dll.UnregisterMessageCallback.restype = _CStatus
+dll.SetPushConsumerThreadCount.argtypes = [c_void_p, c_int]
+dll.SetPushConsumerThreadCount.restype = _CStatus
+dll.SetPushConsumerMessageBatchMaxSize.argtypes = [c_void_p, c_int]
+dll.SetPushConsumerMessageBatchMaxSize.restype = _CStatus
+dll.SetPushConsumerInstanceName.argtypes = [c_void_p, c_char_p]
+dll.SetPushConsumerInstanceName.restype = _CStatus
+dll.SetPushConsumerSessionCredentials.argtypes = [c_void_p, c_char_p, c_char_p, c_char_p]
+dll.SetPushConsumerSessionCredentials.restype = _CStatus
+dll.SetPushConsumerLogPath.argtypes = [c_void_p, c_char_p]
+dll.SetPushConsumerLogPath.restype = _CStatus
+dll.SetPushConsumerLogFileNumAndSize.argtypes = [c_void_p, c_int, c_long]
+dll.SetPushConsumerLogFileNumAndSize.restype = _CStatus
+dll.SetPushConsumerLogLevel.argtypes = [c_void_p, _CLogLevel]
+dll.SetPushConsumerLogLevel.restype = _CStatus
+dll.SetPushConsumerMessageModel.argtypes = [c_void_p, MessageModel]
+dll.SetPushConsumerMessageModel.restype = _CStatus
+dll.SetPushConsumerLogLevel.restype = _CStatus
+dll.SetPushConsumerMessageTrace.argtypes = [c_void_p, TraceModel]
+dll.SetPushConsumerMessageTrace.restype = _CStatus
+try:
+    dll.SetPushConsumerSsl.argtypes = [c_void_p, c_int]
+    dll.SetPushConsumerSsl.restype = _CStatus
+    dll.SetPushConsumerSslPropertyFile.argtypes = [c_void_p, c_char_p]
+    dll.SetPushConsumerSslPropertyFile.restype = _CStatus
+except AttributeError:
+    pass
+
+# Misc
+dll.GetLatestErrorMessage.argtypes = []
+dll.GetLatestErrorMessage.restype = c_char_p
+
