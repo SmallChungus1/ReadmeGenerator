@@ -1,5 +1,5 @@
 ====================================================================================================
-Finetuned local model aggregate summary
+Baseline local model aggregate summary
 ----------------------------------------------------------------------------------------------------
              Metric  Mean Score
             ROUGE-L    0.100050
@@ -11,7 +11,7 @@ Completeness (1-10)    3.833333
 
 win rate against ground truth: 0.00%
 ====================================================================================================
-Finetuned local model metrics per readme
+Baseline local model metrics per readme
 ----------------------------------------------------------------------------------------------------
  ROUGE-L  Perplexity  Accuracy (1-10)  Formatting (1-10)  Completeness (1-10)  Rubric (1-5) Winner                                               Filename                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Justification
   0.0183       14.30                5                  2                    4             2      B                      pallets_click_generated_README.md                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           The generated README only contains pyproject.toml and test file contents, which are not documentation. Ground truth provides accurate project description, usage example, and contribution info making it significantly more useful for users.
