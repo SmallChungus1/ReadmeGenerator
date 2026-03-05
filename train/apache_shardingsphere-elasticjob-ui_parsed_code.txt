@@ -1,16 +1,13 @@
-Tokens: 289044
+Tokens: 286044
 Repo: apache/shardingsphere-elasticjob-ui
 Commit: 7a55f4e6fc63a298103daaeed6b40f5447c6508a
-Timestamp: 2026-03-04T19:37:27.956928
+Timestamp: 2026-03-04T19:51:47.018393
 
 --- Repository Structure ---
 .
 ├── .asf.yaml
 ├── .github
 │   ├── ISSUE_TEMPLATE
-│   │   ├── bug-report.md
-│   │   ├── feature-request.md
-│   │   └── question.md
 │   ├── PULL_REQUEST_TEMPLATE
 │   └── workflows
 │       └── maven.yml
@@ -21,9 +18,6 @@ Timestamp: 2026-03-04T19:37:27.956928
 │       └── maven-wrapper.properties
 ├── LICENSE
 ├── NOTICE
-├── README.md
-├── README_ZH.md
-├── RELEASE-NOTES.md
 ├── mvnw
 ├── mvnw.cmd
 ├── pom.xml
@@ -31,7 +25,6 @@ Timestamp: 2026-03-04T19:37:27.956928
 │   ├── pom.xml
 │   ├── shardingsphere-elasticjob-cloud-ui-backend
 │   │   ├── pom.xml
-│   │   ├── shardingsphere-elasticjob-cloud-ui-backend-API.md
 │   │   └── src
 │   │       ├── main
 │   │       │   ├── java
@@ -145,7 +138,6 @@ Timestamp: 2026-03-04T19:37:27.956928
 │       ├── .eslintrc.js
 │       ├── .gitignore
 │       ├── .postcssrc.js
-│       ├── README.md
 │       ├── config
 │       │   ├── dev.env.js
 │       │   ├── index.js
@@ -246,7 +238,6 @@ Timestamp: 2026-03-04T19:37:27.956928
 │   ├── pom.xml
 │   ├── shardingsphere-elasticjob-lite-ui-backend
 │   │   ├── pom.xml
-│   │   ├── shardingsphere-elasticjob-lite-ui-backend-API.md
 │   │   └── src
 │   │       ├── main
 │   │       │   ├── java
@@ -369,7 +360,6 @@ Timestamp: 2026-03-04T19:37:27.956928
 │       ├── .eslintrc.js
 │       ├── .gitignore
 │       ├── .postcssrc.js
-│       ├── README.md
 │       ├── config
 │       │   ├── dev.env.js
 │       │   ├── index.js
@@ -563,10 +553,10 @@ Timestamp: 2026-03-04T19:37:27.956928
 
 --- Summary Report ---
 Total files scanned: 389
-Files included: 353
-Files skipped by rule: 36
+Files included: 343
+Files skipped by rule: 46
 Files skipped by size: 0
-Detected languages count: 17
+Detected languages count: 16
 Top 15 largest included files:
   39394 bytes - shardingsphere-elasticjob-ui-distribution/shardingsphere-elasticjob-cloud-ui-bin-distribution/src/main/release-docs/licenses/LICENSE-activation.txt
   39394 bytes - shardingsphere-elasticjob-ui-distribution/shardingsphere-elasticjob-lite-ui-bin-distribution/src/main/release-docs/licenses/LICENSE-activation.txt
@@ -620,111 +610,6 @@ github:
   features:
     issues: true
     projects: true
-
-
----
-File: RELEASE-NOTES.md
-Size: 2356 bytes
-Lines: 98
----
-## 3.0.2
-
-### Enhancement
-1. Add driver whitelist for event trace configuration
-
-### Bug fix
-1. Pagination in some pages may not work well.
-
-### Refactor
-1. Remove unnecessary guest user
-
-### Dependency
-1. Bump ElasticJob to 3.0.2
-
-### Change Logs
-
-1. [MILESTONE 3.0.2](https://github.com/apache/shardingsphere-elasticjob-ui/milestone/6)
-
-
-## 3.0.1
-
-### Enhancements
-
-1. Using JWT for authentication
-
-### Build & Dependencies
-
-1. Upgrade ElasticJob to 3.0.1
-1. Supports JDK 11
-
-### Change Logs
-
-1. [MILESTONE 3.0.1](https://github.com/apache/shardingsphere-elasticjob-ui/milestone/5)
-
-## 3.0.0
-
-### Enhancements
-
-1. Order event trace history records by descending time 
-1. Add confirm for shutdown operations
-1. Some improvements for i18n
-
-### Bug Fixes
-
-1. Error occurs when operating the jobs have TracingConfiguration
-
-### Build
-
-1. Supports building frontend modules on macOS with Apple Silicon
-
-### Change Logs
-
-1. [MILESTONE 3.0.0](https://github.com/apache/shardingsphere-elasticjob-ui/milestone/4)
-
-## 3.0.0-RC1
-
-### Enhancement
-
-1. Support querying job history without conditions in Lite Console
-1. Discover available JDBC driver classes to reduce manual input in Lite Console
-
-### Bug Fixes
-
-1. Some APIs don't work properly when the job name contains dot character
-1. Fix time range criteria doesn't work in history pages
-1. Fix cannot switch DataSource in Lite Console
-
-### Build & Dependencies
-
-1. Add PostgreSQL JDBC Driver to Lite UI by default
-
-###  Change Logs
-
-1. [MILESTONE 3.0.0-RC1](https://github.com/apache/shardingsphere-elasticjob-ui/milestone/3)
-
-## 3.0.0-beta
-
-### Enhancement
-
-1. Provide more clear error messages when missing JDBC drivers
-1. Support create, read, update and delete properties of the jobs 
-1. Support auto complete for job name and server IP in job history page
-1. Upgrade parent image in Dockerfile to support resources limiting
-
-###  Change Logs
-
-1. [MILESTONE](https://github.com/apache/shardingsphere-elasticjob-ui/milestone/2)
-
-## 3.0.0-alpha
-
-### Enhancement
-
-1. Refactor ElasticJob-Lite UI from jQuery/AdminTLE to Vue.js/ElementUI
-1. Refactor ElasticJob-Cloud UI from jQuery/AdminTLE to Vue.js/ElementUI
-
-###  Change Logs
-
-1. [MILESTONE](https://github.com/apache/shardingsphere-elasticjob-ui/milestone/1)
 
 
 ---
@@ -1534,59 +1419,6 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 ---
-File: README.md
-Size: 2400 bytes
-Lines: 46
----
-# ElasticJob-UI
-
-[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
-[中文文档](https://github.com/apache/shardingsphere-elasticjob-ui/blob/master/README_ZH.md)
-
-## Overview
-
-ElasticJob UI is an administrator console of [ElasticJob](http://shardingsphere.apache.org/elasticjob/).
-There are two parts in this project:
-
-- shardingsphere-elasticjob-lite-ui: the UI of ElasticJob-Lite
-- shardingsphere-elasticjob-cloud-ui: the UI of ElasticJob-Cloud
-
-### ElasticJob-UI Frontend
-
-shardingsphere-elasticjob-lite-ui-frontend & shardingsphere-elasticjob-cloud-ui-frontend based on [vue](https://github.com/vuejs/vue) and use the UI Toolkit [element](https://github.com/ElemeFE/element).
-
-### ElasticJob-UI Backend
-
-shardingsphere-elasticjob-lite-ui-backend & shardingsphere-elasticjob-cloud-ui-backend are standard Spring Boot projects.
-
-## How to Build
-
-```bash
-git clone https://github.com/apache/shardingsphere-elasticjob-ui.git
-cd shardingsphere-elasticjob-ui/
-mvn clean package -Prelease
-```
-
-- Get the lite tar in `shardingsphere-elasticjob-ui/shardingsphere-elasticjob-ui-distribution/shardingsphere-elasticjob-lite-ui-bin-distribution/target/apache-shardingsphere-${latest.release.version}-shardingsphere-elasticjob-lite-ui-bin.tar.gz`
-- Get the cloud tar in `shardingsphere-elasticjob-ui/shardingsphere-elasticjob-ui-distribution/shardingsphere-elasticjob-cloud-ui-bin-distribution/target/apache-shardingsphere-${latest.release.version}-shardingsphere-elasticjob-cloud-ui-bin.tar.gz`
-
-## How to Connect Event Trace DataSource
-
-Restricted by the agreement, some databases' JDBC driver cannot be added to project directly, and users need to add it by themselves. There are two ways:
-
-### Add JDBC Driver Dependency to pom.xml and Build
-
-Add JDBC driver dependency to [shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-backend/pom.xml](https://github.com/apache/shardingsphere-elasticjob-ui/blob/master/shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-backend/pom.xml) and build.
-
-### Add JDBC Driver JAR to ext-lib in Binary Distribution Package
-
-1. Get `apache-shardingsphere-${latest.release.version}-shardingsphere-elasticjob-lite-ui-bin.tar.gz` and extract.
-2. Add JDBC Driver (Such as `mysql-connector-java-8.0.13.jar`) to directory `ext-lib`.
-3. Run application with `bin/start.sh`
-
-
----
 File: .gitignore
 Size: 347 bytes
 Lines: 39
@@ -1630,60 +1462,6 @@ logs/
 .DS_Store
 Thumbs.db
 node_modules/
-
-
----
-File: README_ZH.md
-Size: 2521 bytes
-Lines: 47
----
-# ElasticJob-UI
-
-[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
-[English document](https://github.com/apache/shardingsphere-elasticjob-ui/blob/master/README.md)
-
-## 概述
-
-ElasticJob-UI 是 [ElasticJob](http://shardingsphere.apache.org/elasticjob/) 的管理控制台，包含了动态配置、作业管控等功能。
-本项目包括两部分：
-
-- shardingsphere-elasticjob-lite-ui：ElasticJob-Lite 管控端
-- shardingsphere-elasticjob-cloud-ui：ElasticJob-Cloud 管控端
-
-### ElasticJob-UI 前端
-
-shardingsphere-elasticjob-lite-ui-frontend & shardingsphere-elasticjob-cloud-ui-frontend 模块基于 [vue](https://github.com/vuejs/vue)，
-并使用其相关 UI 工具包 [element](https://github.com/ElemeFE/element) 开发。
-
-### ElasticJob-UI 后端
-
-shardingsphere-elasticjob-lite-ui-backend & shardingsphere-elasticjob-cloud-ui-backend 模块是标准的 Spring Boot 项目。
-
-## 如何构建
-
-```bash
-git clone https://github.com/apache/shardingsphere-elasticjob-ui.git
-cd shardingsphere-elasticjob-ui/
-mvn clean package -Prelease
-```
-
-- 从 `shardingsphere-elasticjob-ui/shardingsphere-elasticjob-ui-distribution/shardingsphere-elasticjob-lite-ui-bin-distribution/target/apache-shardingsphere-${latest.release.version}-shardingsphere-elasticjob-lite-ui-bin.tar.gz` 中获取 lite 软件包。
-- 从 `shardingsphere-elasticjob-ui/shardingsphere-elasticjob-ui-distribution/shardingsphere-elasticjob-cloud-ui-bin-distribution/target/apache-shardingsphere-${latest.release.version}-shardingsphere-elasticjob-cloud-ui-bin.tar.gz` 中获取 cloud 软件包。
-
-## 如何连接事件追踪数据源
-
-受协议限制，本项目无法直接添加部分数据库的 JDBC 驱动，需要用户自行添加，有两种方式：
-
-### 在 pom.xml 添加 JDBC 依赖项并构建项目
-
-通过源码构建本项目，可以直接在 [shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-backend/pom.xml](https://github.com/apache/shardingsphere-elasticjob-ui/blob/master/shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-backend/pom.xml) 中直接添加所需的 JDBC 驱动依赖。
-
-### 在分发包的 ext-lib 目录中添加 JDBC 驱动 JAR
-
-1. 获取并解压 `apache-shardingsphere-${latest.release.version}-shardingsphere-elasticjob-lite-ui-bin.tar.gz`；
-2. 添加 JDBC 驱动 (例如 `mysql-connector-java-8.0.13.jar`) 到文件夹 `ext-lib`；
-3. 使用脚本 `bin/start.sh` 运行管理控制台。
 
 
 ---
@@ -2166,13 +1944,6 @@ Lines: 112
         </plugins>
     </build>
 </project>
-
-
----
-File: shardingsphere-elasticjob-cloud-ui/shardingsphere-elasticjob-cloud-ui-backend/shardingsphere-elasticjob-cloud-ui-backend-API.md
-Size: 0 bytes
-Lines: 0
----
 
 
 ---
@@ -7478,37 +7249,6 @@ indent_size = 2
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
-
-
----
-File: shardingsphere-elasticjob-cloud-ui/shardingsphere-elasticjob-cloud-ui-frontend/README.md
-Size: 387 bytes
-Lines: 24
----
-# ElasticJob-UI Frontend
-
-## How to Build
-
-```bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-## How to Run unit tests
-
-```bash
-# Karma does unit testing for components and pages
-npm run unit
-```
 
 
 ---
@@ -21852,13 +21592,6 @@ Lines: 117
 
 
 ---
-File: shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-backend/shardingsphere-elasticjob-lite-ui-backend-API.md
-Size: 0 bytes
-Lines: 0
----
-
-
----
 File: shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-backend/src/test/java/org/apache/shardingsphere/elasticjob/lite/ui/util/HomeFolderUtilsTest.java
 Size: 1358 bytes
 Lines: 35
@@ -27605,37 +27338,6 @@ indent_size = 2
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
-
-
----
-File: shardingsphere-elasticjob-lite-ui/shardingsphere-elasticjob-lite-ui-frontend/README.md
-Size: 387 bytes
-Lines: 24
----
-# ElasticJob UI Frontend
-
-## How to Build
-
-```bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-## How to Run unit tests
-
-```bash
-# Karma does unit testing for components and pages
-npm run unit
-```
 
 
 ---
@@ -34175,91 +33877,4 @@ jobs:
         run: |
           mvn --batch-mode --no-transfer-progress clean install cobertura:cobertura -Dmaven.javadoc.skip=true
           bash <(curl -s https://codecov.io/bash)
-
-
----
-File: .github/ISSUE_TEMPLATE/feature-request.md
-Size: 489 bytes
-Lines: 17
----
----
-name: "\U0001F680 Feature Request"
-about: I have a suggestion
----
-
-## Feature Request
-
-**For English only**, other languages will not accept.
-
-Please pay attention on issues you submitted, because we maybe need more details. 
-If no response anymore and we cannot make decision by current information, we will **close it**.
-
-Please answer these questions before submitting your issue. Thanks!
-
-### Is your feature request related to a problem?
-
-### Describe the feature you would like.
-
-
----
-File: .github/ISSUE_TEMPLATE/bug-report.md
-Size: 957 bytes
-Lines: 32
----
----
-name: "\U0001F41B Bug Report"
-about: Something isn't working as expected
----
-
-## Bug Report
-
-**For English only**, other languages will not accept.
-
-Before report a bug, make sure you have:
-
-- Searched open and closed [GitHub issues](https://github.com/apache/shardingsphere-elasticjob-ui/issues).
-- Read documentation: [ElasticJob Doc](https://shardingsphere.apache.org/elasticjob/current/en/overview/).
-
-Please pay attention on issues you submitted, because we maybe need more details. 
-If no response anymore and we cannot reproduce it on current information, we will **close it**.
-
-Please answer these questions before submitting your issue. Thanks!
-
-### Which version of ElasticJob did you use?
-
-### Which project did you use? ElasticJob-Lite or ElasticJob-Cloud?
-
-### Expected behavior
-
-### Actual behavior
-
-### Reason analyze (If you can)
-
-### Steps to reproduce the behavior.
-
-### Example codes for reproduce this issue (such as a github link).
-
-
----
-File: .github/ISSUE_TEMPLATE/question.md
-Size: 636 bytes
-Lines: 17
----
----
-name: "\U0001F914 Question"
-about: Usage question that isn't answered in docs or discussion
----
-
-## Question
-
-**For English only**, other languages will not accept.
-
-Before asking a question, make sure you have:
-
-- Googled your question.
-- Searched open and closed [GitHub issues](https://github.com/apache/shardingsphere-elasticjob-ui/issues).
-- Read documentation: [ElasticJob Doc](https://shardingsphere.apache.org/elasticjob/current/en/overview/).
-
-Please pay attention on issues you submitted, because we maybe need more details. 
-If no response anymore and we cannot reproduce it on current information, we will **close it**.
 

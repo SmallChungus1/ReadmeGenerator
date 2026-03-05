@@ -1,7 +1,7 @@
-Tokens: 92928
+Tokens: 86180
 Repo: apache/maven-wrapper
 Commit: dff3bf7e8163955beb996f226e1f9004b2fc80d6
-Timestamp: 2026-03-04T19:37:04.761833
+Timestamp: 2026-03-04T19:51:28.663253
 
 --- Repository Structure ---
 .
@@ -12,7 +12,6 @@ Timestamp: 2026-03-04T19:37:04.761833
 │   │   ├── FEATURE.yml
 │   │   └── config.yml
 │   ├── dependabot.yml
-│   ├── pull_request_template.md
 │   ├── release-drafter.yml
 │   └── workflows
 │       ├── maven-verify.yml
@@ -24,7 +23,6 @@ Timestamp: 2026-03-04T19:37:04.761833
 ├── Jenkinsfile
 ├── LICENSE
 ├── NOTICE
-├── README.md
 ├── maven-wrapper
 │   ├── pom.xml
 │   └── src
@@ -200,8 +198,7 @@ Timestamp: 2026-03-04T19:37:04.761833
 │       │                           └── WrapperMojo.java
 │       ├── site
 │       │   ├── markdown
-│       │   │   ├── index.md.vm
-│       │   │   └── usage.md
+│       │   │   └── index.md.vm
 │       │   └── site.xml
 │       └── test
 │           └── java
@@ -215,8 +212,6 @@ Timestamp: 2026-03-04T19:37:04.761833
 └── src
     └── site
         ├── markdown
-        │   ├── CHANGELOG.old.md
-        │   └── index.md
         ├── resources
         │   └── download.cgi
         ├── site.xml
@@ -225,10 +220,10 @@ Timestamp: 2026-03-04T19:37:04.761833
 
 --- Summary Report ---
 Total files scanned: 141
-Files included: 140
-Files skipped by rule: 1
+Files included: 135
+Files skipped by rule: 6
 Files skipped by size: 0
-Detected languages count: 13
+Detected languages count: 12
 Top 15 largest included files:
   20756 bytes - maven-wrapper/src/main/java/org/apache/maven/wrapper/cli/CommandLineParser.java
   16060 bytes - maven-wrapper-plugin/src/main/java/org/apache/maven/plugins/wrapper/WrapperMojo.java
@@ -237,14 +232,14 @@ Top 15 largest included files:
   11415 bytes - maven-wrapper-distribution/src/resources/mvnw
   11358 bytes - LICENSE
   10554 bytes - maven-wrapper/src/test/java/org/apache/maven/wrapper/InstallerTest.java
-  8649 bytes - src/site/markdown/CHANGELOG.old.md
   8432 bytes - maven-wrapper-plugin/pom.xml
   8332 bytes - maven-wrapper-distribution/src/resources/only-mvnw.cmd
   7803 bytes - maven-wrapper-distribution/src/resources/mvnw.cmd
   7761 bytes - maven-wrapper/src/main/java/org/apache/maven/wrapper/Installer.java
-  7717 bytes - src/site/markdown/index.md
   7655 bytes - maven-wrapper/src/main/java/org/apache/maven/wrapper/DefaultDownloader.java
   7338 bytes - maven-wrapper/src/main/java/org/apache/maven/wrapper/WrapperExecutor.java
+  5781 bytes - maven-wrapper/src/main/java/org/apache/maven/wrapper/MavenWrapperMain.java
+  5757 bytes - maven-wrapper/src/test/java/org/apache/maven/wrapper/PathAssemblerTest.java
 -----------------------
 
 ---
@@ -666,97 +661,6 @@ The Apache Software Foundation (http://www.apache.org/).
 The original idea and initial implementation of the maven-wrapper module is derived 
 from the Gradle Wrapper which was written originally by Hans Dockter and Adam Murdoch.
 Copyright 2007 the original author or authors.
-
-
----
-File: README.md
-Size: 5170 bytes
-Lines: 84
----
-<!---
- Licensed to the Apache Software Foundation (ASF) under one or more
- contributor license agreements.  See the NOTICE file distributed with
- this work for additional information regarding copyright ownership.
- The ASF licenses this file to You under the Apache License, Version 2.0
- (the "License"); you may not use this file except in compliance with
- the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-Contributing to [Apache Maven Wrapper](https://maven.apache.org/tools/wrapper/)
-======================
-
-[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
-[![Maven Central](https://img.shields.io/maven-central/v/org.apache.maven.plugins/maven-wrapper-plugin.svg?label=Maven%20Central)](https://search.maven.org/artifact/org.apache.maven.plugins/maven-wrapper-plugin)
-[![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/org/apache/maven/plugins/maven-wrapper-plugin/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/org/apache/maven/plugins/maven-wrapper-plugin/README.md)
-[![Jenkins Status](https://img.shields.io/jenkins/s/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-wrapper/job/master.svg)][build]
-[![Jenkins tests](https://img.shields.io/jenkins/t/https/ci-maven.apache.org/job/Maven/job/maven-box/job/maven-wrapper/job/master.svg)][test-results]
-
-
-You have found a bug, or you have an idea for a cool new feature? Contributing
-code is a great way to give something back to the open source community. Before
-you dig right into the code, there are a few guidelines that we need
-contributors to follow so that we can have a chance of keeping on top of
-things.
-
-Getting Started
----------------
-
-+ Make sure you have a [GitHub account](https://github.com/signup/free).
-+ If you're planning to implement a new feature, it makes sense to discuss your changes
-  on the [dev list][ml-list] first.
-  This way you can make sure you're not wasting your time on something that isn't
-  considered to be in Apache Maven's scope.
-+ Submit a ticket for your issue, assuming one does not already exist.
-  + Clearly describe the issue, including steps to reproduce when it is a bug.
-  + Make sure you fill in the earliest version that you know has the issue.
-+ Fork the repository on GitHub.
-
-Making and Submitting Changes
---------------
-
-We accept Pull Requests via GitHub. The [developer mailing list][ml-list] is the
-main channel of communication for contributors.
-There are some guidelines which will make applying PRs easier for us:
-+ Create a topic branch from where you want to base your work (this is usually the master branch).
-  Push your changes to a topic branch in your fork of the repository.
-+ Make commits of logical units.
-+ Respect the original code style: by using the same [codestyle][code-style],
-  patches should only highlight the actual difference, not being disturbed by any formatting issues:
-  + Only use spaces for indentation.
-  + Create minimal diffs - disable on save actions like reformat source code or organize imports.
-    If you feel the source code should be reformatted, create a separate PR for this change.
-  + Check for unnecessary whitespace with `git diff --check` before committing.
-+ Make sure you have added the necessary tests (JUnit/IT) for your changes.
-+ Run all the tests with `mvn -Prun-its verify` to assure nothing else was accidentally broken.
-+ Submit a pull request to the repository in the Apache organization.
-
-If you plan to contribute on a regular basis, please consider filing a [contributor license agreement][cla].
-
-Additional Resources
---------------------
-
-+ [Contributing patches](https://maven.apache.org/guides/development/guide-maven-development.html#Creating_and_submitting_a_patch)
-+ [Contributor License Agreement][cla]
-+ [General GitHub documentation](https://help.github.com/)
-+ [GitHub pull request documentation](https://help.github.com/send-pull-requests/)
-+ [Apache Maven X Account](https://x.com/ASFMavenProject)
-+ [Apache Maven Bluesky Account](https://bsky.app/profile/maven.apache.org)
-+ [Apache Maven Mastodon Account](https://mastodon.social/deck/@ASFMavenProject@fosstodon.org)
-
-[license]: https://www.apache.org/licenses/LICENSE-2.0
-[ml-list]: https://maven.apache.org/mailing-lists.html
-[code-style]: https://maven.apache.org/developers/conventions/code.html
-[cla]: https://www.apache.org/licenses/#clas
-[maven-wiki]: https://cwiki.apache.org/confluence/display/MAVEN/Index
-[test-results]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-wrapper/job/master/lastCompletedBuild/testReport/
-[build]: https://ci-maven.apache.org/job/Maven/job/maven-box/job/maven-wrapper/job/master/
 
 
 ---
@@ -4093,79 +3997,6 @@ Usage
 
 
 ---
-File: maven-wrapper-plugin/src/site/markdown/usage.md
-Size: 3896 bytes
-Lines: 66
----
-# Usage
-<!--
-Licensed to the Apache Software Foundation (ASF) under one
-or more contributor license agreements.  See the NOTICE file
-distributed with this work for additional information
-regarding copyright ownership.  The ASF licenses this file
-to you under the Apache License, Version 2.0 (the
-"License"); you may not use this file except in compliance
-with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
--->
-
-Wrapper scripts are a set of files that can be added to your Maven project.
-If people want to build this project, they don't need to install Maven first.
-Instead they can call the Maven wrapper script (like `mvnw`/`mvnw.cmd`), which will download and unpack Maven into their `${user.home}/.m2/wrapper/dists` folder.
-It is also an easy way to let everyone build the project with the same Maven version.
-
-The Apache Maven Wrapper Plugin makes it easier to add these wrapper scripts to your project.
-
-The scripts work like this:
-- download the maven-wrapper jar, if it is not available yet,
-- the maven-wrapper.jar contains the code to download, install and run Apache Maven
-
-Apache Maven Wrapper Distribution Types
------
-
-There are 4 distribution types available:
-
-- **only-script** _(default for new installations)_: the lite implementation of `mvnw`/`mvnw.cmd` scripts will download the maven directly via wget or curl on *nix, or PowerShell on Windows,
-then exec/call the original `mvn`/`mvn.cmd` scripts of the downloaded maven distribution. This type does not use `maven-wrapper.jar` nor `MavenWrapperDownloader.java`,
-only the wrapper scripts are required.
-
-- **script**: With this type the scripts will try to download the scripts via wget or curl in case of Unix based system, or use Powershell in case of Windows
-
-- **bin**: With this type the maven-wrapper jar is already available in the `.mvn/wrapper` folder, so you don't have to rely on wget/curl or Powershell 
-The downside is that the project will contain a binary file in the source control management system.
-
-- **source**: Since Maven already requires Java to run, why not compile and run a classfile to download the maven-wrapper jar? 
-This type comes with a `.mvn/wrapper/MavenWrapperDownloader.java` which will be compiled and executed on the fly.
-
-The type can be specified with `mvn wrapper:wrapper -Dtype={type}`, where `{type}` is any of the types listed above.
-
-When `wrapper:wrapper` is run in a Maven module which contains a `.mvn/wrapper/maven-wrapper.properties` file, then the distribution type of the existing Maven Wrapper is used for the execution of the goal.
-This allows updating Maven Wrapper, without unintentionally changing the distribution type for an existing project.
-You can still use `-Dtype={type}` to change the distribution type for an existing installation. 
-
-Maven Version
--------------
-By default the plugin will assume the same version as the Maven runtime (calling `mvn -v`). But you can pick a different version.
-You can call `mvn wrapper:wrapper -Dmaven=x`, where `x` is any valid Apache Maven Release (see [Maven Central](https://central.sonatype.com/artifact/org.apache.maven/apache-maven/versions)).
-Another option is to adjust the `distributionUrl` in `.mvn/wrapper/maven-wrapper.properties`.
-
-Debugging
----------
-
-The apache-maven-wrapper distributions all contains the `mvnwDebug`-script for both Windows and Unix based operating systems. 
-This makes it possible to debug through Apache Maven, Maven Plugin or Maven Extension. 
-You can include these scripts by calling `mvn wrapper:wrapper -DincludeDebug=true`
-
-
----
 File: maven-wrapper-plugin/src/main/java/org/apache/maven/plugins/wrapper/WrapperMojo.java
 Size: 16060 bytes
 Lines: 408
@@ -6364,36 +6195,6 @@ mvnw.cmd
  []
 
  The distribution can be installed in a project either by unpacking the zip archive by hand, or by using {{{../maven-wrapper-plugin/}<<<wrapper:wrapper>>>}}.
-
-
----
-File: .github/pull_request_template.md
-Size: 1550 bytes
-Lines: 23
----
-Following this checklist to help us incorporate your
-contribution quickly and easily:
-
-- [ ] Your pull request should address just one issue, without pulling in other changes.
-- [ ] Write a pull request description that is detailed enough to understand what the pull request does, how, and why.
-- [ ] Each commit in the pull request should have a meaningful subject line and body. 
-  Note that commits might be squashed by a maintainer on merge.
-- [ ] Write unit tests that match behavioral changes, where the tests fail if the changes to the runtime are not applied. 
-  This may not always be possible but is a best-practice.
-- [ ] Run `mvn verify` to make sure basic checks pass.
-  A more thorough check will be performed on your pull request automatically.
-- [ ] You have run the integration tests successfully (`mvn -Prun-its verify`).
-
-If your pull request is about ~20 lines of code you don't need to sign an
-[Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf) if you are unsure
-please ask on the developers list.
-
-To make clear that you license your contribution under
-the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0)
-you have to acknowledge this by using the following check-box.
-
-- [ ] I hereby declare this contribution to be licenced under the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0)
-- [ ] In any other case, please file an [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf).
 
 
 ---
@@ -10573,440 +10374,6 @@ under the License.
     <menu ref="modules" />
   </body>
 </site>
-
-
----
-File: src/site/markdown/CHANGELOG.old.md
-Size: 8649 bytes
-Lines: 212
----
-<!---
- Licensed to the Apache Software Foundation (ASF) under one or more
- contributor license agreements.  See the NOTICE file distributed with
- this work for additional information regarding copyright ownership.
- The ASF licenses this file to You under the Apache License, Version 2.0
- (the "License"); you may not use this file except in compliance with
- the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-
-# Changelog
-
-The [git commit history](https://github.com/takari/maven-wrapper/commits/master)
-is the detailed source of all changes. The following provides most information
-at an easier glance.
-
-## Version 0.5.5 - 2019-12-04
-
-- Update to Maven 3.6.3
-
-## Version 0.5.5 - 2019-04-16
-
-- Updated default URL to jar in MavenWrapperDownloader
-  - fixes https://github.com/takari/maven-wrapper/issues/118
-- Update to Maven 3.6.1
-
-## Version 0.5.4 - 2019-03-26
-
-- Adapt mvnw.cmd to also honour MVNW_VERBOSE
-  - see https://github.com/takari/maven-wrapper/pull/115
-  - contributed by Brian de Alwis https://github.com/briandealwis
-- Provide a 'standardized' way to retrieve CLI arguments
-  - same as mvn itself
-  - see https://github.com/takari/maven-wrapper/pull/113
-  - contributed by Guy Brand https://github.com/guylabs
-- Ensure correct executable flag setting
-  - fixes https://github.com/takari/maven-wrapper/issues/78
-  - contributed by Manfred Moser - http://www.simpligility.com
-- Updated documentation to include plugin version
-
-## Version 0.5.3 - 2019-02-25
-
-- MVNW_REPOURL check bug in mvnw
-  - fixes https://github.com/takari/maven-wrapper/issues/109
-  - see https://github.com/takari/maven-wrapper/pull/111
-  - contributed by  Piotrek Żygieło https://github.com/pzygielo and 
-    Sebastian Peters https://github.com/sepe81,
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.5.2 - 2019-02-20
-
-- Re-applied TLS1.2 fix for Windows
-  - see https://github.com/takari/maven-wrapper/pull/108
-  - contributed by Ralph Schaer https://github.com/ralscha
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.5.1 - 2019-02-19
-
-- Corrected check for MVNW_REPOURL in mvnw.cmd
-  - fixes https://github.com/takari/maven-wrapper/issues/106
-  - see https://github.com/takari/maven-wrapper/pull/107
-  - contributed by Manfred Moser http://www.simpligility.com
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.5.0 - 2019-02-18
-
-- update to Maven 3.6.0 as default
-- Use TLS 1.2 on Windows
-  - see https://github.com/takari/maven-wrapper/pull/89
-  - contributed by Julian Hyde https://github.com/julianhyde
-- Fix compile path for cygwin
-  - see https://github.com/takari/maven-wrapper/pull/83
-  - contributed by Dániel Kovács https://github.com/AFulgens
-- Fix for path with spaces on Windows 
-  - see https://github.com/takari/maven-wrapper/pull/101
-  - contributed by Paul Stöhr https://github.com/CiTuX
-- Support for authentication to corporate repository manager
-  - see https://github.com/takari/maven-wrapper/pull/96
-  - see https://github.com/takari/maven-wrapper/pull/86
-  - contributed by Sebastian Peters https://github.com/sepe81,
-    Sander Wartenberg https://github.com/sanderino666 and
-    Manfred Moser http://www.simpligility.com
-- Consistent license header across all Java source
-  - see https://github.com/takari/maven-wrapper/pull/105
-  - fixes https://github.com/takari/maven-wrapper/issues/104
-  - contributed by Manfred Moser http://www.simpligility.com
-- Support MVNW_REPOURL environment variable usage
-  -  during wrapper install and wrapper usage
-  - for wrapper and maven distro download
-  - in scripts and wrapper binary
-    - contributed by Manfred Moser http://www.simpligility.com
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.4.2 - 2018-07-02
-
-- update to Maven 3.5.4 as default
-- dependency updates
-- end of line in properties file
-- parent pom upgrade
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.4.0 - 2018-02-19
-
-- Allow for wrapper to work without the jar file
-  - see https://github.com/takari/maven-wrapper/pull/60
-  - see https://github.com/takari/maven-wrapper/pull/70
-  - fixed https://github.com/takari/maven-wrapper/issues/24
-  - contributed by  Christofer Dutz https://github.com/chrisdutz
-  - and Manfred Moser - http://www.simpligility.com
-- Change URLs used to official Maven repo URL
-  - done as part of above changes
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.3.0 - 2017-10-25
-
-- Set title on shell window in Windows
-  - see https://github.com/takari/maven-wrapper/pull/66
-  - contributed by https://github.com/hcgpragt
-- Change default Maven version to 3.5.2 in wrapper config
-  - contributed by Manfred Moser - http://www.simpligility.com
-- Respect MVNW_VERBOSE when printing progress reporting and diagnostic info
-  - see https://github.com/takari/maven-wrapper/pull/67
-  - contributed by Konstantin Sobolev https://github.com/eprst
-- Smaller chunk size for download progress reporting
-  - contributed by Manfred Moser - http://www.simpligility.com
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.2.2 and 0.2.3 - 2017-09-12
-
-- Print out Maven Wrapper version with each invocation
-  - see https://github.com/takari/maven-wrapper/pull/48
-  - contributed by Tadaya Tsuyukubo - https://github.com/ttddyy
-- Verbose mode
-  - only print out basedir and version in verbose mode
-  - set by environment variable MVNW_VERBOSE="true"
-  - fixed NPE with https://github.com/takari/maven-wrapper/pull/65
-  - contributed by Manfred Moser - http://www.simpligility.com
-  - and Tadaya Tsuyukubo https://github.com/ttddyy
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.2.1 - 2017-04-21
-
-- Compile wrapper with Java 1.5 language level to allow usage with Java1.5 +
-  - see https://github.com/takari/maven-wrapper/pull/45
-  - contributed by Mark Chesney - https://github.com/mches
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.2.0 - 2017-04-17
-
-- Use Apple-recommended strategy for locating JAVA_HOME
-  - see https://github.com/takari/maven-wrapper/pull/14
-  - contributed by Karsten Sperling - https://github.com/ksperling
-- Be defensive about creating directories for files
-  - see https://github.com/takari/maven-wrapper/pull/29
-  - contributed by Dave Syer - https://github.com/dsyer 
-- Fix for paths with spaces on Windows
-  - see https://github.com/takari/maven-wrapper/pull/21
-  - contributed by Andreas Ahlenstorf - https://github.com/aahlenst
-  - also see https://github.com/takari/maven-wrapper/pull/33
-  - contributed by https://github.com/vicaya
-  - fixes https://github.com/takari/maven-wrapper/issues/31
-  - tested on Linux, OSX and Windows
-- Removed unused MAVEN_CMD_LINE_ARGS
-  - see https://github.com/takari/maven-wrapper/pull/28
-  - contributed by Michal Domagala - https://github.com/michaldo
-- Fix for stale wrapper jar file
-  - see https://github.com/takari/maven-wrapper/pull/36
-  - contributed by Mark Chesney - https://github.com/mches
-  - and Manfred Moser - http://www.simpligility.com
-  - fixes https://github.com/takari/maven-wrapper/issues/37
-- Plugin and other project updates
-  - contributed by Manfred Moser - http://www.simpligility.com
-- Support for spaces in path on Unix
-  - see https://github.com/takari/maven-wrapper/pull/25
-  - contributed by https://github.com/beverage
-  - and Manfred Moser - http://www.simpligility.com
-- Upgraded default Maven version to 3.5.0
-  - contributed by Manfred Moser - http://www.simpligility.com
-  - and Fred Bricon
-- Support for simple shell like dash
-  - fixes https://github.com/takari/maven-wrapper/issues/34
-  - tested by Manfred Moser  - http://www.simpligility.com
-- Support for Solaris
-  - see https://github.com/takari/maven-wrapper/pull/40
-  - fixes https://github.com/takari/maven-wrapper/issues/34
-  - contributed by Pelisse Romain https://github.com/rpelisse
-
-Release performed by Manfred Moser - http://www.simpligility.com
-
-## Version 0.1.6 - 2016-10-17
-
-See the commit [git commit history](https://github.com/takari/maven-wrapper/commits/master).
-
-## Version 0.1.5 and earlier
-
-See the commit [git commit history](https://github.com/takari/maven-wrapper/commits/master).
-
-
----
-File: src/site/markdown/index.md
-Size: 7717 bytes
-Lines: 208
----
-<!---
- Licensed to the Apache Software Foundation (ASF) under one or more
- contributor license agreements.  See the NOTICE file distributed with
- this work for additional information regarding copyright ownership.
- The ASF licenses this file to You under the Apache License, Version 2.0
- (the "License"); you may not use this file except in compliance with
- the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-
-# Maven Wrapper
-
-The Maven Wrapper is an easy way to ensure a user of your Maven build has
-everything necessary to run your Maven build.
-
-_Why might this be necessary?_ Maven has been very stable for users, is
-available on most systems, and is easy to procure. However, with many of the recent
-changes in Maven it will be easier for users to have a fully encapsulated build
-setup provided by the project. With the Maven Wrapper, this is very easy to do.
-
-The easiest way to set up the Maven Wrapper for a project is to use the
-[Maven Wrapper Plugin][1] with its provided `wrapper` goal. To add or update all
-the necessary Maven Wrapper files to your project, execute the following command:
-
-```bash
-mvn wrapper:wrapper
-```
-
-Previously you instructed users to install a specific version of Apache Maven, put
-it on the PATH, and then run the `mvn` command like the following:
-
-```bash
-mvn clean install
-```
-
-But now, with a Maven Wrapper setup, you can instruct users to run wrapper
-scripts:
-
-```bash
-./mvnw clean install
-```
-
-or on Windows
-
-```bash
-mvnw.cmd clean install
-```
-
-A normal Maven build will be executed, with the one important change that if the
-user doesn't have the necessary version of Maven specified in
-`.mvn/wrapper/maven-wrapper.properties` it will be downloaded for the user
-first, installed and then used.
-
-Subsequent uses of `mvnw`/`mvnw.cmd` use the previously downloaded, specific
-version as needed.
-
-## Supported Systems
-
-The wrapper should work on various operating systems including
-
-* Linux (numerous versions, tested on Ubuntu and CentOS)
-* OSX / macOS
-* Windows (various newer versions)
-* Solaris (10 and 11)
-* BSD
-
-A POSIX-compatible Bourne shell is required to run the wrapper script.
-
-In terms of Apache Maven versions itself, the wrapper should work with any Maven
-3.x version or later. It defaults to the release used when setting up the wrapper. We do NOT
-support the deprecated, EOL'ed Maven 2.x.
-
-By default, the `only-script` type is installed (see below).
-
-## Verbose Mode
-
-The wrapper supports a verbose mode in which it outputs further information. It
-is activated by setting the `MVNW_VERBOSE` environment variable to `true`.
-
-By default, it is off.
-
-## Usage with or without Binary JAR
-
-Using `type=bin`, the Maven Wrapper JAR archive is added to the using project as small
-binary file `.mvn/wrapper/maven-wrapper.jar`. It is used to bootstrap the
-download and invocation of Maven from the wrapper shell scripts.
-
-If your project is not allowed to contain binary files like this, you can
-use the source distribution of the maven wrapper which adds a file
-`.mvn/wrapper/MavenWrapperDownloader.java` file instead:
-
-```shell
-mvn wrapper:wrapper -Dtype=source 
-```
-
-You can also choose to opt out of all additional resources except the wrapper scripts:
-
-```shell
-mvn wrapper:wrapper -Dtype=script
-```
-
-Another type is the lite implementation of `mvnw`/`mvnw.cmd` scripts which download the maven directly 
-via wget or curl on *nix, or PowerShell on Windows, then call the original `mvn`/`mvn.cmd` 
-scripts of the downloaded maven distribution. 
-This type does not use `maven-wrapper.jar` nor `MavenWrapperDownloader.java`, only the wrapper scripts are required.
-This is the default type being installed, when no type parameter is specified.
-
-```shell
-mvn wrapper:wrapper -Dtype=only-script
-```
-
-If the JAR is not found to be available by the scripts they will attempt to
-download the file from the URL specified in
-`.mvn/wrapper/maven-wrapper.properties` under `wrapperUrl` and put it in place.
-The download is attempted via curl, wget and, as last resort, by compiling the
-`.mvn/wrapper/MavenWrapperDownloader.java` file and executing the resulting
-class.
-
-If your Maven repository is password protected you can specify your username via
-the environment variable `MVNW_USERNAME` and the password via the environment
-variable `MVNW_PASSWORD`.
-
-## Using a Different Version of Maven
-
-To switch the version of Maven used to build a project, you can initialize it
-using:
-
-```bash
-mvn wrapper:wrapper -Dmaven=3.5.4
-```
-
-which works for any version including snapshots. Once you have a wrapper you can
-change its version by setting the `distributionUrl` in
-`.mvn/wrapper/maven-wrapper.properties`, e.g.
-
-```bash
-distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.5.4/apache-maven-3.5.4-bin.zip
-```
-
-For snapshot versions, you can use URLs like:
-
-```bash
-distributionUrl=https://repository.apache.org/content/repositories/snapshots/org/apache/maven/apache-maven/4.1.0-SNAPSHOT/apache-maven-4.1.0-20250710.120440-1-bin.zip
-```
-
-## Using Basic Authentication for Distribution Download
-
-To download Maven from a location that requires Basic Authentication you have 2
-options:
-
-1. Set the environment variables `MVNW_USERNAME` and `MVNW_PASSWORD`
-
-    or
-
-2. add user and password to the distributionUrl like that:
-`distributionUrl=https://username:password@<yourserver>/maven2/org/apache/maven/apache-maven/3.2.1/apache-maven-3.2.1-bin.zip`
-
-[1]: ./maven-wrapper-plugin
-
-## Specifying Maven Distribution Base Path
-
-Environment variable `MAVEN_USER_HOME` can be set to the path which will be used by the wrapper as the base of the Maven distro installation.
-By default, the wrapper uses the `$HOME/.m2` as the base directory for installation.
-
-See https://github.com/takari/maven-wrapper/issues/17
-
-## Using a Maven Repository Manager
-
-When using an internal Maven repository manager, you have two options:
-
-1. Set the correct URL to wrapper jar and Maven distro in
-  `maven-wrapper.properties` in your project
-2. Leave the default URL in the project pointing to Maven Central and set the
-  environment variable `MVNW_REPOURL` to your repo manager URL such as
-  `https://repo.example.com/central-repo-proxy`.
-
-If `MVNW_REPOURL` is set during the wrapper installation with the
-maven-wrapper-plugin, the URL is used in the maven-wrapper.properties file.
-
-If not set, but your mirror URL in your settings.xml is configured, it will be
-used.
-
-## Checksum verification of downloaded binaries
-
-To avoid supply-chain-attacks by downloading a corrupted artifact, it
-is possible to specify checksums for both the *maven-wrapper.jar* and 
-the downloaded distribution. To apply verification, add the expected
-file's SHA-256 sum in hex notation, using only small caps, to 
-`maven-wrapper.properties`. The property for validating the 
-*maven-wrapper.jar* file is named `wrapperSha256Sum` whereas the 
-distribution file property is named `distributionSha256Sum`.
-
-## Internals
-
-Maven Wrapper is composed of 3 pieces:
- 
-1. [maven-wrapper](./maven-wrapper/), providing the `maven-wrapper.jar` that downloads, installs and runs target Maven distribution,
-
-2. [maven-wrapper-distribution](./maven-wrapper-distribution/), that provides `mvnw`/`mvnw.cmd` scripts distributions,
-
-3. [maven-wrapper-plugin](./maven-wrapper-plugin/), the `wrapper` plugin to ease installing Wrapper into a project.
 
 
 ---

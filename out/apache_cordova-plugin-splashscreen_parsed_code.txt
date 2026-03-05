@@ -1,7 +1,7 @@
-Tokens: 17691
+Tokens: 7811
 Repo: apache/cordova-plugin-splashscreen
 Commit: 586b988371fc57919288caacf7e1486ac44d19ca
-Timestamp: 2026-03-02T20:53:53.097304
+Timestamp: 2026-03-04T19:52:35.352043
 
 --- Repository Structure ---
 .
@@ -9,21 +9,13 @@ Timestamp: 2026-03-02T20:53:53.097304
 ├── .eslintrc.yml
 ├── .github
 │   ├── ISSUE_TEMPLATE
-│   │   ├── BUG_REPORT.md
-│   │   ├── FEATURE_REQUEST.md
-│   │   └── SUPPORT_QUESTION.md
-│   ├── ISSUE_TEMPLATE.md
-│   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows
 │       ├── chrome.yml
 │       └── lint.yml
 ├── .gitignore
 ├── .npmignore
-├── CONTRIBUTING.md
 ├── LICENSE
 ├── NOTICE
-├── README.md
-├── RELEASENOTES.md
 ├── package-lock.json
 ├── package.json
 ├── plugin.xml
@@ -41,31 +33,40 @@ Timestamp: 2026-03-02T20:53:53.097304
 
 --- Summary Report ---
 Total files scanned: 25
-Files included: 24
-Files skipped by rule: 0
+Files included: 16
+Files skipped by rule: 8
 Files skipped by size: 1
-Detected languages count: 8
+Detected languages count: 7
 Top 15 largest included files:
-  22880 bytes - RELEASENOTES.md
-  11558 bytes - LICENSE
-  7220 bytes - README.md
-  6353 bytes - src\browser\SplashScreenProxy.js
-  2520 bytes - .github\workflows\chrome.yml
-  2301 bytes - tests\tests.js
-  1671 bytes - plugin.xml
-  1525 bytes - .github\workflows\lint.yml
-  1411 bytes - CONTRIBUTING.md
-  1302 bytes - package.json
-  1233 bytes - .github\ISSUE_TEMPLATE.md
-  1153 bytes - .github\PULL_REQUEST_TEMPLATE.md
-  1143 bytes - tests\plugin.xml
-  1109 bytes - www\splashscreen.js
-  1048 bytes - .github\ISSUE_TEMPLATE\BUG_REPORT.md
+  11357 bytes - LICENSE
+  6185 bytes - src/browser/SplashScreenProxy.js
+  2447 bytes - .github/workflows/chrome.yml
+  2240 bytes - tests/tests.js
+  1631 bytes - plugin.xml
+  1469 bytes - .github/workflows/lint.yml
+  1248 bytes - package.json
+  1114 bytes - tests/plugin.xml
+  1076 bytes - www/splashscreen.js
+  1004 bytes - .asf.yaml
+  929 bytes - .eslintrc.yml
+  619 bytes - types/index.d.ts
+  272 bytes - tests/package.json
+  164 bytes - .gitignore
+  163 bytes - NOTICE
 -----------------------
 
 ---
+File: .npmignore
+Size: 9 bytes
+Lines: 2
+---
+.*
+tests
+
+
+---
 File: .asf.yaml
-Size: 1026 bytes
+Size: 1004 bytes
 Lines: 22
 ---
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -94,7 +95,7 @@ notifications:
 
 ---
 File: .eslintrc.yml
-Size: 952 bytes
+Size: 929 bytes
 Lines: 23
 ---
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -123,83 +124,8 @@ overrides:
 
 
 ---
-File: .gitignore
-Size: 179 bytes
-Lines: 15
----
-#If ignorance is bliss, then somebody knock the smile off my face
-
-*.csproj.user
-*.suo
-*.cache
-Thumbs.db
-*.DS_Store
-
-*.bak
-*.cache
-*.log
-*.swp
-*.user
-
-node_modules
-
-
----
-File: .npmignore
-Size: 11 bytes
-Lines: 2
----
-.*
-tests
-
-
----
-File: CONTRIBUTING.md
-Size: 1411 bytes
-Lines: 37
----
-<!--
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
--->
-
-# Contributing to Apache Cordova
-
-Anyone can contribute to Cordova. And we need your contributions.
-
-There are multiple ways to contribute: report bugs, improve the docs, and
-contribute code.
-  
-For instructions on this, start with the
-[contribution overview](http://cordova.apache.org/contribute/).
-
-The details are explained there, but the important items are:
- - Check for Github issues that corresponds to your contribution and link or create them if necessary.
- - Run the tests so your patch doesn't break existing functionality.
-
-We look forward to your contributions!
-
-
-
----
 File: LICENSE
-Size: 11558 bytes
+Size: 11357 bytes
 Lines: 202
 ---
 
@@ -406,8 +332,55 @@ Lines: 202
    limitations under the License.
 
 ---
+File: plugin.xml
+Size: 1631 bytes
+Lines: 40
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-splashscreen"
+        version="7.0.0-dev">
+    <name>Splashscreen</name>
+    <description>Cordova Splashscreen Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,splashscreen</keywords>
+    <repo>https://github.com/apache/cordova-plugin-splashscreen.git</repo>
+    <issue>https://github.com/apache/cordova-plugin-splashscreen/issues</issue>
+    <!-- browser -->
+    <platform name="browser">
+        <js-module src="src/browser/SplashScreenProxy.js" name="SplashScreenProxy">
+            <runs />
+        </js-module>
+
+        <js-module src="www/splashscreen.js" name="SplashScreen">
+            <clobbers target="navigator.splashscreen" />
+        </js-module>
+    </platform>
+</plugin>
+
+
+---
 File: NOTICE
-Size: 168 bytes
+Size: 163 bytes
 Lines: 5
 ---
 Apache Cordova
@@ -418,8 +391,30 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 ---
+File: .gitignore
+Size: 164 bytes
+Lines: 15
+---
+#If ignorance is bliss, then somebody knock the smile off my face
+
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+*.DS_Store
+
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+node_modules
+
+
+---
 File: package.json
-Size: 1302 bytes
+Size: 1248 bytes
 Lines: 54
 ---
 {
@@ -479,9 +474,32 @@ Lines: 54
 
 
 ---
-File: plugin.xml
-Size: 1671 bytes
-Lines: 40
+File: types/index.d.ts
+Size: 619 bytes
+Lines: 17
+---
+// Type definitions for Apache Cordova Splashscreen plugin
+// Project: https://github.com/apache/cordova-plugin-splashscreen
+// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// 
+// Copyright (c) Microsoft Open Technologies Inc
+// Licensed under the MIT license.
+
+interface Navigator {
+    /** This plugin displays and hides a splash screen during application launch. */
+    splashscreen: {
+        /** Dismiss the splash screen. */
+        hide(): void;
+        /** Displays the splash screen. */
+        show(): void;
+    }
+}
+
+---
+File: tests/plugin.xml
+Size: 1114 bytes
+Lines: 29
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
@@ -504,223 +522,150 @@ Lines: 40
 -->
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-        id="cordova-plugin-splashscreen"
-        version="7.0.0-dev">
-    <name>Splashscreen</name>
-    <description>Cordova Splashscreen Plugin</description>
+    id="cordova-plugin-splashscreen-tests"
+    version="7.0.0-dev">
+    <name>Cordova Splashscreen Plugin Tests</name>
     <license>Apache 2.0</license>
-    <keywords>cordova,splashscreen</keywords>
-    <repo>https://github.com/apache/cordova-plugin-splashscreen.git</repo>
-    <issue>https://github.com/apache/cordova-plugin-splashscreen/issues</issue>
-    <!-- browser -->
-    <platform name="browser">
-        <js-module src="src/browser/SplashScreenProxy.js" name="SplashScreenProxy">
-            <runs />
-        </js-module>
 
-        <js-module src="www/splashscreen.js" name="SplashScreen">
-            <clobbers target="navigator.splashscreen" />
-        </js-module>
-    </platform>
+    <js-module src="tests.js" name="tests">
+    </js-module>
 </plugin>
 
 
 ---
-File: README.md
-Size: 7220 bytes
-Lines: 182
+File: tests/tests.js
+Size: 2240 bytes
+Lines: 61
 ---
----
-title: Browser Splashscreen
-description: Control the browser platform splash screen for your app.
----
-<!--
-# license: Licensed to the Apache Software Foundation (ASF) under one
-#         or more contributor license agreements.  See the NOTICE file
-#         distributed with this work for additional information
-#         regarding copyright ownership.  The ASF licenses this file
-#         to you under the Apache License, Version 2.0 (the
-#         "License"); you may not use this file except in compliance
-#         with the License.  You may obtain a copy of the License at
-#
-#           http://www.apache.org/licenses/LICENSE-2.0
-#
-#         Unless required by applicable law or agreed to in writing,
-#         software distributed under the License is distributed on an
-#         "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#         KIND, either express or implied.  See the License for the
-#         specific language governing permissions and limitations
-#         under the License.
--->
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+*/
 
-# cordova-plugin-splashscreen
+exports.defineAutoTests = function () {
+    describe('Splashscreen (cordova)', function () {
+        it('splashscreen.spec.1 should exist', function () {
+            expect(navigator.splashscreen).toBeDefined();
+        });
 
-[![Chrome Testsuite](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/chrome.yml/badge.svg)](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/chrome.yml) [![Lint Test](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/lint.yml/badge.svg)](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/lint.yml)
+        it('splashscreen.spec.2 show method should exist', function () {
+            expect(navigator.splashscreen.show).toBeDefined();
+            expect(typeof navigator.splashscreen.show).toBe('function');
+        });
 
-This plugin displays and hides a splash screen while your web application is launching. Using its methods you can also show and hide the splash screen manually.
+        it('splashscreen.spec.3 hide method should exist', function () {
+            expect(navigator.splashscreen.hide).toBeDefined();
+            expect(typeof navigator.splashscreen.hide).toBe('function');
+        });
+    });
+};
 
-- [cordova-plugin-splashscreen](#cordova-plugin-splashscreen)
-  - [Installation](#installation)
-  - [Supported Platforms](#supported-platforms)
-  - [Platform Splash Screen Image Configuration](#platform-splash-screen-image-configuration)
-    - [Example Configuration](#example-configuration)
-  - [Preferences](#preferences)
-    - [config.xml](#configxml)
-    - [Quirks](#quirks)
-  - [Methods](#methods)
-    - [splashscreen.hide](#splashscreenhide)
-    - [splashscreen.show](#splashscreenshow)
+exports.defineManualTests = function (contentEl, createActionButton) {
+    function showFor (duration) {
+        navigator.splashscreen.show();
+        window.setTimeout(function () {
+            navigator.splashscreen.hide();
+        }, 1000 * duration);
+    }
 
-## Installation
+    contentEl.innerHTML = '<h1>Splashscreen Tests</h1>' +
+        '<div id="show1"></div>' +
+        'Expected result: Will show the Cordova splashscreen for 1 second' +
+        '</p> <div id="show5"></div>' +
+        'Expected result: Will show the Cordova splashscreen for 5 seconds';
 
-    // npm hosted (new) id
-    cordova plugin add cordova-plugin-splashscreen
+    createActionButton('Show for 1 second', function () {
+        showFor(1);
+    }, 'show1');
 
-    // you may also install directly from this repo
-    cordova plugin add https://github.com/apache/cordova-plugin-splashscreen.git
-
-## Supported Platforms
-
-- Browser
-
-## Platform Splash Screen Image Configuration
-
-### Example Configuration
-
-In the top-level `config.xml` file (not the one in `platforms`), add configuration elements like those specified here.
-
-The value of the "src" attribute is relative to the project root directory and NOT to the `www` directory (see `Directory structure` below). You can name the source image file whatever you like. The internal name in the application is automatically determined by Cordova.
-
-Directory structure:
-
-```
-projectRoot
-    hooks
-    platforms
-    plugins
-    www
-        css
-        img
-        js
-    res
-        screen
-```
-
-```xml
-<preference name="SplashScreenDelay" value="10000" />
-```
-
-## Preferences
-
-### config.xml
-
-- `AutoHideSplashScreen` (boolean, default to `true`). Indicates whether to hide splash screen automatically or not. The splash screen is hidden after the amount of time specified in the `SplashScreenDelay` preference.
-
-    ```xml
-    <preference name="AutoHideSplashScreen" value="true" />
-    ```
-
-- `SplashScreenDelay` (number, default to 3000). Amount of time in milliseconds to wait before automatically hide splash screen.
-
-    ```xml
-    <preference name="SplashScreenDelay" value="3000" />
-    ```
-
-    This value used to be in seconds (but is now milliseconds) so values less than 30 will continue to be treated as seconds. (Consider this a deprecated patch that will disapear in some future version.)
-
-    To disable the splashscreen add the following preference to `config.xml`:
-    ```xml
-    <preference name="SplashScreenDelay" value="0"/>
-    ```
-
-- `FadeSplashScreen` (boolean, defaults to `true`): Set to `false` to
-  prevent the splash screen from fading in and out when its display
-  state changes.
-
-    ```xml
-    <preference name="FadeSplashScreen" value="false"/>
-    ```
-
-- `FadeSplashScreenDuration` (float, defaults to `500`): Specifies the
-  number of milliseconds for the splash screen fade effect to execute.
-
-    ```xml
-    <preference name="FadeSplashScreenDuration" value="750"/>
-    ```
-
-    _Note_: `FadeSplashScreenDuration` is included into `SplashScreenDelay`, for example if you have `<preference name="SplashScreenDelay" value="3000" />` and `<preference name="FadeSplashScreenDuration" value="1000"/>` defined in `config.xml`:
-
-    - 00:00 - splashscreen is shown
-    - 00:02 - fading has started
-    - 00:03 - splashscreen is hidden
-
-    Turning the fading off via `<preference name="FadeSplashScreen" value="false"/>` technically means fading duration to be `0` so that in this example the overall splash screen delay will still be 3 seconds.
-
-    _Note_: This only applies to the application startup - you need to take the fading timeout into account when manually showing/hiding the splash screen in your application's code:
-
-    ```javascript
-    navigator.splashscreen.show();
-    window.setTimeout(function () {
-        navigator.splashscreen.hide();
-    }, splashDuration - fadeDuration);
-    ```
-
-### Quirks
-
-You can use the following preferences in your `config.xml`:
-
-```xml
-<platform name="browser">
-    <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" /> <!-- defaults to "/img/logo.png" -->
-    <preference name="AutoHideSplashScreen" value="true" /> <!-- defaults to "true" -->
-    <preference name="SplashScreenDelay" value="3000" /> <!-- defaults to "3000" -->
-    <preference name="SplashScreenBackgroundColor" value="green" /> <!-- defaults to "#464646" -->
-    <preference name="ShowSplashScreen" value="false" /> <!-- defaults to "true" -->
-    <preference name="SplashScreenWidth" value="600" /> <!-- defaults to "170" -->
-    <preference name="SplashScreenHeight" value="300" /> <!-- defaults to "200" -->
-</platform>
-```
-
-__Note__: `SplashScreen` value should be absolute in order to work in a sub-page.
-
-## Methods
-
-- splashscreen.show
-- splashscreen.hide
-
-### splashscreen.hide
-
-Dismiss the splash screen.
-
-```js
-navigator.splashscreen.hide();
-```
-
-### splashscreen.show
-
-Displays the splash screen.
-
-```js
-navigator.splashscreen.show();
-```
-
-Your application cannot call `navigator.splashscreen.show()` until the application has
-started and the `deviceready` event has fired. But since typically the splash
-screen is meant to be visible before your application has started, that would seem to
-defeat the purpose of the splash screen.  Providing any parameters in
-`config.xml` will automatically `show` the splash screen immediately after your
-application is launched and before it has fully started and received the `deviceready`
-event. For this reason, it is unlikely you will need to call `navigator.splashscreen.show()` to make the splash
-screen visible for application startup.
+    createActionButton('Show for 5 seconds', function () {
+        showFor(5);
+    }, 'show5');
+};
 
 
 ---
-File: RELEASENOTES.md
-Size: 22880 bytes
-Lines: 295
+File: tests/package.json
+Size: 272 bytes
+Lines: 14
 ---
-<!--
-#
+{
+  "name": "cordova-plugin-splashscreen-tests",
+  "version": "7.0.0-dev",
+  "description": "",
+  "cordova": {
+    "id": "cordova-plugin-splashscreen-tests",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "",
+  "license": "Apache 2.0"
+}
+
+
+---
+File: www/splashscreen.js
+Size: 1076 bytes
+Lines: 33
+---
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+*/
+
+var exec = require('cordova/exec');
+
+var splashscreen = {
+    show: function () {
+        exec(null, null, 'SplashScreen', 'show', []);
+    },
+    hide: function () {
+        exec(null, null, 'SplashScreen', 'hide', []);
+    }
+};
+
+module.exports = splashscreen;
+
+
+---
+File: .github/workflows/lint.yml
+Size: 1469 bytes
+Lines: 56
+---
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -728,515 +673,60 @@ Lines: 295
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 #  KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#
--->
-# Release Notes
 
-### 6.0.2 (Jul 12, 2022)
+name: Lint Test
 
-* [GH-331](https://github.com/apache/cordova-plugin-splashscreen/pull/331) doc(ios): remove docs from `README` (migrated to cordova-docs)
-* [GH-329](https://github.com/apache/cordova-plugin-splashscreen/pull/329) chore(android): update **Android** engine requirement `<11.0.0`
-* [GH-327](https://github.com/apache/cordova-plugin-splashscreen/pull/327) docs: fixup spaces for releasnotes
-* [GH-326](https://github.com/apache/cordova-plugin-splashscreen/pull/326) chore(CI): remove **iOS** workflow
+on:
+  push:
+    paths:
+      - '**.js'
+      - '.eslint*'
+      - '.github/workflow/lint.yml'
+  pull_request:
+    paths:
+      - '**.js'
+      - '.eslint*'
+      - '.github/workflow/lint.yml'
 
-### 6.0.1 (Apr 04, 2022)
-* [GH-325](https://github.com/apache/cordova-plugin-splashscreen/pull/325) chore: update package-lock.json
-* [GH-213](https://github.com/apache/cordova-plugin-splashscreen/pull/213) GH-180 (android): Fixes nav and title bars still appearing when app is fullscreen
-* [GH-320](https://github.com/apache/cordova-plugin-splashscreen/pull/320) ci(ios): update workflow w/ **iOS** 15
-* [GH-319](https://github.com/apache/cordova-plugin-splashscreen/pull/319) ci: add action-badge
-* [GH-318](https://github.com/apache/cordova-plugin-splashscreen/pull/318) ci: remove travis & appveyor
-* [GH-317](https://github.com/apache/cordova-plugin-splashscreen/pull/317) ci: add gh-actions workflows
-* [GH-312](https://github.com/apache/cordova-plugin-splashscreen/pull/312) fix: autofocus after splashscreen
-* [GH-314](https://github.com/apache/cordova-plugin-splashscreen/pull/314) fix: refocus after webview visible (#186)
-* [GH-304](https://github.com/apache/cordova-plugin-splashscreen/pull/304) ci: add node-14.x to workflow
-* [GH-291](https://github.com/apache/cordova-plugin-splashscreen/pull/291) chore(docs): Update missing  default resources for **Android** #689
-* [GH-293](https://github.com/apache/cordova-plugin-splashscreen/pull/293) Documentation Enhancement for **Android** Dark Mode
-* [GH-300](https://github.com/apache/cordova-plugin-splashscreen/pull/300) docs: Added **iOS** notes to supported platforms.
-* [GH-296](https://github.com/apache/cordova-plugin-splashscreen/pull/296) chore(pkg): remove default-valued field "homepage"
-* [GH-292](https://github.com/apache/cordova-plugin-splashscreen/pull/292) ci(travis): updates **Android** API level
-* [GH-286](https://github.com/apache/cordova-plugin-splashscreen/pull/286) (docs): Add Information about how to use Dark Mode SplashScreens
+jobs:
+  test:
+    name: Lint Test
+    runs-on: ubuntu-latest
+    env:
+      node-version: 16
 
-### 6.0.0 (Jul 07, 2020)
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.node-version }}
 
-* [GH-282](https://github.com/apache/cordova-plugin-splashscreen/pull/282) fix: js `clobber` only on supported platforms
-* [GH-281](https://github.com/apache/cordova-plugin-splashscreen/pull/281) chore: adds `package-lock` file
-* [GH-280](https://github.com/apache/cordova-plugin-splashscreen/pull/280) doc(android): various improvements including size specs
-* [GH-200](https://github.com/apache/cordova-plugin-splashscreen/pull/200) fix(windows): implementation structure
-* [GH-279](https://github.com/apache/cordova-plugin-splashscreen/pull/279) chore: add missing supported platform **Browser** to `npm` keywords
-* [GH-278](https://github.com/apache/cordova-plugin-splashscreen/pull/278) chore: update `engine` checks to cover newer versions
-* [GH-277](https://github.com/apache/cordova-plugin-splashscreen/pull/277) breaking: replace `jshint` with `eslint`
-* [GH-276](https://github.com/apache/cordova-plugin-splashscreen/pull/276) breaking: drop `node` `engine` requirement
-* [GH-275](https://github.com/apache/cordova-plugin-splashscreen/pull/275) chore: cleanup repo
-* [GH-274](https://github.com/apache/cordova-plugin-splashscreen/pull/274) breaking: bump `engine` restriction for cordova dependencies
-* [GH-263](https://github.com/apache/cordova-plugin-splashscreen/pull/263) breaking: remove **iOS** platform code from plugin repo
-* [GH-267](https://github.com/apache/cordova-plugin-splashscreen/pull/267) test: force `cordova-ios`@^5.1.1
+      - name: Run Environment Information
+        run: |
+          node --version
+          npm --version
 
-### 5.0.4 (Jun 03, 2020)
-* [GH-261](https://github.com/apache/cordova-plugin-splashscreen/pull/261) chore: add `cordova-ios` requirement <6.0.0
-* chore(asf): update git notification settings
-* update CONTRIBUTING.md
-* [GH-251](https://github.com/apache/cordova-plugin-splashscreen/pull/251) chore(npm): adds ignore list
-* [GH-252](https://github.com/apache/cordova-plugin-splashscreen/pull/252) ci: updates Node.js versions
-* [GH-236](https://github.com/apache/cordova-plugin-splashscreen/pull/236) update homepage to github `README` page
-* [GH-239](https://github.com/apache/cordova-plugin-splashscreen/pull/239) update `README`.md by adding missing info
-* ci(travis): Upgrade node from 6 to 8
-* ci(travis): Remove **Android 4.4**, Add **Android** 9.0
-* [GH-212](https://github.com/apache/cordova-plugin-splashscreen/pull/212) ci(travis): Add ADDITIONAL_TESTS_DIR=./tests/ios
+      - name: Run npm install
+        run: |
+          npm ci
 
-### 5.0.3 (May 09, 2019)
-* Update CI configuration and README ([#210](https://github.com/apache/cordova-plugin-splashscreen/pull/210), [#208](https://github.com/apache/cordova-plugin-splashscreen/pull/208), [#198](https://github.com/apache/cordova-plugin-splashscreen/pull/198), [#194](https://github.com/apache/cordova-plugin-splashscreen/pull/194))
-* Add or update GitHub pull request and issue template
-* [CB-13826](https://issues.apache.org/jira/browse/CB-13826) Incremented plugin version.
-* [CB-12277](https://issues.apache.org/jira/browse/CB-12277) (android) avoid NullPointerException on splashImageView when removing splashscreen
-
-### 5.0.2 (Jan 24, 2018)
-* [CB-13750](https://issues.apache.org/jira/browse/CB-13750) Add build-tools-26.0.2 to travis
-* [CB-13737](https://issues.apache.org/jira/browse/CB-13737) (iOS): fix Splash screen images for iPhone X
-
-### 5.0.1 (Dec 27, 2017)
-* [CB-13709](https://issues.apache.org/jira/browse/CB-13709) Fix to allow 5.0.0 version install (#144)
-
-### 5.0.0 (Dec 15, 2017)
-* [CB-13677](https://issues.apache.org/jira/browse/CB-13677) Remove deprecated platforms
-
-### 4.1.0 (Nov 06, 2017)
-* [CB-13473](https://issues.apache.org/jira/browse/CB-13473) (CI) Removed **Browser** builds from AppVeyor
-* [CB-12011](https://issues.apache.org/jira/browse/CB-12011) (android) added the possibility to change the spinner color on **Android 5.0**+ apps
-* [CB-13028](https://issues.apache.org/jira/browse/CB-13028) (CI) **Browser** builds on Travis and AppVeyor
-* [CB-13094](https://issues.apache.org/jira/browse/CB-13094) (android) Don't show splash when activity being finished
-* [CB-11487](https://issues.apache.org/jira/browse/CB-11487) (browser) Documented `AutoHideSplashScreen` for **Browser**
-* [CB-11488](https://issues.apache.org/jira/browse/CB-11488) (browser) The `hide()` call became non re-entrant after the addition of fade out. This fixes the issue.
-* [CB-11487](https://issues.apache.org/jira/browse/CB-11487) (browser) The standard `AutoHideSplashScreen` `config.xml` property is now supported by the **Browser** platform.
-* [CB-11486](https://issues.apache.org/jira/browse/CB-11486) (browser) `splashScreenDelay` now feed through `parseInt` to ensure it is an integer by the time it's value is passed in to `setTimeout()` in `hide()`.
-* [CB-12847](https://issues.apache.org/jira/browse/CB-12847) added `bugs` entry to `package.json`.
-
-### 4.0.3 (Apr 27, 2017)
-* [CB-12622](https://issues.apache.org/jira/browse/CB-12622) Added **Android 6.0** build badge to `README`
-* [CB-12685](https://issues.apache.org/jira/browse/CB-12685) added `package.json` to tests folder
-
-### 4.0.2 (Feb 28, 2017)
-* [CB-12353](https://issues.apache.org/jira/browse/CB-12353) Corrected merges usage in `plugin.xml`
-* [CB-12369](https://issues.apache.org/jira/browse/CB-12369) Add plugin typings from `DefinitelyTyped` 
-* [CB-12363](https://issues.apache.org/jira/browse/CB-12363) Added build badges for **iOS 9.3** and **iOS 10.0** 
-* [CB-12230](https://issues.apache.org/jira/browse/CB-12230) Removed **Windows 8.1** build badges
-
-### 4.0.1 (Dec 07, 2016)
-* [CB-12224](https://issues.apache.org/jira/browse/CB-12224) Updated version and RELEASENOTES.md for release 4.0.1
-* [CB-11751](https://issues.apache.org/jira/browse/CB-11751) 'extendedSplashScreen' is undefined Document that splashscreen needs to be disabled on Windows in case of updating entire document body
-* [CB-9287](https://issues.apache.org/jira/browse/CB-9287) Not enough Icons and Splashscreens for **Windows 8.1** and Windows Phone 8.1
-* [CB-11917](https://issues.apache.org/jira/browse/CB-11917) - Remove pull request template checklist item: "iCLA has been submitted…"
-* [CB-11830](https://issues.apache.org/jira/browse/CB-11830) (iOS) Fix doc typos in PR#114
-* [CB-11829](https://issues.apache.org/jira/browse/CB-11829) (iOS) Support for CB-9762; docs (CB-11830)
-* [CB-11832](https://issues.apache.org/jira/browse/CB-11832) Incremented plugin version.
-
-### 4.0.0 (Sep 08, 2016)
-* [CB-11795](https://issues.apache.org/jira/browse/CB-11795) Add 'protective' entry to cordovaDependencies
-* [CB-11326](https://issues.apache.org/jira/browse/CB-11326) Prevent crash when initializing plugin after navigating to another URL
-* Fix crash on **iOS** when reloading page from remote **Safari**
-* Add badges for paramedic builds on Jenkins
-* Add pull request template.
-* [CB-11179](https://issues.apache.org/jira/browse/CB-11179) Extend the windows-splashscreen docs
-* [CB-11159](https://issues.apache.org/jira/browse/CB-11159) Fix flaky splashscreen native tests
-* [CB-11156](https://issues.apache.org/jira/browse/CB-11156) Change default `FadeSplashScreenDuration` value
-* [CB-8056](https://issues.apache.org/jira/browse/CB-8056) Updated the dependency version, added it to the docs
-* [CB-10996](https://issues.apache.org/jira/browse/CB-10996) Adding front matter to README.md
-* [CB-8056](https://issues.apache.org/jira/browse/CB-8056) Implement splashscreen for **Windows** platform
-* [CB-6498](https://issues.apache.org/jira/browse/CB-6498) Misleading documentation in **Android** Quirks
-
-### 3.2.2 (Apr 15, 2016)
-* [CB-10979](https://issues.apache.org/jira/browse/CB-10979) Fix splashscreen **iOS** native tests. Added `jshintignore` for tests/ios
-* [CB-10895](https://issues.apache.org/jira/browse/CB-10895) Transparent Splashscreen view sometimes remains
-* [CB-10562](https://issues.apache.org/jira/browse/CB-10562) `hide()` not working in latest splashscreen plug in 3.1.0 in **iOS**
-* [CB-10688](https://issues.apache.org/jira/browse/CB-10688) Plugin Splashscreen Readme must have examples.
-* [CB-10864](https://issues.apache.org/jira/browse/CB-10864) Run **iOS** native tests on Travis
-
-### 3.2.1 (Mar 09, 2016)
-* [CB-10764](https://issues.apache.org/jira/browse/CB-10764) Remove emoji in cordova-plugin-splashscreen
-* [CB-10650](https://issues.apache.org/jira/browse/CB-10650) Non-index content.src causes Splashscreen to be not displayed on **Browser**
-* [CB-10636](https://issues.apache.org/jira/browse/CB-10636) Add JSHint for plugins
-* [CB-10606](https://issues.apache.org/jira/browse/CB-10606) fix deprecation warning for interfaceOrientation on **iOS**
-* chore: edit package.json license to match SPDX id
-
-### 3.2.0 (Feb 09, 2016)
-* [CB-10422](https://issues.apache.org/jira/browse/CB-10422) Splashscreen displays black screen with no image on Android
-* [CB-10412](https://issues.apache.org/jira/browse/CB-10412) AutoHideSplashScreen "false" isn't taken in account on iOS
-* [CB-9516](https://issues.apache.org/jira/browse/CB-9516) Android SplashScreen - Spinner Does Not Display
-* [CB-9094](https://issues.apache.org/jira/browse/CB-9094) Smarter autohide logic on Android
-* [CB-8396](https://issues.apache.org/jira/browse/CB-8396) Add AutoHideSplashScreen logic to Android's Splashscreen
-
-### 3.1.0 (Jan 15, 2016)
-* [CB-9538](https://issues.apache.org/jira/browse/CB-9538) Implementing `FadeSplashScreen` feature for **Android**
-* [CB-9240](https://issues.apache.org/jira/browse/CB-9240) Cordova splash screen plugin **iPad** landscape mode issue
-* [CB-10263](https://issues.apache.org/jira/browse/CB-10263) Fix splashscreen plugin filenames for Asset Catalog
-* [CB-9374](https://issues.apache.org/jira/browse/CB-9374) **Android** add `SplashShowOnlyFirstTime` as preference
-* [CB-10244](https://issues.apache.org/jira/browse/CB-10244) Don't rotate the **iPhone 6 Plus** splash
-* [CB-9043](https://issues.apache.org/jira/browse/CB-9043) Fix the **ios** splashscreen being deformed on orientation change
-* [CB-10079](https://issues.apache.org/jira/browse/CB-10079) Splashscreen plugin does not honor `SplashScreenDelay` on **iOS**
-* [CB-10231](https://issues.apache.org/jira/browse/CB-10231) Fix `FadeSplashScreen` to default to true on **iOS**
-
-### 3.0.0 (Nov 18, 2015)
-* [CB-10035](https://issues.apache.org/jira/browse/CB-10035) Updated `RELEASENOTES` to be newest to oldest
-* Fixing contribute link.
-* [CB-9750](https://issues.apache.org/jira/browse/CB-9750) `FadeSplashDuration` is now in `msecs`
-* [CB-8875](https://issues.apache.org/jira/browse/CB-8875) `FadeSplashScreen` was not fading
-* [CB-9467](https://issues.apache.org/jira/browse/CB-9467) SplashScreen does not show any image in hosted app on **Windows 10**
-* [CB-7282](https://issues.apache.org/jira/browse/CB-7282) Document `AutoHideSplashScreenpreference`
-* [CB-9327](https://issues.apache.org/jira/browse/CB-9327) - Splashscreen not receiving `CDVPageLoadNotification`
-* WP8: Avoid config `value` of a wrong element.
-
-### 2.1.0 (Jun 17, 2015)
-* added missing license headers
-* [CB-9128](https://issues.apache.org/jira/browse/CB-9128) cordova-plugin-splashscreen documentation translation: cordova-plugin-splashscreen
-* fix npm md issue
-* Fixed iOS unit tests.
-* [CB-3562](https://issues.apache.org/jira/browse/CB-3562): Disable screen rotation for iPhone when splash screen is shown. (closes #47)
-* [CB-8988](https://issues.apache.org/jira/browse/CB-8988): Fix rotation on iOS/iPad (closes #46)
-* [CB-8904](https://issues.apache.org/jira/browse/CB-8904): Don't reset the static variable when it's destroyed, otherwise we might as well just have a member variable
-* Removed wp7 from `plugin.xml` and package.json
-* [CB-8750](https://issues.apache.org/jira/browse/CB-8750) [wp8]: Rewrite resoultion helper
-* [CB-8750](https://issues.apache.org/jira/browse/CB-8750) [wp8]: Allow resolution-specific splashscreen images
-* [CB-8758](https://issues.apache.org/jira/browse/CB-8758) [wp8]: UnauthorizedAccessException on hide()
-
-### 2.0.0 (Apr 15, 2015)
-* give users a way to install the bleeding edge.
-* [CB-8746](https://issues.apache.org/jira/browse/CB-8746) gave plugin major version bump
-* [CB-8797](https://issues.apache.org/jira/browse/CB-8797) - Splashscreen preferences FadeSplashScreenDuration and FadeSplashScreen (iOS) are missing
-* [CB-8836](https://issues.apache.org/jira/browse/CB-8836) - Crashes after animating splashscreen
-* [CB-8753](https://issues.apache.org/jira/browse/CB-8753) android: Fix missing import in previous commit
-* [CB-8753](https://issues.apache.org/jira/browse/CB-8753) android: Adds `SplashMaintainAspectRatio` preference (close #43)
-* [CB-8683](https://issues.apache.org/jira/browse/CB-8683) changed plugin-id to pacakge-name
-* [CB-8653](https://issues.apache.org/jira/browse/CB-8653) properly updated translated docs to use new id
-* [CB-8653](https://issues.apache.org/jira/browse/CB-8653) updated translated docs to use new id
-* [CB-8345](https://issues.apache.org/jira/browse/CB-8345) Make default for splashscreen resource "screen" (which is what template and CLI assume it to be)
-* Revert "CB-8345 android: Make "splash" the default resource ID instead of null"
-* Use TRAVIS_BUILD_DIR, install paramedic by npm
-* [CB-8345](https://issues.apache.org/jira/browse/CB-8345) android: Make "splash" the default resource ID instead of null
-* docs: added Windows to supported platforms
-* [CB-7964](https://issues.apache.org/jira/browse/CB-7964) Add cordova-plugin-splashscreen support for browser platform
-* [CB-8653](https://issues.apache.org/jira/browse/CB-8653) Updated Readme
-* [wp8] oops, Added back config parse result checks
-* [WP8] code cleanup, minor refactors, comments to clarify some stuff.
-* Extend WP8 Splash Screen to respect SplashScreen and SplashScreenDelay preferences from config file
-* [CB-8574](https://issues.apache.org/jira/browse/CB-8574) Integrate TravisCI
-* [CB-8438](https://issues.apache.org/jira/browse/CB-8438) cordova-plugin-splashscreen documentation translation: cordova-plugin-splashscreen
-* [CB-8538](https://issues.apache.org/jira/browse/CB-8538) Added package.json file
-* [CB-8397](https://issues.apache.org/jira/browse/CB-8397) Add support to 'windows' for showing the Windows Phone splashscreen
-
-### 1.0.0 (Feb 04, 2015)
-* [CB-8351](https://issues.apache.org/jira/browse/CB-8351) ios: Stop using deprecated IsIpad macro
-* [CB-3679](https://issues.apache.org/jira/browse/CB-3679) Add engine tag for Android >= 3.6.0 due to use of `preferences`
-* [CB-3679](https://issues.apache.org/jira/browse/CB-3679) Make SplashScreen plugin compatible with cordova-android@4.0.x
-
-### 0.3.5 (Dec 02, 2014)
-* [CB-7204](https://issues.apache.org/jira/browse/CB-7204) - Race condition when hiding and showing spinner (closes #21)
-* [CB-7700](https://issues.apache.org/jira/browse/CB-7700) cordova-plugin-splashscreen documentation translation: cordova-plugin-splashscreen
-
-### 0.3.4 (Oct 03, 2014)
-* Finalized iOS splash screen (image name) tests. 176 tests in all, 44 for each type of device (iPad, iPhone, iPhone5, iPhone6, iPhone 6 Plus).
-* [CB-7633](https://issues.apache.org/jira/browse/CB-7633) - (Re-fix based on updated unit tests) iPhone 6 Plus support
-* Updated iOS tests for locked orientations
-* Added more iOS splash screen tests.
-* [CB-7633](https://issues.apache.org/jira/browse/CB-7633) - Add support for iPhone 6/6+
-* Added failing iPhone 6/6 Plus tests.
-* Added 'npm test'
-* [CB-7663](https://issues.apache.org/jira/browse/CB-7663) - iOS unit tests for splash screen
-* Properly formatted splashscreen preference docs.
-
-### 0.3.3 (Sep 17, 2014)
-* [CB-7249](https://issues.apache.org/jira/browse/CB-7249) cordova-plugin-splashscreen documentation translation
-* Renamed test dir, added nested `plugin.xml`
-* added documentation for manual tests
-* [CB-7196](https://issues.apache.org/jira/browse/CB-7196) port splashscreen tests to framework
-
-### 0.3.2 (Aug 06, 2014)
-* [CB-6127](https://issues.apache.org/jira/browse/CB-6127) Updated translations for docs
-* [CB-7041](https://issues.apache.org/jira/browse/CB-7041) ios: Fix image filename logic when setting the iPad splash screen
-* fixes Splashscreen crash on WP8
-* Remove outdated doc
-
-### 0.3.1 (Jun 05, 2014)
-* documentation translation: cordova-plugin-splashscreen
-* Lisa testing pulling in plugins for plugin: cordova-plugin-splashscreen
-* Lisa testing pulling in plugins for plugin: cordova-plugin-splashscreen
-* Lisa testing pulling in plugins for plugin: cordova-plugin-splashscreen
-* Lisa testing pulling in plugins for plugin: cordova-plugin-splashscreen
-* [CB-6810](https://issues.apache.org/jira/browse/CB-6810) Add license to CONTRIBUTING.md
-* [wp8] updated quirk for  and combined iOS,WP8,BB10 quirks as they are all the same
-* [wp] implemented OnInit so splash screen can be shown before cordova page is loaded
-* [wp] plugin must be autoloaded for AutoHideSplashScreen preference to work
-* [CB-6483](https://issues.apache.org/jira/browse/CB-6483) Use splash screen image from manifest on Windows8
-* [CB-6491](https://issues.apache.org/jira/browse/CB-6491) add CONTRIBUTING.md
-* Revert "Merge branch 'tizen' of http://github.com/siovene/cordova-plugin-splashscreen"
-
-### 0.3.0 (Apr 17, 2014)
-* Add Tizen support to plugin
-* [CB-6422](https://issues.apache.org/jira/browse/CB-6422): [windows8] use cordova/exec/proxy
-* [CB-4051](https://issues.apache.org/jira/browse/CB-4051): [ios] - Re-fix - Splashscreen rotation problem (closes #13)
-* [CB-6460](https://issues.apache.org/jira/browse/CB-6460): Update license headers
-* [CB-6465](https://issues.apache.org/jira/browse/CB-6465): Add license headers to Tizen code
-* Add NOTICE file
-
-### 0.2.7 (Feb 05, 2014)
-* [CB-3562](https://issues.apache.org/jira/browse/CB-3562) Fix aspect ratio on landscape-only iPhone applications
-* [CB-4051](https://issues.apache.org/jira/browse/CB-4051) fix for splashscreen rotation problem
-
-### 0.2.6 (Jan 02, 2014)
-* [CB-5658](https://issues.apache.org/jira/browse/CB-5658) Add doc/index.md for Splashscreen plugin
-* Handle error when splash image is missing.
-
-### 0.2.5 (Dec 4, 2013)
-* add ubuntu platform
-* Added amazon-fireos platform. Change to use amazon-fireos as a platform if the user agent string contains 'cordova-amazon-fireos'
-* [CB-5124](https://issues.apache.org/jira/browse/CB-5124) - Remove splashscreen config.xml values from iOS Configuration Docs, move to plugin docs
-
-### 0.2.4 (Oct 28, 2013)
-* [CB-5128](https://issues.apache.org/jira/browse/CB-5128): add repo + issue tag to `plugin.xml` for splashscreen plugin
-* [CB-5010](https://issues.apache.org/jira/browse/CB-5010) Incremented plugin version on dev branch.
-
-### 0.2.3 (Oct 9, 2013)
-* [CB-4806](https://issues.apache.org/jira/browse/CB-4806) Re-fix Update splashscreen image bounds for iOS 7
-* [CB-4934](https://issues.apache.org/jira/browse/CB-4934) plugin-splashscreen should not show by default on Windows8
-* [CB-4929](https://issues.apache.org/jira/browse/CB-4929) plugin-splashscreen not loading proxy windows8
-* [CB-4915](https://issues.apache.org/jira/browse/CB-4915) Incremented plugin version on dev branch.
-
-### 0.2.2 (Sept 25, 2013)
-* [CB-4889](https://issues.apache.org/jira/browse/CB-4889) bumping&resetting version
-* [CB-4889](https://issues.apache.org/jira/browse/CB-4889) renaming org.apache.cordova.core.splashscreen to org.apache.cordova.splashscreen
-* Rename CHANGELOG.md -> RELEASENOTES.md
-* [CB-4806](https://issues.apache.org/jira/browse/CB-4806) Update splashscreen image bounds for iOS 7
-* [CB-4752](https://issues.apache.org/jira/browse/CB-4752) Incremented plugin version on dev branch.
+      - name: Run lint test
+        run: |
+          npm run lint
 
 
 ---
-File: .github\ISSUE_TEMPLATE.md
-Size: 1233 bytes
-Lines: 42
----
-<!--
-Please have a look at the issue templates you get when you click "New issue" in the GitHub UI.
-We very much prefer issues created by using one of these templates.
--->
-
-### Issue Type
-<!-- Please check the boxes by putting an x in the [ ] like so: [x] -->
-
-- [ ] Bug Report
-- [ ] Feature Request
-- [ ] Support Question
-
-## Description
-
-## Information
-<!-- Include all relevant information that might help understand and reproduce the problem -->
-
-### Command or Code
-<!-- What command or code is needed to reproduce the problem? -->
-
-### Environment, Platform, Device
-<!-- In what environment, on what platform or on which device are you experiencing the issue? -->
-
-
-
-### Version information
-<!-- 
-What are relevant versions you are using?
-For example:
-Cordova: Cordova CLI, Cordova Platforms, Cordova Plugins 
-Other Frameworks: Ionic Framework and CLI version
-Operating System, Android Studio, Xcode etc.
--->
-
-
-
-## Checklist
-<!-- Please check the boxes by putting an `x` in the `[ ]` like so: `[x]` -->
-
-- [ ] I searched for already existing GitHub issues about this
-- [ ] I updated all Cordova tooling to their most recent version
-- [ ] I included all the necessary information above
-
-
----
-File: .github\PULL_REQUEST_TEMPLATE.md
-Size: 1153 bytes
-Lines: 35
----
-<!--
-Please make sure the checklist boxes are all checked before submitting the PR. The checklist is intended as a quick reference, for complete details please see our Contributor Guidelines:
-
-http://cordova.apache.org/contribute/contribute_guidelines.html
-
-Thanks!
--->
-
-### Platforms affected
-
-
-
-### Motivation and Context
-<!-- Why is this change required? What problem does it solve? -->
-<!-- If it fixes an open issue, please link to the issue here. -->
-
-
-
-### Description
-<!-- Describe your changes in detail -->
-
-
-
-### Testing
-<!-- Please describe in detail how you tested your changes. -->
-
-
-
-### Checklist
-
-- [ ] I've run the tests to see all new and existing tests pass
-- [ ] I added automated test coverage as appropriate for this change
-- [ ] Commit is prefixed with `(platform)` if this change only applies to one platform (e.g. `(android)`)
-- [ ] If this Pull Request resolves an issue, I linked to the issue in the text above (and used the correct [keyword to close issues using keywords](https://help.github.com/articles/closing-issues-using-keywords/))
-- [ ] I've updated the documentation if necessary
-
-
----
-File: .github\ISSUE_TEMPLATE\BUG_REPORT.md
-Size: 1048 bytes
-Lines: 50
----
----
-name: 🐛 Bug Report
-about: If something isn't working as expected.
-
----
-
-# Bug Report
-
-## Problem
-
-### What is expected to happen?
-
-
-
-### What does actually happen?
-
-
-
-## Information
-<!-- Include all relevant information that might help understand and reproduce the problem -->
-
-
-
-### Command or Code
-<!-- What command or code is needed to reproduce the problem? -->
-
-
-
-### Environment, Platform, Device
-<!-- In what environment, on what platform or on which device are you experiencing the issue? -->
-
-
-
-### Version information
-<!-- 
-What are relevant versions you are using?
-For example:
-Cordova: Cordova CLI, Cordova Platforms, Cordova Plugins 
-Other Frameworks: Ionic Framework and CLI version
-Operating System, Android Studio, Xcode etc.
--->
-
-
-
-## Checklist
-<!-- Please check the boxes by putting an x in the [ ] like so: [x] -->
-
-- [ ] I searched for existing GitHub issues
-- [ ] I updated all Cordova tooling to most recent version
-- [ ] I included all the necessary information above
-
-
----
-File: .github\ISSUE_TEMPLATE\FEATURE_REQUEST.md
-Size: 630 bytes
-Lines: 29
----
----
-name: 🚀 Feature Request
-about: A suggestion for a new functionality
-
----
-
-# Feature Request
-
-## Motivation Behind Feature
-<!-- Why should this feature be implemented? What problem does it solve? -->
-
-
-
-## Feature Description
-<!-- 
-Describe your feature request in detail
-Please provide any code examples or screenshots of what this feature would look like
-Are there any drawbacks? Will this break anything for existing users? 
--->
-
-
-
-## Alternatives or Workarounds
-<!-- 
-Describe alternatives or workarounds you are currently using 
-Are there ways to do this with existing functionality?
--->
-
-
-
-
----
-File: .github\ISSUE_TEMPLATE\SUPPORT_QUESTION.md
-Size: 989 bytes
-Lines: 27
----
----
-name: 💬 Support Question
-about: If you have a question, please check out our Slack or StackOverflow!
-
----
-
-<!------------^ Click "Preview" for a nicer view! -->
-
-Apache Cordova uses GitHub Issues as a feature request and bug tracker _only_.
-For usage and support questions, please check out the resources below. Thanks!
-
----
-
-You can get answers to your usage and support questions about **Apache Cordova** on:
-
-* Slack Community Chat: https://cordova.slack.com (you can sign-up at http://slack.cordova.io/)
-* StackOverflow: https://stackoverflow.com/questions/tagged/cordova using the tag `cordova`
-
----
-
-If you are using a tool that uses Cordova internally, like e.g. Ionic, check their support channels:
-
-* **Ionic Framework**
-  * [Ionic Community Forum](https://forum.ionicframework.com/)
-  * [Ionic Worldwide Slack](https://ionicworldwide.herokuapp.com/)
-* **PhoneGap**
-  * [PhoneGap Developer Community](https://forums.adobe.com/community/phonegap)
-
-
----
-File: .github\workflows\chrome.yml
-Size: 2520 bytes
+File: .github/workflows/chrome.yml
+Size: 2447 bytes
 Lines: 73
 ---
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -1315,71 +805,8 @@ jobs:
 
 
 ---
-File: .github\workflows\lint.yml
-Size: 1525 bytes
-Lines: 56
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Lint Test
-
-on:
-  push:
-    paths:
-      - '**.js'
-      - '.eslint*'
-      - '.github/workflow/lint.yml'
-  pull_request:
-    paths:
-      - '**.js'
-      - '.eslint*'
-      - '.github/workflow/lint.yml'
-
-jobs:
-  test:
-    name: Lint Test
-    runs-on: ubuntu-latest
-    env:
-      node-version: 16
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.node-version }}
-
-      - name: Run Environment Information
-        run: |
-          node --version
-          npm --version
-
-      - name: Run npm install
-        run: |
-          npm ci
-
-      - name: Run lint test
-        run: |
-          npm run lint
-
-
----
-File: src\browser\SplashScreenProxy.js
-Size: 6353 bytes
+File: src/browser/SplashScreenProxy.js
+Size: 6185 bytes
 Lines: 168
 ---
 /*
@@ -1550,192 +977,4 @@ function showAndHide () {
 module.exports = SplashScreen;
 
 require('cordova/exec/proxy').add('SplashScreen', SplashScreen);
-
-
----
-File: tests\package.json
-Size: 286 bytes
-Lines: 14
----
-{
-  "name": "cordova-plugin-splashscreen-tests",
-  "version": "7.0.0-dev",
-  "description": "",
-  "cordova": {
-    "id": "cordova-plugin-splashscreen-tests",
-    "platforms": []
-  },
-  "keywords": [
-    "ecosystem:cordova"
-  ],
-  "author": "",
-  "license": "Apache 2.0"
-}
-
-
----
-File: tests\plugin.xml
-Size: 1143 bytes
-Lines: 29
----
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements.  See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership.  The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied.  See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    id="cordova-plugin-splashscreen-tests"
-    version="7.0.0-dev">
-    <name>Cordova Splashscreen Plugin Tests</name>
-    <license>Apache 2.0</license>
-
-    <js-module src="tests.js" name="tests">
-    </js-module>
-</plugin>
-
-
----
-File: tests\tests.js
-Size: 2301 bytes
-Lines: 61
----
-/*
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
-*/
-
-exports.defineAutoTests = function () {
-    describe('Splashscreen (cordova)', function () {
-        it('splashscreen.spec.1 should exist', function () {
-            expect(navigator.splashscreen).toBeDefined();
-        });
-
-        it('splashscreen.spec.2 show method should exist', function () {
-            expect(navigator.splashscreen.show).toBeDefined();
-            expect(typeof navigator.splashscreen.show).toBe('function');
-        });
-
-        it('splashscreen.spec.3 hide method should exist', function () {
-            expect(navigator.splashscreen.hide).toBeDefined();
-            expect(typeof navigator.splashscreen.hide).toBe('function');
-        });
-    });
-};
-
-exports.defineManualTests = function (contentEl, createActionButton) {
-    function showFor (duration) {
-        navigator.splashscreen.show();
-        window.setTimeout(function () {
-            navigator.splashscreen.hide();
-        }, 1000 * duration);
-    }
-
-    contentEl.innerHTML = '<h1>Splashscreen Tests</h1>' +
-        '<div id="show1"></div>' +
-        'Expected result: Will show the Cordova splashscreen for 1 second' +
-        '</p> <div id="show5"></div>' +
-        'Expected result: Will show the Cordova splashscreen for 5 seconds';
-
-    createActionButton('Show for 1 second', function () {
-        showFor(1);
-    }, 'show1');
-
-    createActionButton('Show for 5 seconds', function () {
-        showFor(5);
-    }, 'show5');
-};
-
-
----
-File: types\index.d.ts
-Size: 635 bytes
-Lines: 17
----
-// Type definitions for Apache Cordova Splashscreen plugin
-// Project: https://github.com/apache/cordova-plugin-splashscreen
-// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-// 
-// Copyright (c) Microsoft Open Technologies Inc
-// Licensed under the MIT license.
-
-interface Navigator {
-    /** This plugin displays and hides a splash screen during application launch. */
-    splashscreen: {
-        /** Dismiss the splash screen. */
-        hide(): void;
-        /** Displays the splash screen. */
-        show(): void;
-    }
-}
-
----
-File: www\splashscreen.js
-Size: 1109 bytes
-Lines: 33
----
-/*
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
-*/
-
-var exec = require('cordova/exec');
-
-var splashscreen = {
-    show: function () {
-        exec(null, null, 'SplashScreen', 'show', []);
-    },
-    hide: function () {
-        exec(null, null, 'SplashScreen', 'hide', []);
-    }
-};
-
-module.exports = splashscreen;
 

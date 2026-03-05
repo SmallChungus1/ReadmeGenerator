@@ -1,13 +1,12 @@
-Tokens: 108414
+Tokens: 102022
 Repo: apache/dubbo-python
 Commit: ae74a992eec8d67b07f53a72b9e6e2356a2e2b45
-Timestamp: 2026-03-04T19:37:13.201632
+Timestamp: 2026-03-04T19:51:36.163915
 
 --- Repository Structure ---
 .
 ├── .asf.yaml
 ├── .github
-│   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows
 │       ├── license-check.yaml
 │       └── test-suite.yaml
@@ -15,21 +14,17 @@ Timestamp: 2026-03-04T19:37:13.201632
 ├── .license-ignore
 ├── LICENSE
 ├── NOTICE
-├── README.md
 ├── docs
-│   ├── CONTRIBUTING.md
 │   └── img
 ├── pyproject.toml
 ├── requirements-dev.txt
 ├── samples
-│   ├── README.md
 │   ├── __init__.py
 │   ├── helloworld
 │   │   ├── __init__.py
 │   │   ├── client.py
 │   │   └── server.py
 │   ├── llm
-│   │   ├── README.md
 │   │   ├── __init__.py
 │   │   ├── chat.proto
 │   │   ├── chat_pb2.py
@@ -39,14 +34,12 @@ Timestamp: 2026-03-04T19:37:13.201632
 │   │   ├── greeter.proto
 │   │   └── greeter_pb2.py
 │   ├── registry
-│   │   ├── README.md
 │   │   ├── __init__.py
 │   │   └── zookeeper
 │   │       ├── __init__.py
 │   │       ├── client.py
 │   │       └── server.py
 │   ├── serialization
-│   │   ├── README.md
 │   │   ├── __init__.py
 │   │   ├── json
 │   │   │   ├── __init__.py
@@ -57,7 +50,6 @@ Timestamp: 2026-03-04T19:37:13.201632
 │   │       ├── client.py
 │   │       └── server.py
 │   └── stream
-│       ├── README.md
 │       ├── __init__.py
 │       ├── bidi_stream
 │       │   ├── __init__.py
@@ -189,10 +181,10 @@ Timestamp: 2026-03-04T19:37:13.201632
 
 --- Summary Report ---
 Total files scanned: 144
-Files included: 143
-Files skipped by rule: 1
+Files included: 135
+Files skipped by rule: 9
 Files skipped by size: 0
-Detected languages count: 8
+Detected languages count: 7
 Top 15 largest included files:
   25304 bytes - src/dubbo/configs.py
   14625 bytes - src/dubbo/registry/zookeeper/kazoo_transport.py
@@ -678,148 +670,6 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 ---
-File: README.md
-Size: 4967 bytes
-Lines: 135
----
-# Apache Dubbo for Python
-
-![License](https://img.shields.io/github/license/apache/dubbo-python?logo=apache&logoColor=red&label=LICENSE)
-![GitHub last commit](https://img.shields.io/github/last-commit/apache/dubbo-python)
-![GitHub branch check runs](https://img.shields.io/github/check-runs/apache/dubbo-python/main)
-![PyPI - Version](https://img.shields.io/pypi/v/apache-dubbo?logo=pypi&logoColor=gold&label=PyPI&color=blue)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/apache-dubbo?logo=python&logoColor=gold&label=Python)
-
-<p align="center">
-  <img src="https://cn.dubbo.apache.org/imgs/nav_logo2.png" alt="Logo" width="40%" />
-</p>
-
-Apache Dubbo is an easy-to-use, high-performance WEB and RPC framework with builtin service discovery, traffic management, observability, security features, tools and best practices for building enterprise-level microservices.
-
-Dubbo-python is a Python implementation of the [triple protocol](https://dubbo.apache.org/zh-cn/overview/reference/protocols/triple-spec/) (a protocol fully compatible with gRPC and friendly to HTTP) and various features designed by Dubbo for constructing microservice architectures.
-
-Visit [the official website](https://dubbo.apache.org/) for more information.
-
-### 🚧 Early-Stage Project 🚧
-
-> **Disclaimer:** This project is in the early stages of development. Features are subject to change, and some components may not be fully stable. Contributions and feedback are welcome as the project evolves.
-
-
-## Architecture
-<img src="./docs/img/Architecture.svg" alt="Architecture" style="zoom:30%;" />
-
-## Features
-
-- **Service Discovery**: Zookeeper
-- **Load Balance**: Random, CPU
-- **RPC Protocols**: Triple(gRPC compatible and HTTP-friendly)
-- **Transport**: asyncio(uvloop)
-- **Serialization**: Customizable(protobuf, json...)
-
-
-## Installation
-
-Before you start, make sure you have **`python 3.9+`** installed.
-
-1. Install Directly
-
-   ```sh
-   pip install apache-dubbo
-   ```
-2. Install from source
-
-   ```sh
-   git clone https://github.com/apache/dubbo-python.git
-   cd dubbo-python && pip install .
-   ```
-
-## Getting started
-
-Get up and running with Dubbo-Python in just 5 minutes by following our [Quick Start Guide](https://github.com/apache/dubbo-python/tree/main/samples).
-
-It's as simple as the code snippet below. With just a few lines of code, you can launch a fully functional point-to-point RPC service:
-
-1. Build and start the server
-
-   ```python
-   import dubbo
-   from dubbo.configs import ServiceConfig
-   from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
-   
-   
-   class UnaryServiceServicer:
-       def say_hello(self, message: bytes) -> bytes:
-           print(f"Received message from client: {message}")
-           return b"Hello from server"
-   
-   
-   def build_service_handler():
-       # build a method handler
-       method_handler = RpcMethodHandler.unary(
-           method=UnaryServiceServicer().say_hello, method_name="unary"
-       )
-       # build a service handler
-       service_handler = RpcServiceHandler(
-           service_name="org.apache.dubbo.samples.HelloWorld",
-           method_handlers=[method_handler],
-       )
-       return service_handler
-   
-   
-   if __name__ == "__main__":
-       # build service config
-       service_handler = build_service_handler()
-       service_config = ServiceConfig(
-           service_handler=service_handler, host="127.0.0.1", port=50051
-       )
-       # start the server
-       server = dubbo.Server(service_config).start()
-   
-       input("Press Enter to stop the server...\n")
-   ```
-
-1. Build and start the Client
-
-   ```python
-   import dubbo
-   from dubbo.configs import ReferenceConfig
-   
-   
-   class UnaryServiceStub:
-       def __init__(self, client: dubbo.Client):
-           self.unary = client.unary(method_name="unary")
-   
-       def say_hello(self, message: bytes) -> bytes:
-           return self.unary(message)
-   
-   
-   if __name__ == "__main__":
-       # Create a client
-       reference_config = ReferenceConfig.from_url(
-           "tri://127.0.0.1:50051/org.apache.dubbo.samples.HelloWorld"
-       )
-       dubbo_client = dubbo.Client(reference_config)
-       unary_service_stub = UnaryServiceStub(dubbo_client)
-   
-       # Call the remote method
-       result = unary_service_stub.say_hello(b"Hello from client")
-       print(result)
-   
-   ```
-
-## Contributing
-
-We are excited to welcome contributions to the Dubbo-Python project! Whether you are fixing bugs, adding new features, or improving documentation, your input is highly valued.
-
-To ensure a smooth collaboration, please review our [Contributing Guide](./docs/CONTRIBUTING.md) for detailed instructions on how to get started, adhere to coding standards, and submit your contributions effectively.
-
-## License
-
-Apache Dubbo-python software is licensed under the Apache License Version 2.0. See
-the [LICENSE](https://github.com/apache/dubbo-python/blob/main/LICENSE) file for details.
-
-
----
 File: requirements-dev.txt
 Size: 431 bytes
 Lines: 19
@@ -1023,134 +873,6 @@ def test_url_to_str():
 
 
 ---
-File: docs/CONTRIBUTING.md
-Size: 5109 bytes
-Lines: 122
----
-# CONTRIBUTING
-
-## Contributing to Dubbo Python
-
-Dubbo Python is released under the non-restrictive Apache 2.0 licenses and follows a very standard Github development process, using Github tracker for issues and merging pull requests into main. Contributions of all form to this repository is acceptable, as long as it follows the prescribed community guidelines enumerated below.
-
-### Sign the Contributor License Agreement
-
-Before we accept a non-trivial patch or pull request (PRs), we will need you to sign the Contributor License Agreement. Signing the contributors' agreement does not grant anyone commits rights to the main repository, but it does mean that we can accept your contributions, and you will get an author credit if we do. Active contributors may get invited to join the core team that will grant them privileges to merge existing PRs.
-
-### Contact
-
-### Mailing list
-
-The mailing list is the recommended way of pursuing a discussion on almost anything related to Dubbo. Please refer to this [guide](https://github.com/apache/dubbo/wiki/Mailing-list-subscription-guide) for detailed documentation on how to subscribe.
-
-- [dev@dubbo.apache.org](mailto:dev-subscribe@dubbo.apache.org): the developer mailing list where you can ask questions about an issue you may have encountered while working with Dubbo.
-- [commits@dubbo.apache.org](mailto:commits-subscribe@dubbo.apache.org): the commit updates will get broadcasted on this mailing list. You can subscribe to it, should you be interested in following Dubbo's development.
-- [notifications@dubbo.apache.org](mailto:notifications-subscribe@dubbo.apache.org): all the Github [issue](https://github.com/apache/dubbo/issues) updates and [pull request](https://github.com/apache/dubbo/pulls) updates will be sent to this mailing list.
-
-### Reporting issue
-
-Please follow the [template](https://github.com/apache/dubbo/issues/new?template=dubbo-issue-report-template.md) for reporting any issues.
-
-NOTE: Issues related to Dubbo Python should be submitted in the [Dubbo](https://github.com/apache/dubbo/issues) repository, and the **Apache Dubbo Component** option should be set to `Python SDK`.
-
-### Code Conventions
-
-Our code style almost fully adheres to the [**PEP 8 style guide**](https://peps.python.org/pep-0008/), with the following adjustments and new constraints:
-
-1. We have relaxed the **Maximum Line Length** limit from 79 to **120**.
-2. For **Documentation Strings**, or **comment style**, we follow the `reStructuredText` format.
-3. ...
-
-### Contribution flow
-
-A rough outline of an ideal contributors' workflow is as follows:
-
-- Fork the current repository
-- Create a topic branch from where to base the contribution. Mostly, it's the main branch.
-- Make commits of logical units.
-- Make sure the commit messages are in the proper format (see below).
-- Push changes in a topic branch to your forked repository.
-- Follow the checklist in the [pull request template](https://github.com/apache/dubbo-python/blob/main/.github/PULL_REQUEST_TEMPLATE.md)
-- Before sending out the pull request, please sync your forked repository with the remote repository to ensure that your PR is elegant, concise. Reference the guide below:
-
-```
-git remote add upstream git@github.com:apache/dubbo-python.git
-git fetch upstream
-git rebase upstream/master
-git checkout -b your_awesome_patch
-... add some work
-git push origin your_awesome_patch
-
-```
-
-- Submit a pull request to apache/dubbo-python and wait for the reply.
-
-Thanks for contributing!
-
-
-
-### Development & Testing
-
-Before you start working on development, please install the necessary dependencies for Dubbo-Python using the following command:
-
-```shell
-pip install -r requirements-dev.txt
-```
-
-Our project uses a `src` layout, and packaging is required before running tests. We strongly recommend using the **editable installation mode** for packaging and testing:
-
-```shell
-pip install -e .
-```
-
-
-
-### Code style
-
-We use **ruff** as the linter and code formatter for Dubbo-Python, and **Mypy** as the static type checker.
-
-Therefore, when developing, you should install both tools:
-
-- ruff: [https://github.com/astral-sh/ruff](https://github.com/astral-sh/ruff)
-- Mypy: [https://github.com/python/mypy](https://github.com/python/mypy)
-
-We have already set up the configurations for ruff and Mypy in the `pyproject.toml` file. You only need to specify the configuration path (`pyproject.toml`) when using them.
-
-1. Code Formatting
-   
-    By default, ruff will look for the `pyproject.toml` file in the current directory and its parent directories and load its configuration.
-    
-    ```shell
-    # Default
-    ruff format
-    
-    # Specify configuration file
-    ruff format --config pyproject.toml
-    ```
-    
-2. Code Linting
-   
-    ```shell
-    # Just check
-    ruff check
-    
-    # Check and fix
-    ruff check --fix
-    ```
-    
-3. Static Type Checking
-   
-    Mypy will also automatically look for the `pyproject.toml` file and load its configuration.
-    
-    ```shell
-    # Default
-    mypy
-    
-    # Specify configuration file
-    mypy --config-file pyproject.toml
-    ```
-
----
 File: samples/__init__.py
 Size: 783 bytes
 Lines: 15
@@ -1170,23 +892,6 @@ Lines: 15
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
----
-File: samples/README.md
-Size: 583 bytes
-Lines: 10
----
-# Dubbo-python Samples
-
-## What It Contains
-
-1. [**helloworld**](./helloworld): The simplest usage example for quick start.
-2. [**serialization**](./serialization): Writing and using custom serialization functions, including protobuf, JSON, and more.
-3. [**stream**](./stream): Using streaming calls, including `ClientStream`, `ServerStream`, and `BidirectionalStream`.
-4. [**registry**](./registry): Using service registration and discovery features.
-5. [**LLM Integration**](./llm): Easily integrating LLMs with Dubbo Python, providing RPC services using models like DeepSeek R1.
-
 
 
 ---
@@ -1326,140 +1031,6 @@ Lines: 15
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
----
-File: samples/llm/README.md
-Size: 4442 bytes
-Lines: 127
----
-## Integrating LLM
-
-Dubbo Python can easily integrate with LLMs and provide RPC services.
-
-- **Model**: DeepSeek-R1-Distill-Qwen-7B
-- **Model Deployment Framework**: LMDeploy
-- **GPU**: NVIDIA Corporation GA102GL [A10] (rev a1)
-
-**Description**: This example demonstrates the use of [DeepSeek R1](https://github.com/deepseek-ai/DeepSeek-R1) and [LMDeploy](https://github.com/InternLM/lmdeploy) for deployment, but the overall process is applicable to other models and inference frameworks. If you wish to deploy using Docker or other containerization methods, refer to the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html) documentation for relevant configuration steps.
-
-### Basic Environment
-
-```sh
-----------
-Operating System: Ubuntu 22.04.5
-Python Version: 3.11.10
-PyTorch Version: 2.5.1
-----------
-```
-
-### Model Download
-
-Use the `snapshot_download` function provided by modelscope to download the model. The first parameter is the model name, and the `cache_dir` parameter specifies the download path for the model.
-
-```python
-from modelscope import snapshot_download
-
-model_dir = snapshot_download('deepseek-ai/DeepSeek-R1-Distill-Qwen-7B', cache_dir='/home/dubbo/model', revision='master')
-```
-
-### Core code
-
-```python
-from time import sleep
-
-from lmdeploy import GenerationConfig, TurbomindEngineConfig, pipeline
-
-from dubbo import Dubbo
-from dubbo.configs import RegistryConfig, ServiceConfig
-from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
-import chat_pb2
-
-# the path of a model. It could be one of the following options:
-# 1. A local directory path of a turbomind model
-# 2. The model_id of a lmdeploy-quantized model
-# 3. The model_id of a model hosted inside a model repository
-model = "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
-
-backend_config = TurbomindEngineConfig(cache_max_entry_count=0.2, max_context_token_num=20544, session_len=20544)
-
-gen_config = GenerationConfig(
-    top_p=0.95,
-    temperature=0.6,
-    max_new_tokens=8192,
-    stop_token_ids=[151329, 151336, 151338],
-    do_sample=True,  # enable sampling
-)
-
-
-class DeepSeekAiServicer:
-    def __init__(self, model: str, backend_config: TurbomindEngineConfig, gen_config: GenerationConfig):
-        self.llm = pipeline(model, backend_config=backend_config)
-        self.gen_config = gen_config
-
-    def chat(self, stream):
-        # read request from stream
-        request = stream.read()
-        print(f"Received request: {request}")
-        # prepare prompts
-        prompts = [{"role": request.role, "content": request.content + "<think>\n"}]
-
-        is_think = False
-
-        # perform streaming inference
-        for item in self.llm.stream_infer(prompts, gen_config=gen_config):
-            # update think status
-            if item.text == "<think>":
-                is_think = True
-                continue
-            elif item.text == "</think>":
-                is_think = False
-                continue
-            # According to the state of thought, decide the content of the reply.
-            if is_think:
-                # send thought
-                stream.write(chat_pb2.ChatReply(think=item.text, answer=""))
-            else:
-                # send answer
-                stream.write(chat_pb2.ChatReply(think="", answer=item.text))
-
-        stream.done_writing()
-
-
-def build_server_handler():
-    # build a method handler
-    deepseek_ai_servicer = DeepSeekAiServicer(model, backend_config, gen_config)
-    method_handler = RpcMethodHandler.server_stream(
-        deepseek_ai_servicer.chat,
-        method_name="chat",
-        request_deserializer=chat_pb2.ChatRequest.FromString,
-        response_serializer=chat_pb2.ChatReply.SerializeToString,
-    )
-    # build a service handler
-    service_handler = RpcServiceHandler(
-        service_name="org.apache.dubbo.samples.llm.api.DeepSeekAiService",
-        method_handlers=[method_handler],
-    )
-    return service_handler
-
-
-if __name__ == "__main__":
-    # build a service handler
-    service_handler = build_server_handler()
-    service_config = ServiceConfig(service_handler=service_handler)
-
-    # Configure the Zookeeper registry
-    registry_config = RegistryConfig.from_url("zookeeper://zookeeper:2181")
-    bootstrap = Dubbo(registry_config=registry_config)
-
-    # Create and start the server
-    bootstrap.create_server(service_config).start()
-
-    # 30days
-    sleep(30 * 24 * 60 * 60)
-
-```
-
 
 
 ---
@@ -1769,202 +1340,6 @@ Lines: 15
 
 
 ---
-File: samples/serialization/README.md
-Size: 6167 bytes
-Lines: 190
----
-## Custom Serialization
-
-Python is a dynamic language, and its flexibility makes it challenging to design a universal serialization layer for other languages. Therefore, we removed the framework-level serialization layer and instead exposed interfaces, allowing users to implement their own (as they know best the data format they will be passing).
-
-Serialization typically involves two parts: serialization and deserialization. We have defined the types for these functions, and custom serialization/deserialization functions must follow these "formats."
-
-For serialization functions, we specify:
-
-```python
-# A function that takes any number of arguments and returns data of type bytes
-SerializingFunction = Callable[..., bytes]
-```
-
-For deserialization functions, we specify:
-
-```python
-# A function that takes an argument of type bytes and returns data of any type
-DeserializingFunction = Callable[[bytes], Any]
-```
-
-Below, I'll demonstrate how to use `protobuf` and `json` for serialization.
-
-### [protobuf](./protobuf)
-
-1. For defining and compiling `protobuf` files, please refer to the [protobuf tutorial](https://protobuf.dev/getting-started/pythontutorial/) for detailed instructions.
-
-2. Set `xxx_serializer` and `xxx_deserializer` in the client and server.
-
-   client
-
-   ```python
-   class GreeterServiceStub:
-       def __init__(self, client: dubbo.Client):
-           self.unary = client.unary(
-               method_name="sayHello",
-               request_serializer=greeter_pb2.GreeterRequest.SerializeToString,
-               response_deserializer=greeter_pb2.GreeterReply.FromString,
-           )
-   
-       def say_hello(self, request):
-           return self.unary(request)
-   
-   
-   if __name__ == "__main__":
-       reference_config = ReferenceConfig.from_url(
-           "tri://127.0.0.1:50051/org.apache.dubbo.samples.data.Greeter"
-       )
-       dubbo_client = dubbo.Client(reference_config)
-   
-       stub = GreeterServiceStub(dubbo_client)
-       result = stub.say_hello(greeter_pb2.GreeterRequest(name="Dubbo-python"))
-       print(f"Received reply: {result.message}")
-   ```
-   
-   server
-   
-   ```python
-   class GreeterServiceServicer:
-       def say_hello(self, request):
-           print(f"Received request: {request}")
-           return greeter_pb2.GreeterReply(message=f"Hello, {request.name}")
-   
-   
-   def build_service_handler():
-       # build a method handler
-       method_handler = RpcMethodHandler.unary(
-           GreeterServiceServicer().say_hello,
-           method_name="sayHello",
-           request_deserializer=greeter_pb2.GreeterRequest.FromString,
-           response_serializer=greeter_pb2.GreeterReply.SerializeToString,
-       )
-       # build a service handler
-       service_handler = RpcServiceHandler(
-           service_name="org.apache.dubbo.samples.data.Greeter",
-           method_handlers=[method_handler],
-       )
-       return service_handler
-   
-   
-   if __name__ == "__main__":
-       # build a service handler
-       service_handler = build_service_handler()
-       service_config = ServiceConfig(
-           service_handler=service_handler, host="127.0.0.1", port=50051
-       )
-   
-       # start the server
-       server = dubbo.Server(service_config).start()
-   
-       input("Press Enter to stop the server...\n")
-   ```
-
-
-
-### [Json](./json)
-
-We have already implemented single-parameter serialization and deserialization using `protobuf`. Now, I will demonstrate how to write a multi-parameter `Json` serialization and deserialization function to enable remote calls for methods with multiple parameters.
-
-1. Install `orjson`:
-
-   ```shell
-   pip install orjson
-   ```
-
-2. Define serialization and deserialization functions:
-
-   client
-
-   ```python
-   def request_serializer(name: str, age: int) -> bytes:
-       return orjson.dumps({"name": name, "age": age})
-   
-   
-   def response_deserializer(data: bytes) -> str:
-       json_dict = orjson.loads(data)
-       return json_dict["message"]
-   
-   
-   class GreeterServiceStub:
-       def __init__(self, client: dubbo.Client):
-           self.unary = client.unary(
-               method_name="unary",
-               request_serializer=request_serializer,
-               response_deserializer=response_deserializer,
-           )
-   
-       def say_hello(self, name: str, age: int):
-           return self.unary(name, age)
-   
-   
-   if __name__ == "__main__":
-       reference_config = ReferenceConfig.from_url(
-           "tri://127.0.0.1:50051/org.apache.dubbo.samples.serialization.json"
-       )
-       dubbo_client = dubbo.Client(reference_config)
-   
-       stub = GreeterServiceStub(dubbo_client)
-       result = stub.say_hello("dubbo-python", 18)
-       print(result)
-   ```
-   
-   server
-   
-   ```python
-   def request_deserializer(data: bytes) -> Tuple[str, int]:
-       json_dict = orjson.loads(data)
-       return json_dict["name"], json_dict["age"]
-   
-   
-   def response_serializer(message: str) -> bytes:
-       return orjson.dumps({"message": message})
-   
-   
-   class GreeterServiceServicer:
-       def say_hello(self, request):
-           name, age = request
-           print(f"Received request: {name}, {age}")
-           return f"Hello, {name}, you are {age} years old."
-   
-   
-   def build_service_handler():
-       # build a method handler
-       method_handler = RpcMethodHandler.unary(
-           GreeterServiceServicer().say_hello,
-           method_name="unary",
-           request_deserializer=request_deserializer,
-           response_serializer=response_serializer,
-       )
-       # build a service handler
-       service_handler = RpcServiceHandler(
-           service_name="org.apache.dubbo.samples.serialization.json",
-           method_handlers=[method_handler],
-       )
-       return service_handler
-   
-   
-   if __name__ == "__main__":
-       # build server config
-       service_handler = build_service_handler()
-       service_config = ServiceConfig(
-           service_handler=service_handler, host="127.0.0.1", port=50051
-       )
-   
-       # start the server
-       server = dubbo.Server(service_config).start()
-   
-       input("Press Enter to stop the server...\n")
-   ```
-   
-   
-
----
 File: samples/serialization/json/server.py
 Size: 2182 bytes
 Lines: 64
@@ -2261,107 +1636,6 @@ Lines: 15
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
----
-File: samples/stream/README.md
-Size: 3731 bytes
-Lines: 94
----
-## Streaming Calls
-
-Dubbo-Python supports streaming calls, including `ClientStream`, `ServerStream`, and `BidirectionalStream` modes.
-
-Streaming calls can be divided into write-streams and read-streams. For `ClientStream`, it’s multiple writes with a single read; for `ServerStream`, a single write with multiple reads; and `BidirectionalStream` allows multiple writes and reads.
-
-### Write-Stream
-
-Write operations in streaming calls can be divided into single write (`ServerStream`) and multiple writes (`ClientStream` and `BidirectionalStream`).
-
-#### Single Write
-
-Single write calls are similar to unary mode. For example:
-
-```python
-stub.server_stream(greeter_pb2.GreeterRequest(name="hello world from dubbo-python"))
-```
-
-#### Multiple Writes
-
-For multiple writes, users can write data using either an iterator or `writeStream` (only one of these options should be used).
-
-1. **Iterator-based Write**: Writing via iterator is similar to unary mode, with the main difference being the use of an iterator for multiple writes. For example:
-
-   ```python
-   # Use an iterator to send multiple requests
-   def request_generator():
-       for i in ["hello", "world", "from", "dubbo-python"]:
-           yield greeter_pb2.GreeterRequest(name=str(i))
-
-   # Call the remote method and return a read_stream
-   stream = stub.client_stream(request_generator())
-   ```
-
-2. **Using `writeStream`**: This method requires an empty argument, after which data is written incrementally using `write`, and `done_writing` is called to end the write-stream. For example:
-
-   ```python
-   stream = stub.bi_stream()
-   # Use the write method to send messages
-   stream.write(greeter_pb2.GreeterRequest(name="jock"))
-   stream.write(greeter_pb2.GreeterRequest(name="jane"))
-   stream.write(greeter_pb2.GreeterRequest(name="alice"))
-   stream.write(greeter_pb2.GreeterRequest(name="dave"))
-   # Call done_writing to notify the server that the client has finished writing
-   stream.done_writing()
-   ```
-
-### Read-Stream
-
-Read operations for streaming calls can be single read (`ClientStream`) or multiple reads (`ServerStream` and `BidirectionalStream`). A `ReadStream` is returned in all cases, and data can be read using the `read` method or an iterator. When using `read`, please note:
-
-1. The `read` method supports a `timeout` parameter (in seconds).
-2. The `read` method can return one of three values: the expected data, `None` (timeout exceeded), or `EOF` (end of the read-stream).
-
-#### Single Read
-
-A single call to the `read` method will retrieve the data, for example:
-
-```python
-result = stream.read()
-print(f"Received response: {result.message}")
-```
-
-#### Multiple Reads
-
-Multiple reads can be done by repeatedly calling `read`, with handling for `None` and `EOF` values. Since `ReadStream` implements `__iter__` and `__next__`, an iterator-based approach can also be used, which automatically handles these values but doesn’t support a timeout.
-
-1. **Using Iterator (Recommended)**:
-
-   ```python
-   def client_stream(self, request_iterator):
-       response = ""
-       for request in request_iterator:
-           print(f"Received request: {request.name}")
-           response += f"{request.name} "
-       return greeter_pb2.GreeterReply(message=response)
-   ```
-
-2. **Multiple Calls to `read` Method**:
-
-   ```python
-   # Use read method to receive messages
-   # If no message arrives within the specified time, returns None
-   # If the server has finished sending messages, returns EOF
-   while True:
-       i = stream.read(timeout=0.5)
-       if i is dubbo.classes.EOF:
-           break
-       elif i is None:
-           print("No message received")
-           continue
-       print(f"Received response: {i.message}")
-   ```
-
 
 
 ---
@@ -2817,39 +2091,6 @@ Lines: 15
 
 
 ---
-File: samples/registry/README.md
-Size: 1150 bytes
-Lines: 26
----
-## Service Registration and Discovery
-
-Using service registration and discovery is very simple. In fact, it only requires two additional lines of code compared to point-to-point calls. Before using this feature, we need to install the relevant registry client. Currently, Dubbo-python only supports `Zookeeper`, so the following demonstration will use `Zookeeper`.
-
-Similar to before, we need to clone the Dubbo-python source code and install it. However, in this case, we also need to install the `Zookeeper` client. The commands are:
-
-```shell
-git clone https://github.com/apache/dubbo-python.git
-cd dubbo-python && pip install .[zookeeper]
-```
-
-After that, simply start `Zookeeper` and insert the following code into your existing example:
-
-```python
-# Configure the Zookeeper registry
-registry_config = RegistryConfig.from_url("zookeeper://127.0.0.1:2181")
-bootstrap = Dubbo(registry_config=registry_config)
-
-# Create the client
-client = bootstrap.create_client(reference_config)
-
-# Create and start the server
-bootstrap.create_server(service_config).start()
-```
-
-This enables service registration and discovery within your Dubbo-python project.
-
-
----
 File: samples/registry/zookeeper/server.py
 Size: 2113 bytes
 Lines: 55
@@ -3203,35 +2444,6 @@ coverage run -m pytest
 # Generate coverage report
 # TODO: shut down the coverage report for now, because the current code coverage is too low
 # coverage report --show-missing --skip-covered --fail-under=100
-
----
-File: .github/PULL_REQUEST_TEMPLATE.md
-Size: 1282 bytes
-Lines: 22
----
-## What is the purpose of the change
-
-<!-- Please provide the Issue number and link corresponding to the PR. -->
-ISSUE: [#issue_number](issue_link)
-
-
-## Brief changelog
-
-
-## Verifying this change
-
-
-<!-- Follow this checklist to help us incorporate your contribution quickly and easily: -->
-
-## Checklist
-- [x] Make sure there is a [GitHub_issue](https://github.com/apache/dubbo/issues) field for the change (usually before you start working on it). Trivial changes like typos do not require a GitHub issue. Your pull request should address just this issue, without pulling in other changes - one PR resolves one issue.
-- [ ] Each commit in the pull request should have a meaningful subject line and body.
-- [ ] Write a pull request description that is detailed enough to understand what the pull request does, how, and why.
-- [ ] Write necessary unit-test to verify your logic correction, more mock a little better when cross module dependency exist.
-- [ ] Add some description to [dubbo-website](https://github.com/apache/dubbo-website) project if you are requesting to add a feature.
-- [ ] GitHub Actions works fine on your own branch.
-- [ ] If this contribution is large, please follow the [Software Donation Guide](https://github.com/apache/dubbo/wiki/Software-donation-guide).
-
 
 ---
 File: .github/workflows/test-suite.yaml

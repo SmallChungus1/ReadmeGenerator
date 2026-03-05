@@ -1,17 +1,15 @@
-Tokens: 14683
+Tokens: 13242
 Repo: apache/predictionio-sdk-ruby
 Commit: a1777db9f89a4287d252c8ca166a279fb2af64b7
-Timestamp: 2026-03-02T20:54:00.903684
+Timestamp: 2026-03-04T19:52:39.956792
 
 --- Repository Structure ---
 .
 ├── .gitignore
 ├── .travis.yml
-├── CONTRIBUTING.md
 ├── Gemfile
 ├── LICENSE
 ├── NOTICE
-├── README.md
 ├── Rakefile
 ├── lib
 │   ├── predictionio
@@ -30,131 +28,31 @@ Timestamp: 2026-03-02T20:54:00.903684
 
 --- Summary Report ---
 Total files scanned: 19
-Files included: 19
-Files skipped by rule: 0
+Files included: 17
+Files skipped by rule: 2
 Files skipped by size: 0
-Detected languages count: 5
+Detected languages count: 4
 Top 15 largest included files:
-  12912 bytes - lib\predictionio\event_client.rb
-  11560 bytes - LICENSE
-  6910 bytes - spec\predictionio_spec.rb
-  4983 bytes - lib\predictionio\connection.rb
-  4774 bytes - README.md
-  4649 bytes - lib\predictionio\engine_client.rb
-  4430 bytes - spec\spec_helper.rb
-  2442 bytes - lib\predictionio.rb
-  1691 bytes - lib\predictionio\async_response.rb
-  1483 bytes - lib\predictionio\async_request.rb
-  1442 bytes - lib\predictionio\file_exporter.rb
-  1422 bytes - CONTRIBUTING.md
-  887 bytes - Rakefile
-  875 bytes - predictionio.gemspec
-  856 bytes - .gitignore
+  12529 bytes - lib/predictionio/event_client.rb
+  11358 bytes - LICENSE
+  6749 bytes - spec/predictionio_spec.rb
+  4854 bytes - lib/predictionio/connection.rb
+  4515 bytes - lib/predictionio/engine_client.rb
+  4336 bytes - spec/spec_helper.rb
+  2384 bytes - lib/predictionio.rb
+  1648 bytes - lib/predictionio/async_response.rb
+  1444 bytes - lib/predictionio/async_request.rb
+  1398 bytes - lib/predictionio/file_exporter.rb
+  867 bytes - Rakefile
+  852 bytes - predictionio.gemspec
+  834 bytes - .gitignore
+  826 bytes - lib/predictionio/version.rb
+  409 bytes - NOTICE
 -----------------------
 
 ---
-File: .gitignore
-Size: 856 bytes
-Lines: 22
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-/coverage
-/doc
-.rvmrc
-/.idea
-/pkg
-*.gem
-Gemfile.lock
-
-
----
-File: .travis.yml
-Size: 85 bytes
-Lines: 8
----
-language: ruby
-rvm:
-  - 2.1.5
-  - 2.2.7
-  - 2.3.5
-  - 2.4.2
-script:
-  - rake
-
-
----
-File: CONTRIBUTING.md
-Size: 1422 bytes
-Lines: 29
----
-<!--
-Licensed to the Apache Software Foundation (ASF) under one or more
-contributor license agreements.  See the NOTICE file distributed with
-this work for additional information regarding copyright ownership.
-The ASF licenses this file to You under the Apache License, Version 2.0
-(the "License"); you may not use this file except in compliance with
-the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
-
-Thank you for your interest in contributing to Apache PredictionIO.
-Our mission is to enable developers to build scalable machine learning
-applications easily. Here is how you can help with the project development. If
-you have any question regarding development at anytime, please free to subscribe
-and post to the Development Mailing List
-<mailto:dev-subscribe@predictionio.apache.org>.
-
-For code contribution, please follow guidelines at
-http://predictionio.apache.org/community/contribute-code/.
-
-For documentation contribution, please follow guidelines at
-http://predictionio.apache.org/community/contribute-documentation/.
-
-
----
-File: Gemfile
-Size: 225 bytes
-Lines: 13
----
-source 'https://rubygems.org'
-
-group :test do
-  gem 'coveralls', require: false
-  gem 'rspec', '~> 3.6.0'
-  gem 'webmock', '~> 2.3.2'
-end
-
-group :doc do
- gem 'rdoc', '~> 4.0.0'
-end
-
-gem 'activesupport', '~> 4.2'
-
-
----
 File: LICENSE
-Size: 11560 bytes
+Size: 11358 bytes
 Lines: 202
 ---
 
@@ -363,7 +261,7 @@ Lines: 202
 
 ---
 File: NOTICE
-Size: 418 bytes
+Size: 409 bytes
 Lines: 9
 ---
 Apache PredictionIO
@@ -379,7 +277,7 @@ Please see LICENSE for additional copyright and licensing information.
 
 ---
 File: predictionio.gemspec
-Size: 875 bytes
+Size: 852 bytes
 Lines: 23
 ---
 $:.push File.expand_path('../lib', __FILE__)
@@ -409,7 +307,7 @@ end
 
 ---
 File: Rakefile
-Size: 887 bytes
+Size: 867 bytes
 Lines: 20
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -435,179 +333,341 @@ task default: :spec
 
 
 ---
-File: README.md
-Size: 4774 bytes
-Lines: 164
+File: .gitignore
+Size: 834 bytes
+Lines: 22
 ---
-<!--
-Licensed to the Apache Software Foundation (ASF) under one or more
-contributor license agreements.  See the NOTICE file distributed with
-this work for additional information regarding copyright ownership.
-The ASF licenses this file to You under the Apache License, Version 2.0
-(the "License"); you may not use this file except in compliance with
-the License.  You may obtain a copy of the License at
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+/coverage
+/doc
+.rvmrc
+/.idea
+/pkg
+*.gem
+Gemfile.lock
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
 
-# Apache PredictionIO Ruby SDK
+---
+File: Gemfile
+Size: 212 bytes
+Lines: 13
+---
+source 'https://rubygems.org'
 
-[![Build Status](https://api.travis-ci.org/apache/predictionio-sdk-ruby.svg?branch=develop)](https://github.com/apache/predictionio-sdk-ruby)
-[![Gem Version](https://badge.fury.io/rb/predictionio.svg)](http://badge.fury.io/rb/predictionio)
+group :test do
+  gem 'coveralls', require: false
+  gem 'rspec', '~> 3.6.0'
+  gem 'webmock', '~> 2.3.2'
+end
 
-The Ruby SDK provides a convenient wrapper for PredictionIO Event Server API and
-Engine API. It allows you to quickly record your users' behavior and retrieve
-personalized predictions for them.
+group :doc do
+ gem 'rdoc', '~> 4.0.0'
+end
 
-## Documentation
+gem 'activesupport', '~> 4.2'
 
-Full Ruby SDK documentation can be found [here](http://www.rubydoc.info/github/apache/incubator-predictionio-sdk-ruby).
 
-Please see the [PredictionIO App Integration
-Overview](http://predictionio.apache.org/appintegration/) to
-understand how the SDK can be used to integrate PredictionIO Event Server and
-Engine with your application.
+---
+File: .travis.yml
+Size: 77 bytes
+Lines: 8
+---
+language: ruby
+rvm:
+  - 2.1.5
+  - 2.2.7
+  - 2.3.5
+  - 2.4.2
+script:
+  - rake
 
-## Installation
 
-Ruby 2+ required!
+---
+File: spec/spec_helper.rb
+Size: 4336 bytes
+Lines: 94
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-The module is published to [RubyGems](http://rubygems.org/gems/predictionio) and
-can be installed directly by:
+require 'coveralls'
+require 'json'
+require 'webmock/rspec'
 
-```sh
-gem install predictionio
-```
+Coveralls.wear!
+WebMock.disable_net_connect!(allow_localhost: true)
 
-Or using [Bundler](http://bundler.io/) with:
+RSpec.configure do |config|
+  config.before(:each) do
+    # Events API
+    %w(
+      http://fakeapi.com:7070/events.json?accessKey=1&channel=test-channel
+    ).each do |url|
+      stub_request(:post, url)
+        .with(body: hash_including(event: '$set',
+                                   entityType: 'Session',
+                                   entityId: '42'))
+        .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef00'))
+    end
 
-```
-gem 'predictionio', '0.12.1'
-```
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: 'register',
+                                 entityType: 'user',
+                                 entityId: 'foobar'))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef00'))
 
-## Sending Events to Event Server
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: '$set',
+                                 entityType: 'user',
+                                 entityId: 'foobar'))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef01'))
 
-Please refer to [Event Server
-documentation](http://predictionio.apache.org/datacollection/) for
-event format and how the data can be collected from your app.
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: '$unset',
+                                 entityType: 'user',
+                                 entityId: 'foobar',
+                                 properties: { bar: 'baz' }))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef02'))
 
-### Instantiate Event Client and connect to PredictionIO Event Server
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: '$set',
+                                 entityType: 'item',
+                                 entityId: 'foobar'))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef03'))
 
-```ruby
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: '$unset',
+                                 entityType: 'item',
+                                 entityId: 'foobar',
+                                 properties: { bar: 'baz' }))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef04'))
+
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: 'greet',
+                                 entityType: 'user',
+                                 entityId: 'foobar',
+                                 targetEntityType: 'item',
+                                 targetEntityId: 'barbaz',
+                                 properties: { dead: 'beef' }))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef05'))
+
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: '$delete',
+                                 entityType: 'user',
+                                 entityId: 'foobar'))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef06'))
+
+    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
+      .with(body: hash_including(event: '$delete',
+                                 entityType: 'item',
+                                 entityId: 'foobar'))
+      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef07'))
+
+    # Engine Instance
+    stub_request(:post, 'http://fakeapi.com:8000/queries.json')
+      .with(body: { uid: 'foobar' })
+      .to_return(status: 200, body: JSON.generate(iids: %w(dead beef)), headers: {})
+  end
+end
+
+
+---
+File: spec/predictionio_spec.rb
+Size: 6749 bytes
+Lines: 161
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 require 'predictionio'
+require 'spec_helper'
 
-# Define environment variables.
-ENV['PIO_THREADS'] = '50' # For async requests.
-ENV['PIO_EVENT_SERVER_URL'] = 'http://localhost:7070'
-ENV['PIO_ACCESS_KEY'] = 'YOUR_ACCESS_KEY' # Find your access key with: `$ pio app list`.
+describe PredictionIO do
+  let(:access_key) { 1 }
+  let(:event_client) { PredictionIO::EventClient.new(access_key, 'http://fakeapi.com:7070', 10) }
+  let(:engine_client) { PredictionIO::EngineClient.new('http://fakeapi.com:8000', 10) }
 
-# Create PredictionIO event client.
-client = PredictionIO::EventClient.new(ENV['PIO_ACCESS_KEY'], ENV['PIO_EVENT_SERVER_URL'], Integer(ENV['PIO_THREADS']))
-```
+  describe 'Events API' do
+    it 'create_event should create an event' do
+      response = event_client.create_event('register', 'user', 'foobar')
+      expect(response.code).to eq('201')
+    end
 
-### Create a `$set` user event and send it to Event Server
+    context 'with http stub (for channel test)' do
+      before(:each) do
+        success_response = Net::HTTPCreated.new('HTTP/1.1', '201', 'Created')
+        success_response.body = JSON.generate(eventId: 'deadbeef00')
+        expect_any_instance_of(PredictionIO::Connection).to receive(:apost).and_return(double(get: success_response))
+      end
 
-```ruby
-client.create_event(
-  '$set',
-  'user',
-  user_id
-)
+      it 'create_event should have channel option (symbol)' do
+        expect(PredictionIO::AsyncRequest).
+          to receive(:new).with("/events.json?accessKey=#{access_key}&channel=test-channel",
+                                {
+                                  "eventTime" => "2017-03-22T12:26:35+03:00", "event" => "$set",
+                                  "entityType" => "Session", "entityId" => "42"
+                                }.to_json)
+        event_client.create_event('$set', 'Session', '42',
+                                  {channel: 'test-channel', 'eventTime' => "2017-03-22T12:26:35+03:00"})
+      end
 
-```
+      it 'create_event should process channel option (string)' do
+        expect(PredictionIO::AsyncRequest).
+          to receive(:new).with("/events.json?accessKey=#{access_key}&channel=test-channel",
+                                {
+                                  "eventTime" => "2017-03-22T12:26:35+03:00", "event" => "$set",
+                                  "entityType" => "Session", "entityId" => "42"
+                                }.to_json)
+        response = event_client.create_event('$set', 'Session', '42',
+                                             { 'channel' => 'test-channel', 'eventTime' => "2017-03-22T12:26:35+03:00" })
+        expect(response.code).to eq('201')
+      end
 
-### Create a `$set` item event and send it to Event Server
+      it 'create_event should work without channel option' do
+        expect(PredictionIO::AsyncRequest).
+          to receive(:new).with("/events.json?accessKey=#{access_key}",
+                                {
+                                  "eventTime" => "2017-03-22T12:26:35+03:00", "event" => "$set",
+                                  "entityType" => "Session", "entityId" => "42"
+                                }.to_json)
+        response = event_client.create_event('$set', 'Session', '42',
+                                             { 'eventTime' => "2017-03-22T12:26:35+03:00" })
+        expect(response.code).to eq('201')
+      end
+    end
 
-```ruby
-client.create_event(
-  '$set',
-  'item',
-  item_id,
-  { 'properties' => { 'categories' => ['Category 1', 'Category 2'] } }
-)
-```
+    it 'create_event should post real request with channel option' do
+      response = event_client.create_event('$set', 'Session', '42',
+                                           { 'channel' => 'test-channel', 'eventTime' => "2017-03-22T12:26:35+03:00" })
+      expect(response.code).to eq('201')
+    end
 
-### Create a `$set` item event and send it to Event Server to specific channel
+    it 'create_event should not raise an error' do
+      response = event_client.create_event('register', 'user', 'foobar')
+      expect{ response }.to_not raise_error
+    end
 
-*NOTE:* channels are supported in PIO version >= 0.9.2 only. Channel must be created first.
+    it 'set_user should set user properties' do
+      response = event_client.set_user('foobar')
+      expect(response.code).to eq('201')
+    end
 
-```ruby
-client.create_event(
-  '$set',
-  'item',
-  item_id,
-  { 'properties' => { 'categories' => ['Category 1', 'Category 2'], 'channel' => 'test-channel'} }
-)
-```
+    it 'set_user should not raise an error' do
+      response = event_client.set_user('foobar')
+      expect{ response }.to_not raise_error
+    end
 
-### Create a user 'rate' item event and send it to Event Server
+    it 'unset_user should unset user properties' do
+      response = event_client.unset_user('foobar', 'properties' => { 'bar' => 'baz' })
+      expect(response.code).to eq('201')
+    end
 
-```ruby
-client.create_event(
-  'rate',
-  'user',
-  user_id, {
-    'targetEntityType' => 'item',
-    'targetEntityId' => item_id,
-    'properties' => { 'rating' => 10 }
-  }
-)
-```
+    it 'unset_user should not raise an error' do
+      response = event_client.unset_user('foobar', 'properties' => { 'bar' => 'baz' })
+      expect{ response }.to_not raise_error
+    end
 
-### Asynchronous request
+    it 'set_item should set item properties' do
+      response = event_client.set_item('foobar')
+      expect(response.code).to eq('201')
+    end
 
-To send an async request, simply use the `acreate_event` method instead of
-`create_event`. Be aware that the asynchronous method does not throw errors.
-It's best to use the synchronous method when first getting started.
+    it 'set_item should should not raise an error' do
+      response = event_client.set_item('foobar')
+      expect{ response }.to_not raise_error
+    end
 
-## Query PredictionIO Engine
+    it 'unset_item should unset item properties' do
+      response = event_client.unset_item('foobar', 'properties' => { 'bar' => 'baz' })
+      expect(response.code).to eq('201')
+    end
 
-### Connect to the Engine:
+    it 'unset_item should not raise an error' do
+      response = event_client.unset_item('foobar', 'properties' => { 'bar' => 'baz' })
+      expect{ response }.to_not raise_error
+    end
 
-```ruby
-# Define environmental variables.
-ENV['PIO_ENGINE_URL'] = 'http://localhost:8000'
+    it 'record_user_action_on_item should record a U2I action' do
+      response = event_client.record_user_action_on_item('greet', 'foobar', 'barbaz', 'properties' => { 'dead' => 'beef' })
+      expect(response.code).to eq('201')
+    end
 
-# Create PredictionIO engine client.
-client = PredictionIO::EngineClient.new(ENV['PIO_ENGINE_URL'])
-```
+    it 'record_user_action_on_item should not raise an error' do
+      response = event_client.record_user_action_on_item('greet', 'foobar', 'barbaz', 'properties' => { 'dead' => 'beef' })
+      expect{ response }.to_not raise_error
+    end
 
-### Send a prediction query to the engine and get the predicted result:
+    it 'delete_user should delete a user' do
+      response = event_client.delete_user('foobar')
+      expect(response.code).to eq('201')
+    end
 
-```ruby
-# Get 5 recommendations for items similar to 10, 20, 30.
-response = client.send_query(items: [10, 20, 30], num: 5)
-```
+    it 'delete_user should not raise an error' do
+      response = event_client.delete_user('foobar')
+      expect{ response }.to_not raise_error
+    end
 
-## Mailing List
+    it 'delete_item should delete an item' do
+      response = event_client.delete_item('foobar')
+      expect(response.code).to eq('201')
+    end
 
-Please use the Apache mailing lists. Subscription instructions are
-[here](http://predictionio.apache.org/support/).
+    it 'delete_item should not raise an error' do
+      response = event_client.delete_item('foobar')
+      expect{ response }.to_not raise_error
+    end
+  end
 
-## Issue Tracker
-
-Use [the Apache JIRA](https://issues.apache.org/jira/browse/PIO), and file any
-issues under the `Ruby SDK` component.
-
-## Contributing
-
-Please follow these
-[instructions](http://predictionio.apache.org/community/contribute-code/).
-
-## License
-
-[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+  describe 'Engine Client' do
+    it 'send_query should get predictions' do
+      predictions = engine_client.send_query('uid' => 'foobar')
+      expect(predictions).to eq('iids' => %w(dead beef))
+    end
+  end
+end
 
 
 ---
-File: lib\predictionio.rb
-Size: 2442 bytes
+File: lib/predictionio.rb
+Size: 2384 bytes
 Lines: 58
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -671,381 +731,8 @@ end
 
 
 ---
-File: lib\predictionio\async_request.rb
-Size: 1483 bytes
-Lines: 39
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-module PredictionIO
-  # This class contains the URI path and query parameters that is consumed by
-  # PredictionIO::Connection for asynchronous HTTP requests.
-  class AsyncRequest
-
-    # The path portion of the request URI.
-    attr_reader :path
-
-    # Query parameters, or form data.
-    attr_reader :params
-
-    # Populates the package with request URI path, and optionally query
-    # parameters or form data.
-    def initialize(path, params = {})
-      @params = params
-      @path = path
-    end
-
-    # Returns an URI path with query parameters encoded for HTTP GET requests.
-    def qpath
-      "#{@path}?#{URI::encode_www_form(@params)}"
-    end
-  end
-end
-
-
----
-File: lib\predictionio\async_response.rb
-Size: 1691 bytes
-Lines: 43
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-require 'thread'
-
-module PredictionIO
-  # This class encapsulates an asynchronous response that will block the caller until the response is available.
-  class AsyncResponse
-
-    # The PredictionIO::AsyncRequest instance that created the current PredictionIO::AsyncResponse instance.
-    attr_reader :request
-
-    # Create the response by saving the request, and optionally the Net::HTTPResponse object.
-    def initialize(request, response = nil)
-      @request = request
-      @response = Queue.new
-      set(response) if response
-    end
-
-    # Save a Net::HTTPResponse instance to the current instance.
-    # This will unblock any caller that called #get.
-    def set(response)
-      @response.push(response)
-    end
-
-    # Get the Net::HTTPResponse instance. This will block if the response is not yet available.
-    def get
-      @response.pop
-    end
-  end
-end
-
-
----
-File: lib\predictionio\connection.rb
-Size: 4983 bytes
-Lines: 129
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-module PredictionIO
-
-  # This class handles multithreading and asynchronous requests transparently for the REST client.
-  class Connection
-
-    # Number of pending asynchronous request and response packages.
-    attr_reader :packages
-
-    # Number of connections active
-    attr_reader :connections
-
-    # Timeout in seconds
-    attr_reader :timeout
-
-    # Spawns a number of threads with persistent HTTP connection to the specified URI.
-    # Sets a default timeout of 60 seconds.
-    def initialize(uri, threads = 1, timeout = 60)
-      @packages = Queue.new
-      @counter_lock = Mutex.new
-      @connections = 0
-      @timeout = timeout
-      threads.times do
-        Thread.new do
-          begin
-            Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
-              @counter_lock.synchronize do
-                @connections += 1
-              end
-              catch(:exit) do
-                http.read_timeout = @timeout
-                loop do
-                  package = @packages.pop
-                  request = package[:request]
-                  response = package[:response]
-                  case package[:method]
-                  when 'get'
-                    http_req = Net::HTTP::Get.new("#{uri.path}#{request.qpath}")
-                    begin
-                      response.set(http.request(http_req))
-                    rescue Exception => details
-                      response.set(details)
-                    end
-                  when 'post'
-                    if request.params.is_a?(Hash)
-                      http_req = Net::HTTP::Post.new("#{uri.path}#{request.path}")
-                      http_req.set_form_data(request.params)
-                    else
-                      http_req = Net::HTTP::Post.new("#{uri.path}#{request.path}", initheader = { 'Content-Type' => 'application/json; charset=utf-8' })
-                      http_req.body = request.params
-                    end
-                    begin
-                      response.set(http.request(http_req))
-                    rescue Exception => details
-                      response.set(details)
-                    end
-                  when 'delete'
-                    http_req = Net::HTTP::Delete.new("#{uri.path}#{request.qpath}")
-                    begin
-                      response.set(http.request(http_req))
-                    rescue Exception => details
-                      response.set(details)
-                    end
-                  when 'exit'
-                    @counter_lock.synchronize do
-                      @connections -= 1
-                    end
-                    throw :exit
-                  end
-                end
-              end
-            end
-          rescue Exception => detail
-            @counter_lock.synchronize do
-              if @connections == 0 then
-                # Use non-blocking pop to avoid dead-locking the current
-                # thread when there is no request, and give it a chance to re-connect.
-                begin
-                  package = @packages.pop(true)
-                  response = package[:response]
-                  response.set(detail)
-                rescue Exception
-                end
-              end
-            end
-            sleep(1)
-            retry
-          end
-        end
-      end
-    end
-
-    # Create an asynchronous request and response package, put it in the pending queue, and return the response object.
-    def request(method, request)
-      response = AsyncResponse.new(request)
-      @packages.push(method: method, request: request, response: response)
-      response
-    end
-
-    # Shortcut to create an asynchronous GET request with the response object returned.
-    def aget(areq)
-      request('get', areq)
-    end
-
-    # Shortcut to create an asynchronous POST request with the response object returned.
-    def apost(areq)
-      request('post', areq)
-    end
-
-    # Shortcut to create an asynchronous DELETE request with the response object returned.
-    def adelete(areq)
-      request('delete', areq)
-    end
-  end
-end
-
-
----
-File: lib\predictionio\engine_client.rb
-Size: 4649 bytes
-Lines: 134
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Ruby SDK for convenient access of PredictionIO Output API.
-#
-# Author::    PredictionIO Team (support@prediction.io)
-# Copyright:: Copyright (c) 2014 TappingStone, Inc.
-# License::   Apache License, Version 2.0
-
-module PredictionIO
-  # This class contains methods that interface with PredictionIO Engine
-  # Instances that are trained from PredictionIO built-in Engines.
-  #
-  # Many REST request methods support optional arguments. They can be supplied
-  # to these methods as Hash'es. For a complete reference, please visit
-  # http://prediction.io.
-  #
-  # == Synopsis
-  # In most cases, using synchronous methods. If you have a special performance
-  # requirement, you may want to take a look at asynchronous methods.
-  #
-  # === Instantiate an EngineClient
-  #     # Include the PredictionIO SDK
-  #     require 'predictionio'
-  #
-  #     client = PredictionIO::EngineClient.new
-  #
-  # === Send a Query to Retrieve Predictions
-  #     # PredictionIO call to record the view action
-  #     begin
-  #       result = client.query('uid' => 'foobar')
-  #     rescue NotFoundError => e
-  #       ...
-  #     rescue BadRequestError => e
-  #       ...
-  #     rescue ServerError => e
-  #       ...
-  #     end
-  class EngineClient
-    # Raised when an event is not created after a synchronous API call.
-    class NotFoundError < StandardError; end
-
-    # Raised when the query is malformed.
-    class BadRequestError < StandardError; end
-
-    # Raised when the Engine Instance returns a server error.
-    class ServerError < StandardError; end
-
-    # Create a new PredictionIO Event Client with defaults:
-    # - 1 concurrent HTTP(S) connections (threads)
-    # - API entry point at http://localhost:8000 (apiurl)
-    # - a 60-second timeout for each HTTP(S) connection (thread_timeout)
-    def initialize(apiurl = 'http://localhost:8000', threads = 1, thread_timeout = 60)
-      @http = PredictionIO::Connection.new(URI(apiurl), threads, thread_timeout)
-    end
-
-    # Returns the number of pending requests within the current client.
-    def pending_requests
-      @http.packages.size
-    end
-
-    # Returns PredictionIO's status in string.
-    def get_status
-      status = @http.aget(PredictionIO::AsyncRequest.new('/')).get
-      begin
-        status.body
-      rescue
-        status
-      end
-    end
-
-    # :category: Asynchronous Methods
-    # Asynchronously sends a query and returns PredictionIO::AsyncResponse
-    # object immediately. The query should be a Ruby data structure that can be
-    # converted to a JSON object.
-    #
-    # Corresponding REST API method: POST /
-    #
-    # See also #send_query.
-    def asend_query(query)
-      @http.apost(PredictionIO::AsyncRequest.new('/queries.json', query.to_json))
-    end
-
-    # :category: Synchronous Methods
-    # Synchronously sends a query and block until predictions are received.
-    #
-    # See also #asend_query.
-    #
-    # call-seq:
-    # send_query(data)
-    # send_query(async_response)
-    def send_query(*args)
-      sync_events(:asend_query, *args)
-    end
-
-    protected
-
-    # Internal helper method. Do not call directly.
-    def sync_events(sync_m, *args)
-      if args[0].is_a?(PredictionIO::AsyncResponse)
-        response = args[0].get
-      else
-        response = send(sync_m, *args).get
-      end
-      return JSON.parse(response.body) if response.is_a?(Net::HTTPOK)
-      begin
-        msg = response.body
-      rescue
-        raise response
-      end
-      if response.is_a?(Net::HTTPBadRequest)
-        fail BadRequestError, msg
-      elsif response.is_a?(Net::HTTPNotFound)
-        fail NotFoundError, msg
-      elsif response.is_a?(Net::HTTPServerError)
-        fail ServerError, msg
-      else
-        fail msg
-      end
-    end
-  end
-end
-
-
----
-File: lib\predictionio\event_client.rb
-Size: 12912 bytes
+File: lib/predictionio/event_client.rb
+Size: 12529 bytes
 Lines: 383
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -1434,8 +1121,190 @@ end
 
 
 ---
-File: lib\predictionio\file_exporter.rb
-Size: 1442 bytes
+File: lib/predictionio/connection.rb
+Size: 4854 bytes
+Lines: 129
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module PredictionIO
+
+  # This class handles multithreading and asynchronous requests transparently for the REST client.
+  class Connection
+
+    # Number of pending asynchronous request and response packages.
+    attr_reader :packages
+
+    # Number of connections active
+    attr_reader :connections
+
+    # Timeout in seconds
+    attr_reader :timeout
+
+    # Spawns a number of threads with persistent HTTP connection to the specified URI.
+    # Sets a default timeout of 60 seconds.
+    def initialize(uri, threads = 1, timeout = 60)
+      @packages = Queue.new
+      @counter_lock = Mutex.new
+      @connections = 0
+      @timeout = timeout
+      threads.times do
+        Thread.new do
+          begin
+            Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+              @counter_lock.synchronize do
+                @connections += 1
+              end
+              catch(:exit) do
+                http.read_timeout = @timeout
+                loop do
+                  package = @packages.pop
+                  request = package[:request]
+                  response = package[:response]
+                  case package[:method]
+                  when 'get'
+                    http_req = Net::HTTP::Get.new("#{uri.path}#{request.qpath}")
+                    begin
+                      response.set(http.request(http_req))
+                    rescue Exception => details
+                      response.set(details)
+                    end
+                  when 'post'
+                    if request.params.is_a?(Hash)
+                      http_req = Net::HTTP::Post.new("#{uri.path}#{request.path}")
+                      http_req.set_form_data(request.params)
+                    else
+                      http_req = Net::HTTP::Post.new("#{uri.path}#{request.path}", initheader = { 'Content-Type' => 'application/json; charset=utf-8' })
+                      http_req.body = request.params
+                    end
+                    begin
+                      response.set(http.request(http_req))
+                    rescue Exception => details
+                      response.set(details)
+                    end
+                  when 'delete'
+                    http_req = Net::HTTP::Delete.new("#{uri.path}#{request.qpath}")
+                    begin
+                      response.set(http.request(http_req))
+                    rescue Exception => details
+                      response.set(details)
+                    end
+                  when 'exit'
+                    @counter_lock.synchronize do
+                      @connections -= 1
+                    end
+                    throw :exit
+                  end
+                end
+              end
+            end
+          rescue Exception => detail
+            @counter_lock.synchronize do
+              if @connections == 0 then
+                # Use non-blocking pop to avoid dead-locking the current
+                # thread when there is no request, and give it a chance to re-connect.
+                begin
+                  package = @packages.pop(true)
+                  response = package[:response]
+                  response.set(detail)
+                rescue Exception
+                end
+              end
+            end
+            sleep(1)
+            retry
+          end
+        end
+      end
+    end
+
+    # Create an asynchronous request and response package, put it in the pending queue, and return the response object.
+    def request(method, request)
+      response = AsyncResponse.new(request)
+      @packages.push(method: method, request: request, response: response)
+      response
+    end
+
+    # Shortcut to create an asynchronous GET request with the response object returned.
+    def aget(areq)
+      request('get', areq)
+    end
+
+    # Shortcut to create an asynchronous POST request with the response object returned.
+    def apost(areq)
+      request('post', areq)
+    end
+
+    # Shortcut to create an asynchronous DELETE request with the response object returned.
+    def adelete(areq)
+      request('delete', areq)
+    end
+  end
+end
+
+
+---
+File: lib/predictionio/async_request.rb
+Size: 1444 bytes
+Lines: 39
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module PredictionIO
+  # This class contains the URI path and query parameters that is consumed by
+  # PredictionIO::Connection for asynchronous HTTP requests.
+  class AsyncRequest
+
+    # The path portion of the request URI.
+    attr_reader :path
+
+    # Query parameters, or form data.
+    attr_reader :params
+
+    # Populates the package with request URI path, and optionally query
+    # parameters or form data.
+    def initialize(path, params = {})
+      @params = params
+      @path = path
+    end
+
+    # Returns an URI path with query parameters encoded for HTTP GET requests.
+    def qpath
+      "#{@path}?#{URI::encode_www_form(@params)}"
+    end
+  end
+end
+
+
+---
+File: lib/predictionio/file_exporter.rb
+Size: 1398 bytes
 Lines: 44
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -1485,8 +1354,8 @@ end
 
 
 ---
-File: lib\predictionio\version.rb
-Size: 844 bytes
+File: lib/predictionio/version.rb
+Size: 826 bytes
 Lines: 18
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
@@ -1510,9 +1379,9 @@ end
 
 
 ---
-File: spec\predictionio_spec.rb
-Size: 6910 bytes
-Lines: 161
+File: lib/predictionio/engine_client.rb
+Size: 4515 bytes
+Lines: 134
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -1529,158 +1398,131 @@ Lines: 161
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'predictionio'
-require 'spec_helper'
+# Ruby SDK for convenient access of PredictionIO Output API.
+#
+# Author::    PredictionIO Team (support@prediction.io)
+# Copyright:: Copyright (c) 2014 TappingStone, Inc.
+# License::   Apache License, Version 2.0
 
-describe PredictionIO do
-  let(:access_key) { 1 }
-  let(:event_client) { PredictionIO::EventClient.new(access_key, 'http://fakeapi.com:7070', 10) }
-  let(:engine_client) { PredictionIO::EngineClient.new('http://fakeapi.com:8000', 10) }
+module PredictionIO
+  # This class contains methods that interface with PredictionIO Engine
+  # Instances that are trained from PredictionIO built-in Engines.
+  #
+  # Many REST request methods support optional arguments. They can be supplied
+  # to these methods as Hash'es. For a complete reference, please visit
+  # http://prediction.io.
+  #
+  # == Synopsis
+  # In most cases, using synchronous methods. If you have a special performance
+  # requirement, you may want to take a look at asynchronous methods.
+  #
+  # === Instantiate an EngineClient
+  #     # Include the PredictionIO SDK
+  #     require 'predictionio'
+  #
+  #     client = PredictionIO::EngineClient.new
+  #
+  # === Send a Query to Retrieve Predictions
+  #     # PredictionIO call to record the view action
+  #     begin
+  #       result = client.query('uid' => 'foobar')
+  #     rescue NotFoundError => e
+  #       ...
+  #     rescue BadRequestError => e
+  #       ...
+  #     rescue ServerError => e
+  #       ...
+  #     end
+  class EngineClient
+    # Raised when an event is not created after a synchronous API call.
+    class NotFoundError < StandardError; end
 
-  describe 'Events API' do
-    it 'create_event should create an event' do
-      response = event_client.create_event('register', 'user', 'foobar')
-      expect(response.code).to eq('201')
+    # Raised when the query is malformed.
+    class BadRequestError < StandardError; end
+
+    # Raised when the Engine Instance returns a server error.
+    class ServerError < StandardError; end
+
+    # Create a new PredictionIO Event Client with defaults:
+    # - 1 concurrent HTTP(S) connections (threads)
+    # - API entry point at http://localhost:8000 (apiurl)
+    # - a 60-second timeout for each HTTP(S) connection (thread_timeout)
+    def initialize(apiurl = 'http://localhost:8000', threads = 1, thread_timeout = 60)
+      @http = PredictionIO::Connection.new(URI(apiurl), threads, thread_timeout)
     end
 
-    context 'with http stub (for channel test)' do
-      before(:each) do
-        success_response = Net::HTTPCreated.new('HTTP/1.1', '201', 'Created')
-        success_response.body = JSON.generate(eventId: 'deadbeef00')
-        expect_any_instance_of(PredictionIO::Connection).to receive(:apost).and_return(double(get: success_response))
+    # Returns the number of pending requests within the current client.
+    def pending_requests
+      @http.packages.size
+    end
+
+    # Returns PredictionIO's status in string.
+    def get_status
+      status = @http.aget(PredictionIO::AsyncRequest.new('/')).get
+      begin
+        status.body
+      rescue
+        status
       end
+    end
 
-      it 'create_event should have channel option (symbol)' do
-        expect(PredictionIO::AsyncRequest).
-          to receive(:new).with("/events.json?accessKey=#{access_key}&channel=test-channel",
-                                {
-                                  "eventTime" => "2017-03-22T12:26:35+03:00", "event" => "$set",
-                                  "entityType" => "Session", "entityId" => "42"
-                                }.to_json)
-        event_client.create_event('$set', 'Session', '42',
-                                  {channel: 'test-channel', 'eventTime' => "2017-03-22T12:26:35+03:00"})
+    # :category: Asynchronous Methods
+    # Asynchronously sends a query and returns PredictionIO::AsyncResponse
+    # object immediately. The query should be a Ruby data structure that can be
+    # converted to a JSON object.
+    #
+    # Corresponding REST API method: POST /
+    #
+    # See also #send_query.
+    def asend_query(query)
+      @http.apost(PredictionIO::AsyncRequest.new('/queries.json', query.to_json))
+    end
+
+    # :category: Synchronous Methods
+    # Synchronously sends a query and block until predictions are received.
+    #
+    # See also #asend_query.
+    #
+    # call-seq:
+    # send_query(data)
+    # send_query(async_response)
+    def send_query(*args)
+      sync_events(:asend_query, *args)
+    end
+
+    protected
+
+    # Internal helper method. Do not call directly.
+    def sync_events(sync_m, *args)
+      if args[0].is_a?(PredictionIO::AsyncResponse)
+        response = args[0].get
+      else
+        response = send(sync_m, *args).get
       end
-
-      it 'create_event should process channel option (string)' do
-        expect(PredictionIO::AsyncRequest).
-          to receive(:new).with("/events.json?accessKey=#{access_key}&channel=test-channel",
-                                {
-                                  "eventTime" => "2017-03-22T12:26:35+03:00", "event" => "$set",
-                                  "entityType" => "Session", "entityId" => "42"
-                                }.to_json)
-        response = event_client.create_event('$set', 'Session', '42',
-                                             { 'channel' => 'test-channel', 'eventTime' => "2017-03-22T12:26:35+03:00" })
-        expect(response.code).to eq('201')
+      return JSON.parse(response.body) if response.is_a?(Net::HTTPOK)
+      begin
+        msg = response.body
+      rescue
+        raise response
       end
-
-      it 'create_event should work without channel option' do
-        expect(PredictionIO::AsyncRequest).
-          to receive(:new).with("/events.json?accessKey=#{access_key}",
-                                {
-                                  "eventTime" => "2017-03-22T12:26:35+03:00", "event" => "$set",
-                                  "entityType" => "Session", "entityId" => "42"
-                                }.to_json)
-        response = event_client.create_event('$set', 'Session', '42',
-                                             { 'eventTime' => "2017-03-22T12:26:35+03:00" })
-        expect(response.code).to eq('201')
+      if response.is_a?(Net::HTTPBadRequest)
+        fail BadRequestError, msg
+      elsif response.is_a?(Net::HTTPNotFound)
+        fail NotFoundError, msg
+      elsif response.is_a?(Net::HTTPServerError)
+        fail ServerError, msg
+      else
+        fail msg
       end
-    end
-
-    it 'create_event should post real request with channel option' do
-      response = event_client.create_event('$set', 'Session', '42',
-                                           { 'channel' => 'test-channel', 'eventTime' => "2017-03-22T12:26:35+03:00" })
-      expect(response.code).to eq('201')
-    end
-
-    it 'create_event should not raise an error' do
-      response = event_client.create_event('register', 'user', 'foobar')
-      expect{ response }.to_not raise_error
-    end
-
-    it 'set_user should set user properties' do
-      response = event_client.set_user('foobar')
-      expect(response.code).to eq('201')
-    end
-
-    it 'set_user should not raise an error' do
-      response = event_client.set_user('foobar')
-      expect{ response }.to_not raise_error
-    end
-
-    it 'unset_user should unset user properties' do
-      response = event_client.unset_user('foobar', 'properties' => { 'bar' => 'baz' })
-      expect(response.code).to eq('201')
-    end
-
-    it 'unset_user should not raise an error' do
-      response = event_client.unset_user('foobar', 'properties' => { 'bar' => 'baz' })
-      expect{ response }.to_not raise_error
-    end
-
-    it 'set_item should set item properties' do
-      response = event_client.set_item('foobar')
-      expect(response.code).to eq('201')
-    end
-
-    it 'set_item should should not raise an error' do
-      response = event_client.set_item('foobar')
-      expect{ response }.to_not raise_error
-    end
-
-    it 'unset_item should unset item properties' do
-      response = event_client.unset_item('foobar', 'properties' => { 'bar' => 'baz' })
-      expect(response.code).to eq('201')
-    end
-
-    it 'unset_item should not raise an error' do
-      response = event_client.unset_item('foobar', 'properties' => { 'bar' => 'baz' })
-      expect{ response }.to_not raise_error
-    end
-
-    it 'record_user_action_on_item should record a U2I action' do
-      response = event_client.record_user_action_on_item('greet', 'foobar', 'barbaz', 'properties' => { 'dead' => 'beef' })
-      expect(response.code).to eq('201')
-    end
-
-    it 'record_user_action_on_item should not raise an error' do
-      response = event_client.record_user_action_on_item('greet', 'foobar', 'barbaz', 'properties' => { 'dead' => 'beef' })
-      expect{ response }.to_not raise_error
-    end
-
-    it 'delete_user should delete a user' do
-      response = event_client.delete_user('foobar')
-      expect(response.code).to eq('201')
-    end
-
-    it 'delete_user should not raise an error' do
-      response = event_client.delete_user('foobar')
-      expect{ response }.to_not raise_error
-    end
-
-    it 'delete_item should delete an item' do
-      response = event_client.delete_item('foobar')
-      expect(response.code).to eq('201')
-    end
-
-    it 'delete_item should not raise an error' do
-      response = event_client.delete_item('foobar')
-      expect{ response }.to_not raise_error
-    end
-  end
-
-  describe 'Engine Client' do
-    it 'send_query should get predictions' do
-      predictions = engine_client.send_query('uid' => 'foobar')
-      expect(predictions).to eq('iids' => %w(dead beef))
     end
   end
 end
 
 
 ---
-File: spec\spec_helper.rb
-Size: 4430 bytes
-Lines: 94
+File: lib/predictionio/async_response.rb
+Size: 1648 bytes
+Lines: 43
 ---
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -1697,83 +1539,32 @@ Lines: 94
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'coveralls'
-require 'json'
-require 'webmock/rspec'
+require 'thread'
 
-Coveralls.wear!
-WebMock.disable_net_connect!(allow_localhost: true)
+module PredictionIO
+  # This class encapsulates an asynchronous response that will block the caller until the response is available.
+  class AsyncResponse
 
-RSpec.configure do |config|
-  config.before(:each) do
-    # Events API
-    %w(
-      http://fakeapi.com:7070/events.json?accessKey=1&channel=test-channel
-    ).each do |url|
-      stub_request(:post, url)
-        .with(body: hash_including(event: '$set',
-                                   entityType: 'Session',
-                                   entityId: '42'))
-        .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef00'))
+    # The PredictionIO::AsyncRequest instance that created the current PredictionIO::AsyncResponse instance.
+    attr_reader :request
+
+    # Create the response by saving the request, and optionally the Net::HTTPResponse object.
+    def initialize(request, response = nil)
+      @request = request
+      @response = Queue.new
+      set(response) if response
     end
 
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: 'register',
-                                 entityType: 'user',
-                                 entityId: 'foobar'))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef00'))
+    # Save a Net::HTTPResponse instance to the current instance.
+    # This will unblock any caller that called #get.
+    def set(response)
+      @response.push(response)
+    end
 
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: '$set',
-                                 entityType: 'user',
-                                 entityId: 'foobar'))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef01'))
-
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: '$unset',
-                                 entityType: 'user',
-                                 entityId: 'foobar',
-                                 properties: { bar: 'baz' }))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef02'))
-
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: '$set',
-                                 entityType: 'item',
-                                 entityId: 'foobar'))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef03'))
-
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: '$unset',
-                                 entityType: 'item',
-                                 entityId: 'foobar',
-                                 properties: { bar: 'baz' }))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef04'))
-
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: 'greet',
-                                 entityType: 'user',
-                                 entityId: 'foobar',
-                                 targetEntityType: 'item',
-                                 targetEntityId: 'barbaz',
-                                 properties: { dead: 'beef' }))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef05'))
-
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: '$delete',
-                                 entityType: 'user',
-                                 entityId: 'foobar'))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef06'))
-
-    stub_request(:post, 'http://fakeapi.com:7070/events.json?accessKey=1')
-      .with(body: hash_including(event: '$delete',
-                                 entityType: 'item',
-                                 entityId: 'foobar'))
-      .to_return(status: 201, body: JSON.generate(eventId: 'deadbeef07'))
-
-    # Engine Instance
-    stub_request(:post, 'http://fakeapi.com:8000/queries.json')
-      .with(body: { uid: 'foobar' })
-      .to_return(status: 200, body: JSON.generate(iids: %w(dead beef)), headers: {})
+    # Get the Net::HTTPResponse instance. This will block if the response is not yet available.
+    def get
+      @response.pop
+    end
   end
 end
 

@@ -23,7 +23,8 @@ DEFAULT_IGNORE_DIRS = {
 DEFAULT_IGNORE_PATTERNS = {
     "*.min.js", "*.min.css", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.pdf", "*.zip", "*.jar", "*.class",
     "*.xcf", "*.exe", "*.dll", "*.so", "*.dylib", "*.o", "*.obj", "*.pyc", "*.pyo", "*.db", "*.sqlite",
-    "*.svg", "*.ico", "*.woff", "*.woff2", "*.ttf", "*.eot", "*.mp3", "*.mp4", "*.wav", "*.avi", "*.mov"
+    "*.svg", "*.ico", "*.woff", "*.woff2", "*.ttf", "*.eot", "*.mp3", "*.mp4", "*.wav", "*.avi", "*.mov",
+    "*.md"
 }
 LOCKFILE_NAMES = {
     "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "poetry.lock"

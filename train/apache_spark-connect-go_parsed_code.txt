@@ -1,7 +1,7 @@
-Tokens: 295302
+Tokens: 291899
 Repo: apache/spark-connect-go
 Commit: 0e3d565b63e6af9383555e41e5073a17c20eeabf
-Timestamp: 2026-03-04T19:37:21.054601
+Timestamp: 2026-03-04T19:51:42.296743
 
 --- Repository Structure ---
 .
@@ -14,11 +14,9 @@ Timestamp: 2026-03-04T19:37:21.054601
 ├── .gitignore
 ├── .gitmodules
 ├── .golangci.yml
-├── CONTRIBUTING.md
 ├── LICENSE
 ├── Makefile
 ├── NOTICE
-├── README.md
 ├── buf.gen.yaml
 ├── buf.work.yaml
 ├── cmd
@@ -28,7 +26,6 @@ Timestamp: 2026-03-04T19:37:21.054601
 │       └── main.go
 ├── dev
 │   ├── .rat-excludes
-│   ├── README.md
 │   ├── check-license
 │   ├── gen.py
 │   ├── release.py
@@ -58,7 +55,6 @@ Timestamp: 2026-03-04T19:37:21.054601
 │           └── sql_test.go
 ├── java
 │   ├── .gitignore
-│   ├── README.md
 │   ├── build.sbt
 │   ├── project
 │   │   └── build.properties
@@ -72,7 +68,6 @@ Timestamp: 2026-03-04T19:37:21.054601
 │                           └── golang
 │                               └── Runner.scala
 ├── merge_connect_go_pr.py
-├── quick-start.md
 ├── spark
 │   ├── client
 │   │   ├── base
@@ -146,10 +141,10 @@ Timestamp: 2026-03-04T19:37:21.054601
 
 --- Summary Report ---
 Total files scanned: 105
-Files included: 100
-Files skipped by rule: 0
+Files included: 95
+Files skipped by rule: 5
 Files skipped by size: 5
-Detected languages count: 13
+Detected languages count: 12
 Top 15 largest included files:
   93035 bytes - internal/generated/types.pb.go
   90897 bytes - internal/generated/catalog.pb.go
@@ -1294,143 +1289,6 @@ cleangen:
 cleanall: clean cleangen
 
 ---
-File: quick-start.md
-Size: 3070 bytes
-Lines: 130
----
-# Quick Start Guide to Write Spark Connect Client Application in Go
-
-## Add Reference to `spark-connect-go` Library
-
-In your Go project `go.mod` file, add `spark-connect-go` library:
-```
-require (
-	github.com/apache/spark-connect-go master
-)
-```
-
-In your Go project, run `go mod tidy` to download the library on your local machine.
-
-## Write Spark Connect Client Application
-
-Create `main.go` file with following code:
-```go
-package main
-
-import (
-	"context"
-	"flag"
-	"fmt"
-	"log"
-
-	"github.com/apache/spark-connect-go/spark/sql"
-)
-
-var (
-	remote = flag.String("remote", "sc://localhost:15002",
-		"the remote address of Spark Connect server to connect to")
-
-	filedir = flag.String("filedir", "/tmp",
-		"the directory to save the files")
-)
-
-func main() {
-	flag.Parse()
-	ctx := context.Background()
-	spark, err := sql.NewSessionBuilder().Remote(*remote).Build(ctx)
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-	defer spark.Stop()
-
-	df, err := spark.Sql(ctx, "select 'apple' as word, 123 as count union all select 'orange' as word, 456 as count")
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	log.Printf("DataFrame from sql: select 'apple' as word, 123 as count union all select 'orange' as word, 456 as count")
-	err = df.Show(ctx, 100, false)
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	schema, err := df.Schema(ctx)
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	for _, f := range schema.Fields {
-		log.Printf("Field in dataframe schema: %s - %s", f.Name, f.DataType.TypeName())
-	}
-
-	rows, err := df.Collect(ctx)
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	schema, err = rows[0].Schema()
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	for _, f := range schema.Fields {
-		log.Printf("Field in row: %s - %s", f.Name, f.DataType.TypeName())
-	}
-
-	for _, row := range rows {
-		log.Printf("Row: %v", row)
-	}
-
-	err = df.Writer().Mode("overwrite").
-		Format("parquet").
-		Save(ctx, fmt.Sprintf("file://%s/spark-connect-write-example-output.parquet", *filedir))
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	df, err = spark.Read().Format("parquet").
-		Load(fmt.Sprintf("file://%s/spark-connect-write-example-output.parquet", *filedir))
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	log.Printf("DataFrame from reading parquet")
-	err = df.Show(ctx, 100, false)
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	err = df.CreateTempView(ctx, "view1", true, false)
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	df, err = spark.Sql(ctx, "select count, word from view1 order by count")
-	if err != nil {
-		log.Fatalf("Failed: %s", err)
-	}
-
-	log.Printf("DataFrame from sql: select count, word from view1 order by count")
-	df.Show(ctx, 100, false)
-}
-```
-
-## Start Spark Connect Server (Driver)
-
-Download a Spark distribution (4.0.0+), unzip the folder, run command:
-```
-sbin/start-connect-server.sh
-```
-
-## Run Spark Connect Client Application
-```
-go run main.go --filedir YOUR_TMP_DIR
-```
-
-You will see the client application connects to the Spark Connect server and prints out the output from your application.
-
-
----
 File: go.sum
 Size: 9285 bytes
 Lines: 104
@@ -1610,89 +1468,6 @@ This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
 ---
-File: README.md
-Size: 2576 bytes
-Lines: 76
----
-# Apache Spark Connect Client for Golang
-
-This project houses the **experimental** client for [Spark
-Connect](https://spark.apache.org/docs/latest/spark-connect-overview.html) for
-[Apache Spark](https://spark.apache.org/) written in [Golang](https://go.dev/).
-
-## Current State of the Project
-
-Currently, the Spark Connect client for Golang is highly experimental and should
-not be used in any production setting. In addition, the PMC of the Apache Spark
-project reserves the right to withdraw and abandon the development of this project
-if it is not sustainable.
-
-## Getting started
-
-This section explains how to run Spark Connect Go locally.
-
-Step 1: Install Golang: https://go.dev/doc/install.
-
-Step 2: Ensure you have installed `buf CLI` installed, [more info here](https://buf.build/docs/installation/)
-
-Step 3: Run the following commands to setup the Spark Connect client.
-
-Building with Spark in case you need to re-generate the source files from the proto sources.
-
-```
-git clone https://github.com/apache/spark-connect-go.git
-git submodule update --init --recursive
-
-make gen && make test
-
-```
-
-Building without Spark
-
-```
-git clone https://github.com/apache/spark-connect-go.git
-make && make test
-```
-
-Step 4: Setup the Spark Driver on localhost.
-
-1. [Download Spark distribution](https://spark.apache.org/downloads.html) (4.0.0+), unzip the package.
-
-2. Start the Spark Connect server with the following command (make sure to use a package version that matches your Spark distribution):
-
-```
-sbin/start-connect-server.sh
-```
-
-Step 5: Run the example Go application.
-
-```
-go run cmd/spark-connect-example-spark-session/main.go
-```
-
-## Runnning Spark Connect Go Application in a Spark Cluster
-
-To run the Spark Connect Go application in a Spark Cluster, you need to build the Go application and submit it to the Spark Cluster. You can find a more detailed example runner and wrapper script in the `java` directory.
-
-See the guide here: [Sample Spark-Submit Wrapper](java/README.md).
-
-## How to write Spark Connect Go Application in your own project
-
-See [Quick Start Guide](quick-start.md)
-
-## High Level Design
-
-The overall goal of the design is to find a good balance of principle of the least surprise for
-develoeprs that are familiar with the APIs of Apache Spark and idiomatic Go usage. The high-level
-structure of the packages follows roughly the PySpark giudance but with Go idioms.
-
-## Contributing
-
-Please review the [Contribution to Spark guide](https://spark.apache.org/contributing.html)
-for information on how to get started contributing to the project.
-
-
----
 File: buf.work.yaml
 Size: 859 bytes
 Lines: 19
@@ -1789,99 +1564,6 @@ plugins:
   - plugin: buf.build/grpc/go:v1.3.0
     out: .
 
-
-
----
-File: CONTRIBUTING.md
-Size: 3321 bytes
-Lines: 86
----
-## Contributing to Spark
-
-*Before opening a pull request*, review the
-[Contributing to Spark guide](https://spark.apache.org/contributing.html).
-It lists steps that are required before creating a PR. In particular, consider:
-
-- Is the change important and ready enough to ask the community to spend time reviewing?
-- Have you searched for existing, related JIRAs and pull requests?
-- Is this a new feature that can stand alone as a [third party project](https://spark.apache.org/third-party-projects.html) ?
-- Is the change being proposed clearly explained and motivated?
-
-When you contribute code, you affirm that the contribution is your original work and that you
-license the work to the project under the project's open source license. Whether or not you
-state this explicitly, by submitting any copyrighted material via pull request, email, or
-other means you agree to license the material under the project's open source license and
-warrant that you have the legal authority to do so.
-
-
-### Code Style and Checks
-
-When submitting code we use a number of checks in our continous integration system to ensure
-a consitent style and adherence to license rules. You can run these checks locally by running:
-
-```bash
-make check
-```
-
-This requires the following tools to be present in your `PATH`:
-
-1. Java for checking license headers
-2. [gofumpt](https://github.com/mvdan/gofumpt) for formatting Go code
-3. [golangci-lint](https://golangci-lint.run/) for linting Go code
-
-### Running Tests
-
-To run the tests locally, you can run:
-
-```bash
-make test
-```
-
-This will run the unit tests. If you want to run the integration tests, you can run (you
-need to set environment variable `SPARK_HOME` pointing to existing directory with unpacked
-Apache Spark 3.5+ distribution):
-
-```bash
-make integration
-```
-
-Lastly, if you want to run all tests (unit and integration) and generate the coverage
-analysis, you can run:
-
-```bash
-make fulltest
-```
-
-The output of the coverage analysis will be in the `coverage.out` file. An HTML version of
-the coverage report is generated and accessible at `coverage.html`.
-
-### How to write tests
-
-Please make sure that you have proper testing for the new code your adding. As part of the
-code base we started to add mocks that allow you to simulate a lot of the necessary API
-and don't require a running Spark instance.
-
-`mock.ProtoClient` is a mock implementation of the `SparkConnectService_ExecutePlanClient`
-interface which is the server-side stream of messages coming as a response from the server.
-
-`testutils.NewConnectServiceClientMock` will create a mock client that implements the
-`SparkConnectServiceClient` interface.
-
-The combination of these two mocks allows you to test the client side of the code without
-having to connect to Spark.
-
-### What to contribute
-
-We welcome contributions of all kinds to the `spark-connect-go` project. Some examples of
-contributions are providing implementations of functionality that is missing in the Go
-implementation. Some examples are, but are not limited to:
-
-* Adding an existing feature of the DataFrame API in Golang.
-* Adding support for a builtin function in the Spark API in Golang.
-* Improving error handling in the client.
-
-If you are unsure about whether a contribution is a good fit, feel free to open an issue
-in the Apache Spark Jira.
 
 
 ---
@@ -14449,41 +14131,6 @@ $SPARK_HOME/bin/spark-submit \
   target/scala-$SCALA_VERSION/sparkconnectgorunner_$SCALA_VERSION-0.1.0-SNAPSHOT.jar
 
 ---
-File: java/README.md
-Size: 1103 bytes
-Lines: 29
----
-# Sample Spark-Submit Wrapper
-
-This directory provides a simple wrapper library that can be used to submit a Spark Connect Go application to a Spark Cluster. 
-
-## Wrapper Library
-
-The wrapper library expects to variable input values:
-
-1. The path to the binary file that contains the Spark Connect Go application. This path is specified via the Spark conf property `spark.golang.binary`.
-2. The actual binary has to be submitted as part of the application using the `--files` parameter to the `spark-submit` script.
-
-Building the libary can be done using:
-
-```bash
-sbt package
-```
-
-## Run Script
-
-The `run.sh` script is a simple script that can be used to submit a Spark Connect Go application to a Spark Cluster. The script can be called as follows:
-
-```bash
-export SPARK_HOME=/path/to/spark
-./run.sh ../cmd/spark-connect-example-spark-session/spark-connect-example-spark-session
-```
-
-When this is called from the current directory and with the Spark Connect Golang client build, it will submit the example application to the Spark Cluster.
-
-The `run.sh` script can be modified according to your needs.
-
----
 File: java/.gitignore
 Size: 14 bytes
 Lines: 2
@@ -15395,130 +15042,6 @@ for fun in F.__dict__:
         print(f"    return column.NewColumn(column.NewUnresolvedFunctionWithColumns(\"{fun}\", {', '.join(args)}))")
         print(f"}}")
         print()
-
----
-File: dev/README.md
-Size: 3528 bytes
-Lines: 118
----
-# Release Script for Apache Spark Connect Go
-
-This directory contains the release automation script for the Apache Spark Connect Go project.
-
-## Prerequisites
-
-1. **Python Environment**: Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-2. **GitHub Token**: Create a GitHub personal access token with the following permissions:
-   - `repo` (Full control of private repositories)
-   - `write:packages` (Upload packages to GitHub Package Registry)
-
-3. **GPG Key**: Ensure you have a GPG key set up for signing:
-   ```bash
-   # List available keys
-   gpg --list-secret-keys
-   
-   # If you don't have a key, create one
-   gpg --gen-key
-   ```
-
-## Usage
-
-```bash
-./release.py --tag <new_tag> --prev-tag <previous_tag> --commit <commit_sha> --gpg-user <gpg_user_id> [options]
-```
-
-### Required Arguments
-
-- `--tag`: The new tag version (e.g., `v0.2.0`)
-- `--prev-tag`: The previous tag version for generating release notes (e.g., `v0.1.0`)
-- `--commit`: The commit SHA that the tag should point to
-- `--gpg-user`: Your GPG user ID for signing (email or key ID)
-
-### Optional Arguments
-
-- `--prerelease`: Mark the release as a pre-release
-- `--repo`: GitHub repository in format `owner/name` (default: `apache/spark-connect-go`)
-- `--token`: GitHub token (alternatively set `GITHUB_TOKEN` environment variable)
-
-### Environment Variables
-
-- `GITHUB_TOKEN`: GitHub personal access token
-
-## Example Usage
-
-```bash
-# Set GitHub token
-export GITHUB_TOKEN=ghp_your_token_here
-
-# Create a regular release
-./release.py \
-  --tag v0.2.0 \
-  --prev-tag v0.1.0 \
-  --commit abc123def456 \
-  --gpg-user your.email@example.com
-
-# Create a pre-release
-./release.py \
-  --tag v0.2.0-rc1 \
-  --prev-tag v0.1.0 \
-  --commit abc123def456 \
-  --gpg-user your.email@example.com \
-  --prerelease
-```
-
-## What the Script Does
-
-1. **Creates and pushes tag**: Creates a Git tag at the specified commit and pushes it to GitHub
-2. **Generates release notes**: Automatically creates initial release notes from commits between tags
-3. **Interactive input**: Prompts you to enter/modify the release description
-4. **Creates GitHub release**: Creates a draft release on GitHub
-5. **Downloads artifacts**: Downloads the automatically generated source archives (.tar.gz, .zip)
-6. **Signs artifacts**: Creates detached GPG signatures for each artifact
-7. **Verifies signatures**: Confirms that all signatures are valid
-8. **Uploads signatures**: Uploads the signature files to the GitHub release
-
-## Output
-
-The script creates:
-- A new Git tag pushed to GitHub
-- A draft GitHub release with:
-  - Source code archives (automatically generated by GitHub)
-  - Detached GPG signatures (.asc files)
-  - Release notes based on commits
-
-## Security Notes
-
-- All artifacts are signed with your GPG key
-- Signatures are verified before upload
-- The release is created as a draft first for review
-- Your GPG key must be available in your keyring
-
-## Troubleshooting
-
-### GPG Issues
-```bash
-# If GPG signing fails, check your key
-gpg --list-secret-keys
-
-# Test signing
-echo "test" | gpg --clearsign --local-user your.email@example.com
-```
-
-### GitHub API Issues
-- Ensure your token has the correct permissions
-- Check rate limits if requests fail
-- Verify repository access
-
-### Git Issues
-- Ensure you're in the correct repository directory
-- Check that the commit SHA exists
-- Verify you have push permissions to the repository
 
 ---
 File: dev/.rat-excludes

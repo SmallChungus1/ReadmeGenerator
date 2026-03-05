@@ -1,7 +1,7 @@
-Tokens: 75400
+Tokens: 75374
 Repo: psf/requests-html
 Commit: 075ac162dc62fc532037df0d98954ab840a97516
-Timestamp: 2026-03-02T20:54:15.579972
+Timestamp: 2026-03-04T19:52:31.442607
 
 --- Repository Structure ---
 .
@@ -41,35 +41,1078 @@ Files skipped by rule: 1
 Files skipped by size: 1
 Detected languages count: 8
 Top 15 largest included files:
-  87040 bytes - Pipfile.lock
-  48883 bytes - tests\python.html
-  30525 bytes - requests_html.py
-  19921 bytes - README.rst
-  19748 bytes - docs\source\index.rst
-  8848 bytes - tests\test_requests_html.py
-  6682 bytes - docs\source\conf.py
-  3219 bytes - setup.py
-  2880 bytes - docs\source\_templates\sidebarintro.html
-  2878 bytes - docs\source\_templates\sidebarlogo.html
-  1408 bytes - docs\source\_templates\hacks.html
-  1366 bytes - .gitignore
-  1154 bytes - tests\test_internet.py
-  1097 bytes - LICENSE
-  821 bytes - docs\make.bat
+  85699 bytes - Pipfile.lock
+  48883 bytes - tests/python.html
+  29680 bytes - requests_html.py
+  19665 bytes - README.rst
+  19397 bytes - docs/source/index.rst
+  8524 bytes - tests/test_requests_html.py
+  6472 bytes - docs/source/conf.py
+  3111 bytes - setup.py
+  2819 bytes - docs/source/_templates/sidebarintro.html
+  2818 bytes - docs/source/_templates/sidebarlogo.html
+  1361 bytes - docs/source/_templates/hacks.html
+  1258 bytes - .gitignore
+  1107 bytes - tests/test_internet.py
+  1076 bytes - LICENSE
+  821 bytes - docs/make.bat
 -----------------------
 
 ---
-File: .gitattributes
-Size: 81 bytes
-Lines: 2
+File: requests_html.py
+Size: 29680 bytes
+Lines: 845
 ---
-docs/source/_templates/*.html linguist-vendored
-tests/*.html linguist-vendored
+import sys
+import asyncio
+from urllib.parse import urlparse, urlunparse, urljoin
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures._base import TimeoutError
+from functools import partial
+from typing import Set, Union, List, MutableMapping, Optional
+
+import pyppeteer
+import requests
+import http.cookiejar
+from pyquery import PyQuery
+
+from fake_useragent import UserAgent
+from lxml.html.clean import Cleaner
+import lxml
+from lxml import etree
+from lxml.html import HtmlElement
+from lxml.html import tostring as lxml_html_tostring
+from lxml.html.soupparser import fromstring as soup_parse
+from parse import search as parse_search
+from parse import findall, Result
+from w3lib.encoding import html_to_unicode
+
+DEFAULT_ENCODING = 'utf-8'
+DEFAULT_URL = 'https://example.org/'
+DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8'
+DEFAULT_NEXT_SYMBOL = ['next', 'more', 'older']
+
+cleaner = Cleaner()
+cleaner.javascript = True
+cleaner.style = True
+
+useragent = None
+
+# Typing.
+_Find = Union[List['Element'], 'Element']
+_XPath = Union[List[str], List['Element'], str, 'Element']
+_Result = Union[List['Result'], 'Result']
+_HTML = Union[str, bytes]
+_BaseHTML = str
+_UserAgent = str
+_DefaultEncoding = str
+_URL = str
+_RawHTML = bytes
+_Encoding = str
+_LXML = HtmlElement
+_Text = str
+_Search = Result
+_Containing = Union[str, List[str]]
+_Links = Set[str]
+_Attrs = MutableMapping
+_Next = Union['HTML', List[str]]
+_NextSymbol = List[str]
+
+# Sanity checking.
+try:
+    assert sys.version_info.major == 3
+    assert sys.version_info.minor > 5
+except AssertionError:
+    raise RuntimeError('Requests-HTML requires Python 3.6+!')
+
+
+class MaxRetries(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+
+class BaseParser:
+    """A basic HTML/Element Parser, for Humans.
+
+    :param element: The element from which to base the parsing upon.
+    :param default_encoding: Which encoding to default to.
+    :param html: HTML from which to base the parsing upon (optional).
+    :param url: The URL from which the HTML originated, used for ``absolute_links``.
+
+    """
+
+    def __init__(self, *, element, default_encoding: _DefaultEncoding = None, html: _HTML = None, url: _URL) -> None:
+        self.element = element
+        self.url = url
+        self.skip_anchors = True
+        self.default_encoding = default_encoding
+        self._encoding = None
+        self._html = html.encode(DEFAULT_ENCODING) if isinstance(html, str) else html
+        self._lxml = None
+        self._pq = None
+
+    @property
+    def raw_html(self) -> _RawHTML:
+        """Bytes representation of the HTML content.
+        (`learn more <http://www.diveintopython3.net/strings.html>`_).
+        """
+        if self._html:
+            return self._html
+        else:
+            return etree.tostring(self.element, encoding='unicode').strip().encode(self.encoding)
+
+    @property
+    def html(self) -> _BaseHTML:
+        """Unicode representation of the HTML content
+        (`learn more <http://www.diveintopython3.net/strings.html>`_).
+        """
+        if self._html:
+            return self.raw_html.decode(self.encoding, errors='replace')
+        else:
+            return etree.tostring(self.element, encoding='unicode').strip()
+
+    @html.setter
+    def html(self, html: str) -> None:
+        self._html = html.encode(self.encoding)
+
+    @raw_html.setter
+    def raw_html(self, html: bytes) -> None:
+        """Property setter for self.html."""
+        self._html = html
+
+    @property
+    def encoding(self) -> _Encoding:
+        """The encoding string to be used, extracted from the HTML and
+        :class:`HTMLResponse <HTMLResponse>` headers.
+        """
+        if self._encoding:
+            return self._encoding
+
+        # Scan meta tags for charset.
+        if self._html:
+            self._encoding = html_to_unicode(self.default_encoding, self._html)[0]
+            # Fall back to requests' detected encoding if decode fails.
+            try:
+                self.raw_html.decode(self.encoding, errors='replace')
+            except UnicodeDecodeError:
+                self._encoding = self.default_encoding
+
+
+        return self._encoding if self._encoding else self.default_encoding
+
+    @encoding.setter
+    def encoding(self, enc: str) -> None:
+        """Property setter for self.encoding."""
+        self._encoding = enc
+
+    @property
+    def pq(self) -> PyQuery:
+        """`PyQuery <https://pythonhosted.org/pyquery/>`_ representation
+        of the :class:`Element <Element>` or :class:`HTML <HTML>`.
+        """
+        if self._pq is None:
+            self._pq = PyQuery(self.lxml)
+
+        return self._pq
+
+    @property
+    def lxml(self) -> HtmlElement:
+        """`lxml <http://lxml.de>`_ representation of the
+        :class:`Element <Element>` or :class:`HTML <HTML>`.
+        """
+        if self._lxml is None:
+            try:
+                self._lxml = soup_parse(self.html, features='html.parser')
+            except ValueError:
+                self._lxml = lxml.html.fromstring(self.raw_html)
+
+        return self._lxml
+
+    @property
+    def text(self) -> _Text:
+        """The text content of the
+        :class:`Element <Element>` or :class:`HTML <HTML>`.
+        """
+        return self.pq.text()
+
+    @property
+    def full_text(self) -> _Text:
+        """The full text content (including links) of the
+        :class:`Element <Element>` or :class:`HTML <HTML>`.
+        """
+        return self.lxml.text_content()
+
+    def find(self, selector: str = "*", *, containing: _Containing = None, clean: bool = False, first: bool = False, _encoding: str = None) -> _Find:
+        """Given a CSS Selector, returns a list of
+        :class:`Element <Element>` objects or a single one.
+
+        :param selector: CSS Selector to use.
+        :param clean: Whether or not to sanitize the found HTML of ``<script>`` and ``<style>`` tags.
+        :param containing: If specified, only return elements that contain the provided text.
+        :param first: Whether or not to return just the first result.
+        :param _encoding: The encoding format.
+
+        Example CSS Selectors:
+
+        - ``a``
+        - ``a.someClass``
+        - ``a#someID``
+        - ``a[target=_blank]``
+
+        See W3School's `CSS Selectors Reference
+        <https://www.w3schools.com/cssref/css_selectors.asp>`_
+        for more details.
+
+        If ``first`` is ``True``, only returns the first
+        :class:`Element <Element>` found.
+        """
+
+        # Convert a single containing into a list.
+        if isinstance(containing, str):
+            containing = [containing]
+
+        encoding = _encoding or self.encoding
+        elements = [
+            Element(element=found, url=self.url, default_encoding=encoding)
+            for found in self.pq(selector)
+        ]
+
+        if containing:
+            elements_copy = elements.copy()
+            elements = []
+
+            for element in elements_copy:
+                if any([c.lower() in element.full_text.lower() for c in containing]):
+                    elements.append(element)
+
+            elements.reverse()
+
+        # Sanitize the found HTML.
+        if clean:
+            elements_copy = elements.copy()
+            elements = []
+
+            for element in elements_copy:
+                element.raw_html = lxml_html_tostring(cleaner.clean_html(element.lxml))
+                elements.append(element)
+
+        return _get_first_or_list(elements, first)
+
+    def xpath(self, selector: str, *, clean: bool = False, first: bool = False, _encoding: str = None) -> _XPath:
+        """Given an XPath selector, returns a list of
+        :class:`Element <Element>` objects or a single one.
+
+        :param selector: XPath Selector to use.
+        :param clean: Whether or not to sanitize the found HTML of ``<script>`` and ``<style>`` tags.
+        :param first: Whether or not to return just the first result.
+        :param _encoding: The encoding format.
+
+        If a sub-selector is specified (e.g. ``//a/@href``), a simple
+        list of results is returned.
+
+        See W3School's `XPath Examples
+        <https://www.w3schools.com/xml/xpath_examples.asp>`_
+        for more details.
+
+        If ``first`` is ``True``, only returns the first
+        :class:`Element <Element>` found.
+        """
+        selected = self.lxml.xpath(selector)
+
+        elements = [
+            Element(element=selection, url=self.url, default_encoding=_encoding or self.encoding)
+            if not isinstance(selection, etree._ElementUnicodeResult) else str(selection)
+            for selection in selected
+        ]
+
+        # Sanitize the found HTML.
+        if clean:
+            elements_copy = elements.copy()
+            elements = []
+
+            for element in elements_copy:
+                element.raw_html = lxml_html_tostring(cleaner.clean_html(element.lxml))
+                elements.append(element)
+
+        return _get_first_or_list(elements, first)
+
+    def search(self, template: str) -> Result:
+        """Search the :class:`Element <Element>` for the given Parse template.
+
+        :param template: The Parse template to use.
+        """
+
+        return parse_search(template, self.html)
+
+    def search_all(self, template: str) -> _Result:
+        """Search the :class:`Element <Element>` (multiple times) for the given parse
+        template.
+
+        :param template: The Parse template to use.
+        """
+        return [r for r in findall(template, self.html)]
+
+    @property
+    def links(self) -> _Links:
+        """All found links on page, in as–is form."""
+
+        def gen():
+            for link in self.find('a'):
+
+                try:
+                    href = link.attrs['href'].strip()
+                    if href and not (href.startswith('#') and self.skip_anchors) and not href.startswith(('javascript:', 'mailto:')):
+                        yield href
+                except KeyError:
+                    pass
+
+        return set(gen())
+
+    def _make_absolute(self, link):
+        """Makes a given link absolute."""
+
+        # Parse the link with stdlib.
+        parsed = urlparse(link)._asdict()
+
+        # If link is relative, then join it with base_url.
+        if not parsed['netloc']:
+            return urljoin(self.base_url, link)
+
+        # Link is absolute; if it lacks a scheme, add one from base_url.
+        if not parsed['scheme']:
+            parsed['scheme'] = urlparse(self.base_url).scheme
+
+            # Reconstruct the URL to incorporate the new scheme.
+            parsed = (v for v in parsed.values())
+            return urlunparse(parsed)
+
+        # Link is absolute and complete with scheme; nothing to be done here.
+        return link
+
+
+    @property
+    def absolute_links(self) -> _Links:
+        """All found links on page, in absolute form
+        (`learn more <https://www.navegabem.com/absolute-or-relative-links.html>`_).
+        """
+
+        def gen():
+            for link in self.links:
+                yield self._make_absolute(link)
+
+        return set(gen())
+
+    @property
+    def base_url(self) -> _URL:
+        """The base URL for the page. Supports the ``<base>`` tag
+        (`learn more <https://www.w3schools.com/tags/tag_base.asp>`_)."""
+
+        # Support for <base> tag.
+        base = self.find('base', first=True)
+        if base:
+            result = base.attrs.get('href', '').strip()
+            if result:
+                return result
+
+        # Parse the url to separate out the path
+        parsed = urlparse(self.url)._asdict()
+
+        # Remove any part of the path after the last '/'
+        parsed['path'] = '/'.join(parsed['path'].split('/')[:-1]) + '/'
+
+        # Reconstruct the url with the modified path
+        parsed = (v for v in parsed.values())
+        url = urlunparse(parsed)
+
+        return url
+
+
+class Element(BaseParser):
+    """An element of HTML.
+
+    :param element: The element from which to base the parsing upon.
+    :param url: The URL from which the HTML originated, used for ``absolute_links``.
+    :param default_encoding: Which encoding to default to.
+    """
+
+    __slots__ = [
+        'element', 'url', 'skip_anchors', 'default_encoding', '_encoding',
+        '_html', '_lxml', '_pq', '_attrs', 'session'
+    ]
+
+    def __init__(self, *, element, url: _URL, default_encoding: _DefaultEncoding = None) -> None:
+        super(Element, self).__init__(element=element, url=url, default_encoding=default_encoding)
+        self.element = element
+        self.tag = element.tag
+        self.lineno = element.sourceline
+        self._attrs = None
+
+    def __repr__(self) -> str:
+        attrs = ['{}={}'.format(attr, repr(self.attrs[attr])) for attr in self.attrs]
+        return "<Element {} {}>".format(repr(self.element.tag), ' '.join(attrs))
+
+    @property
+    def attrs(self) -> _Attrs:
+        """Returns a dictionary of the attributes of the :class:`Element <Element>`
+        (`learn more <https://www.w3schools.com/tags/ref_attributes.asp>`_).
+        """
+        if self._attrs is None:
+            self._attrs = {k: v for k, v in self.element.items()}
+
+            # Split class and rel up, as there are usually many of them:
+            for attr in ['class', 'rel']:
+                if attr in self._attrs:
+                    self._attrs[attr] = tuple(self._attrs[attr].split())
+
+        return self._attrs
+
+
+class HTML(BaseParser):
+    """An HTML document, ready for parsing.
+
+    :param url: The URL from which the HTML originated, used for ``absolute_links``.
+    :param html: HTML from which to base the parsing upon (optional).
+    :param default_encoding: Which encoding to default to.
+    """
+
+    def __init__(self, *, session: Union['HTMLSession', 'AsyncHTMLSession'] = None, url: str = DEFAULT_URL, html: _HTML, default_encoding: str = DEFAULT_ENCODING, async_: bool = False) -> None:
+
+        # Convert incoming unicode HTML into bytes.
+        if isinstance(html, str):
+            html = html.encode(DEFAULT_ENCODING)
+
+        pq = PyQuery(html)
+        super(HTML, self).__init__(
+            element=pq('html') or pq.wrapAll('<html></html>')('html'),
+            html=html,
+            url=url,
+            default_encoding=default_encoding
+        )
+        self.session = session or async_ and AsyncHTMLSession() or HTMLSession()
+        self.page = None
+        self.next_symbol = DEFAULT_NEXT_SYMBOL
+
+    def __repr__(self) -> str:
+        return f"<HTML url={self.url!r}>"
+
+    def next(self, fetch: bool = False, next_symbol: _NextSymbol = None) -> _Next:
+        """Attempts to find the next page, if there is one. If ``fetch``
+        is ``True`` (default), returns :class:`HTML <HTML>` object of
+        next page. If ``fetch`` is ``False``, simply returns the next URL.
+
+        """
+        if next_symbol is None:
+            next_symbol = DEFAULT_NEXT_SYMBOL
+
+        def get_next():
+            candidates = self.find('a', containing=next_symbol)
+
+            for candidate in candidates:
+                if candidate.attrs.get('href'):
+                    # Support 'next' rel (e.g. reddit).
+                    if 'next' in candidate.attrs.get('rel', []):
+                        return candidate.attrs['href']
+
+                    # Support 'next' in classnames.
+                    for _class in candidate.attrs.get('class', []):
+                        if 'next' in _class:
+                            return candidate.attrs['href']
+
+                    if 'page' in candidate.attrs['href']:
+                        return candidate.attrs['href']
+
+            try:
+                # Resort to the last candidate.
+                return candidates[-1].attrs['href']
+            except IndexError:
+                return None
+
+        __next = get_next()
+        if __next:
+            url = self._make_absolute(__next)
+        else:
+            return None
+
+        if fetch:
+            return self.session.get(url)
+        else:
+            return url
+
+    def __iter__(self):
+
+        next = self
+
+        while True:
+            yield next
+            try:
+                next = next.next(fetch=True, next_symbol=self.next_symbol).html
+            except AttributeError:
+                break
+
+    def __next__(self):
+        return self.next(fetch=True, next_symbol=self.next_symbol).html
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        while True:
+            url = self.next(fetch=False, next_symbol=self.next_symbol)
+            if not url:
+                break
+            response = await self.session.get(url)
+            return response.html
+
+    def add_next_symbol(self, next_symbol):
+        self.next_symbol.append(next_symbol)
+
+    async def _async_render(self, *, url: str, script: str = None, scrolldown, sleep: int, wait: float, reload, content: Optional[str], timeout: Union[float, int], keep_page: bool, cookies: list = [{}]):
+        """ Handle page creation and js rendering. Internal use for render/arender methods. """
+        try:
+            page = await self.browser.newPage()
+
+            # Wait before rendering the page, to prevent timeouts.
+            await asyncio.sleep(wait)
+
+            if cookies:
+                for cookie in cookies:
+                    if cookie:
+                        await page.setCookie(cookie)
+
+            # Load the given page (GET request, obviously.)
+            if reload:
+                await page.goto(url, options={'timeout': int(timeout * 1000)})
+            else:
+                await page.goto(f'data:text/html,{self.html}', options={'timeout': int(timeout * 1000)})
+
+            result = None
+            if script:
+                result = await page.evaluate(script)
+
+            if scrolldown:
+                for _ in range(scrolldown):
+                    await page._keyboard.down('PageDown')
+                    await asyncio.sleep(sleep)
+            else:
+                await asyncio.sleep(sleep)
+
+            if scrolldown:
+                await page._keyboard.up('PageDown')
+
+            # Return the content of the page, JavaScript evaluated.
+            content = await page.content()
+            if not keep_page:
+                await page.close()
+                page = None
+            return content, result, page
+        except TimeoutError:
+            await page.close()
+            page = None
+            return None
+
+    def _convert_cookiejar_to_render(self, session_cookiejar):
+        """
+        Convert HTMLSession.cookies:cookiejar[] for browser.newPage().setCookie
+        """
+        # |  setCookie(self, *cookies:dict) -> None
+        # |      Set cookies.
+        # |
+        # |      ``cookies`` should be dictionaries which contain these fields:
+        # |
+        # |      * ``name`` (str): **required**
+        # |      * ``value`` (str): **required**
+        # |      * ``url`` (str)
+        # |      * ``domain`` (str)
+        # |      * ``path`` (str)
+        # |      * ``expires`` (number): Unix time in seconds
+        # |      * ``httpOnly`` (bool)
+        # |      * ``secure`` (bool)
+        # |      * ``sameSite`` (str): ``'Strict'`` or ``'Lax'``
+        cookie_render = {}
+        def __convert(cookiejar, key):
+            try:
+                v = eval ("cookiejar."+key)
+                if not v: kv = ''
+                else: kv = {key: v}
+            except:
+                kv = ''
+            return kv
+
+        keys = [
+            'name',
+            'value',
+            'url',
+            'domain',
+            'path',
+            'sameSite',
+            'expires',
+            'httpOnly',
+            'secure',
+        ]
+        for key in keys:
+            cookie_render.update(__convert(session_cookiejar, key))
+        return cookie_render
+
+    def _convert_cookiesjar_to_render(self):
+        """
+        Convert HTMLSession.cookies for browser.newPage().setCookie
+        Return a list of dict
+        """
+        cookies_render = []
+        if isinstance(self.session.cookies, http.cookiejar.CookieJar):
+            for cookie in self.session.cookies:
+                cookies_render.append(self._convert_cookiejar_to_render(cookie))
+        return cookies_render
+
+    def render(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
+        """Reloads the response in Chromium, and replaces HTML content
+        with an updated version, with JavaScript executed.
+
+        :param retries: The number of times to retry loading the page in Chromium.
+        :param script: JavaScript to execute upon page load (optional).
+        :param wait: The number of seconds to wait before loading the page, preventing timeouts (optional).
+        :param scrolldown: Integer, if provided, of how many times to page down.
+        :param sleep: Integer, if provided, of how many seconds to sleep after initial render.
+        :param reload: If ``False``, content will not be loaded from the browser, but will be provided from memory.
+        :param keep_page: If ``True`` will allow you to interact with the browser page through ``r.html.page``.
+
+        :param send_cookies_session: If ``True`` send ``HTMLSession.cookies`` convert.
+        :param cookies: If not ``empty`` send ``cookies``.
+
+        If ``scrolldown`` is specified, the page will scrolldown the specified
+        number of times, after sleeping the specified amount of time
+        (e.g. ``scrolldown=10, sleep=1``).
+
+        If just ``sleep`` is provided, the rendering will wait *n* seconds, before
+        returning.
+
+        If ``script`` is specified, it will execute the provided JavaScript at
+        runtime. Example:
+
+        .. code-block:: python
+
+            script = \"\"\"
+                () => {
+                    return {
+                        width: document.documentElement.clientWidth,
+                        height: document.documentElement.clientHeight,
+                        deviceScaleFactor: window.devicePixelRatio,
+                    }
+                }
+            \"\"\"
+
+        Returns the return value of the executed  ``script``, if any is provided:
+
+        .. code-block:: python
+
+            >>> r.html.render(script=script)
+            {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
+
+        Warning: the first time you run this method, it will download
+        Chromium into your home directory (``~/.pyppeteer``).
+        """
+
+        self.browser = self.session.browser  # Automatically create a event loop and browser
+        content = None
+
+        # Automatically set Reload to False, if example URL is being used.
+        if self.url == DEFAULT_URL:
+            reload = False
+
+        if send_cookies_session:
+           cookies = self._convert_cookiesjar_to_render()
+
+        for i in range(retries):
+            if not content:
+                try:
+
+                    content, result, page = self.session.loop.run_until_complete(self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies))
+                except TypeError:
+                    pass
+            else:
+                break
+
+        if not content:
+            raise MaxRetries("Unable to render the page. Try increasing timeout")
+
+        html = HTML(url=self.url, html=content.encode(DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
+        self.__dict__.update(html.__dict__)
+        self.page = page
+        return result
+
+    async def arender(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
+        """ Async version of render. Takes same parameters. """
+
+        self.browser = await self.session.browser
+        content = None
+
+        # Automatically set Reload to False, if example URL is being used.
+        if self.url == DEFAULT_URL:
+            reload = False
+
+        if send_cookies_session:
+           cookies = self._convert_cookiesjar_to_render()
+
+        for _ in range(retries):
+            if not content:
+                try:
+
+                    content, result, page = await self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies)
+                except TypeError:
+                    pass
+            else:
+                break
+
+        if not content:
+            raise MaxRetries("Unable to render the page. Try increasing timeout")
+
+        html = HTML(url=self.url, html=content.encode(DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
+        self.__dict__.update(html.__dict__)
+        self.page = page
+        return result
+
+
+class HTMLResponse(requests.Response):
+    """An HTML-enabled :class:`requests.Response <requests.Response>` object.
+    Effectively the same, but with an intelligent ``.html`` property added.
+    """
+
+    def __init__(self, session: Union['HTMLSession', 'AsyncHTMLSession']) -> None:
+        super(HTMLResponse, self).__init__()
+        self._html = None  # type: HTML
+        self.session = session
+
+    @property
+    def html(self) -> HTML:
+        if not self._html:
+            self._html = HTML(session=self.session, url=self.url, html=self.content, default_encoding=self.encoding)
+
+        return self._html
+
+    @classmethod
+    def _from_response(cls, response, session: Union['HTMLSession', 'AsyncHTMLSession']):
+        html_r = cls(session=session)
+        html_r.__dict__.update(response.__dict__)
+        return html_r
+
+
+def user_agent(style=None) -> _UserAgent:
+    """Returns an apparently legit user-agent, if not requested one of a specific
+    style. Defaults to a Chrome-style User-Agent.
+    """
+    global useragent
+    if (not useragent) and style:
+        useragent = UserAgent()
+
+    return useragent[style] if style else DEFAULT_USER_AGENT
+
+
+def _get_first_or_list(l, first=False):
+    if first:
+        try:
+            return l[0]
+        except IndexError:
+            return None
+    else:
+        return l
+
+
+class BaseSession(requests.Session):
+    """ A consumable session, for cookie persistence and connection pooling,
+    amongst other things.
+    """
+
+    def __init__(self, mock_browser : bool = True, verify : bool = True,
+                 browser_args : list = ['--no-sandbox']):
+        super().__init__()
+
+        # Mock a web browser's user agent.
+        if mock_browser:
+            self.headers['User-Agent'] = user_agent()
+
+        self.hooks['response'].append(self.response_hook)
+        self.verify = verify
+
+        self.__browser_args = browser_args
+
+
+    def response_hook(self, response, **kwargs) -> HTMLResponse:
+        """ Change response encoding and replace it by a HTMLResponse. """
+        if not response.encoding:
+            response.encoding = DEFAULT_ENCODING
+        return HTMLResponse._from_response(response, self)
+
+    @property
+    async def browser(self):
+        if not hasattr(self, "_browser"):
+            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=True, args=self.__browser_args)
+
+        return self._browser
+
+
+class HTMLSession(BaseSession):
+
+    def __init__(self, **kwargs):
+        super(HTMLSession, self).__init__(**kwargs)
+
+    @property
+    def browser(self):
+        if not hasattr(self, "_browser"):
+            self.loop = asyncio.get_event_loop()
+            if self.loop.is_running():
+                raise RuntimeError("Cannot use HTMLSession within an existing event loop. Use AsyncHTMLSession instead.")
+            self._browser = self.loop.run_until_complete(super().browser)
+        return self._browser
+
+    def close(self):
+        """ If a browser was created close it first. """
+        if hasattr(self, "_browser"):
+            self.loop.run_until_complete(self._browser.close())
+        super().close()
+
+
+class AsyncHTMLSession(BaseSession):
+    """ An async consumable session. """
+
+    def __init__(self, loop=None, workers=None,
+                 mock_browser: bool = True, *args, **kwargs):
+        """ Set or create an event loop and a thread pool.
+
+            :param loop: Asyncio loop to use.
+            :param workers: Amount of threads to use for executing async calls.
+                If not pass it will default to the number of processors on the
+                machine, multiplied by 5. """
+        super().__init__(*args, **kwargs)
+
+        self.loop = loop or asyncio.get_event_loop()
+        self.thread_pool = ThreadPoolExecutor(max_workers=workers)
+
+    def request(self, *args, **kwargs):
+        """ Partial original request func and run it in a thread. """
+        func = partial(super().request, *args, **kwargs)
+        return self.loop.run_in_executor(self.thread_pool, func)
+
+    async def close(self):
+        """ If a browser was created close it first. """
+        if hasattr(self, "_browser"):
+            await self._browser.close()
+        super().close()
+
+    def run(self, *coros):
+        """ Pass in all the coroutines you want to run, it will wrap each one
+            in a task, run it and wait for the result. Return a list with all
+            results, this is returned in the same order coros are passed in. """
+        tasks = [
+            asyncio.ensure_future(coro()) for coro in coros
+        ]
+        done, _ = self.loop.run_until_complete(asyncio.wait(tasks))
+        return [t.result() for t in done]
+
+
+---
+File: pytest.ini
+Size: 113 bytes
+Lines: 4
+---
+[pytest]
+markers =
+    render: marks tests for html render
+    internet: marks tests which runs on internet pages
+
+---
+File: LICENSE
+Size: 1076 bytes
+Lines: 21
+---
+The MIT License (MIT)
+
+Copyright 2018 Kenneth Reitz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---
+File: Makefile
+Size: 147 bytes
+Lines: 5
+---
+documentation:
+	cd docs && make html
+	cd docs/build/html && git add -A && git commit -m 'updates'
+	cd docs/build/html && git push origin gh-pages
+
+
+
+---
+File: Pipfile
+Size: 422 bytes
+Lines: 28
+---
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+pyquery = "*"
+fake-useragent = "*"
+parse = "*"
+"bs4" = "*"
+"w3lib" = "*"
+pyppeteer = "*"
+"rfc3986" = "*"
+
+[dev-packages]
+twine = "*"
+requests-file = "*"
+pytest = "*"
+e1839a8 = {path = ".",editable = true}
+sphinx = "*"
+mypy = "*"
+pytest-asyncio = "*"
+white = "*"
+
+[scripts]
+tests = "pytest -v -m 'not internet' "
+
+
+
+---
+File: setup.py
+Size: 3111 bytes
+Lines: 108
+---
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Note: To use the 'upload' functionality of this file, you must:
+#   $ pip install twine
+
+import io
+import os
+import sys
+from shutil import rmtree
+
+from setuptools import setup, Command
+
+# Package meta-data.
+NAME = 'requests-html'
+DESCRIPTION = 'HTML Parsing for Humans.'
+URL = 'https://github.com/psf/requests-html'
+EMAIL = 'me@kennethreitz.org'
+AUTHOR = 'Kenneth Reitz'
+VERSION = '0.10.0'
+
+# What packages are required for this module to be executed?
+REQUIRED = [
+    'requests', 'pyquery', 'fake-useragent', 'parse', 'beautifulsoup4', 'w3lib', 'pyppeteer>=0.0.14'
+]
+
+# The rest you shouldn't have to touch too much :)
+# ------------------------------------------------
+# Except, perhaps the License and Trove Classifiers!
+# If you do change the License, remember to change the Trove Classifier for that!
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Import the README and use it as the long-description.
+# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
+with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = '\n' + f.read()
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = 'Build and publish the package.'
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Prints things in bold."""
+        print('\033[1m{0}\033[0m'.format(s))
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status('Removing previous builds…')
+            rmtree(os.path.join(here, 'dist'))
+        except OSError:
+            pass
+
+        self.status('Building Source and Wheel (universal) distribution…')
+        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+
+        self.status('Uploading the package to PyPi via Twine…')
+        os.system('twine upload dist/*')
+
+        self.status('Publishing git tags…')
+        os.system('git tag v{0}'.format(VERSION))
+        os.system('git push --tags')
+
+        sys.exit()
+
+
+# Where the magic happens:
+setup(
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    long_description=long_description,
+    author=AUTHOR,
+    author_email=EMAIL,
+    url=URL,
+    python_requires='>=3.6.0',
+    # If your package is a single module, use this instead of 'packages':
+    py_modules=['requests_html'],
+
+    # entry_points={
+    #     'console_scripts': ['mycli=mymodule:cli'],
+    # },
+    install_requires=REQUIRED,
+    include_package_data=True,
+    license='MIT',
+    classifiers=[
+        # Trove classifiers
+        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy'
+    ],
+    # $ setup.py publish support.
+    cmdclass={
+        'upload': UploadCommand,
+    },
+)
 
 
 ---
 File: .gitignore
-Size: 1366 bytes
+Size: 1258 bytes
 Lines: 109
 ---
 # Byte-compiled / optimized / DLL files
@@ -183,8 +1226,280 @@ venv.bak/
 .vscode
 
 ---
+File: .gitattributes
+Size: 79 bytes
+Lines: 2
+---
+docs/source/_templates/*.html linguist-vendored
+tests/*.html linguist-vendored
+
+
+---
+File: README.rst
+Size: 19665 bytes
+Lines: 256
+---
+Requests-HTML: HTML Parsing for Humans™
+=======================================
+
+.. image:: https://farm5.staticflickr.com/4695/39152770914_a3ab8af40d_k_d.jpg
+
+.. image:: https://travis-ci.com/psf/requests-html.svg?branch=master
+    :target: https://travis-ci.com/psf/requests-html
+
+This library intends to make parsing HTML (e.g. scraping the web) as
+simple and intuitive as possible.
+
+When using this library you automatically get:
+
+- **Full JavaScript support**! (Using Chromium, thanks to pyppeteer)
+- *CSS Selectors* (a.k.a jQuery-style, thanks to PyQuery).
+- *XPath Selectors*, for the faint of heart.
+- Mocked user-agent (like a real web browser).
+- Automatic following of redirects.
+- Connection–pooling and cookie persistence.
+- The Requests experience you know and love, with magical parsing abilities.
+- **Async Support**
+
+.. Other nice features include:
+
+    - Markdown export of pages and elements.
+
+
+Tutorial & Usage
+================
+
+Make a GET request to 'python.org', using Requests:
+
+.. code-block:: pycon
+
+    >>> from requests_html import HTMLSession
+    >>> session = HTMLSession()
+    >>> r = session.get('https://python.org/')
+
+Try async and get some sites at the same time:
+
+.. code-block:: pycon
+
+    >>> from requests_html import AsyncHTMLSession
+    >>> asession = AsyncHTMLSession()
+    >>> async def get_pythonorg():
+    ...     r = await asession.get('https://python.org/')
+    ...     return r
+    ...
+    >>> async def get_reddit():
+    ...    r = await asession.get('https://reddit.com/')
+    ...    return r
+    ...
+    >>> async def get_google():
+    ...    r = await asession.get('https://google.com/')
+    ...    return r
+    ...
+    >>> results = asession.run(get_pythonorg, get_reddit, get_google)
+    >>> results # check the requests all returned a 200 (success) code
+    [<Response [200]>, <Response [200]>, <Response [200]>]
+    >>> # Each item in the results list is a response object and can be interacted with as such
+    >>> for result in results: 
+    ...     print(result.html.url)
+    ... 
+    https://www.python.org/
+    https://www.google.com/
+    https://www.reddit.com/
+
+Note that the order of the objects in the results list represents the order they were returned in, not the order that the coroutines are passed to the ``run`` method, which is shown in the example by the order being different. 
+
+Grab a list of all links on the page, as–is (anchors excluded):
+
+.. code-block:: pycon
+
+    >>> r.html.links
+    {'//docs.python.org/3/tutorial/', '/about/apps/', 'https://github.com/python/pythondotorg/issues', '/accounts/login/', '/dev/peps/', '/about/legal/', '//docs.python.org/3/tutorial/introduction.html#lists', '/download/alternatives', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', '/download/other/', '/downloads/windows/', 'https://mail.python.org/mailman/listinfo/python-dev', '/doc/av', 'https://devguide.python.org/', '/about/success/#engineering', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', '/about/gettingstarted/', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', '/success-stories/industrial-light-magic-runs-python/', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', '/', 'http://pyfound.blogspot.com/', '/events/python-events/past/', '/downloads/release/python-2714/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://status.python.org/', '/community/workshops/', '/community/lists/', 'http://buildbot.net/', '/community/awards', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', '/psf/donations/', 'http://wiki.python.org/moin/Languages', '/dev/', '/events/python-user-group/', 'https://wiki.qt.io/PySide', '/community/sigs/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'http://planetpython.org/', '/events/python-events', '/about/help/', '/events/python-user-group/past/', '/about/success/', '/psf-landing/', '/about/apps', '/about/', 'http://www.wxpython.org/', '/events/python-user-group/665/', 'https://www.python.org/psf/codeofconduct/', '/dev/peps/peps.rss', '/downloads/source/', '/psf/sponsorship/sponsors/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://bugs.python.org/', '/community/merchandise/', 'http://tornadoweb.org', '/events/python-user-group/650/', 'http://flask.pocoo.org/', '/downloads/release/python-364/', '/events/python-user-group/660/', '/events/python-user-group/638/', '/psf/', '/doc/', 'http://blog.python.org', '/events/python-events/604/', '/about/success/#government', 'http://python.org/dev/peps/', 'https://docs.python.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', '/users/membership/', '/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', '/downloads/', '/jobs/', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', '/privacy/', 'https://pypi.python.org/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'http://www.scipy.org', '/community/forums/', '/about/success/#scientific', '/about/success/#software-development', '/shell/', '/accounts/signup/', 'http://www.facebook.com/pythonlang?fref=ts', '/community/', 'https://kivy.org/', '/about/quotes/', 'http://www.web2py.com/', '/community/logos/', '/community/diversity/', '/events/calendars/', 'https://wiki.python.org/moin/BeginnersGuide', '/success-stories/', '/doc/essays/', '/dev/core-mentorship/', 'http://ipython.org', '/events/', '//docs.python.org/3/tutorial/controlflow.html', '/about/success/#education', '/blogs/', '/community/irc/', 'http://pycon.blogspot.com/', '//jobs.python.org', 'http://www.pylonsproject.org/', 'http://www.djangoproject.com/', '/downloads/mac-osx/', '/about/success/#business', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://docs.python.org/faq/', '//docs.python.org/3/tutorial/controlflow.html#defining-functions'}
+
+Grab a list of all links on the page, in absolute form (anchors excluded):
+
+.. code-block:: pycon
+
+    >>> r.html.absolute_links
+    {'https://github.com/python/pythondotorg/issues', 'https://docs.python.org/3/tutorial/', 'https://www.python.org/about/success/', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', 'https://www.python.org/dev/peps/', 'https://mail.python.org/mailman/listinfo/python-dev', 'https://www.python.org/doc/', 'https://www.python.org/', 'https://www.python.org/about/', 'https://www.python.org/events/python-events/past/', 'https://devguide.python.org/', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', 'https://docs.python.org/3/tutorial/introduction.html#lists', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', 'http://pyfound.blogspot.com/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://www.python.org/events/python-events', 'https://status.python.org/', 'https://www.python.org/about/apps', 'https://www.python.org/downloads/release/python-2714/', 'https://www.python.org/psf/donations/', 'http://buildbot.net/', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', 'http://wiki.python.org/moin/Languages', 'https://docs.python.org/faq/', 'https://jobs.python.org', 'https://www.python.org/about/success/#software-development', 'https://www.python.org/about/success/#education', 'https://www.python.org/community/logos/', 'https://www.python.org/doc/av', 'https://wiki.qt.io/PySide', 'https://www.python.org/events/python-user-group/660/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'https://www.python.org/dev/peps/peps.rss', 'http://planetpython.org/', 'https://www.python.org/events/python-user-group/past/', 'https://docs.python.org/3/tutorial/controlflow.html#defining-functions', 'https://www.python.org/community/diversity/', 'https://docs.python.org/3/tutorial/controlflow.html', 'https://www.python.org/community/awards', 'https://www.python.org/events/python-user-group/638/', 'https://www.python.org/about/legal/', 'https://www.python.org/dev/', 'https://www.python.org/download/alternatives', 'https://www.python.org/downloads/', 'https://www.python.org/community/lists/', 'http://www.wxpython.org/', 'https://www.python.org/about/success/#government', 'https://www.python.org/psf/', 'https://www.python.org/psf/codeofconduct/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://www.python.org/downloads/source/', 'https://bugs.python.org/', 'https://www.python.org/downloads/mac-osx/', 'https://www.python.org/about/help/', 'http://tornadoweb.org', 'http://flask.pocoo.org/', 'https://www.python.org/users/membership/', 'http://blog.python.org', 'https://www.python.org/privacy/', 'https://www.python.org/about/gettingstarted/', 'http://python.org/dev/peps/', 'https://www.python.org/about/apps/', 'https://docs.python.org', 'https://www.python.org/success-stories/', 'https://www.python.org/community/forums/', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', 'https://www.python.org/community/merchandise/', 'https://www.python.org/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', 'https://pypi.python.org/', 'https://www.python.org/events/python-user-group/650/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'https://www.python.org/about/quotes/', 'https://www.python.org/downloads/windows/', 'https://www.python.org/events/calendars/', 'http://www.scipy.org', 'https://www.python.org/community/workshops/', 'https://www.python.org/blogs/', 'https://www.python.org/accounts/signup/', 'https://www.python.org/events/', 'https://kivy.org/', 'http://www.facebook.com/pythonlang?fref=ts', 'http://www.web2py.com/', 'https://www.python.org/psf/sponsorship/sponsors/', 'https://www.python.org/community/', 'https://www.python.org/download/other/', 'https://www.python.org/psf-landing/', 'https://www.python.org/events/python-user-group/665/', 'https://wiki.python.org/moin/BeginnersGuide', 'https://www.python.org/accounts/login/', 'https://www.python.org/downloads/release/python-364/', 'https://www.python.org/dev/core-mentorship/', 'https://www.python.org/about/success/#business', 'https://www.python.org/community/sigs/', 'https://www.python.org/events/python-user-group/', 'http://ipython.org', 'https://www.python.org/shell/', 'https://www.python.org/community/irc/', 'https://www.python.org/about/success/#engineering', 'http://www.pylonsproject.org/', 'http://pycon.blogspot.com/', 'https://www.python.org/about/success/#scientific', 'https://www.python.org/doc/essays/', 'http://www.djangoproject.com/', 'https://www.python.org/success-stories/industrial-light-magic-runs-python/', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://www.python.org/jobs/', 'https://www.python.org/events/python-events/604/'}
+
+Select an element with a CSS Selector:
+
+.. code-block:: pycon
+
+    >>> about = r.html.find('#about', first=True)
+
+Grab an element's text contents:
+
+.. code-block:: pycon
+
+    >>> print(about.text)
+    About
+    Applications
+    Quotes
+    Getting Started
+    Help
+    Python Brochure
+
+Introspect an Element's attributes:
+
+.. code-block:: pycon
+
+    >>> about.attrs
+    {'id': 'about', 'class': ('tier-1', 'element-1'), 'aria-haspopup': 'true'}
+
+Render out an Element's HTML:
+
+.. code-block:: pycon
+
+    >>> about.html
+    '<li aria-haspopup="true" class="tier-1 element-1 " id="about">\n<a class="" href="/about/" title="">About</a>\n<ul aria-hidden="true" class="subnav menu" role="menu">\n<li class="tier-2 element-1" role="treeitem"><a href="/about/apps/" title="">Applications</a></li>\n<li class="tier-2 element-2" role="treeitem"><a href="/about/quotes/" title="">Quotes</a></li>\n<li class="tier-2 element-3" role="treeitem"><a href="/about/gettingstarted/" title="">Getting Started</a></li>\n<li class="tier-2 element-4" role="treeitem"><a href="/about/help/" title="">Help</a></li>\n<li class="tier-2 element-5" role="treeitem"><a href="http://brochure.getpython.info/" title="">Python Brochure</a></li>\n</ul>\n</li>'
+
+
+
+Select Elements within Elements:
+
+.. code-block:: pycon
+
+    >>> about.find('a')
+    [<Element 'a' href='/about/' title='' class=''>, <Element 'a' href='/about/apps/' title=''>, <Element 'a' href='/about/quotes/' title=''>, <Element 'a' href='/about/gettingstarted/' title=''>, <Element 'a' href='/about/help/' title=''>, <Element 'a' href='http://brochure.getpython.info/' title=''>]
+
+Search for links within an element:
+
+.. code-block:: pycon
+
+    >>> about.absolute_links
+    {'http://brochure.getpython.info/', 'https://www.python.org/about/gettingstarted/', 'https://www.python.org/about/', 'https://www.python.org/about/quotes/', 'https://www.python.org/about/help/', 'https://www.python.org/about/apps/'}
+
+
+Search for text on the page:
+
+.. code-block:: pycon
+
+    >>> r.html.search('Python is a {} language')[0]
+    programming
+
+More complex CSS Selector example (copied from Chrome dev tools):
+
+.. code-block:: pycon
+
+    >>> r = session.get('https://github.com/')
+    >>> sel = 'body > div.application-main > div.jumbotron.jumbotron-codelines > div > div > div.col-md-7.text-center.text-md-left > p'
+    >>> print(r.html.find(sel, first=True).text)
+    GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of other developers.
+
+XPath is also supported:
+
+.. code-block:: pycon
+
+   >>> r.html.xpath('/html/body/div[1]/a')
+   [<Element 'a' class=('px-2', 'py-4', 'show-on-focus', 'js-skip-to-content') href='#start-of-content' tabindex='1'>]
+
+
+JavaScript Support
+==================
+
+Let's grab some text that's rendered by JavaScript. Until 2020, the Python 2.7 countdown clock (https://pythonclock.org) will serve as a good test page:
+
+.. code-block:: pycon
+
+    >>> r = session.get('https://pythonclock.org')
+
+Let's try and see the dynamically rendered code (The countdown clock). To do that quickly at first, we'll search between the last text we see before it ('Python 2.7 will retire in...') and the first text we see after it ('Enable Guido Mode').
+
+.. code-block:: pycon
+
+	>>> r.html.search('Python 2.7 will retire in...{}Enable Guido Mode')[0]
+	'</h1>\n        </div>\n        <div class="python-27-clock"></div>\n        <div class="center">\n            <div class="guido-button-block">\n                <button class="js-guido-mode guido-button">'
+
+Notice the clock is missing. The ``render()`` method takes the response and renders the dynamic content just like a web browser would.
+
+.. code-block:: pycon
+
+    >>> r.html.render()
+    >>> r.html.search('Python 2.7 will retire in...{}Enable Guido Mode')[0]
+    '</h1>\n        </div>\n        <div class="python-27-clock is-countdown"><span class="countdown-row countdown-show6"><span class="countdown-section"><span class="countdown-amount">1</span><span class="countdown-period">Year</span></span><span class="countdown-section"><span class="countdown-amount">2</span><span class="countdown-period">Months</span></span><span class="countdown-section"><span class="countdown-amount">28</span><span class="countdown-period">Days</span></span><span class="countdown-section"><span class="countdown-amount">16</span><span class="countdown-period">Hours</span></span><span class="countdown-section"><span class="countdown-amount">52</span><span class="countdown-period">Minutes</span></span><span class="countdown-section"><span class="countdown-amount">46</span><span class="countdown-period">Seconds</span></span></span></div>\n        <div class="center">\n            <div class="guido-button-block">\n                <button class="js-guido-mode guido-button">'
+
+Let's clean it up a bit. This step is not needed, it just makes it a bit easier to visualize the returned html to see what we need to target to extract our required information. 
+
+.. code-block:: pycon
+
+	>>> from pprint import pprint
+	>>> pprint(r.html.search('Python 2.7 will retire in...{}Enable')[0])
+	('</h1>\n'
+ '        </div>\n'
+ '        <div class="python-27-clock is-countdown"><span class="countdown-row '
+ 'countdown-show6"><span class="countdown-section"><span '
+ 'class="countdown-amount">1</span><span '
+ 'class="countdown-period">Year</span></span><span '
+ 'class="countdown-section"><span class="countdown-amount">2</span><span '
+ 'class="countdown-period">Months</span></span><span '
+ 'class="countdown-section"><span class="countdown-amount">28</span><span '
+ 'class="countdown-period">Days</span></span><span '
+ 'class="countdown-section"><span class="countdown-amount">16</span><span '
+ 'class="countdown-period">Hours</span></span><span '
+ 'class="countdown-section"><span class="countdown-amount">52</span><span '
+ 'class="countdown-period">Minutes</span></span><span '
+ 'class="countdown-section"><span class="countdown-amount">46</span><span '
+ 'class="countdown-period">Seconds</span></span></span></div>\n'
+ '        <div class="center">\n'
+ '            <div class="guido-button-block">\n'
+ '                <button class="js-guido-mode guido-button">')
+
+The rendered html has all the same methods and attributes as above. Let's extract just the data that we want out of the clock into something easy to use elsewhere and introspect like a dictionary.
+
+.. code-block:: pycon
+	
+	>>> periods = [element.text for element in r.html.find('.countdown-period')]
+	>>> amounts = [element.text for element in r.html.find('.countdown-amount')]
+	>>> countdown_data = dict(zip(periods, amounts))
+	>>> countdown_data
+	{'Year': '1', 'Months': '2', 'Days': '5', 'Hours': '23', 'Minutes': '34', 'Seconds': '37'}
+
+Or you can do this async also:
+
+.. code-block:: pycon
+
+    >>> async def get_pyclock():
+    ...     r = await asession.get('https://pythonclock.org/')
+    ...     await r.html.arender()
+    ...     return r
+    ...
+    >>> results = asession.run(get_pyclock, get_pyclock, get_pyclock)
+
+The rest of the code operates the same way as the synchronous version except that ``results`` is a list containing multiple response objects however the same basic processes can be applied as above to extract the data you want. 
+
+Note, the first time you ever run the ``render()`` method, it will download
+Chromium into your home directory (e.g. ``~/.pyppeteer/``). This only happens
+once.
+
+Using without Requests
+======================
+
+You can also use this library without Requests:
+
+.. code-block:: pycon
+
+    >>> from requests_html import HTML
+    >>> doc = """<a href='https://httpbin.org'>"""
+    >>> html = HTML(html=doc)
+    >>> html.links
+    {'https://httpbin.org'}
+
+
+Installation
+============
+
+.. code-block:: shell
+
+    $ pipenv install requests-html
+    ✨🍰✨
+
+Only **Python 3.6 and above** is supported.
+
+
+---
 File: .travis.yml
-Size: 491 bytes
+Size: 465 bytes
 Lines: 26
 ---
 language: python
@@ -216,83 +1531,8 @@ script:
 
 
 ---
-File: LICENSE
-Size: 1097 bytes
-Lines: 21
----
-The MIT License (MIT)
-
-Copyright 2018 Kenneth Reitz
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
----
-File: Makefile
-Size: 152 bytes
-Lines: 5
----
-documentation:
-	cd docs && make html
-	cd docs/build/html && git add -A && git commit -m 'updates'
-	cd docs/build/html && git push origin gh-pages
-
-
-
----
-File: Pipfile
-Size: 450 bytes
-Lines: 28
----
-[[source]]
-url = "https://pypi.python.org/simple"
-verify_ssl = true
-name = "pypi"
-
-[packages]
-requests = "*"
-pyquery = "*"
-fake-useragent = "*"
-parse = "*"
-"bs4" = "*"
-"w3lib" = "*"
-pyppeteer = "*"
-"rfc3986" = "*"
-
-[dev-packages]
-twine = "*"
-requests-file = "*"
-pytest = "*"
-e1839a8 = {path = ".",editable = true}
-sphinx = "*"
-mypy = "*"
-pytest-asyncio = "*"
-white = "*"
-
-[scripts]
-tests = "pytest -v -m 'not internet' "
-
-
-
----
 File: Pipfile.lock
-Size: 87040 bytes
+Size: 85699 bytes
 Lines: 1341
 ---
 {
@@ -1639,2080 +2879,7 @@ Lines: 1341
 
 
 ---
-File: pytest.ini
-Size: 116 bytes
-Lines: 4
----
-[pytest]
-markers =
-    render: marks tests for html render
-    internet: marks tests which runs on internet pages
-
----
-File: README.rst
-Size: 19921 bytes
-Lines: 256
----
-Requests-HTML: HTML Parsing for Humans™
-=======================================
-
-.. image:: https://farm5.staticflickr.com/4695/39152770914_a3ab8af40d_k_d.jpg
-
-.. image:: https://travis-ci.com/psf/requests-html.svg?branch=master
-    :target: https://travis-ci.com/psf/requests-html
-
-This library intends to make parsing HTML (e.g. scraping the web) as
-simple and intuitive as possible.
-
-When using this library you automatically get:
-
-- **Full JavaScript support**! (Using Chromium, thanks to pyppeteer)
-- *CSS Selectors* (a.k.a jQuery-style, thanks to PyQuery).
-- *XPath Selectors*, for the faint of heart.
-- Mocked user-agent (like a real web browser).
-- Automatic following of redirects.
-- Connection–pooling and cookie persistence.
-- The Requests experience you know and love, with magical parsing abilities.
-- **Async Support**
-
-.. Other nice features include:
-
-    - Markdown export of pages and elements.
-
-
-Tutorial & Usage
-================
-
-Make a GET request to 'python.org', using Requests:
-
-.. code-block:: pycon
-
-    >>> from requests_html import HTMLSession
-    >>> session = HTMLSession()
-    >>> r = session.get('https://python.org/')
-
-Try async and get some sites at the same time:
-
-.. code-block:: pycon
-
-    >>> from requests_html import AsyncHTMLSession
-    >>> asession = AsyncHTMLSession()
-    >>> async def get_pythonorg():
-    ...     r = await asession.get('https://python.org/')
-    ...     return r
-    ...
-    >>> async def get_reddit():
-    ...    r = await asession.get('https://reddit.com/')
-    ...    return r
-    ...
-    >>> async def get_google():
-    ...    r = await asession.get('https://google.com/')
-    ...    return r
-    ...
-    >>> results = asession.run(get_pythonorg, get_reddit, get_google)
-    >>> results # check the requests all returned a 200 (success) code
-    [<Response [200]>, <Response [200]>, <Response [200]>]
-    >>> # Each item in the results list is a response object and can be interacted with as such
-    >>> for result in results: 
-    ...     print(result.html.url)
-    ... 
-    https://www.python.org/
-    https://www.google.com/
-    https://www.reddit.com/
-
-Note that the order of the objects in the results list represents the order they were returned in, not the order that the coroutines are passed to the ``run`` method, which is shown in the example by the order being different. 
-
-Grab a list of all links on the page, as–is (anchors excluded):
-
-.. code-block:: pycon
-
-    >>> r.html.links
-    {'//docs.python.org/3/tutorial/', '/about/apps/', 'https://github.com/python/pythondotorg/issues', '/accounts/login/', '/dev/peps/', '/about/legal/', '//docs.python.org/3/tutorial/introduction.html#lists', '/download/alternatives', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', '/download/other/', '/downloads/windows/', 'https://mail.python.org/mailman/listinfo/python-dev', '/doc/av', 'https://devguide.python.org/', '/about/success/#engineering', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', '/about/gettingstarted/', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', '/success-stories/industrial-light-magic-runs-python/', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', '/', 'http://pyfound.blogspot.com/', '/events/python-events/past/', '/downloads/release/python-2714/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://status.python.org/', '/community/workshops/', '/community/lists/', 'http://buildbot.net/', '/community/awards', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', '/psf/donations/', 'http://wiki.python.org/moin/Languages', '/dev/', '/events/python-user-group/', 'https://wiki.qt.io/PySide', '/community/sigs/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'http://planetpython.org/', '/events/python-events', '/about/help/', '/events/python-user-group/past/', '/about/success/', '/psf-landing/', '/about/apps', '/about/', 'http://www.wxpython.org/', '/events/python-user-group/665/', 'https://www.python.org/psf/codeofconduct/', '/dev/peps/peps.rss', '/downloads/source/', '/psf/sponsorship/sponsors/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://bugs.python.org/', '/community/merchandise/', 'http://tornadoweb.org', '/events/python-user-group/650/', 'http://flask.pocoo.org/', '/downloads/release/python-364/', '/events/python-user-group/660/', '/events/python-user-group/638/', '/psf/', '/doc/', 'http://blog.python.org', '/events/python-events/604/', '/about/success/#government', 'http://python.org/dev/peps/', 'https://docs.python.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', '/users/membership/', '/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', '/downloads/', '/jobs/', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', '/privacy/', 'https://pypi.python.org/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'http://www.scipy.org', '/community/forums/', '/about/success/#scientific', '/about/success/#software-development', '/shell/', '/accounts/signup/', 'http://www.facebook.com/pythonlang?fref=ts', '/community/', 'https://kivy.org/', '/about/quotes/', 'http://www.web2py.com/', '/community/logos/', '/community/diversity/', '/events/calendars/', 'https://wiki.python.org/moin/BeginnersGuide', '/success-stories/', '/doc/essays/', '/dev/core-mentorship/', 'http://ipython.org', '/events/', '//docs.python.org/3/tutorial/controlflow.html', '/about/success/#education', '/blogs/', '/community/irc/', 'http://pycon.blogspot.com/', '//jobs.python.org', 'http://www.pylonsproject.org/', 'http://www.djangoproject.com/', '/downloads/mac-osx/', '/about/success/#business', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://docs.python.org/faq/', '//docs.python.org/3/tutorial/controlflow.html#defining-functions'}
-
-Grab a list of all links on the page, in absolute form (anchors excluded):
-
-.. code-block:: pycon
-
-    >>> r.html.absolute_links
-    {'https://github.com/python/pythondotorg/issues', 'https://docs.python.org/3/tutorial/', 'https://www.python.org/about/success/', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', 'https://www.python.org/dev/peps/', 'https://mail.python.org/mailman/listinfo/python-dev', 'https://www.python.org/doc/', 'https://www.python.org/', 'https://www.python.org/about/', 'https://www.python.org/events/python-events/past/', 'https://devguide.python.org/', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', 'https://docs.python.org/3/tutorial/introduction.html#lists', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', 'http://pyfound.blogspot.com/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://www.python.org/events/python-events', 'https://status.python.org/', 'https://www.python.org/about/apps', 'https://www.python.org/downloads/release/python-2714/', 'https://www.python.org/psf/donations/', 'http://buildbot.net/', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', 'http://wiki.python.org/moin/Languages', 'https://docs.python.org/faq/', 'https://jobs.python.org', 'https://www.python.org/about/success/#software-development', 'https://www.python.org/about/success/#education', 'https://www.python.org/community/logos/', 'https://www.python.org/doc/av', 'https://wiki.qt.io/PySide', 'https://www.python.org/events/python-user-group/660/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'https://www.python.org/dev/peps/peps.rss', 'http://planetpython.org/', 'https://www.python.org/events/python-user-group/past/', 'https://docs.python.org/3/tutorial/controlflow.html#defining-functions', 'https://www.python.org/community/diversity/', 'https://docs.python.org/3/tutorial/controlflow.html', 'https://www.python.org/community/awards', 'https://www.python.org/events/python-user-group/638/', 'https://www.python.org/about/legal/', 'https://www.python.org/dev/', 'https://www.python.org/download/alternatives', 'https://www.python.org/downloads/', 'https://www.python.org/community/lists/', 'http://www.wxpython.org/', 'https://www.python.org/about/success/#government', 'https://www.python.org/psf/', 'https://www.python.org/psf/codeofconduct/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://www.python.org/downloads/source/', 'https://bugs.python.org/', 'https://www.python.org/downloads/mac-osx/', 'https://www.python.org/about/help/', 'http://tornadoweb.org', 'http://flask.pocoo.org/', 'https://www.python.org/users/membership/', 'http://blog.python.org', 'https://www.python.org/privacy/', 'https://www.python.org/about/gettingstarted/', 'http://python.org/dev/peps/', 'https://www.python.org/about/apps/', 'https://docs.python.org', 'https://www.python.org/success-stories/', 'https://www.python.org/community/forums/', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', 'https://www.python.org/community/merchandise/', 'https://www.python.org/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', 'https://pypi.python.org/', 'https://www.python.org/events/python-user-group/650/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'https://www.python.org/about/quotes/', 'https://www.python.org/downloads/windows/', 'https://www.python.org/events/calendars/', 'http://www.scipy.org', 'https://www.python.org/community/workshops/', 'https://www.python.org/blogs/', 'https://www.python.org/accounts/signup/', 'https://www.python.org/events/', 'https://kivy.org/', 'http://www.facebook.com/pythonlang?fref=ts', 'http://www.web2py.com/', 'https://www.python.org/psf/sponsorship/sponsors/', 'https://www.python.org/community/', 'https://www.python.org/download/other/', 'https://www.python.org/psf-landing/', 'https://www.python.org/events/python-user-group/665/', 'https://wiki.python.org/moin/BeginnersGuide', 'https://www.python.org/accounts/login/', 'https://www.python.org/downloads/release/python-364/', 'https://www.python.org/dev/core-mentorship/', 'https://www.python.org/about/success/#business', 'https://www.python.org/community/sigs/', 'https://www.python.org/events/python-user-group/', 'http://ipython.org', 'https://www.python.org/shell/', 'https://www.python.org/community/irc/', 'https://www.python.org/about/success/#engineering', 'http://www.pylonsproject.org/', 'http://pycon.blogspot.com/', 'https://www.python.org/about/success/#scientific', 'https://www.python.org/doc/essays/', 'http://www.djangoproject.com/', 'https://www.python.org/success-stories/industrial-light-magic-runs-python/', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://www.python.org/jobs/', 'https://www.python.org/events/python-events/604/'}
-
-Select an element with a CSS Selector:
-
-.. code-block:: pycon
-
-    >>> about = r.html.find('#about', first=True)
-
-Grab an element's text contents:
-
-.. code-block:: pycon
-
-    >>> print(about.text)
-    About
-    Applications
-    Quotes
-    Getting Started
-    Help
-    Python Brochure
-
-Introspect an Element's attributes:
-
-.. code-block:: pycon
-
-    >>> about.attrs
-    {'id': 'about', 'class': ('tier-1', 'element-1'), 'aria-haspopup': 'true'}
-
-Render out an Element's HTML:
-
-.. code-block:: pycon
-
-    >>> about.html
-    '<li aria-haspopup="true" class="tier-1 element-1 " id="about">\n<a class="" href="/about/" title="">About</a>\n<ul aria-hidden="true" class="subnav menu" role="menu">\n<li class="tier-2 element-1" role="treeitem"><a href="/about/apps/" title="">Applications</a></li>\n<li class="tier-2 element-2" role="treeitem"><a href="/about/quotes/" title="">Quotes</a></li>\n<li class="tier-2 element-3" role="treeitem"><a href="/about/gettingstarted/" title="">Getting Started</a></li>\n<li class="tier-2 element-4" role="treeitem"><a href="/about/help/" title="">Help</a></li>\n<li class="tier-2 element-5" role="treeitem"><a href="http://brochure.getpython.info/" title="">Python Brochure</a></li>\n</ul>\n</li>'
-
-
-
-Select Elements within Elements:
-
-.. code-block:: pycon
-
-    >>> about.find('a')
-    [<Element 'a' href='/about/' title='' class=''>, <Element 'a' href='/about/apps/' title=''>, <Element 'a' href='/about/quotes/' title=''>, <Element 'a' href='/about/gettingstarted/' title=''>, <Element 'a' href='/about/help/' title=''>, <Element 'a' href='http://brochure.getpython.info/' title=''>]
-
-Search for links within an element:
-
-.. code-block:: pycon
-
-    >>> about.absolute_links
-    {'http://brochure.getpython.info/', 'https://www.python.org/about/gettingstarted/', 'https://www.python.org/about/', 'https://www.python.org/about/quotes/', 'https://www.python.org/about/help/', 'https://www.python.org/about/apps/'}
-
-
-Search for text on the page:
-
-.. code-block:: pycon
-
-    >>> r.html.search('Python is a {} language')[0]
-    programming
-
-More complex CSS Selector example (copied from Chrome dev tools):
-
-.. code-block:: pycon
-
-    >>> r = session.get('https://github.com/')
-    >>> sel = 'body > div.application-main > div.jumbotron.jumbotron-codelines > div > div > div.col-md-7.text-center.text-md-left > p'
-    >>> print(r.html.find(sel, first=True).text)
-    GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of other developers.
-
-XPath is also supported:
-
-.. code-block:: pycon
-
-   >>> r.html.xpath('/html/body/div[1]/a')
-   [<Element 'a' class=('px-2', 'py-4', 'show-on-focus', 'js-skip-to-content') href='#start-of-content' tabindex='1'>]
-
-
-JavaScript Support
-==================
-
-Let's grab some text that's rendered by JavaScript. Until 2020, the Python 2.7 countdown clock (https://pythonclock.org) will serve as a good test page:
-
-.. code-block:: pycon
-
-    >>> r = session.get('https://pythonclock.org')
-
-Let's try and see the dynamically rendered code (The countdown clock). To do that quickly at first, we'll search between the last text we see before it ('Python 2.7 will retire in...') and the first text we see after it ('Enable Guido Mode').
-
-.. code-block:: pycon
-
-	>>> r.html.search('Python 2.7 will retire in...{}Enable Guido Mode')[0]
-	'</h1>\n        </div>\n        <div class="python-27-clock"></div>\n        <div class="center">\n            <div class="guido-button-block">\n                <button class="js-guido-mode guido-button">'
-
-Notice the clock is missing. The ``render()`` method takes the response and renders the dynamic content just like a web browser would.
-
-.. code-block:: pycon
-
-    >>> r.html.render()
-    >>> r.html.search('Python 2.7 will retire in...{}Enable Guido Mode')[0]
-    '</h1>\n        </div>\n        <div class="python-27-clock is-countdown"><span class="countdown-row countdown-show6"><span class="countdown-section"><span class="countdown-amount">1</span><span class="countdown-period">Year</span></span><span class="countdown-section"><span class="countdown-amount">2</span><span class="countdown-period">Months</span></span><span class="countdown-section"><span class="countdown-amount">28</span><span class="countdown-period">Days</span></span><span class="countdown-section"><span class="countdown-amount">16</span><span class="countdown-period">Hours</span></span><span class="countdown-section"><span class="countdown-amount">52</span><span class="countdown-period">Minutes</span></span><span class="countdown-section"><span class="countdown-amount">46</span><span class="countdown-period">Seconds</span></span></span></div>\n        <div class="center">\n            <div class="guido-button-block">\n                <button class="js-guido-mode guido-button">'
-
-Let's clean it up a bit. This step is not needed, it just makes it a bit easier to visualize the returned html to see what we need to target to extract our required information. 
-
-.. code-block:: pycon
-
-	>>> from pprint import pprint
-	>>> pprint(r.html.search('Python 2.7 will retire in...{}Enable')[0])
-	('</h1>\n'
- '        </div>\n'
- '        <div class="python-27-clock is-countdown"><span class="countdown-row '
- 'countdown-show6"><span class="countdown-section"><span '
- 'class="countdown-amount">1</span><span '
- 'class="countdown-period">Year</span></span><span '
- 'class="countdown-section"><span class="countdown-amount">2</span><span '
- 'class="countdown-period">Months</span></span><span '
- 'class="countdown-section"><span class="countdown-amount">28</span><span '
- 'class="countdown-period">Days</span></span><span '
- 'class="countdown-section"><span class="countdown-amount">16</span><span '
- 'class="countdown-period">Hours</span></span><span '
- 'class="countdown-section"><span class="countdown-amount">52</span><span '
- 'class="countdown-period">Minutes</span></span><span '
- 'class="countdown-section"><span class="countdown-amount">46</span><span '
- 'class="countdown-period">Seconds</span></span></span></div>\n'
- '        <div class="center">\n'
- '            <div class="guido-button-block">\n'
- '                <button class="js-guido-mode guido-button">')
-
-The rendered html has all the same methods and attributes as above. Let's extract just the data that we want out of the clock into something easy to use elsewhere and introspect like a dictionary.
-
-.. code-block:: pycon
-	
-	>>> periods = [element.text for element in r.html.find('.countdown-period')]
-	>>> amounts = [element.text for element in r.html.find('.countdown-amount')]
-	>>> countdown_data = dict(zip(periods, amounts))
-	>>> countdown_data
-	{'Year': '1', 'Months': '2', 'Days': '5', 'Hours': '23', 'Minutes': '34', 'Seconds': '37'}
-
-Or you can do this async also:
-
-.. code-block:: pycon
-
-    >>> async def get_pyclock():
-    ...     r = await asession.get('https://pythonclock.org/')
-    ...     await r.html.arender()
-    ...     return r
-    ...
-    >>> results = asession.run(get_pyclock, get_pyclock, get_pyclock)
-
-The rest of the code operates the same way as the synchronous version except that ``results`` is a list containing multiple response objects however the same basic processes can be applied as above to extract the data you want. 
-
-Note, the first time you ever run the ``render()`` method, it will download
-Chromium into your home directory (e.g. ``~/.pyppeteer/``). This only happens
-once.
-
-Using without Requests
-======================
-
-You can also use this library without Requests:
-
-.. code-block:: pycon
-
-    >>> from requests_html import HTML
-    >>> doc = """<a href='https://httpbin.org'>"""
-    >>> html = HTML(html=doc)
-    >>> html.links
-    {'https://httpbin.org'}
-
-
-Installation
-============
-
-.. code-block:: shell
-
-    $ pipenv install requests-html
-    ✨🍰✨
-
-Only **Python 3.6 and above** is supported.
-
-
----
-File: requests_html.py
-Size: 30525 bytes
-Lines: 845
----
-import sys
-import asyncio
-from urllib.parse import urlparse, urlunparse, urljoin
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures._base import TimeoutError
-from functools import partial
-from typing import Set, Union, List, MutableMapping, Optional
-
-import pyppeteer
-import requests
-import http.cookiejar
-from pyquery import PyQuery
-
-from fake_useragent import UserAgent
-from lxml.html.clean import Cleaner
-import lxml
-from lxml import etree
-from lxml.html import HtmlElement
-from lxml.html import tostring as lxml_html_tostring
-from lxml.html.soupparser import fromstring as soup_parse
-from parse import search as parse_search
-from parse import findall, Result
-from w3lib.encoding import html_to_unicode
-
-DEFAULT_ENCODING = 'utf-8'
-DEFAULT_URL = 'https://example.org/'
-DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8'
-DEFAULT_NEXT_SYMBOL = ['next', 'more', 'older']
-
-cleaner = Cleaner()
-cleaner.javascript = True
-cleaner.style = True
-
-useragent = None
-
-# Typing.
-_Find = Union[List['Element'], 'Element']
-_XPath = Union[List[str], List['Element'], str, 'Element']
-_Result = Union[List['Result'], 'Result']
-_HTML = Union[str, bytes]
-_BaseHTML = str
-_UserAgent = str
-_DefaultEncoding = str
-_URL = str
-_RawHTML = bytes
-_Encoding = str
-_LXML = HtmlElement
-_Text = str
-_Search = Result
-_Containing = Union[str, List[str]]
-_Links = Set[str]
-_Attrs = MutableMapping
-_Next = Union['HTML', List[str]]
-_NextSymbol = List[str]
-
-# Sanity checking.
-try:
-    assert sys.version_info.major == 3
-    assert sys.version_info.minor > 5
-except AssertionError:
-    raise RuntimeError('Requests-HTML requires Python 3.6+!')
-
-
-class MaxRetries(Exception):
-
-    def __init__(self, message):
-        self.message = message
-
-
-class BaseParser:
-    """A basic HTML/Element Parser, for Humans.
-
-    :param element: The element from which to base the parsing upon.
-    :param default_encoding: Which encoding to default to.
-    :param html: HTML from which to base the parsing upon (optional).
-    :param url: The URL from which the HTML originated, used for ``absolute_links``.
-
-    """
-
-    def __init__(self, *, element, default_encoding: _DefaultEncoding = None, html: _HTML = None, url: _URL) -> None:
-        self.element = element
-        self.url = url
-        self.skip_anchors = True
-        self.default_encoding = default_encoding
-        self._encoding = None
-        self._html = html.encode(DEFAULT_ENCODING) if isinstance(html, str) else html
-        self._lxml = None
-        self._pq = None
-
-    @property
-    def raw_html(self) -> _RawHTML:
-        """Bytes representation of the HTML content.
-        (`learn more <http://www.diveintopython3.net/strings.html>`_).
-        """
-        if self._html:
-            return self._html
-        else:
-            return etree.tostring(self.element, encoding='unicode').strip().encode(self.encoding)
-
-    @property
-    def html(self) -> _BaseHTML:
-        """Unicode representation of the HTML content
-        (`learn more <http://www.diveintopython3.net/strings.html>`_).
-        """
-        if self._html:
-            return self.raw_html.decode(self.encoding, errors='replace')
-        else:
-            return etree.tostring(self.element, encoding='unicode').strip()
-
-    @html.setter
-    def html(self, html: str) -> None:
-        self._html = html.encode(self.encoding)
-
-    @raw_html.setter
-    def raw_html(self, html: bytes) -> None:
-        """Property setter for self.html."""
-        self._html = html
-
-    @property
-    def encoding(self) -> _Encoding:
-        """The encoding string to be used, extracted from the HTML and
-        :class:`HTMLResponse <HTMLResponse>` headers.
-        """
-        if self._encoding:
-            return self._encoding
-
-        # Scan meta tags for charset.
-        if self._html:
-            self._encoding = html_to_unicode(self.default_encoding, self._html)[0]
-            # Fall back to requests' detected encoding if decode fails.
-            try:
-                self.raw_html.decode(self.encoding, errors='replace')
-            except UnicodeDecodeError:
-                self._encoding = self.default_encoding
-
-
-        return self._encoding if self._encoding else self.default_encoding
-
-    @encoding.setter
-    def encoding(self, enc: str) -> None:
-        """Property setter for self.encoding."""
-        self._encoding = enc
-
-    @property
-    def pq(self) -> PyQuery:
-        """`PyQuery <https://pythonhosted.org/pyquery/>`_ representation
-        of the :class:`Element <Element>` or :class:`HTML <HTML>`.
-        """
-        if self._pq is None:
-            self._pq = PyQuery(self.lxml)
-
-        return self._pq
-
-    @property
-    def lxml(self) -> HtmlElement:
-        """`lxml <http://lxml.de>`_ representation of the
-        :class:`Element <Element>` or :class:`HTML <HTML>`.
-        """
-        if self._lxml is None:
-            try:
-                self._lxml = soup_parse(self.html, features='html.parser')
-            except ValueError:
-                self._lxml = lxml.html.fromstring(self.raw_html)
-
-        return self._lxml
-
-    @property
-    def text(self) -> _Text:
-        """The text content of the
-        :class:`Element <Element>` or :class:`HTML <HTML>`.
-        """
-        return self.pq.text()
-
-    @property
-    def full_text(self) -> _Text:
-        """The full text content (including links) of the
-        :class:`Element <Element>` or :class:`HTML <HTML>`.
-        """
-        return self.lxml.text_content()
-
-    def find(self, selector: str = "*", *, containing: _Containing = None, clean: bool = False, first: bool = False, _encoding: str = None) -> _Find:
-        """Given a CSS Selector, returns a list of
-        :class:`Element <Element>` objects or a single one.
-
-        :param selector: CSS Selector to use.
-        :param clean: Whether or not to sanitize the found HTML of ``<script>`` and ``<style>`` tags.
-        :param containing: If specified, only return elements that contain the provided text.
-        :param first: Whether or not to return just the first result.
-        :param _encoding: The encoding format.
-
-        Example CSS Selectors:
-
-        - ``a``
-        - ``a.someClass``
-        - ``a#someID``
-        - ``a[target=_blank]``
-
-        See W3School's `CSS Selectors Reference
-        <https://www.w3schools.com/cssref/css_selectors.asp>`_
-        for more details.
-
-        If ``first`` is ``True``, only returns the first
-        :class:`Element <Element>` found.
-        """
-
-        # Convert a single containing into a list.
-        if isinstance(containing, str):
-            containing = [containing]
-
-        encoding = _encoding or self.encoding
-        elements = [
-            Element(element=found, url=self.url, default_encoding=encoding)
-            for found in self.pq(selector)
-        ]
-
-        if containing:
-            elements_copy = elements.copy()
-            elements = []
-
-            for element in elements_copy:
-                if any([c.lower() in element.full_text.lower() for c in containing]):
-                    elements.append(element)
-
-            elements.reverse()
-
-        # Sanitize the found HTML.
-        if clean:
-            elements_copy = elements.copy()
-            elements = []
-
-            for element in elements_copy:
-                element.raw_html = lxml_html_tostring(cleaner.clean_html(element.lxml))
-                elements.append(element)
-
-        return _get_first_or_list(elements, first)
-
-    def xpath(self, selector: str, *, clean: bool = False, first: bool = False, _encoding: str = None) -> _XPath:
-        """Given an XPath selector, returns a list of
-        :class:`Element <Element>` objects or a single one.
-
-        :param selector: XPath Selector to use.
-        :param clean: Whether or not to sanitize the found HTML of ``<script>`` and ``<style>`` tags.
-        :param first: Whether or not to return just the first result.
-        :param _encoding: The encoding format.
-
-        If a sub-selector is specified (e.g. ``//a/@href``), a simple
-        list of results is returned.
-
-        See W3School's `XPath Examples
-        <https://www.w3schools.com/xml/xpath_examples.asp>`_
-        for more details.
-
-        If ``first`` is ``True``, only returns the first
-        :class:`Element <Element>` found.
-        """
-        selected = self.lxml.xpath(selector)
-
-        elements = [
-            Element(element=selection, url=self.url, default_encoding=_encoding or self.encoding)
-            if not isinstance(selection, etree._ElementUnicodeResult) else str(selection)
-            for selection in selected
-        ]
-
-        # Sanitize the found HTML.
-        if clean:
-            elements_copy = elements.copy()
-            elements = []
-
-            for element in elements_copy:
-                element.raw_html = lxml_html_tostring(cleaner.clean_html(element.lxml))
-                elements.append(element)
-
-        return _get_first_or_list(elements, first)
-
-    def search(self, template: str) -> Result:
-        """Search the :class:`Element <Element>` for the given Parse template.
-
-        :param template: The Parse template to use.
-        """
-
-        return parse_search(template, self.html)
-
-    def search_all(self, template: str) -> _Result:
-        """Search the :class:`Element <Element>` (multiple times) for the given parse
-        template.
-
-        :param template: The Parse template to use.
-        """
-        return [r for r in findall(template, self.html)]
-
-    @property
-    def links(self) -> _Links:
-        """All found links on page, in as–is form."""
-
-        def gen():
-            for link in self.find('a'):
-
-                try:
-                    href = link.attrs['href'].strip()
-                    if href and not (href.startswith('#') and self.skip_anchors) and not href.startswith(('javascript:', 'mailto:')):
-                        yield href
-                except KeyError:
-                    pass
-
-        return set(gen())
-
-    def _make_absolute(self, link):
-        """Makes a given link absolute."""
-
-        # Parse the link with stdlib.
-        parsed = urlparse(link)._asdict()
-
-        # If link is relative, then join it with base_url.
-        if not parsed['netloc']:
-            return urljoin(self.base_url, link)
-
-        # Link is absolute; if it lacks a scheme, add one from base_url.
-        if not parsed['scheme']:
-            parsed['scheme'] = urlparse(self.base_url).scheme
-
-            # Reconstruct the URL to incorporate the new scheme.
-            parsed = (v for v in parsed.values())
-            return urlunparse(parsed)
-
-        # Link is absolute and complete with scheme; nothing to be done here.
-        return link
-
-
-    @property
-    def absolute_links(self) -> _Links:
-        """All found links on page, in absolute form
-        (`learn more <https://www.navegabem.com/absolute-or-relative-links.html>`_).
-        """
-
-        def gen():
-            for link in self.links:
-                yield self._make_absolute(link)
-
-        return set(gen())
-
-    @property
-    def base_url(self) -> _URL:
-        """The base URL for the page. Supports the ``<base>`` tag
-        (`learn more <https://www.w3schools.com/tags/tag_base.asp>`_)."""
-
-        # Support for <base> tag.
-        base = self.find('base', first=True)
-        if base:
-            result = base.attrs.get('href', '').strip()
-            if result:
-                return result
-
-        # Parse the url to separate out the path
-        parsed = urlparse(self.url)._asdict()
-
-        # Remove any part of the path after the last '/'
-        parsed['path'] = '/'.join(parsed['path'].split('/')[:-1]) + '/'
-
-        # Reconstruct the url with the modified path
-        parsed = (v for v in parsed.values())
-        url = urlunparse(parsed)
-
-        return url
-
-
-class Element(BaseParser):
-    """An element of HTML.
-
-    :param element: The element from which to base the parsing upon.
-    :param url: The URL from which the HTML originated, used for ``absolute_links``.
-    :param default_encoding: Which encoding to default to.
-    """
-
-    __slots__ = [
-        'element', 'url', 'skip_anchors', 'default_encoding', '_encoding',
-        '_html', '_lxml', '_pq', '_attrs', 'session'
-    ]
-
-    def __init__(self, *, element, url: _URL, default_encoding: _DefaultEncoding = None) -> None:
-        super(Element, self).__init__(element=element, url=url, default_encoding=default_encoding)
-        self.element = element
-        self.tag = element.tag
-        self.lineno = element.sourceline
-        self._attrs = None
-
-    def __repr__(self) -> str:
-        attrs = ['{}={}'.format(attr, repr(self.attrs[attr])) for attr in self.attrs]
-        return "<Element {} {}>".format(repr(self.element.tag), ' '.join(attrs))
-
-    @property
-    def attrs(self) -> _Attrs:
-        """Returns a dictionary of the attributes of the :class:`Element <Element>`
-        (`learn more <https://www.w3schools.com/tags/ref_attributes.asp>`_).
-        """
-        if self._attrs is None:
-            self._attrs = {k: v for k, v in self.element.items()}
-
-            # Split class and rel up, as there are usually many of them:
-            for attr in ['class', 'rel']:
-                if attr in self._attrs:
-                    self._attrs[attr] = tuple(self._attrs[attr].split())
-
-        return self._attrs
-
-
-class HTML(BaseParser):
-    """An HTML document, ready for parsing.
-
-    :param url: The URL from which the HTML originated, used for ``absolute_links``.
-    :param html: HTML from which to base the parsing upon (optional).
-    :param default_encoding: Which encoding to default to.
-    """
-
-    def __init__(self, *, session: Union['HTMLSession', 'AsyncHTMLSession'] = None, url: str = DEFAULT_URL, html: _HTML, default_encoding: str = DEFAULT_ENCODING, async_: bool = False) -> None:
-
-        # Convert incoming unicode HTML into bytes.
-        if isinstance(html, str):
-            html = html.encode(DEFAULT_ENCODING)
-
-        pq = PyQuery(html)
-        super(HTML, self).__init__(
-            element=pq('html') or pq.wrapAll('<html></html>')('html'),
-            html=html,
-            url=url,
-            default_encoding=default_encoding
-        )
-        self.session = session or async_ and AsyncHTMLSession() or HTMLSession()
-        self.page = None
-        self.next_symbol = DEFAULT_NEXT_SYMBOL
-
-    def __repr__(self) -> str:
-        return f"<HTML url={self.url!r}>"
-
-    def next(self, fetch: bool = False, next_symbol: _NextSymbol = None) -> _Next:
-        """Attempts to find the next page, if there is one. If ``fetch``
-        is ``True`` (default), returns :class:`HTML <HTML>` object of
-        next page. If ``fetch`` is ``False``, simply returns the next URL.
-
-        """
-        if next_symbol is None:
-            next_symbol = DEFAULT_NEXT_SYMBOL
-
-        def get_next():
-            candidates = self.find('a', containing=next_symbol)
-
-            for candidate in candidates:
-                if candidate.attrs.get('href'):
-                    # Support 'next' rel (e.g. reddit).
-                    if 'next' in candidate.attrs.get('rel', []):
-                        return candidate.attrs['href']
-
-                    # Support 'next' in classnames.
-                    for _class in candidate.attrs.get('class', []):
-                        if 'next' in _class:
-                            return candidate.attrs['href']
-
-                    if 'page' in candidate.attrs['href']:
-                        return candidate.attrs['href']
-
-            try:
-                # Resort to the last candidate.
-                return candidates[-1].attrs['href']
-            except IndexError:
-                return None
-
-        __next = get_next()
-        if __next:
-            url = self._make_absolute(__next)
-        else:
-            return None
-
-        if fetch:
-            return self.session.get(url)
-        else:
-            return url
-
-    def __iter__(self):
-
-        next = self
-
-        while True:
-            yield next
-            try:
-                next = next.next(fetch=True, next_symbol=self.next_symbol).html
-            except AttributeError:
-                break
-
-    def __next__(self):
-        return self.next(fetch=True, next_symbol=self.next_symbol).html
-
-    def __aiter__(self):
-        return self
-
-    async def __anext__(self):
-        while True:
-            url = self.next(fetch=False, next_symbol=self.next_symbol)
-            if not url:
-                break
-            response = await self.session.get(url)
-            return response.html
-
-    def add_next_symbol(self, next_symbol):
-        self.next_symbol.append(next_symbol)
-
-    async def _async_render(self, *, url: str, script: str = None, scrolldown, sleep: int, wait: float, reload, content: Optional[str], timeout: Union[float, int], keep_page: bool, cookies: list = [{}]):
-        """ Handle page creation and js rendering. Internal use for render/arender methods. """
-        try:
-            page = await self.browser.newPage()
-
-            # Wait before rendering the page, to prevent timeouts.
-            await asyncio.sleep(wait)
-
-            if cookies:
-                for cookie in cookies:
-                    if cookie:
-                        await page.setCookie(cookie)
-
-            # Load the given page (GET request, obviously.)
-            if reload:
-                await page.goto(url, options={'timeout': int(timeout * 1000)})
-            else:
-                await page.goto(f'data:text/html,{self.html}', options={'timeout': int(timeout * 1000)})
-
-            result = None
-            if script:
-                result = await page.evaluate(script)
-
-            if scrolldown:
-                for _ in range(scrolldown):
-                    await page._keyboard.down('PageDown')
-                    await asyncio.sleep(sleep)
-            else:
-                await asyncio.sleep(sleep)
-
-            if scrolldown:
-                await page._keyboard.up('PageDown')
-
-            # Return the content of the page, JavaScript evaluated.
-            content = await page.content()
-            if not keep_page:
-                await page.close()
-                page = None
-            return content, result, page
-        except TimeoutError:
-            await page.close()
-            page = None
-            return None
-
-    def _convert_cookiejar_to_render(self, session_cookiejar):
-        """
-        Convert HTMLSession.cookies:cookiejar[] for browser.newPage().setCookie
-        """
-        # |  setCookie(self, *cookies:dict) -> None
-        # |      Set cookies.
-        # |
-        # |      ``cookies`` should be dictionaries which contain these fields:
-        # |
-        # |      * ``name`` (str): **required**
-        # |      * ``value`` (str): **required**
-        # |      * ``url`` (str)
-        # |      * ``domain`` (str)
-        # |      * ``path`` (str)
-        # |      * ``expires`` (number): Unix time in seconds
-        # |      * ``httpOnly`` (bool)
-        # |      * ``secure`` (bool)
-        # |      * ``sameSite`` (str): ``'Strict'`` or ``'Lax'``
-        cookie_render = {}
-        def __convert(cookiejar, key):
-            try:
-                v = eval ("cookiejar."+key)
-                if not v: kv = ''
-                else: kv = {key: v}
-            except:
-                kv = ''
-            return kv
-
-        keys = [
-            'name',
-            'value',
-            'url',
-            'domain',
-            'path',
-            'sameSite',
-            'expires',
-            'httpOnly',
-            'secure',
-        ]
-        for key in keys:
-            cookie_render.update(__convert(session_cookiejar, key))
-        return cookie_render
-
-    def _convert_cookiesjar_to_render(self):
-        """
-        Convert HTMLSession.cookies for browser.newPage().setCookie
-        Return a list of dict
-        """
-        cookies_render = []
-        if isinstance(self.session.cookies, http.cookiejar.CookieJar):
-            for cookie in self.session.cookies:
-                cookies_render.append(self._convert_cookiejar_to_render(cookie))
-        return cookies_render
-
-    def render(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
-        """Reloads the response in Chromium, and replaces HTML content
-        with an updated version, with JavaScript executed.
-
-        :param retries: The number of times to retry loading the page in Chromium.
-        :param script: JavaScript to execute upon page load (optional).
-        :param wait: The number of seconds to wait before loading the page, preventing timeouts (optional).
-        :param scrolldown: Integer, if provided, of how many times to page down.
-        :param sleep: Integer, if provided, of how many seconds to sleep after initial render.
-        :param reload: If ``False``, content will not be loaded from the browser, but will be provided from memory.
-        :param keep_page: If ``True`` will allow you to interact with the browser page through ``r.html.page``.
-
-        :param send_cookies_session: If ``True`` send ``HTMLSession.cookies`` convert.
-        :param cookies: If not ``empty`` send ``cookies``.
-
-        If ``scrolldown`` is specified, the page will scrolldown the specified
-        number of times, after sleeping the specified amount of time
-        (e.g. ``scrolldown=10, sleep=1``).
-
-        If just ``sleep`` is provided, the rendering will wait *n* seconds, before
-        returning.
-
-        If ``script`` is specified, it will execute the provided JavaScript at
-        runtime. Example:
-
-        .. code-block:: python
-
-            script = \"\"\"
-                () => {
-                    return {
-                        width: document.documentElement.clientWidth,
-                        height: document.documentElement.clientHeight,
-                        deviceScaleFactor: window.devicePixelRatio,
-                    }
-                }
-            \"\"\"
-
-        Returns the return value of the executed  ``script``, if any is provided:
-
-        .. code-block:: python
-
-            >>> r.html.render(script=script)
-            {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
-
-        Warning: the first time you run this method, it will download
-        Chromium into your home directory (``~/.pyppeteer``).
-        """
-
-        self.browser = self.session.browser  # Automatically create a event loop and browser
-        content = None
-
-        # Automatically set Reload to False, if example URL is being used.
-        if self.url == DEFAULT_URL:
-            reload = False
-
-        if send_cookies_session:
-           cookies = self._convert_cookiesjar_to_render()
-
-        for i in range(retries):
-            if not content:
-                try:
-
-                    content, result, page = self.session.loop.run_until_complete(self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies))
-                except TypeError:
-                    pass
-            else:
-                break
-
-        if not content:
-            raise MaxRetries("Unable to render the page. Try increasing timeout")
-
-        html = HTML(url=self.url, html=content.encode(DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
-        self.__dict__.update(html.__dict__)
-        self.page = page
-        return result
-
-    async def arender(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
-        """ Async version of render. Takes same parameters. """
-
-        self.browser = await self.session.browser
-        content = None
-
-        # Automatically set Reload to False, if example URL is being used.
-        if self.url == DEFAULT_URL:
-            reload = False
-
-        if send_cookies_session:
-           cookies = self._convert_cookiesjar_to_render()
-
-        for _ in range(retries):
-            if not content:
-                try:
-
-                    content, result, page = await self._async_render(url=self.url, script=script, sleep=sleep, wait=wait, content=self.html, reload=reload, scrolldown=scrolldown, timeout=timeout, keep_page=keep_page, cookies=cookies)
-                except TypeError:
-                    pass
-            else:
-                break
-
-        if not content:
-            raise MaxRetries("Unable to render the page. Try increasing timeout")
-
-        html = HTML(url=self.url, html=content.encode(DEFAULT_ENCODING), default_encoding=DEFAULT_ENCODING)
-        self.__dict__.update(html.__dict__)
-        self.page = page
-        return result
-
-
-class HTMLResponse(requests.Response):
-    """An HTML-enabled :class:`requests.Response <requests.Response>` object.
-    Effectively the same, but with an intelligent ``.html`` property added.
-    """
-
-    def __init__(self, session: Union['HTMLSession', 'AsyncHTMLSession']) -> None:
-        super(HTMLResponse, self).__init__()
-        self._html = None  # type: HTML
-        self.session = session
-
-    @property
-    def html(self) -> HTML:
-        if not self._html:
-            self._html = HTML(session=self.session, url=self.url, html=self.content, default_encoding=self.encoding)
-
-        return self._html
-
-    @classmethod
-    def _from_response(cls, response, session: Union['HTMLSession', 'AsyncHTMLSession']):
-        html_r = cls(session=session)
-        html_r.__dict__.update(response.__dict__)
-        return html_r
-
-
-def user_agent(style=None) -> _UserAgent:
-    """Returns an apparently legit user-agent, if not requested one of a specific
-    style. Defaults to a Chrome-style User-Agent.
-    """
-    global useragent
-    if (not useragent) and style:
-        useragent = UserAgent()
-
-    return useragent[style] if style else DEFAULT_USER_AGENT
-
-
-def _get_first_or_list(l, first=False):
-    if first:
-        try:
-            return l[0]
-        except IndexError:
-            return None
-    else:
-        return l
-
-
-class BaseSession(requests.Session):
-    """ A consumable session, for cookie persistence and connection pooling,
-    amongst other things.
-    """
-
-    def __init__(self, mock_browser : bool = True, verify : bool = True,
-                 browser_args : list = ['--no-sandbox']):
-        super().__init__()
-
-        # Mock a web browser's user agent.
-        if mock_browser:
-            self.headers['User-Agent'] = user_agent()
-
-        self.hooks['response'].append(self.response_hook)
-        self.verify = verify
-
-        self.__browser_args = browser_args
-
-
-    def response_hook(self, response, **kwargs) -> HTMLResponse:
-        """ Change response encoding and replace it by a HTMLResponse. """
-        if not response.encoding:
-            response.encoding = DEFAULT_ENCODING
-        return HTMLResponse._from_response(response, self)
-
-    @property
-    async def browser(self):
-        if not hasattr(self, "_browser"):
-            self._browser = await pyppeteer.launch(ignoreHTTPSErrors=not(self.verify), headless=True, args=self.__browser_args)
-
-        return self._browser
-
-
-class HTMLSession(BaseSession):
-
-    def __init__(self, **kwargs):
-        super(HTMLSession, self).__init__(**kwargs)
-
-    @property
-    def browser(self):
-        if not hasattr(self, "_browser"):
-            self.loop = asyncio.get_event_loop()
-            if self.loop.is_running():
-                raise RuntimeError("Cannot use HTMLSession within an existing event loop. Use AsyncHTMLSession instead.")
-            self._browser = self.loop.run_until_complete(super().browser)
-        return self._browser
-
-    def close(self):
-        """ If a browser was created close it first. """
-        if hasattr(self, "_browser"):
-            self.loop.run_until_complete(self._browser.close())
-        super().close()
-
-
-class AsyncHTMLSession(BaseSession):
-    """ An async consumable session. """
-
-    def __init__(self, loop=None, workers=None,
-                 mock_browser: bool = True, *args, **kwargs):
-        """ Set or create an event loop and a thread pool.
-
-            :param loop: Asyncio loop to use.
-            :param workers: Amount of threads to use for executing async calls.
-                If not pass it will default to the number of processors on the
-                machine, multiplied by 5. """
-        super().__init__(*args, **kwargs)
-
-        self.loop = loop or asyncio.get_event_loop()
-        self.thread_pool = ThreadPoolExecutor(max_workers=workers)
-
-    def request(self, *args, **kwargs):
-        """ Partial original request func and run it in a thread. """
-        func = partial(super().request, *args, **kwargs)
-        return self.loop.run_in_executor(self.thread_pool, func)
-
-    async def close(self):
-        """ If a browser was created close it first. """
-        if hasattr(self, "_browser"):
-            await self._browser.close()
-        super().close()
-
-    def run(self, *coros):
-        """ Pass in all the coroutines you want to run, it will wrap each one
-            in a task, run it and wait for the result. Return a list with all
-            results, this is returned in the same order coros are passed in. """
-        tasks = [
-            asyncio.ensure_future(coro()) for coro in coros
-        ]
-        done, _ = self.loop.run_until_complete(asyncio.wait(tasks))
-        return [t.result() for t in done]
-
-
----
-File: setup.py
-Size: 3219 bytes
-Lines: 108
----
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# Note: To use the 'upload' functionality of this file, you must:
-#   $ pip install twine
-
-import io
-import os
-import sys
-from shutil import rmtree
-
-from setuptools import setup, Command
-
-# Package meta-data.
-NAME = 'requests-html'
-DESCRIPTION = 'HTML Parsing for Humans.'
-URL = 'https://github.com/psf/requests-html'
-EMAIL = 'me@kennethreitz.org'
-AUTHOR = 'Kenneth Reitz'
-VERSION = '0.10.0'
-
-# What packages are required for this module to be executed?
-REQUIRED = [
-    'requests', 'pyquery', 'fake-useragent', 'parse', 'beautifulsoup4', 'w3lib', 'pyppeteer>=0.0.14'
-]
-
-# The rest you shouldn't have to touch too much :)
-# ------------------------------------------------
-# Except, perhaps the License and Trove Classifiers!
-# If you do change the License, remember to change the Trove Classifier for that!
-
-here = os.path.abspath(os.path.dirname(__file__))
-
-# Import the README and use it as the long-description.
-# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
-with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = '\n' + f.read()
-
-class UploadCommand(Command):
-    """Support setup.py upload."""
-
-    description = 'Build and publish the package.'
-    user_options = []
-
-    @staticmethod
-    def status(s):
-        """Prints things in bold."""
-        print('\033[1m{0}\033[0m'.format(s))
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            self.status('Removing previous builds…')
-            rmtree(os.path.join(here, 'dist'))
-        except OSError:
-            pass
-
-        self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
-
-        self.status('Uploading the package to PyPi via Twine…')
-        os.system('twine upload dist/*')
-
-        self.status('Publishing git tags…')
-        os.system('git tag v{0}'.format(VERSION))
-        os.system('git push --tags')
-
-        sys.exit()
-
-
-# Where the magic happens:
-setup(
-    name=NAME,
-    version=VERSION,
-    description=DESCRIPTION,
-    long_description=long_description,
-    author=AUTHOR,
-    author_email=EMAIL,
-    url=URL,
-    python_requires='>=3.6.0',
-    # If your package is a single module, use this instead of 'packages':
-    py_modules=['requests_html'],
-
-    # entry_points={
-    #     'console_scripts': ['mycli=mymodule:cli'],
-    # },
-    install_requires=REQUIRED,
-    include_package_data=True,
-    license='MIT',
-    classifiers=[
-        # Trove classifiers
-        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
-    ],
-    # $ setup.py publish support.
-    cmdclass={
-        'upload': UploadCommand,
-    },
-)
-
-
----
-File: docs\make.bat
-Size: 821 bytes
-Lines: 36
----
-@ECHO OFF
-
-pushd %~dp0
-
-REM Command file for Sphinx documentation
-
-if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=sphinx-build
-)
-set SOURCEDIR=source
-set BUILDDIR=build
-set SPHINXPROJ=requests-html
-
-if "%1" == "" goto help
-
-%SPHINXBUILD% >NUL 2>NUL
-if errorlevel 9009 (
-	echo.
-	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
-	echo.installed, then set the SPHINXBUILD environment variable to point
-	echo.to the full path of the 'sphinx-build' executable. Alternatively you
-	echo.may add the Sphinx directory to PATH.
-	echo.
-	echo.If you don't have Sphinx installed, grab it from
-	echo.http://sphinx-doc.org/
-	exit /b 1
-)
-
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
-goto end
-
-:help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
-
-:end
-popd
-
-
----
-File: docs\Makefile
-Size: 633 bytes
-Lines: 20
----
-# Minimal makefile for Sphinx documentation
-#
-
-# You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = requests-html
-SOURCEDIR     = source
-BUILDDIR      = build
-
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-.PHONY: help Makefile
-
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
----
-File: docs\source\conf.py
-Size: 6682 bytes
-Lines: 211
----
-# -*- coding: utf-8 -*-
-#
-# Configuration file for the Sphinx documentation builder.
-#
-# This file does only contain a selection of the most common options. For a
-# full list see the documentation:
-# http://www.sphinx-doc.org/en/stable/config
-
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
-
-# -- Project information -----------------------------------------------------
-import requests_html
-
-project = 'requests-HTML'
-copyright = u'MMXVIII. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
-author = 'Kenneth Reitz'
-
-# The short X.Y version
-version = ''
-# The full version, including alpha/beta/rc tags
-release = 'v0.3.4'
-
-
-# -- General configuration ---------------------------------------------------
-
-# If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-]
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
-
-# The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
-
-# The master toctree document.
-master_doc = 'index'
-
-# The language for content autogenerated by Sphinx. Refer to documentation
-# for a list of supported languages.
-#
-# This is also used if you do content translation via gettext catalogs.
-# Usually you set "language" from the command line for these cases.
-language = None
-
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
-
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
-
-
-# -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = 'alabaster'
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-html_theme_options = {
-    'show_powered_by': False,
-    'github_user': 'psf',
-    'github_repo': 'requests-html',
-    'github_banner': True,
-    'show_related': False,
-    'note_bg': '#FFF59C'
-}
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# The default sidebars (for documents that don't match any pattern) are
-# defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-html_sidebars = {
-    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html',
-                 'hacks.html'],
-    '**':       ['sidebarlogo.html', 'localtoc.html', 'relations.html',
-                 'sourcelink.html', 'searchbox.html', 'hacks.html']
-}
-
-html_show_sphinx = False
-html_show_sourcelink = False
-
-# -- Options for HTMLHelp output ---------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'requests-htmldoc'
-
-
-# -- Options for LaTeX output ------------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, 'requests-html.tex', 'requests-html Documentation',
-     'Kenneth Reitz', 'manual'),
-]
-
-
-# -- Options for manual page output ------------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'requests-html', 'requests-html Documentation',
-     [author], 1)
-]
-
-
-# -- Options for Texinfo output ----------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'requests-html', 'requests-html Documentation',
-     author, 'requests-html', 'One line description of project.',
-     'Miscellaneous'),
-]
-
-
-# -- Options for Epub output -------------------------------------------------
-
-# Bibliographic Dublin Core info.
-epub_title = project
-epub_author = author
-epub_publisher = author
-epub_copyright = copyright
-
-# The unique identifier of the text. This can be a ISBN number
-# or the project homepage.
-#
-# epub_identifier = ''
-
-# A unique identification for the text.
-#
-# epub_uid = ''
-
-# A list of files that should not be packed into the epub file.
-epub_exclude_files = ['search.html']
-
-
-# -- Extension configuration -------------------------------------------------
-
-# -- Options for intersphinx extension ---------------------------------------
-
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
-
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True
-
----
-File: docs\source\index.rst
-Size: 19748 bytes
-Lines: 351
----
-.. requests-html documentation master file, created by
-   sphinx-quickstart on Tue Feb 27 08:03:45 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Requests-HTML: HTML Parsing for Humans (writing Python 3)!
-==========================================================
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
-
-.. image:: https://travis-ci.com/psf/requests-html.svg?branch=master
-    :target: https://travis-ci.com/psf/requests-html
-
-This library intends to make parsing HTML (e.g. scraping the web) as
-simple and intuitive as possible.
-
-When using this library you automatically get:
-
-- **Full JavaScript support**!
-- *CSS Selectors* (a.k.a jQuery-style, thanks to PyQuery).
-- *XPath Selectors*, for the faint of heart.
-- Mocked user-agent (like a real web browser).
-- Automatic following of redirects.
-- Connection–pooling and cookie persistence.
-- The Requests experience you know and love, with magical parsing abilities.
-- **Async Support**
-
-.. Other nice features include:
-
-    - Markdown export of pages and elements.
-
-
-Installation
-============
-
-.. code-block:: shell
-
-    $ pipenv install requests-html
-    ✨🍰✨
-
-Only **Python 3.6** is supported.
-
-
-Tutorial & Usage
-================
-
-Make a GET request to `python.org <https://python.org/>`_, using `Requests <https://docs.python-requests.org/>`_:
-
-.. code-block:: pycon
-
-    >>> from requests_html import HTMLSession
-    >>> session = HTMLSession()
-
-    >>> r = session.get('https://python.org/')
-
-Or want to try our async session:
-
-.. code-block:: pycon
-
-    >>> from requests_html import AsyncHTMLSession
-    >>> asession = AsyncHTMLSession()
-
-    >>> r = await asession.get('https://python.org/')
-
-But async is fun when fetching some sites at the same time:
-
-.. code-block:: pycon
-
-    >>> from requests_html import AsyncHTMLSession
-    >>> asession = AsyncHTMLSession()
-
-    >>> async def get_pythonorg():
-    ...    r = await asession.get('https://python.org/')
-
-    >>> async def get_reddit():
-    ...    r = await asession.get('https://reddit.com/')
-
-    >>> async def get_google():
-    ...    r = await asession.get('https://google.com/')
-
-    >>> asession.run(get_pythonorg, get_reddit, get_google)
-
-Grab a list of all links on the page, as–is (anchors excluded):
-
-.. code-block:: pycon
-
-    >>> r.html.links
-    {'//docs.python.org/3/tutorial/', '/about/apps/', 'https://github.com/python/pythondotorg/issues', '/accounts/login/', '/dev/peps/', '/about/legal/', '//docs.python.org/3/tutorial/introduction.html#lists', '/download/alternatives', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', '/download/other/', '/downloads/windows/', 'https://mail.python.org/mailman/listinfo/python-dev', '/doc/av', 'https://devguide.python.org/', '/about/success/#engineering', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', '/about/gettingstarted/', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', '/success-stories/industrial-light-magic-runs-python/', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', '/', 'http://pyfound.blogspot.com/', '/events/python-events/past/', '/downloads/release/python-2714/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://status.python.org/', '/community/workshops/', '/community/lists/', 'http://buildbot.net/', '/community/awards', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', '/psf/donations/', 'http://wiki.python.org/moin/Languages', '/dev/', '/events/python-user-group/', 'https://wiki.qt.io/PySide', '/community/sigs/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'http://planetpython.org/', '/events/python-events', '/about/help/', '/events/python-user-group/past/', '/about/success/', '/psf-landing/', '/about/apps', '/about/', 'http://www.wxpython.org/', '/events/python-user-group/665/', 'https://www.python.org/psf/codeofconduct/', '/dev/peps/peps.rss', '/downloads/source/', '/psf/sponsorship/sponsors/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://bugs.python.org/', '/community/merchandise/', 'http://tornadoweb.org', '/events/python-user-group/650/', 'http://flask.pocoo.org/', '/downloads/release/python-364/', '/events/python-user-group/660/', '/events/python-user-group/638/', '/psf/', '/doc/', 'http://blog.python.org', '/events/python-events/604/', '/about/success/#government', 'http://python.org/dev/peps/', 'https://docs.python.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', '/users/membership/', '/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', '/downloads/', '/jobs/', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', '/privacy/', 'https://pypi.python.org/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'http://www.scipy.org', '/community/forums/', '/about/success/#scientific', '/about/success/#software-development', '/shell/', '/accounts/signup/', 'http://www.facebook.com/pythonlang?fref=ts', '/community/', 'https://kivy.org/', '/about/quotes/', 'http://www.web2py.com/', '/community/logos/', '/community/diversity/', '/events/calendars/', 'https://wiki.python.org/moin/BeginnersGuide', '/success-stories/', '/doc/essays/', '/dev/core-mentorship/', 'http://ipython.org', '/events/', '//docs.python.org/3/tutorial/controlflow.html', '/about/success/#education', '/blogs/', '/community/irc/', 'http://pycon.blogspot.com/', '//jobs.python.org', 'http://www.pylonsproject.org/', 'http://www.djangoproject.com/', '/downloads/mac-osx/', '/about/success/#business', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://docs.python.org/faq/', '//docs.python.org/3/tutorial/controlflow.html#defining-functions'}
-
-Grab a list of all links on the page, in `absolute form <https://www.navegabem.com/absolute-or-relative-links.html>`_ (anchors excluded):
-
-.. code-block:: pycon
-
-    >>> r.html.absolute_links
-    {'https://github.com/python/pythondotorg/issues', 'https://docs.python.org/3/tutorial/', 'https://www.python.org/about/success/', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', 'https://www.python.org/dev/peps/', 'https://mail.python.org/mailman/listinfo/python-dev', 'https://www.python.org/doc/', 'https://www.python.org/', 'https://www.python.org/about/', 'https://www.python.org/events/python-events/past/', 'https://devguide.python.org/', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', 'https://docs.python.org/3/tutorial/introduction.html#lists', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', 'http://pyfound.blogspot.com/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://www.python.org/events/python-events', 'https://status.python.org/', 'https://www.python.org/about/apps', 'https://www.python.org/downloads/release/python-2714/', 'https://www.python.org/psf/donations/', 'http://buildbot.net/', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', 'http://wiki.python.org/moin/Languages', 'https://docs.python.org/faq/', 'https://jobs.python.org', 'https://www.python.org/about/success/#software-development', 'https://www.python.org/about/success/#education', 'https://www.python.org/community/logos/', 'https://www.python.org/doc/av', 'https://wiki.qt.io/PySide', 'https://www.python.org/events/python-user-group/660/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'https://www.python.org/dev/peps/peps.rss', 'http://planetpython.org/', 'https://www.python.org/events/python-user-group/past/', 'https://docs.python.org/3/tutorial/controlflow.html#defining-functions', 'https://www.python.org/community/diversity/', 'https://docs.python.org/3/tutorial/controlflow.html', 'https://www.python.org/community/awards', 'https://www.python.org/events/python-user-group/638/', 'https://www.python.org/about/legal/', 'https://www.python.org/dev/', 'https://www.python.org/download/alternatives', 'https://www.python.org/downloads/', 'https://www.python.org/community/lists/', 'http://www.wxpython.org/', 'https://www.python.org/about/success/#government', 'https://www.python.org/psf/', 'https://www.python.org/psf/codeofconduct/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://www.python.org/downloads/source/', 'https://bugs.python.org/', 'https://www.python.org/downloads/mac-osx/', 'https://www.python.org/about/help/', 'http://tornadoweb.org', 'http://flask.pocoo.org/', 'https://www.python.org/users/membership/', 'http://blog.python.org', 'https://www.python.org/privacy/', 'https://www.python.org/about/gettingstarted/', 'http://python.org/dev/peps/', 'https://www.python.org/about/apps/', 'https://docs.python.org', 'https://www.python.org/success-stories/', 'https://www.python.org/community/forums/', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', 'https://www.python.org/community/merchandise/', 'https://www.python.org/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', 'https://pypi.python.org/', 'https://www.python.org/events/python-user-group/650/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'https://www.python.org/about/quotes/', 'https://www.python.org/downloads/windows/', 'https://www.python.org/events/calendars/', 'http://www.scipy.org', 'https://www.python.org/community/workshops/', 'https://www.python.org/blogs/', 'https://www.python.org/accounts/signup/', 'https://www.python.org/events/', 'https://kivy.org/', 'http://www.facebook.com/pythonlang?fref=ts', 'http://www.web2py.com/', 'https://www.python.org/psf/sponsorship/sponsors/', 'https://www.python.org/community/', 'https://www.python.org/download/other/', 'https://www.python.org/psf-landing/', 'https://www.python.org/events/python-user-group/665/', 'https://wiki.python.org/moin/BeginnersGuide', 'https://www.python.org/accounts/login/', 'https://www.python.org/downloads/release/python-364/', 'https://www.python.org/dev/core-mentorship/', 'https://www.python.org/about/success/#business', 'https://www.python.org/community/sigs/', 'https://www.python.org/events/python-user-group/', 'http://ipython.org', 'https://www.python.org/shell/', 'https://www.python.org/community/irc/', 'https://www.python.org/about/success/#engineering', 'http://www.pylonsproject.org/', 'http://pycon.blogspot.com/', 'https://www.python.org/about/success/#scientific', 'https://www.python.org/doc/essays/', 'http://www.djangoproject.com/', 'https://www.python.org/success-stories/industrial-light-magic-runs-python/', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://www.python.org/jobs/', 'https://www.python.org/events/python-events/604/'}
-
-Select an :class:`Element <Element>` with a CSS Selector (`learn more <https://www.w3schools.com/cssref/css_selectors.asp>`_):
-
-.. code-block:: pycon
-
-    >>> about = r.html.find('#about', first=True)
-
-Grab an :class:`Element <Element>`'s text contents:
-
-.. code-block:: pycon
-
-    >>> print(about.text)
-    About
-    Applications
-    Quotes
-    Getting Started
-    Help
-    Python Brochure
-
-Introspect an :class:`Element <Element>`'s attributes (`learn more <https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes>`_):
-
-.. code-block:: pycon
-
-    >>> about.attrs
-    {'id': 'about', 'class': ('tier-1', 'element-1'), 'aria-haspopup': 'true'}
-
-Render out an :class:`Element <Element>`'s HTML:
-
-.. code-block:: pycon
-
-    >>> about.html
-    '<li aria-haspopup="true" class="tier-1 element-1 " id="about">\n<a class="" href="/about/" title="">About</a>\n<ul aria-hidden="true" class="subnav menu" role="menu">\n<li class="tier-2 element-1" role="treeitem"><a href="/about/apps/" title="">Applications</a></li>\n<li class="tier-2 element-2" role="treeitem"><a href="/about/quotes/" title="">Quotes</a></li>\n<li class="tier-2 element-3" role="treeitem"><a href="/about/gettingstarted/" title="">Getting Started</a></li>\n<li class="tier-2 element-4" role="treeitem"><a href="/about/help/" title="">Help</a></li>\n<li class="tier-2 element-5" role="treeitem"><a href="http://brochure.getpython.info/" title="">Python Brochure</a></li>\n</ul>\n</li>'
-
-Crab an :class:`Element <Element>`'s root tag name:
-
-.. code-block:: pycon
-
-   >>> about.tag
-   'li'
-
-Show the line number that an :class:`Element <Element>`'s root tag located in:
-
-.. code-block:: pycon
-
-    >>> about.lineno
-    249
-
-Select an :class:`Element <Element>` list within an :class:`Element <Element>`:
-
-.. code-block:: pycon
-
-    >>> about.find('a')
-    [<Element 'a' href='/about/' title='' class=''>, <Element 'a' href='/about/apps/' title=''>, <Element 'a' href='/about/quotes/' title=''>, <Element 'a' href='/about/gettingstarted/' title=''>, <Element 'a' href='/about/help/' title=''>, <Element 'a' href='http://brochure.getpython.info/' title=''>]
-
-Search for links within an element:
-
-.. code-block:: pycon
-
-    >>> about.absolute_links
-    {'http://brochure.getpython.info/', 'https://www.python.org/about/gettingstarted/', 'https://www.python.org/about/', 'https://www.python.org/about/quotes/', 'https://www.python.org/about/help/', 'https://www.python.org/about/apps/'}
-
-
-Search for text on the page:
-
-.. code-block:: pycon
-
-    >>> r.html.search('Python is a {} language')[0]
-    programming
-
-More complex CSS Selector example (copied from Chrome dev tools):
-
-.. code-block:: pycon
-
-    >>> r = session.get('https://github.com/')
-    >>> sel = 'body > div.application-main > div.jumbotron.jumbotron-codelines > div > div > div.col-md-7.text-center.text-md-left > p'
-
-    >>> print(r.html.find(sel, first=True).text)
-    GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of other developers.
-
-XPath is also supported (`learn more <https://msdn.microsoft.com/en-us/library/ms256086(v=vs.110).aspx>`_):
-
-.. code-block:: pycon
-
-   >>> r.html.xpath('a')
-   [<Element 'a' class='btn' href='https://help.github.com/articles/supported-browsers'>]
-
-You can also select only elements containing certain text:
-
-.. code-block:: pycon
-
-    >>> r = session.get('http://python-requests.org/')
-    >>> r.html.find('a', containing='kenneth')
-    [<Element 'a' href='http://kennethreitz.com/pages/open-projects.html'>, <Element 'a' href='http://kennethreitz.org/'>, <Element 'a' href='https://twitter.com/kennethreitz' class=('twitter-follow-button',) data-show-count='false'>, <Element 'a' class=('reference', 'internal') href='dev/contributing/#kenneth-reitz-s-code-style'>]
-
-
-JavaScript Support
-==================
-
-Let's grab some text that's rendered by JavaScript:
-
-.. code-block:: pycon
-
-    >>> r = session.get('http://python-requests.org/')
-
-    >>> r.html.render()
-
-    >>> r.html.search('Python 2 will retire in only {months} months!')['months']
-    '<time>25</time>'
-
-Or you can do this async also:
-
-.. code-block:: pycon
-
-    >>> r = asession.get('http://python-requests.org/')
-
-    >>> await r.html.arender()
-
-    >>> r.html.search('Python 2 will retire in only {months} months!')['months']
-    '<time>25</time>'
-
-Note, the first time you ever run the ``render()`` method, it will download
-Chromium into your home directory (e.g. ``~/.pyppeteer/``). This only happens
-once. You may also need to install a few `Linux packages <https://github.com/miyakogi/pyppeteer/issues/60>`_ to get pyppeteer working.
-
-Pagination
-==========
-
-There's also intelligent pagination support (always improving):
-
-.. code-block:: pycon
-
-    >>> r = session.get('https://reddit.com')
-    >>> for html in r.html:
-    ...     print(html)
-    <HTML url='https://www.reddit.com/'>
-    <HTML url='https://www.reddit.com/?count=25&after=t3_81puu5'>
-    <HTML url='https://www.reddit.com/?count=50&after=t3_81nevg'>
-    <HTML url='https://www.reddit.com/?count=75&after=t3_81lqtp'>
-    <HTML url='https://www.reddit.com/?count=100&after=t3_81k1c8'>
-    <HTML url='https://www.reddit.com/?count=125&after=t3_81p438'>
-    <HTML url='https://www.reddit.com/?count=150&after=t3_81nrcd'>
-    …
-
-For `async` pagination use the new `async for`:
-
-.. code-block:: pycon
-
-    >>> r = await asession.get('https://reddit.com')
-    >>> async for html in r.html:
-    ...     print(html)
-    <HTML url='https://www.reddit.com/'>
-    <HTML url='https://www.reddit.com/?count=25&after=t3_81puu5'>
-    …
-
-You can also just request the next URL easily:
-
-.. code-block:: pycon
-
-    >>> r = session.get('https://reddit.com')
-    >>> r.html.next()
-    'https://www.reddit.com/?count=25&after=t3_81pm82'
-
-Using without Requests
-======================
-
-You can also use this library without Requests:
-
-.. code-block:: pycon
-
-    >>> from requests_html import HTML
-    >>> doc = """<a href='https://httpbin.org'>"""
-
-    >>> html = HTML(html=doc)
-    >>> html.links
-    {'https://httpbin.org'}
-
-You can also render JavaScript pages without Requests:
-
-.. code-block:: pycon
-
-    # ^^ proceeding from above ^^
-    >>> script = """
-            () => {
-                return {
-                    width: document.documentElement.clientWidth,
-                    height: document.documentElement.clientHeight,
-                    deviceScaleFactor: window.devicePixelRatio,
-                }
-            }
-        """
-    >>> val = html.render(script=script, reload=False)
-
-    >>> print(val)
-    {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
-
-    >>> print(html.html)
-    <html><head></head><body><a href="https://httpbin.org"></a></body></html>
-
-For using `arender` just pass `async_=True` to HTML.
-
-.. code-block:: pycon
-
-    # ^^ using above script ^^
-    >>> html = HTML(html=doc, async_=True)
-    >>> val = await html.arender(script=script, reload=False)
-    >>> print(val)
-    {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
-
-
-API Documentation
-=================
-
-Main Classes
-------------
-
-.. module:: requests_html
-
-These classes are the main interface to ``requests-html``:
-
-
-.. autoclass:: HTML
-    :inherited-members:
-
-.. autoclass:: Element
-    :inherited-members:
-
-Utility Functions
------------------
-
-.. autofunction:: user_agent
-
-HTML Sessions
--------------
-
-These sessions are for making HTTP requests:
-
-.. autoclass:: HTMLSession
-    :inherited-members:
-
-
-.. autoclass:: AsyncHTMLSession
-    :inherited-members:
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
----
-File: docs\source\_templates\hacks.html
-Size: 1408 bytes
-Lines: 48
----
-<!-- Alabaster (krTheme++) Hacks -->
-
-
-<!-- CSS Adjustments (I'm very picky.) -->
-<style type="text/css">
-
-  /* Rezzy requires precise alignment. */
-  img.logo {margin-left: -20px!important;}
-
-  /* "Quick Search" should be capitalized. */
-  div#searchbox h3 {text-transform: capitalize;}
-
-  /* Make the document a little wider, less code is cut-off. */
-  div.document {width: 1008px;}
-
-  /* Much-improved spacing around code blocks. */
-  div.highlight pre {padding: 11px 14px;}
-
-  /* Remain Responsive! */
-  @media screen and (max-width: 1008px) {
-    div.sphinxsidebar {display: none;}
-    div.document {width: 100%!important;}
-
-    /* Have code blocks escape the document right-margin. */
-    div.highlight pre {margin-right: -30px;}
-  }
-
-</style>
-
-
-<!-- Analytics tracking for Kenneth. -->
-<script type="text/javascript">
-  var _gauges = _gauges || [];
-  (function() {
-    var t   = document.createElement('script');
-    t.type  = 'text/javascript';
-    t.async = true;
-    t.id    = 'gauges-tracker';
-    t.setAttribute('data-site-id', '5a956183ba4ae36e18000033');
-    t.setAttribute('data-track-path', 'https://track.gaug.es/track.gif');
-    t.src = 'https://d2fuc4clr7gvcn.cloudfront.net/track.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(t, s);
-  })();
-</script>
-
-
-<!-- That was not a hack. That was art. -->
-
----
-File: docs\source\_templates\sidebarintro.html
-Size: 2880 bytes
-Lines: 61
----
-<p class="logo">
-  <a href="{{ pathto(master_doc) }}">
-    <img class="logo" src="{{ pathto('_static/requests-html-logo.png', 1) }}" title="https://kennethreitz.org/tattoos"/>
-  </a>
-</p>
-
-<p>
-  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests-html&type=watch&count=true&size=large"
-    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
-
-<p>
-  <strong>Requests-HTML</strong> intends to make parsing HTML (e.g. scraping the web) as
-simple and intuitive as possible.
-</p>
-
-<h3>Stay Informed</h3>
-<p>Receive updates on new releases and upcoming projects.</p>
-
-<p><iframe src="https://ghbtns.com/github-btn.html?user=psf&type=follow&count=false"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
-<style>
-.algolia-autocomplete{
-  width: 100%;
-  height: 1.5em
-}
-.algolia-autocomplete a{
-  border-bottom: none !important;
-}
-#doc_search{
-  width: 100%;
-  height: 100%;
-}
-</style>
-<input id="doc_search" placeholder="Search the doc" autofocus/>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
-  apiKey: '8fcebdef37e2d888d63daf198ccecd08',
-  indexName: 'requests-html',
-  inputSelector: '#doc_search',
-  debug: false // Set debug to true if you want to inspect the dropdown
-})" async></script>
-
-<p><a href="https://twitter.com/kennethreitz" class="twitter-follow-button" data-show-count="false">Follow @kennethreitz</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
-<p><a href="https://saythanks.io/to/kennethreitz">Say Thanks!</a></p>
-
-<h3>Other Projects</h3>
-
-<p>More <a href="https://kennethreitz.org/">Kenneth Reitz</a> projects:</p>
-<ul>
-    <li><a href="https://2.python-requests.org/">python-requests.org</a></li>
-    <li><a href="http://howtopython.org/">howtopython.org</a></li>
-    <li><a href="http://pipenv.org/">pipenv</a></li>
-    <li><a href="https://pep8.org/">pep8.org</a></li>
-    <li><a href="https://httpbin.org/">httpbin.org</a></li>
-    <li><a href="https://python-guide.org">The Python Guide</a></li>
-    <li><a href="https://github.com/timofurrer/maya">Maya: Datetimes for Humans</a></li>
-    <li><a href="https://github.com/kennethreitz/records">Records: SQL for Humans</a></li>
-    <li><a href="http://www.git-legit.org">Legit: Git for Humans</a></li>
-    <li><a href="http://docs.python-tablib.org/en/latest/">Tablib: Tabular Datasets</a></li>
-</ul>
-
-
----
-File: docs\source\_templates\sidebarlogo.html
-Size: 2878 bytes
-Lines: 61
----
-<p class="logo">
-  <a href="{{ pathto(master_doc) }}">
-    <img class="logo" src="{{ pathto('_static/requests-html-logo.png', 1) }}" title="https://kennethreitz.org/tattoos"/>
-  </a>
-</p>
-
-<p>
-  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests-html&type=watch&count=true&size=large"
-    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
-
-<p>
-  <strong>Requests-HTML</strong> intends to make parsing HTML (e.g. scraping the web) as
-simple and intuitive as possible.
-</p>
-
-<h3>Stay Informed</h3>
-<p>Receive updates on new releases and upcoming projects.</p>
-
-<p><iframe src="https://ghbtns.com/github-btn.html?user=psf&type=follow&count=false"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
-<style>
-.algolia-autocomplete{
-  width: 100%;
-  height: 1.5em
-}
-.algolia-autocomplete a{
-  border-bottom: none !important;
-}
-#doc_search{
-  width: 100%;
-  height: 100%;
-}
-</style>
-<input id="doc_search" placeholder="Search the doc" autofocus/>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
-  apiKey: '8fcebdef37e2d888d63daf198ccecd08',
-  indexName: 'requests-html',
-  inputSelector: '#doc_search',
-  debug: false // Set debug to true if you want to inspect the dropdown
-})" async></script>
-
-<p><a href="https://twitter.com/kennethreitz" class="twitter-follow-button" data-show-count="false">Follow @kennethreitz</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
-<p><a href="https://saythanks.io/to/kennethreitz">Say Thanks!</a></p>
-
-<h3>Other Projects</h3>
-
-<p>More <a href="https://kennethreitz.org/">Kenneth Reitz</a> projects:</p>
-<ul>
-    <li><a href="https://2.python-requests.org/">python-requests.org</a></li>
-    <li><a href="http://howtopython.org/">howtopython.org</a></li>
-    <li><a href="http://pipenv.org/">pipenv</a></li>
-    <li><a href="https://pep8.org/">pep8.org</a></li>
-    <li><a href="https://httpbin.org/">httpbin.org</a></li>
-    <li><a href="https://python-guide.org">The Python Guide</a></li>
-    <li><a href="https://github.com/timofurrer/maya">Maya: Datetimes for Humans</a></li>
-    <li><a href="https://github.com/kennethreitz/records">Records: SQL for Humans</a></li>
-    <li><a href="http://www.git-legit.org">Legit: Git for Humans</a></li>
-    <li><a href="http://docs.python-tablib.org/en/latest/">Tablib: Tabular Datasets</a></li>
-</ul>
-
----
-File: tests\python.html
+File: tests/python.html
 Size: 48883 bytes
 Lines: 1053
 ---
@@ -4772,62 +3939,8 @@ Hi, Python.</span></code></pre></div>
 
 
 ---
-File: tests\test_internet.py
-Size: 1154 bytes
-Lines: 47
----
-import pytest
-from requests_html import HTMLSession, AsyncHTMLSession, HTMLResponse
-
-
-urls = [
-    'https://xkcd.com/1957/',
-    'https://www.reddit.com/',
-    'https://github.com/psf/requests-html/issues',
-    'https://discord.com/category/engineering',
-    'https://stackoverflow.com/',
-    'https://www.frontiersin.org/',
-    'https://azure.microsoft.com/en-us'
-]
-
-
-@pytest.mark.parametrize('url', urls)
-@pytest.mark.internet
-def test_pagination(url: str):
-    session = HTMLSession()
-    r = session.get(url)
-    assert next(r.html)
-
-
-@pytest.mark.parametrize('url', urls)
-@pytest.mark.internet
-@pytest.mark.asyncio
-async def test_async_pagination(event_loop, url):
-    asession = AsyncHTMLSession()
-
-    r = await asession.get(url)
-    assert await r.html.__anext__()
-
-
-@pytest.mark.internet
-def test_async_run():
-    asession = AsyncHTMLSession()
-
-    async_list = []
-    for url in urls:
-        async def _test():
-            return await asession.get(url)
-        async_list.append(_test)
-
-    r = asession.run(*async_list)
-
-    assert len(r) == len(urls)
-    assert isinstance(r[0], HTMLResponse)
-
-
----
-File: tests\test_requests_html.py
-Size: 8848 bytes
+File: tests/test_requests_html.py
+Size: 8524 bytes
 Lines: 324
 ---
 import os
@@ -5155,3 +4268,890 @@ async def test_async_browser_session():
     assert isinstance(browser, Browser)
     await session.close()
 
+
+---
+File: tests/test_internet.py
+Size: 1107 bytes
+Lines: 47
+---
+import pytest
+from requests_html import HTMLSession, AsyncHTMLSession, HTMLResponse
+
+
+urls = [
+    'https://xkcd.com/1957/',
+    'https://www.reddit.com/',
+    'https://github.com/psf/requests-html/issues',
+    'https://discord.com/category/engineering',
+    'https://stackoverflow.com/',
+    'https://www.frontiersin.org/',
+    'https://azure.microsoft.com/en-us'
+]
+
+
+@pytest.mark.parametrize('url', urls)
+@pytest.mark.internet
+def test_pagination(url: str):
+    session = HTMLSession()
+    r = session.get(url)
+    assert next(r.html)
+
+
+@pytest.mark.parametrize('url', urls)
+@pytest.mark.internet
+@pytest.mark.asyncio
+async def test_async_pagination(event_loop, url):
+    asession = AsyncHTMLSession()
+
+    r = await asession.get(url)
+    assert await r.html.__anext__()
+
+
+@pytest.mark.internet
+def test_async_run():
+    asession = AsyncHTMLSession()
+
+    async_list = []
+    for url in urls:
+        async def _test():
+            return await asession.get(url)
+        async_list.append(_test)
+
+    r = asession.run(*async_list)
+
+    assert len(r) == len(urls)
+    assert isinstance(r[0], HTMLResponse)
+
+
+---
+File: docs/Makefile
+Size: 614 bytes
+Lines: 20
+---
+# Minimal makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = requests-html
+SOURCEDIR     = source
+BUILDDIR      = build
+
+# Put it first so that "make" without argument is like "make help".
+help:
+	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+.PHONY: help Makefile
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%: Makefile
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+---
+File: docs/make.bat
+Size: 821 bytes
+Lines: 36
+---
+@ECHO OFF
+
+pushd %~dp0
+
+REM Command file for Sphinx documentation
+
+if "%SPHINXBUILD%" == "" (
+	set SPHINXBUILD=sphinx-build
+)
+set SOURCEDIR=source
+set BUILDDIR=build
+set SPHINXPROJ=requests-html
+
+if "%1" == "" goto help
+
+%SPHINXBUILD% >NUL 2>NUL
+if errorlevel 9009 (
+	echo.
+	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+	echo.installed, then set the SPHINXBUILD environment variable to point
+	echo.to the full path of the 'sphinx-build' executable. Alternatively you
+	echo.may add the Sphinx directory to PATH.
+	echo.
+	echo.If you don't have Sphinx installed, grab it from
+	echo.http://sphinx-doc.org/
+	exit /b 1
+)
+
+%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+goto end
+
+:help
+%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+
+:end
+popd
+
+
+---
+File: docs/source/index.rst
+Size: 19397 bytes
+Lines: 351
+---
+.. requests-html documentation master file, created by
+   sphinx-quickstart on Tue Feb 27 08:03:45 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Requests-HTML: HTML Parsing for Humans (writing Python 3)!
+==========================================================
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+
+.. image:: https://travis-ci.com/psf/requests-html.svg?branch=master
+    :target: https://travis-ci.com/psf/requests-html
+
+This library intends to make parsing HTML (e.g. scraping the web) as
+simple and intuitive as possible.
+
+When using this library you automatically get:
+
+- **Full JavaScript support**!
+- *CSS Selectors* (a.k.a jQuery-style, thanks to PyQuery).
+- *XPath Selectors*, for the faint of heart.
+- Mocked user-agent (like a real web browser).
+- Automatic following of redirects.
+- Connection–pooling and cookie persistence.
+- The Requests experience you know and love, with magical parsing abilities.
+- **Async Support**
+
+.. Other nice features include:
+
+    - Markdown export of pages and elements.
+
+
+Installation
+============
+
+.. code-block:: shell
+
+    $ pipenv install requests-html
+    ✨🍰✨
+
+Only **Python 3.6** is supported.
+
+
+Tutorial & Usage
+================
+
+Make a GET request to `python.org <https://python.org/>`_, using `Requests <https://docs.python-requests.org/>`_:
+
+.. code-block:: pycon
+
+    >>> from requests_html import HTMLSession
+    >>> session = HTMLSession()
+
+    >>> r = session.get('https://python.org/')
+
+Or want to try our async session:
+
+.. code-block:: pycon
+
+    >>> from requests_html import AsyncHTMLSession
+    >>> asession = AsyncHTMLSession()
+
+    >>> r = await asession.get('https://python.org/')
+
+But async is fun when fetching some sites at the same time:
+
+.. code-block:: pycon
+
+    >>> from requests_html import AsyncHTMLSession
+    >>> asession = AsyncHTMLSession()
+
+    >>> async def get_pythonorg():
+    ...    r = await asession.get('https://python.org/')
+
+    >>> async def get_reddit():
+    ...    r = await asession.get('https://reddit.com/')
+
+    >>> async def get_google():
+    ...    r = await asession.get('https://google.com/')
+
+    >>> asession.run(get_pythonorg, get_reddit, get_google)
+
+Grab a list of all links on the page, as–is (anchors excluded):
+
+.. code-block:: pycon
+
+    >>> r.html.links
+    {'//docs.python.org/3/tutorial/', '/about/apps/', 'https://github.com/python/pythondotorg/issues', '/accounts/login/', '/dev/peps/', '/about/legal/', '//docs.python.org/3/tutorial/introduction.html#lists', '/download/alternatives', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', '/download/other/', '/downloads/windows/', 'https://mail.python.org/mailman/listinfo/python-dev', '/doc/av', 'https://devguide.python.org/', '/about/success/#engineering', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', '/about/gettingstarted/', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', '/success-stories/industrial-light-magic-runs-python/', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', '/', 'http://pyfound.blogspot.com/', '/events/python-events/past/', '/downloads/release/python-2714/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://status.python.org/', '/community/workshops/', '/community/lists/', 'http://buildbot.net/', '/community/awards', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', '/psf/donations/', 'http://wiki.python.org/moin/Languages', '/dev/', '/events/python-user-group/', 'https://wiki.qt.io/PySide', '/community/sigs/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'http://planetpython.org/', '/events/python-events', '/about/help/', '/events/python-user-group/past/', '/about/success/', '/psf-landing/', '/about/apps', '/about/', 'http://www.wxpython.org/', '/events/python-user-group/665/', 'https://www.python.org/psf/codeofconduct/', '/dev/peps/peps.rss', '/downloads/source/', '/psf/sponsorship/sponsors/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://bugs.python.org/', '/community/merchandise/', 'http://tornadoweb.org', '/events/python-user-group/650/', 'http://flask.pocoo.org/', '/downloads/release/python-364/', '/events/python-user-group/660/', '/events/python-user-group/638/', '/psf/', '/doc/', 'http://blog.python.org', '/events/python-events/604/', '/about/success/#government', 'http://python.org/dev/peps/', 'https://docs.python.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', '/users/membership/', '/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', '/downloads/', '/jobs/', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', '/privacy/', 'https://pypi.python.org/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'http://www.scipy.org', '/community/forums/', '/about/success/#scientific', '/about/success/#software-development', '/shell/', '/accounts/signup/', 'http://www.facebook.com/pythonlang?fref=ts', '/community/', 'https://kivy.org/', '/about/quotes/', 'http://www.web2py.com/', '/community/logos/', '/community/diversity/', '/events/calendars/', 'https://wiki.python.org/moin/BeginnersGuide', '/success-stories/', '/doc/essays/', '/dev/core-mentorship/', 'http://ipython.org', '/events/', '//docs.python.org/3/tutorial/controlflow.html', '/about/success/#education', '/blogs/', '/community/irc/', 'http://pycon.blogspot.com/', '//jobs.python.org', 'http://www.pylonsproject.org/', 'http://www.djangoproject.com/', '/downloads/mac-osx/', '/about/success/#business', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://docs.python.org/faq/', '//docs.python.org/3/tutorial/controlflow.html#defining-functions'}
+
+Grab a list of all links on the page, in `absolute form <https://www.navegabem.com/absolute-or-relative-links.html>`_ (anchors excluded):
+
+.. code-block:: pycon
+
+    >>> r.html.absolute_links
+    {'https://github.com/python/pythondotorg/issues', 'https://docs.python.org/3/tutorial/', 'https://www.python.org/about/success/', 'http://feedproxy.google.com/~r/PythonInsider/~3/kihd2DW98YY/python-370a4-is-available-for-testing.html', 'https://www.python.org/dev/peps/', 'https://mail.python.org/mailman/listinfo/python-dev', 'https://www.python.org/doc/', 'https://www.python.org/', 'https://www.python.org/about/', 'https://www.python.org/events/python-events/past/', 'https://devguide.python.org/', 'https://wiki.python.org/moin/PythonEventsCalendar#Submitting_an_Event', 'https://www.openstack.org', 'http://feedproxy.google.com/~r/PythonInsider/~3/AMoBel8b8Mc/python-3.html', 'https://docs.python.org/3/tutorial/introduction.html#lists', 'http://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator', 'http://pyfound.blogspot.com/', 'https://wiki.python.org/moin/PythonBooks', 'http://plus.google.com/+Python', 'https://wiki.python.org/moin/', 'https://www.python.org/events/python-events', 'https://status.python.org/', 'https://www.python.org/about/apps', 'https://www.python.org/downloads/release/python-2714/', 'https://www.python.org/psf/donations/', 'http://buildbot.net/', 'http://twitter.com/ThePSF', 'https://docs.python.org/3/license.html', 'http://wiki.python.org/moin/Languages', 'https://docs.python.org/faq/', 'https://jobs.python.org', 'https://www.python.org/about/success/#software-development', 'https://www.python.org/about/success/#education', 'https://www.python.org/community/logos/', 'https://www.python.org/doc/av', 'https://wiki.qt.io/PySide', 'https://www.python.org/events/python-user-group/660/', 'https://wiki.gnome.org/Projects/PyGObject', 'http://www.ansible.com', 'http://www.saltstack.com', 'https://www.python.org/dev/peps/peps.rss', 'http://planetpython.org/', 'https://www.python.org/events/python-user-group/past/', 'https://docs.python.org/3/tutorial/controlflow.html#defining-functions', 'https://www.python.org/community/diversity/', 'https://docs.python.org/3/tutorial/controlflow.html', 'https://www.python.org/community/awards', 'https://www.python.org/events/python-user-group/638/', 'https://www.python.org/about/legal/', 'https://www.python.org/dev/', 'https://www.python.org/download/alternatives', 'https://www.python.org/downloads/', 'https://www.python.org/community/lists/', 'http://www.wxpython.org/', 'https://www.python.org/about/success/#government', 'https://www.python.org/psf/', 'https://www.python.org/psf/codeofconduct/', 'http://bottlepy.org', 'http://roundup.sourceforge.net/', 'http://pandas.pydata.org/', 'http://brochure.getpython.info/', 'https://www.python.org/downloads/source/', 'https://bugs.python.org/', 'https://www.python.org/downloads/mac-osx/', 'https://www.python.org/about/help/', 'http://tornadoweb.org', 'http://flask.pocoo.org/', 'https://www.python.org/users/membership/', 'http://blog.python.org', 'https://www.python.org/privacy/', 'https://www.python.org/about/gettingstarted/', 'http://python.org/dev/peps/', 'https://www.python.org/about/apps/', 'https://docs.python.org', 'https://www.python.org/success-stories/', 'https://www.python.org/community/forums/', 'http://feedproxy.google.com/~r/PythonInsider/~3/zVC80sq9s00/python-364-is-now-available.html', 'https://www.python.org/community/merchandise/', 'https://www.python.org/about/success/#arts', 'https://wiki.python.org/moin/Python2orPython3', 'http://trac.edgewall.org/', 'http://feedproxy.google.com/~r/PythonInsider/~3/wh73_1A-N7Q/python-355rc1-and-python-348rc1-are-now.html', 'https://pypi.python.org/', 'https://www.python.org/events/python-user-group/650/', 'http://www.riverbankcomputing.co.uk/software/pyqt/intro', 'https://www.python.org/about/quotes/', 'https://www.python.org/downloads/windows/', 'https://www.python.org/events/calendars/', 'http://www.scipy.org', 'https://www.python.org/community/workshops/', 'https://www.python.org/blogs/', 'https://www.python.org/accounts/signup/', 'https://www.python.org/events/', 'https://kivy.org/', 'http://www.facebook.com/pythonlang?fref=ts', 'http://www.web2py.com/', 'https://www.python.org/psf/sponsorship/sponsors/', 'https://www.python.org/community/', 'https://www.python.org/download/other/', 'https://www.python.org/psf-landing/', 'https://www.python.org/events/python-user-group/665/', 'https://wiki.python.org/moin/BeginnersGuide', 'https://www.python.org/accounts/login/', 'https://www.python.org/downloads/release/python-364/', 'https://www.python.org/dev/core-mentorship/', 'https://www.python.org/about/success/#business', 'https://www.python.org/community/sigs/', 'https://www.python.org/events/python-user-group/', 'http://ipython.org', 'https://www.python.org/shell/', 'https://www.python.org/community/irc/', 'https://www.python.org/about/success/#engineering', 'http://www.pylonsproject.org/', 'http://pycon.blogspot.com/', 'https://www.python.org/about/success/#scientific', 'https://www.python.org/doc/essays/', 'http://www.djangoproject.com/', 'https://www.python.org/success-stories/industrial-light-magic-runs-python/', 'http://feedproxy.google.com/~r/PythonInsider/~3/x_c9D0S-4C4/python-370b1-is-now-available-for.html', 'http://wiki.python.org/moin/TkInter', 'https://www.python.org/jobs/', 'https://www.python.org/events/python-events/604/'}
+
+Select an :class:`Element <Element>` with a CSS Selector (`learn more <https://www.w3schools.com/cssref/css_selectors.asp>`_):
+
+.. code-block:: pycon
+
+    >>> about = r.html.find('#about', first=True)
+
+Grab an :class:`Element <Element>`'s text contents:
+
+.. code-block:: pycon
+
+    >>> print(about.text)
+    About
+    Applications
+    Quotes
+    Getting Started
+    Help
+    Python Brochure
+
+Introspect an :class:`Element <Element>`'s attributes (`learn more <https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes>`_):
+
+.. code-block:: pycon
+
+    >>> about.attrs
+    {'id': 'about', 'class': ('tier-1', 'element-1'), 'aria-haspopup': 'true'}
+
+Render out an :class:`Element <Element>`'s HTML:
+
+.. code-block:: pycon
+
+    >>> about.html
+    '<li aria-haspopup="true" class="tier-1 element-1 " id="about">\n<a class="" href="/about/" title="">About</a>\n<ul aria-hidden="true" class="subnav menu" role="menu">\n<li class="tier-2 element-1" role="treeitem"><a href="/about/apps/" title="">Applications</a></li>\n<li class="tier-2 element-2" role="treeitem"><a href="/about/quotes/" title="">Quotes</a></li>\n<li class="tier-2 element-3" role="treeitem"><a href="/about/gettingstarted/" title="">Getting Started</a></li>\n<li class="tier-2 element-4" role="treeitem"><a href="/about/help/" title="">Help</a></li>\n<li class="tier-2 element-5" role="treeitem"><a href="http://brochure.getpython.info/" title="">Python Brochure</a></li>\n</ul>\n</li>'
+
+Crab an :class:`Element <Element>`'s root tag name:
+
+.. code-block:: pycon
+
+   >>> about.tag
+   'li'
+
+Show the line number that an :class:`Element <Element>`'s root tag located in:
+
+.. code-block:: pycon
+
+    >>> about.lineno
+    249
+
+Select an :class:`Element <Element>` list within an :class:`Element <Element>`:
+
+.. code-block:: pycon
+
+    >>> about.find('a')
+    [<Element 'a' href='/about/' title='' class=''>, <Element 'a' href='/about/apps/' title=''>, <Element 'a' href='/about/quotes/' title=''>, <Element 'a' href='/about/gettingstarted/' title=''>, <Element 'a' href='/about/help/' title=''>, <Element 'a' href='http://brochure.getpython.info/' title=''>]
+
+Search for links within an element:
+
+.. code-block:: pycon
+
+    >>> about.absolute_links
+    {'http://brochure.getpython.info/', 'https://www.python.org/about/gettingstarted/', 'https://www.python.org/about/', 'https://www.python.org/about/quotes/', 'https://www.python.org/about/help/', 'https://www.python.org/about/apps/'}
+
+
+Search for text on the page:
+
+.. code-block:: pycon
+
+    >>> r.html.search('Python is a {} language')[0]
+    programming
+
+More complex CSS Selector example (copied from Chrome dev tools):
+
+.. code-block:: pycon
+
+    >>> r = session.get('https://github.com/')
+    >>> sel = 'body > div.application-main > div.jumbotron.jumbotron-codelines > div > div > div.col-md-7.text-center.text-md-left > p'
+
+    >>> print(r.html.find(sel, first=True).text)
+    GitHub is a development platform inspired by the way you work. From open source to business, you can host and review code, manage projects, and build software alongside millions of other developers.
+
+XPath is also supported (`learn more <https://msdn.microsoft.com/en-us/library/ms256086(v=vs.110).aspx>`_):
+
+.. code-block:: pycon
+
+   >>> r.html.xpath('a')
+   [<Element 'a' class='btn' href='https://help.github.com/articles/supported-browsers'>]
+
+You can also select only elements containing certain text:
+
+.. code-block:: pycon
+
+    >>> r = session.get('http://python-requests.org/')
+    >>> r.html.find('a', containing='kenneth')
+    [<Element 'a' href='http://kennethreitz.com/pages/open-projects.html'>, <Element 'a' href='http://kennethreitz.org/'>, <Element 'a' href='https://twitter.com/kennethreitz' class=('twitter-follow-button',) data-show-count='false'>, <Element 'a' class=('reference', 'internal') href='dev/contributing/#kenneth-reitz-s-code-style'>]
+
+
+JavaScript Support
+==================
+
+Let's grab some text that's rendered by JavaScript:
+
+.. code-block:: pycon
+
+    >>> r = session.get('http://python-requests.org/')
+
+    >>> r.html.render()
+
+    >>> r.html.search('Python 2 will retire in only {months} months!')['months']
+    '<time>25</time>'
+
+Or you can do this async also:
+
+.. code-block:: pycon
+
+    >>> r = asession.get('http://python-requests.org/')
+
+    >>> await r.html.arender()
+
+    >>> r.html.search('Python 2 will retire in only {months} months!')['months']
+    '<time>25</time>'
+
+Note, the first time you ever run the ``render()`` method, it will download
+Chromium into your home directory (e.g. ``~/.pyppeteer/``). This only happens
+once. You may also need to install a few `Linux packages <https://github.com/miyakogi/pyppeteer/issues/60>`_ to get pyppeteer working.
+
+Pagination
+==========
+
+There's also intelligent pagination support (always improving):
+
+.. code-block:: pycon
+
+    >>> r = session.get('https://reddit.com')
+    >>> for html in r.html:
+    ...     print(html)
+    <HTML url='https://www.reddit.com/'>
+    <HTML url='https://www.reddit.com/?count=25&after=t3_81puu5'>
+    <HTML url='https://www.reddit.com/?count=50&after=t3_81nevg'>
+    <HTML url='https://www.reddit.com/?count=75&after=t3_81lqtp'>
+    <HTML url='https://www.reddit.com/?count=100&after=t3_81k1c8'>
+    <HTML url='https://www.reddit.com/?count=125&after=t3_81p438'>
+    <HTML url='https://www.reddit.com/?count=150&after=t3_81nrcd'>
+    …
+
+For `async` pagination use the new `async for`:
+
+.. code-block:: pycon
+
+    >>> r = await asession.get('https://reddit.com')
+    >>> async for html in r.html:
+    ...     print(html)
+    <HTML url='https://www.reddit.com/'>
+    <HTML url='https://www.reddit.com/?count=25&after=t3_81puu5'>
+    …
+
+You can also just request the next URL easily:
+
+.. code-block:: pycon
+
+    >>> r = session.get('https://reddit.com')
+    >>> r.html.next()
+    'https://www.reddit.com/?count=25&after=t3_81pm82'
+
+Using without Requests
+======================
+
+You can also use this library without Requests:
+
+.. code-block:: pycon
+
+    >>> from requests_html import HTML
+    >>> doc = """<a href='https://httpbin.org'>"""
+
+    >>> html = HTML(html=doc)
+    >>> html.links
+    {'https://httpbin.org'}
+
+You can also render JavaScript pages without Requests:
+
+.. code-block:: pycon
+
+    # ^^ proceeding from above ^^
+    >>> script = """
+            () => {
+                return {
+                    width: document.documentElement.clientWidth,
+                    height: document.documentElement.clientHeight,
+                    deviceScaleFactor: window.devicePixelRatio,
+                }
+            }
+        """
+    >>> val = html.render(script=script, reload=False)
+
+    >>> print(val)
+    {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
+
+    >>> print(html.html)
+    <html><head></head><body><a href="https://httpbin.org"></a></body></html>
+
+For using `arender` just pass `async_=True` to HTML.
+
+.. code-block:: pycon
+
+    # ^^ using above script ^^
+    >>> html = HTML(html=doc, async_=True)
+    >>> val = await html.arender(script=script, reload=False)
+    >>> print(val)
+    {'width': 800, 'height': 600, 'deviceScaleFactor': 1}
+
+
+API Documentation
+=================
+
+Main Classes
+------------
+
+.. module:: requests_html
+
+These classes are the main interface to ``requests-html``:
+
+
+.. autoclass:: HTML
+    :inherited-members:
+
+.. autoclass:: Element
+    :inherited-members:
+
+Utility Functions
+-----------------
+
+.. autofunction:: user_agent
+
+HTML Sessions
+-------------
+
+These sessions are for making HTTP requests:
+
+.. autoclass:: HTMLSession
+    :inherited-members:
+
+
+.. autoclass:: AsyncHTMLSession
+    :inherited-members:
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
+---
+File: docs/source/conf.py
+Size: 6472 bytes
+Lines: 211
+---
+# -*- coding: utf-8 -*-
+#
+# Configuration file for the Sphinx documentation builder.
+#
+# This file does only contain a selection of the most common options. For a
+# full list see the documentation:
+# http://www.sphinx-doc.org/en/stable/config
+
+# -- Path setup --------------------------------------------------------------
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+#
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
+
+
+# -- Project information -----------------------------------------------------
+import requests_html
+
+project = 'requests-HTML'
+copyright = u'MMXVIII. A <a href="http://kennethreitz.com/pages/open-projects.html">Kenneth Reitz</a> Project'
+author = 'Kenneth Reitz'
+
+# The short X.Y version
+version = ''
+# The full version, including alpha/beta/rc tags
+release = 'v0.3.4'
+
+
+# -- General configuration ---------------------------------------------------
+
+# If your documentation needs a minimal Sphinx version, state it here.
+#
+# needs_sphinx = '1.0'
+
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# ones.
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',
+]
+
+# Add any paths that contain templates here, relative to this directory.
+templates_path = ['_templates']
+
+# The suffix(es) of source filenames.
+# You can specify multiple suffix as a list of string:
+#
+# source_suffix = ['.rst', '.md']
+source_suffix = '.rst'
+
+# The master toctree document.
+master_doc = 'index'
+
+# The language for content autogenerated by Sphinx. Refer to documentation
+# for a list of supported languages.
+#
+# This is also used if you do content translation via gettext catalogs.
+# Usually you set "language" from the command line for these cases.
+language = None
+
+# List of patterns, relative to source directory, that match files and
+# directories to ignore when looking for source files.
+# This pattern also affects html_static_path and html_extra_path .
+exclude_patterns = []
+
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = 'sphinx'
+
+
+# -- Options for HTML output -------------------------------------------------
+
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+#
+html_theme = 'alabaster'
+
+# Theme options are theme-specific and customize the look and feel of a theme
+# further.  For a list of options available for each theme, see the
+# documentation.
+#
+html_theme_options = {
+    'show_powered_by': False,
+    'github_user': 'psf',
+    'github_repo': 'requests-html',
+    'github_banner': True,
+    'show_related': False,
+    'note_bg': '#FFF59C'
+}
+
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
+html_static_path = ['_static']
+
+# Custom sidebar templates, must be a dictionary that maps document names
+# to template names.
+#
+# The default sidebars (for documents that don't match any pattern) are
+# defined by theme itself.  Builtin themes are using these templates by
+# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
+# 'searchbox.html']``.
+#
+html_sidebars = {
+    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html',
+                 'hacks.html'],
+    '**':       ['sidebarlogo.html', 'localtoc.html', 'relations.html',
+                 'sourcelink.html', 'searchbox.html', 'hacks.html']
+}
+
+html_show_sphinx = False
+html_show_sourcelink = False
+
+# -- Options for HTMLHelp output ---------------------------------------------
+
+# Output file base name for HTML help builder.
+htmlhelp_basename = 'requests-htmldoc'
+
+
+# -- Options for LaTeX output ------------------------------------------------
+
+latex_elements = {
+    # The paper size ('letterpaper' or 'a4paper').
+    #
+    # 'papersize': 'letterpaper',
+
+    # The font size ('10pt', '11pt' or '12pt').
+    #
+    # 'pointsize': '10pt',
+
+    # Additional stuff for the LaTeX preamble.
+    #
+    # 'preamble': '',
+
+    # Latex figure (float) alignment
+    #
+    # 'figure_align': 'htbp',
+}
+
+# Grouping the document tree into LaTeX files. List of tuples
+# (source start file, target name, title,
+#  author, documentclass [howto, manual, or own class]).
+latex_documents = [
+    (master_doc, 'requests-html.tex', 'requests-html Documentation',
+     'Kenneth Reitz', 'manual'),
+]
+
+
+# -- Options for manual page output ------------------------------------------
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    (master_doc, 'requests-html', 'requests-html Documentation',
+     [author], 1)
+]
+
+
+# -- Options for Texinfo output ----------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+    (master_doc, 'requests-html', 'requests-html Documentation',
+     author, 'requests-html', 'One line description of project.',
+     'Miscellaneous'),
+]
+
+
+# -- Options for Epub output -------------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
+
+
+# -- Extension configuration -------------------------------------------------
+
+# -- Options for intersphinx extension ---------------------------------------
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
+
+# -- Options for todo extension ----------------------------------------------
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = True
+
+---
+File: docs/source/_templates/sidebarintro.html
+Size: 2819 bytes
+Lines: 61
+---
+<p class="logo">
+  <a href="{{ pathto(master_doc) }}">
+    <img class="logo" src="{{ pathto('_static/requests-html-logo.png', 1) }}" title="https://kennethreitz.org/tattoos"/>
+  </a>
+</p>
+
+<p>
+  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests-html&type=watch&count=true&size=large"
+    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+<p>
+  <strong>Requests-HTML</strong> intends to make parsing HTML (e.g. scraping the web) as
+simple and intuitive as possible.
+</p>
+
+<h3>Stay Informed</h3>
+<p>Receive updates on new releases and upcoming projects.</p>
+
+<p><iframe src="https://ghbtns.com/github-btn.html?user=psf&type=follow&count=false"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<style>
+.algolia-autocomplete{
+  width: 100%;
+  height: 1.5em
+}
+.algolia-autocomplete a{
+  border-bottom: none !important;
+}
+#doc_search{
+  width: 100%;
+  height: 100%;
+}
+</style>
+<input id="doc_search" placeholder="Search the doc" autofocus/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
+  apiKey: '8fcebdef37e2d888d63daf198ccecd08',
+  indexName: 'requests-html',
+  inputSelector: '#doc_search',
+  debug: false // Set debug to true if you want to inspect the dropdown
+})" async></script>
+
+<p><a href="https://twitter.com/kennethreitz" class="twitter-follow-button" data-show-count="false">Follow @kennethreitz</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://saythanks.io/to/kennethreitz">Say Thanks!</a></p>
+
+<h3>Other Projects</h3>
+
+<p>More <a href="https://kennethreitz.org/">Kenneth Reitz</a> projects:</p>
+<ul>
+    <li><a href="https://2.python-requests.org/">python-requests.org</a></li>
+    <li><a href="http://howtopython.org/">howtopython.org</a></li>
+    <li><a href="http://pipenv.org/">pipenv</a></li>
+    <li><a href="https://pep8.org/">pep8.org</a></li>
+    <li><a href="https://httpbin.org/">httpbin.org</a></li>
+    <li><a href="https://python-guide.org">The Python Guide</a></li>
+    <li><a href="https://github.com/timofurrer/maya">Maya: Datetimes for Humans</a></li>
+    <li><a href="https://github.com/kennethreitz/records">Records: SQL for Humans</a></li>
+    <li><a href="http://www.git-legit.org">Legit: Git for Humans</a></li>
+    <li><a href="http://docs.python-tablib.org/en/latest/">Tablib: Tabular Datasets</a></li>
+</ul>
+
+
+---
+File: docs/source/_templates/sidebarlogo.html
+Size: 2818 bytes
+Lines: 61
+---
+<p class="logo">
+  <a href="{{ pathto(master_doc) }}">
+    <img class="logo" src="{{ pathto('_static/requests-html-logo.png', 1) }}" title="https://kennethreitz.org/tattoos"/>
+  </a>
+</p>
+
+<p>
+  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests-html&type=watch&count=true&size=large"
+    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+<p>
+  <strong>Requests-HTML</strong> intends to make parsing HTML (e.g. scraping the web) as
+simple and intuitive as possible.
+</p>
+
+<h3>Stay Informed</h3>
+<p>Receive updates on new releases and upcoming projects.</p>
+
+<p><iframe src="https://ghbtns.com/github-btn.html?user=psf&type=follow&count=false"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<style>
+.algolia-autocomplete{
+  width: 100%;
+  height: 1.5em
+}
+.algolia-autocomplete a{
+  border-bottom: none !important;
+}
+#doc_search{
+  width: 100%;
+  height: 100%;
+}
+</style>
+<input id="doc_search" placeholder="Search the doc" autofocus/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
+  apiKey: '8fcebdef37e2d888d63daf198ccecd08',
+  indexName: 'requests-html',
+  inputSelector: '#doc_search',
+  debug: false // Set debug to true if you want to inspect the dropdown
+})" async></script>
+
+<p><a href="https://twitter.com/kennethreitz" class="twitter-follow-button" data-show-count="false">Follow @kennethreitz</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://saythanks.io/to/kennethreitz">Say Thanks!</a></p>
+
+<h3>Other Projects</h3>
+
+<p>More <a href="https://kennethreitz.org/">Kenneth Reitz</a> projects:</p>
+<ul>
+    <li><a href="https://2.python-requests.org/">python-requests.org</a></li>
+    <li><a href="http://howtopython.org/">howtopython.org</a></li>
+    <li><a href="http://pipenv.org/">pipenv</a></li>
+    <li><a href="https://pep8.org/">pep8.org</a></li>
+    <li><a href="https://httpbin.org/">httpbin.org</a></li>
+    <li><a href="https://python-guide.org">The Python Guide</a></li>
+    <li><a href="https://github.com/timofurrer/maya">Maya: Datetimes for Humans</a></li>
+    <li><a href="https://github.com/kennethreitz/records">Records: SQL for Humans</a></li>
+    <li><a href="http://www.git-legit.org">Legit: Git for Humans</a></li>
+    <li><a href="http://docs.python-tablib.org/en/latest/">Tablib: Tabular Datasets</a></li>
+</ul>
+
+---
+File: docs/source/_templates/hacks.html
+Size: 1361 bytes
+Lines: 48
+---
+<!-- Alabaster (krTheme++) Hacks -->
+
+
+<!-- CSS Adjustments (I'm very picky.) -->
+<style type="text/css">
+
+  /* Rezzy requires precise alignment. */
+  img.logo {margin-left: -20px!important;}
+
+  /* "Quick Search" should be capitalized. */
+  div#searchbox h3 {text-transform: capitalize;}
+
+  /* Make the document a little wider, less code is cut-off. */
+  div.document {width: 1008px;}
+
+  /* Much-improved spacing around code blocks. */
+  div.highlight pre {padding: 11px 14px;}
+
+  /* Remain Responsive! */
+  @media screen and (max-width: 1008px) {
+    div.sphinxsidebar {display: none;}
+    div.document {width: 100%!important;}
+
+    /* Have code blocks escape the document right-margin. */
+    div.highlight pre {margin-right: -30px;}
+  }
+
+</style>
+
+
+<!-- Analytics tracking for Kenneth. -->
+<script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '5a956183ba4ae36e18000033');
+    t.setAttribute('data-track-path', 'https://track.gaug.es/track.gif');
+    t.src = 'https://d2fuc4clr7gvcn.cloudfront.net/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+
+<!-- That was not a hack. That was art. -->

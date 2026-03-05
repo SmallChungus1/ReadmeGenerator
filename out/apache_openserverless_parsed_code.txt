@@ -1,26 +1,18 @@
-Tokens: 11752
+Tokens: 6851
 Repo: apache/openserverless
 Commit: 6860a443c5c8cba2aaf5299683b1057bb1636cdc
-Timestamp: 2026-03-02T20:53:58.952551
+Timestamp: 2026-03-04T19:52:35.993069
 
 --- Repository Structure ---
 .
 ├── .asf.yaml
 ├── .github
-│   ├── ISSUE_TEMPLATE
-│   │   ├── BUG_REPORT.md
-│   │   └── FEATURE_REQUEST.md
-│   └── PULL_REQUEST_TEMPLATE.md
+│   └── ISSUE_TEMPLATE
 ├── .gitignore
 ├── .gitmodules
-├── CONTRIBUTING.md
 ├── DISCLAIMER
 ├── LICENSE
 ├── NOTICE
-├── README.md
-├── ROADMAP.md
-├── VARIABLES.md
-├── VERSIONS.md
 ├── assets
 │   └── logos
 │       ├── png
@@ -45,31 +37,31 @@ Timestamp: 2026-03-02T20:53:58.952551
 
 --- Summary Report ---
 Total files scanned: 33
-Files included: 23
-Files skipped by rule: 10
+Files included: 15
+Files skipped by rule: 18
 Files skipped by size: 0
-Detected languages count: 5
+Detected languages count: 4
 Top 15 largest included files:
-  11560 bytes - LICENSE
-  10201 bytes - README.md
-  3666 bytes - bash_aliases
-  3449 bytes - cloud-init.yaml
-  3369 bytes - CONTRIBUTING.md
-  2769 bytes - VARIABLES.md
-  1624 bytes - ROADMAP.md
-  1557 bytes - .asf.yaml
-  1405 bytes - VERSIONS.md
-  1120 bytes - get-diff.sh
-  934 bytes - .gitmodules
-  793 bytes - .github\ISSUE_TEMPLATE\BUG_REPORT.md
-  703 bytes - sync-branch.sh
-  646 bytes - openserverless.code-workspace
-  572 bytes - DISCLAIMER
+  11358 bytes - LICENSE
+  3549 bytes - bash_aliases
+  3346 bytes - cloud-init.yaml
+  1506 bytes - .asf.yaml
+  1085 bytes - get-diff.sh
+  902 bytes - .gitmodules
+  678 bytes - sync-branch.sh
+  622 bytes - openserverless.code-workspace
+  561 bytes - DISCLAIMER
+  463 bytes - openserverless-operator.code-workspace
+  457 bytes - openserverless-cli.code-workspace
+  336 bytes - direnv-init.sh
+  184 bytes - NOTICE
+  104 bytes - update-tree.sh
+  52 bytes - .gitignore
 -----------------------
 
 ---
 File: .asf.yaml
-Size: 1557 bytes
+Size: 1506 bytes
 Lines: 51
 ---
 #
@@ -126,445 +118,32 @@ github:
 
 
 ---
-File: .gitignore
-Size: 57 bytes
-Lines: 5
+File: openserverless-operator.code-workspace
+Size: 463 bytes
+Lines: 17
 ---
-.attic/
-.vscode/
-.idea/
-**/.DS_Store
-network-cache/
+{
+    "folders": [
+            {
+                "name": "openserverless-operator",
+                "path": "operator"
+            }
+        ],
+    "settings": {
+            "workbench.colorCustomizations": {
+                    "activityBar.background": "#32cb0f",
+                    "titleBar.activeBackground": "#32cb0f",
+                    "titleBar.activeForeground": "#32cb0f",
+                    "statusBar.background": "#32cb0f"
 
-
----
-File: .gitmodules
-Size: 934 bytes
-Lines: 32
----
-[submodule "site"]
-	path = site
-	url = https://github.com/apache/openserverless-site
-	branch = main
-[submodule "cli"]
-	path = cli
-	url = https://github.com/apache/openserverless-cli
-	branch = main
-[submodule "operator"]
-	path = olaris-op
-	url = https://github.com/apache/openserverless-operator
-	branch = main
-[submodule "testing"]
-	path = testing
-	url = https://github.com/apache/openserverless-testing
-	branch = main
-[submodule "task"]
-	path = olaris
-	url = https://github.com/apache/openserverless-task
-	branch = main
-[submodule "runtimes"]
-	path = runtimes
-	url = https://github.com/apache/openserverless-runtimes
-	branch = main
-[submodule "vscode"]
-	path = vscode
-	url = https://github.com/apache/openserverless-vscode-extension
-        branch = main
-[submodule "openserverless-devcontainer"]
-	path = devcontainer
-	url = https://github.com/apache/openserverless-devcontainer
-        branch = main
-
-
----
-File: bash_aliases
-Size: 3666 bytes
-Lines: 118
----
-## NOTE! This script should be sourced, not executed. 
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-
-alias va="vi ~/.bash_aliases ; source ~/.bash_aliases"
-
-# prompt
-parse_git_branch() {
-     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
-}
-export PS1="[\h:\[\e[32m\]\w:\[\e[91m\]\$(parse_git_branch)\[\e[00m\]]\n$ "
-
-
-function secrets {
-    if ! which op
-    then echo "download the op cli from https://developer.1password.com/docs/cli/get-started/"
-         return
-    fi
-    if ! test -e .env.dist
-    then echo "no .env.dist listing the required secrets" 
-         return
-    fi
-    echo "reading .env.dist to generate .env and .env.src from 1password"
-    echo "I OVERWRITE the existing files, type your password or interrupt now"
-    eval $(op signin)
-    rm -f .env .env.src
-    cat .env.dist | awk '{
-        if(match($1, /^(.*)=(.*):/, a)) {
-            print a[1] " op://secrets/" a[2] "/" a[1]
-        }
-    }' | while read VAR SEC 
-    do 
-        VAL="$(op read $SEC)"
-        echo read $VAR 
-        echo "$VAR=$VAL" >>.env
-        echo "echo export and config $VAR" >>.env.src
-        echo "export $VAR=\"$VAL\"" >>.env.src
-        echo "nuv -config \"$VAR=$VAL\""  >>.env.src
-    done
-    source .env.src
+            }
+    }
 }
 
-export KNS="default"
-alias k='kubectl -n $KNS'
-alias kg='kubectl -n $KNS get'
-alias kgy='kubectl -n $KNS -o yaml get'
-alias kaf='kubectl -n $KNS apply -f'
-alias kde='kubectl -n $KNS describe'
-alias kdel='kubectl -n $KNS delete'
-alias kin="kubectl cluster-info"
-
-function kex { 
-  ME=$1
-  CMD=${2:-bash} 
-  kubectl -n $KNS exec -ti $(kubectl -n $KNS get po | awk "/$ME/"'{print $1}') -- $CMD
-}
-
-function klo {
-  ME=$1
-  shift
-  kubectl -n $KNS logs $(kubectl -n $KNS get po | awk "/$ME/"'{print $1}') "$@"
-} 
-
-function kns {
-  if test -z "$1"
-  then kubectl get ns
-       echo "*** current: $KNS ***"
-  else export KNS="$1"
-       kubectl config set-context --current --namespace "$1"
-  fi
-}
-
-alias kwa="watch kubectl get po,deploy,sts,jobs,svc,ingress --no-headers"
-alias kwp="watch kubectl get po,deploy,sts,jobs --no-headers"
-alias kws="watch kubectl get svc,ingress --no-headers"
-alias kwc="watch kubectl get cm,secret --no-headers"
-
-alias kfin='kubectl patch -p {"metadata":{"finalizers":[]}} --type=merge' 
-
-alias ga="git add"
-alias gst="git status"
-alias glog="git log --pretty=oneline"
-alias gdf="git diff --name-only"
-alias gcm="git commit -m"
-alias gcam="git commit -a -m"
-alias gpom="git push origin main"
-
-function gsnap {
-  if test -z "$1"
-  then echo msg please
-  else x=""; for i in "$@" ; do x="$x$i " ; done
-       git commit -a -m "$x" 
-       git push 
-  fi
-}
-
-alias t=task
-alias tt='task -d ..'
-alias ttt='task -d ../..'
-alias dtag="date +%y%m%d%H"
-alias lenv='export $(xargs <.env)'
-alias nssh="ssh -oStrictHostKeyChecking=no"
-alias gr="grep -nr"
-
----
-File: cloud-init.yaml
-Size: 3449 bytes
-Lines: 103
----
-#cloud-config
-apt_update: true
-apt_upgrade: true
-packages:
-  - at
-
-users:
-  - name: ubuntu
-    uid: 1000
-    groups: sudo
-    shell: /bin/bash
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
-
-write_files:
-  - path: /etc/cloud-init.sh
-    permissions: '0755'
-    owner: root:root
-    content: |
-      echo "OPS_CLOUD_INIT_VER=3" >>/etc/environment
-      IP="$(ip -o -4 addr | awk '$2 ~/en/ { print $4}' | cut -d/ -f1)"
-      # install k3s, direnv, task
-      curl -sfL https://get.k3s.io | sh -
-      # set home and user
-      USR="$(getent passwd 1000 | awk -F: '{print $1}')"
-      HOME="/home/$USR"
-      # copy authkey if there is a root one
-      mkdir -p /home/$USR/.ssh
-      if test -e /root/.ssh/authorized_keys
-      then cat /root/.ssh/authorized_keys >>/home/$USR/.ssh/authorized_keys
-      fi
-      # access k3s
-      mkdir -p "$HOME/.kube"
-      cat /etc/rancher/k3s/k3s.yaml "$HOME/.kube/config" | sed -e 's!server: https://127.0.0.1:!server: https://'$IP':!' >"$HOME/.kube/config"
-      echo "export KUBECONFIG=/home/$USR/.kube/config" >>$HOME/.bashrc
-      chown -Rvf "$USR" /home/$USR
-      #sudo -u $USR bash /etc/install-opsv.sh
-      echo "== DONE =="
-
-  - path: /etc/install-opsv.sh
-    permissions: '0755'
-    owner: root:root
-    content: |
-        curl -sL bit.ly/get-ops | bash
-        # TODO: use the released version not main
-        echo "export OPS_BRANCH=main" >> ~/.bashrc
-        source ~/.bashrc
-        ops -t
-        ops -info
-        # configure opsv
-        ops config slim 
-        IP="$(ip -o -4 addr | awk '$2 ~/en/ { print $4}' | cut -d/ -f1)"
-        ops config apihost "$IP.nip.io"
-        ops setup cluster
-
-  - path: /home/ubuntu/waitready
-    permissions: '0755'
-    owner: ubuntu:ubuntu
-    defer: true
-    content: |
-      #!/bin/bash
-      sudo cloud-init status --wait
-      tail -f /tmp/cloud-init.log | while read line
-      do echo "$line"
-        if [[ "$line" == *"== DONE =="* ]]
-        then exit 0
-        fi
-      done
-  
-  - path: /home/ubuntu/i-am-a-developer
-    permissions: '0755'
-    defer: true
-    owner: ubuntu:ubuntu
-    content: |
-      # get openserverless sources
-      cd $HOME
-      # install task and skywalking-eyes
-      sudo snap install task --classic
-      sudo snap install go --classic
-      go install github.com/apache/skywalking-eyes/cmd/license-eye@latest
-      echo "export PATH=\$PATH:\$HOME/go/bin" >> .bashrc
-      # install direnv and nix
-      curl -sL https://nixos.org/nix/install | sh
-      source .profile
-      curl -sL https://direnv.net/install.sh | sudo bash
-      echo 'eval "$(direnv hook bash)"' >> .bashrc
-      source .bashrc
-      # setup openserverless
-      git clone https://github.com/apache/openserverless.git --recurse-submodules
-      cd openserverless 
-      bash sync-branch.sh
-      bash direnv-init.sh
-      # TODO add a .git-hooks directory with hooks
-      #git config core.hooksPath .git-hooks
- 
-runcmd:
-  - |
-    cd /home/ubuntu
-    # add z.sh and .aliases
-    curl -sL "https://raw.githubusercontent.com/rupa/z/master/z.sh" -o ".z.sh"
-    curl -sL https://raw.githubusercontent.com/sciabarracom/openserverless/refs/heads/main/bash_aliases -o ".bash_aliases"
-    echo 'source $HOME/.z.sh' >> .bashrc
-    chown ubuntu:ubuntu .z.sh .bashrc .bash_aliases 
-    echo -e '#!/bin/bash\n/etc/cloud-init.sh 2>&1 >/tmp/cloud-init.log\n' | at now
-
-
----
-File: CONTRIBUTING.md
-Size: 3369 bytes
-Lines: 71
----
-<!--
-#
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
--->
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-
-# Contributing to Apache OpenServerless (incubating)
-
-Anyone can contribute to the OpenServerless project and we welcome your contributions.
-
-There are multiple ways to contribute: report bugs, improve the docs, and
-contribute code, but you must follow these prerequisites and guidelines:
-
-- [Contributing to Apache OpenServerless (incubating)](#contributing-to-apache-openserverless-incubating)
-    - [Contributor License Agreement](#contributor-license-agreement)
-  - [Raising issues](#raising-issues)
-    - [Discussion](#discussion)
-    - [Coding standards](#coding-standards)
-
-### Contributor License Agreement
-
-All contributors must sign and submit an Apache CLA (Contributor License Agreement).
-
-Instructions on how to do this can be found here:
-[http://www.apache.org/licenses/#clas](http://www.apache.org/licenses/#clas)
-
-Sign the appropriate CLA and submit it to the Apache Software Foundation (ASF) secretary. You will receive a confirmation email from the ASF and be added to
-the following list: http://people.apache.org/unlistedclas.html.  Once your name is on this list, you are done and your PR can be merged.
-
-Project committers will use this list to verify pull requests (PRs) come from contributors that have signed a CLA.
-
-We look forward to your contributions!
-
-## Raising issues
-
-Please raise any bug reports or enhancement requests on the main project repository's GitHub [issue tracker](https://github.com/apache/openserverless/issues). Be sure to search the
-list to see if your issue has already been raised.
-
-A good bug report is one that make it easy for us to understand what you were trying to do and what went wrong.
-Provide as much context as possible so we can try to recreate the issue.
-
-A good enhancement request comes with an explanation of what you are trying to do and how that enhancement would help you.
-
-### Discussion
-
-Please use the project's developer email list to engage our community:
-[dev@openserverless.apache.org](dev@openserverless.apache.org)
-
-In addition, we provide a [Telegram](https://t.me/+XhbCjBrkkaNkOWM0) team channel for conversation and support.
-
-### Coding standards
-
-Please ensure you follow the coding standards used throughout the existing
-code base. Some basic rules include:
-
- - all files must have the Apache license in the header.
- - all PRs must have passing builds for all operating systems (where this is applicable).
-
----
-File: direnv-init.sh
-Size: 344 bytes
-Lines: 8
----
-#!/bin/bash
-cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
-git clone https://github.com/nix-community/nix-direnv $HOME/nix-direnv
-mkdir -p $HOME/.config/direnv
-echo 'source $HOME/nix-direnv/direnvrc' >>$HOME/.config/direnv/direnvrc
-find . -name '.envrc' -execdir direnv allow . pwd  \;
-find . -name '.envrc' -execdir direnv exec . pwd  \;
-
-
-
----
-File: DISCLAIMER
-Size: 572 bytes
-Lines: 11
----
-Apache OpenServerless (Incubating) is an effort undergoing incubation at the Apache
-Software Foundation (ASF), sponsored by the Apache Incubator PMC.
-
-Incubation is required of all newly accepted projects until a further review
-indicates that the infrastructure, communications, and decision making process
-have stabilized in a manner consistent with other successful ASF projects.
-
-While incubation status is not necessarily a reflection of the completeness
-or stability of the code, it does indicate that the project has yet to be
-fully endorsed by the ASF.
-
-
-
----
-File: get-diff.sh
-Size: 1120 bytes
-Lines: 36
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-F=${1:?file}
-
-FILE=$(realpath $F)
-echo $FILE
-
-CUR="$(basename $FILE)"
-CONT="$(dirname $FILE)"
-while ! test -d ${CONT}.diff
-do 
-    echo $CUR
-    CUR="$(basename $CONT)/$CUR"
-    CONT=$(dirname $CONT)
-    echo $CONT
-done
-
-echo  CONTAINER $CONT
-echo  PATH $CUR
-
-code -r -d ${CONT}.diff/$CUR $CONT/$CUR
 
 ---
 File: LICENSE
-Size: 11560 bytes
+Size: 11358 bytes
 Lines: 202
 ---
 
@@ -772,358 +351,37 @@ Lines: 202
 
 
 ---
-File: NOTICE
-Size: 190 bytes
-Lines: 6
+File: DISCLAIMER
+Size: 561 bytes
+Lines: 11
 ---
-Apache OpenServerless (Incubating)
-Copyright 2024 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
----
-File: openserverless-cli.code-workspace
-Size: 478 bytes
-Lines: 21
----
-{
-  "folders": [
-    {
-      "name": "cli",
-      "path": "cli"
-    },
-   { 
-      "name": "task",
-      "path": "task"
-    }
-  ],
-  "settings": {
-    "workbench.colorCustomizations": {
-      "activityBar.background": "#5b09e0",
-      "titleBar.activeBackground": "#5b09e0",
-      "titleBar.activeForeground": "#5b09e0",
-      "statusBar.background": "#5b09e0"
-    },
-    "go.goroot": "/nix/store/nnh57s7m672k6snkanhz1kb18skwjpbg-go-1.21.11/share/go"
-  }
-}
-
-
----
-File: openserverless-operator.code-workspace
-Size: 480 bytes
-Lines: 17
----
-{
-    "folders": [
-            {
-                "name": "openserverless-operator",
-                "path": "operator"
-            }
-        ],
-    "settings": {
-            "workbench.colorCustomizations": {
-                    "activityBar.background": "#32cb0f",
-                    "titleBar.activeBackground": "#32cb0f",
-                    "titleBar.activeForeground": "#32cb0f",
-                    "statusBar.background": "#32cb0f"
-
-            }
-    }
-}
-
-
----
-File: openserverless.code-workspace
-Size: 646 bytes
-Lines: 24
----
-{
-    "folders": [
-            {
-                "name": "operator",
-                "path": "operator"
-            },
-            {
-                "name": "site",
-                "path": "site"
-            },
-            { 
-                "name": "root",
-                "path": "."
-	    }
-        ],
-    "settings": {
-            "workbench.colorCustomizations": {
-                    "activityBar.background": "#d2e313",
-                    "titleBar.activeBackground": "#d2e313",
-                    "titleBar.activeForeground": "#d2e313",
-                    "statusBar.background": "#d2e313"
-            }
-    }
-}
-
-
----
-File: README.md
-Size: 10201 bytes
-Lines: 215
----
-# Apache OpenServerless (incubating)
-
-Welcome to   [Apache OpenServerless](https://openserverless.apache.org), an incubating project at the [Apache Software Foundation](https://www.apache.org) 
-
-- If you want to **install** Apache OpenServerless  in cloud go [here](https://openserverless.apache.org/docs/installation/).
-- If you want to **understand** what this project is check the [original proposal](https://cwiki.apache.org/confluence/display/INCUBATOR/OpenServerlessProposal). 
-- If you want to **contribute** to the project, read on this README to setup a **development** environment.
-- If you want to **chat** with us, join  [our Discord server](https://bit.ly/openserverless-discord).
-- If you want to **locally install**  open serverless for test or development, read on.
-
-## Test Environment Overview
-
-Apache OpenServerless is a complex project with lots of dependencies. It also needs a Kubernetes cluster to be executed, tested and developed on.
-
-To quickly create a development enviromnemt we use a virtual machine in your workstation created with  [multipass](https://multipass.run/). 
-
-You need a virtual machine with at least 8GB of memory and 4 VCPU so your development workstation probably needs at least 16GB and 6 VCPU. Your mileage may vary.
-
-Read on how to create a test environment.
-
-## Install Multipass
-
-Here we describe how to setup the development virtual machine on Linux, Mac and Windows using multipass. First, install multipass.
-
-- On Mac, if you already have [brew](https://brew.sh/), installing it is as easy as to type `brew install --cask multipass`.
-
-- On Linux, if you already have [snap](https://snapcraft.io/), installing it is as easy as type `sudo snap install multipass`.
-
-- On Windows, you need Windows 10 Pro/Enterprise/Education v1803 or later, or any Windows 10 with VirtualBox. Make sure your local network is designated as private, otherwise Windows prevents Multipass from starting.
-
-Download the multipass installer from [here](https://multipass.run/download/windows) and run the installer. Pick Hyperv in preference, VirtualBox as an alternative.
-
-- Alternative installation options are available [here](https://multipass.run/install)
-
-## Setup a development VM using multipass
-
-The steps and the commands to install the development VM are the same in Linux, Windows and Mac.
-
-Once you have `multipass` installed, open a terminal or powershell and type the following command:
-
-```
-multipass launch -nopsv -c6 -d40g -m16g --cloud-init https://raw.githubusercontent.com/apache/openserverless/main/cloud-init.yaml
-```
-
-Wait until the vm is launched and you see messages like  `Launched: openserverless` (message can be different depending on multipass version effectively installed).
-
-Complete the installation with the following command:
-
-```
-multipass exec opsv ./waitready
-```
-
-Your VM is ready. 
-
-## (Optional) Configure Kubectl access
-
-If you need administrative access to the vm, copy the `.kube/config` file inside the VM locally, then check if you have access:
-
-```
-mkdir $HOME/.kube
-# warning this overwrites an exiting kube config
-multipass exec opsv cat .kube/config >$HOME/.kube/config
-# you need kubectl installed
-kubectl get nodes
-```
-
-You should see something like this:
-
-```
-NAME             STATUS   ROLES                  AGE     VERSION
-opsv             Ready    control-plane,master   4h58m   v1.29.6+k3s1
-```
-
-# Development Environment Overview
-
-If you only want to test OpenServerless, stop here. You should have a working environment.
-
-The rest of this readme describes how to create a development enviroment within the vm.
-
-You need to setup the test environment with multipass before going on with the Development Environment.
-
-As an IDE we use [VSCode](https://code.visualstudio.com/) as it allows [Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) within the virtual machine, and we provide a workspace for it.
-
-You may setup the environment by yourself, but it can take a lot of time so we prepared a procedure to setup quickly a ready-to-use development environment which runs the same on Windows, Linux and Mac. 
-
-Our development environment uses a virtual machine based on Ubuntu 24.04. The virtual environemnt is initialized with a [cloud-init](https://cloud-init.io/) script we provide. 
-
-The script installs [k3s](https://k3s.io/) as Kubernetes engine and [nix](https://nixos.org/download/#download-nix) to setup development environments. The project includes multiple subprojects, each one with a different set of dependencies so we use [direnv](https://direnv.net/) to automatically activate the right tools when you open a terminal.
-
-*NOTE*: of course you can operate variations. It should be relatively easy to run the development virtual machine in a cloud provider using the provided cloud-init script. Basically all the cloud providers allows to build a VM using cloud-init.
-We do not provide instructions how to setup on the various cloud provider (yet).
-
-You can even setup the development environment by yourself without using the virtual machine, and use a different IDE, but adapting the configuration for your IDE is up to you and could be very time-consuming. Our development environment is the result of a few years of fine tuning, so we do not expect it will be easy to change.
-
-## Install openserverless and tools in the VM
-
-By default the vm is only for testing, there is no development code inside.
-
-If you are a developer, fefore accessing the VM use this command to dowload the soucre code and tools you need to for development:
-
-```
-multipass exec opsv ./i-am-a-developer
-```
-
-You may need to wait a little bit before everything is ready.
-
-Once everything is ready, read on to configure access to the vm using VSCode.
-
-## Configure SSH access for VSCode
-
-To access the virtual machine from VSCode you need to setup a ssh key and create a configuration. Open a terminal (powershell on Windows) and follow those steps:
-
-1. Check if you already have a key in `$HOME/.ssh/id_rsa`. If not, generate one with `ssh-keygen -t rsa` then press enter to confirm.
-
-2. Copy the key in the virtual machine to allow no password access:
-
-```
-multipass transfer $HOME/.ssh/id_rsa.pub opsv:
-multipass exec opsv -- bash -c "cat id_rsa.pub | tee -a .ssh/authorized_keys"
-```
-
-3. Create a configuration named `opsv` to easily access it.
-
-First type `multipass list`. You will see something like this:
-
-```
-Name                    State             IPv4             Image
-opsv                    Running           10.6.73.253      Ubuntu 24.04 LTS
-                                          10.42.0.0
-                                          10.42.0.1
-```
-
-Take note of the `<IP>` in the `opsv` line (in this example `10.6.73.253` but your value can be different)
-
-Use an editor to add to the file `~/.ssh/config` the following:
-
-```
-Host opsv
-  Hostname <IP>
-  User ubuntu
-  IdentityFile ~/.ssh/id_rsa
-```
-
-4. Check you have access without password:
-
-```
-ssh opsv
-```
-
-Once you accessed the VM configure git with your username and email:
-
-```
-git config --global user.name "<your-name>"
-git config --global user.email "<your-email>"
-```
-
-## Access the virtual machine with VSCode
-
-1. Install [VSCode](https://code.visualstudio.com/)
-
-2. Type F1 then "Install Extensions" (or click on the task bar the package icon)
-
-3. Search "remote ssh" and install the extension "Remote - SSH"
-
-4. Type F1 then "Connect" (or click on the `><` symbol in the corner to the left at the bottom) and select "Remote-SSH: Connect Current Windows to Host"
-
-5. Click on `opsv` then select Linux if requested
-
-6. Click on the menu bar on `File` then `Openworkspace from file`, then select the `openserverless` folder and open one of the workspaces. Currently:
-
-- `openserverless-cli.code-workspace`: for the CLI along with task
-- `openserverless-operator.code-workspace`: for the Operator alone
-- `openserverless.code-workspace`: for the root with the Operator and the site
-
-Select `Linux` and then `Trust the authors` if requested.
-
-## Access to the subprojects
-
-Now you have all the repositories in your virtual machine and the subprojects. Furthermore, in the VM it is configured `nix` that will setup all the dependencies to develop the subprojects, and `direnv` that activates the right dependencies when you open the terminal in a subproject.
-
-For example try to execute `Terminal > New Terminal` and you will see you can choose the subproject. If you select `website` for example, the system will download all the dependencies to build the web site, in this case `hugo` and `npm` and install the required tools `postcss`.
-
-## Use Git Submodules
-
-Apache OpenServerless uses git submodules.
-
-This means in practice two things: you have to do Pull Requests and changes forking the subprojects individually.
-
-Then you have from time to time to update the whole subtree to the latest releases of all the subprojects.
-
-### Contributing to subprojects
-
-To contribute to a subproject:
-
-- fork a subproject: for example `github.com/apache/openserverless-website` into `github.com/<username>/openserverless-website`
-- add a remote to the subproject to point to your fork: for example after opening the `website` terminal, add `git remote add <username> github.com/<username>/openserverless-website`
-- now you can change the code and push in your fork: `git push <username> main`
-- you can now contribute a Pull Request
-
-### Syncronize the tree
-
-Open a terminal in the `root` subproject and type `./update-tree.sh`. This script will update all the subprojects to the latest available version on the main repo.
-
-Do not worry about contributing PR to update dependencies as the maintainers will periodically take care of this.
-
-## Cleanup
-
-If you do not want to keep the VM anymore, ensure you have backed up all your files. Then remove it from your cloud provider (check your cloud provider documentation).
-
-For multipass, use the following commands to cleanup:
-
-```
-multipass delete opsv --purge
-```
+Apache OpenServerless (Incubating) is an effort undergoing incubation at the Apache
+Software Foundation (ASF), sponsored by the Apache Incubator PMC.
+
+Incubation is required of all newly accepted projects until a further review
+indicates that the infrastructure, communications, and decision making process
+have stabilized in a manner consistent with other successful ASF projects.
+
+While incubation status is not necessarily a reflection of the completeness
+or stability of the code, it does indicate that the project has yet to be
+fully endorsed by the ASF.
 
 
 
 ---
-File: ROADMAP.md
-Size: 1624 bytes
-Lines: 26
+File: update-tree.sh
+Size: 104 bytes
+Lines: 4
 ---
-# Roadmap
+#!/bin/bash
+git pull origin main --rebase
+git submodule update --recursive --remote
+bash sync-branch.sh
 
-The roadmap is a high level overview of work we would like to see implemented. For more details and discussion of new features, improvements or bugs, please see the [issue list](https://github.com/apache/openserverless/issues) in GitHub. 
-
-The order of the items does not pretend to to establish the project priorities.
-
-* OpenServerless Operator
-    * Improvement: migrate to newer OpenWhisk 2.0.0 (controller+secheduler+invoker)
-    * New: Integrate Apache Apisix
-    * New: Implements admission webhooks for wsk and wsku resources
-    * New: Implements a generic S3 Api aware plugin for User and Bucket creations
-    * Improvement: Migrate to newer version of MINIO server
-    * Improvement: Migrate to newer version os Postgres SQL
-    * Improvement: Update to latest kopf version and latest Python version
-    * Improvement: Deploy default nuvolaris namespace as a normal wsku resources
-    * Improvement: Handle CouchDb init task as Operator managed task
-    * Improvement: Use base images with smaller size for fast loading
-    * New: Integrate Argo Events and implements system action to support deployment of argo events resources
-    * New: Implement a new customizable Job to perform CouchDb maintenance task (database compaction, activations cleanup)
-    * Refactoring: Adopt a plugin based implemenation
-* OpenServerless CLI (aka ops)
-    * TODO 
-* OpenServerless Tasks
-    * New: implemens task to schedule actions using argo events supporting actions
-* OpenServerless runtimes
-    * Improvement: call to runtime at / should implement /run behavior as OpenWhisk web actions.
 
 ---
 File: sync-branch.sh
-Size: 703 bytes
+Size: 678 bytes
 Lines: 26
 ---
 #!/bin/bash
@@ -1154,204 +412,415 @@ else
 fi
 
 ---
-File: update-tree.sh
-Size: 108 bytes
-Lines: 4
+File: bash_aliases
+Size: 3549 bytes
+Lines: 118
 ---
-#!/bin/bash
-git pull origin main --rebase
-git submodule update --recursive --remote
-bash sync-branch.sh
+## NOTE! This script should be sourced, not executed. 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+alias va="vi ~/.bash_aliases ; source ~/.bash_aliases"
+
+# prompt
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+}
+export PS1="[\h:\[\e[32m\]\w:\[\e[91m\]\$(parse_git_branch)\[\e[00m\]]\n$ "
 
 
----
-File: VARIABLES.md
-Size: 2769 bytes
-Lines: 42
----
-# Variables in OpenServerless Task
-
-This document lists general guidelines to define OpenServerless Tasks variable via the `ops` cli.
-
-## General info:
-
-OpenServerless Tasks variable are typically set issuing a command like `ops config VARIABLE=<value>`. These variable are stored under the `~/.ops/config.json` file. Variables name are splitted over the `_` character and the resulting parts are used to compose a json nested object having all the parts, that is given a variable with value `OPERATOR_COMPONENT_MINIO=true` the resulting json persisted into the configuration file will be something like
-
-```json
-{
-    "operator":{
-        "component":{
-            "minio":true
+function secrets {
+    if ! which op
+    then echo "download the op cli from https://developer.1password.com/docs/cli/get-started/"
+         return
+    fi
+    if ! test -e .env.dist
+    then echo "no .env.dist listing the required secrets" 
+         return
+    fi
+    echo "reading .env.dist to generate .env and .env.src from 1password"
+    echo "I OVERWRITE the existing files, type your password or interrupt now"
+    eval $(op signin)
+    rm -f .env .env.src
+    cat .env.dist | awk '{
+        if(match($1, /^(.*)=(.*):/, a)) {
+            print a[1] " op://secrets/" a[2] "/" a[1]
         }
+    }' | while read VAR SEC 
+    do 
+        VAL="$(op read $SEC)"
+        echo read $VAR 
+        echo "$VAR=$VAL" >>.env
+        echo "echo export and config $VAR" >>.env.src
+        echo "export $VAR=\"$VAL\"" >>.env.src
+        echo "nuv -config \"$VAR=$VAL\""  >>.env.src
+    done
+    source .env.src
+}
+
+export KNS="default"
+alias k='kubectl -n $KNS'
+alias kg='kubectl -n $KNS get'
+alias kgy='kubectl -n $KNS -o yaml get'
+alias kaf='kubectl -n $KNS apply -f'
+alias kde='kubectl -n $KNS describe'
+alias kdel='kubectl -n $KNS delete'
+alias kin="kubectl cluster-info"
+
+function kex { 
+  ME=$1
+  CMD=${2:-bash} 
+  kubectl -n $KNS exec -ti $(kubectl -n $KNS get po | awk "/$ME/"'{print $1}') -- $CMD
+}
+
+function klo {
+  ME=$1
+  shift
+  kubectl -n $KNS logs $(kubectl -n $KNS get po | awk "/$ME/"'{print $1}') "$@"
+} 
+
+function kns {
+  if test -z "$1"
+  then kubectl get ns
+       echo "*** current: $KNS ***"
+  else export KNS="$1"
+       kubectl config set-context --current --namespace "$1"
+  fi
+}
+
+alias kwa="watch kubectl get po,deploy,sts,jobs,svc,ingress --no-headers"
+alias kwp="watch kubectl get po,deploy,sts,jobs --no-headers"
+alias kws="watch kubectl get svc,ingress --no-headers"
+alias kwc="watch kubectl get cm,secret --no-headers"
+
+alias kfin='kubectl patch -p {"metadata":{"finalizers":[]}} --type=merge' 
+
+alias ga="git add"
+alias gst="git status"
+alias glog="git log --pretty=oneline"
+alias gdf="git diff --name-only"
+alias gcm="git commit -m"
+alias gcam="git commit -a -m"
+alias gpom="git push origin main"
+
+function gsnap {
+  if test -z "$1"
+  then echo msg please
+  else x=""; for i in "$@" ; do x="$x$i " ; done
+       git commit -a -m "$x" 
+       git push 
+  fi
+}
+
+alias t=task
+alias tt='task -d ..'
+alias ttt='task -d ../..'
+alias dtag="date +%y%m%d%H"
+alias lenv='export $(xargs <.env)'
+alias nssh="ssh -oStrictHostKeyChecking=no"
+alias gr="grep -nr"
+
+---
+File: .gitmodules
+Size: 902 bytes
+Lines: 32
+---
+[submodule "site"]
+	path = site
+	url = https://github.com/apache/openserverless-site
+	branch = main
+[submodule "cli"]
+	path = cli
+	url = https://github.com/apache/openserverless-cli
+	branch = main
+[submodule "operator"]
+	path = olaris-op
+	url = https://github.com/apache/openserverless-operator
+	branch = main
+[submodule "testing"]
+	path = testing
+	url = https://github.com/apache/openserverless-testing
+	branch = main
+[submodule "task"]
+	path = olaris
+	url = https://github.com/apache/openserverless-task
+	branch = main
+[submodule "runtimes"]
+	path = runtimes
+	url = https://github.com/apache/openserverless-runtimes
+	branch = main
+[submodule "vscode"]
+	path = vscode
+	url = https://github.com/apache/openserverless-vscode-extension
+        branch = main
+[submodule "openserverless-devcontainer"]
+	path = devcontainer
+	url = https://github.com/apache/openserverless-devcontainer
+        branch = main
+
+
+---
+File: NOTICE
+Size: 184 bytes
+Lines: 6
+---
+Apache OpenServerless (Incubating)
+Copyright 2024 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+---
+File: .gitignore
+Size: 52 bytes
+Lines: 5
+---
+.attic/
+.vscode/
+.idea/
+**/.DS_Store
+network-cache/
+
+
+---
+File: cloud-init.yaml
+Size: 3346 bytes
+Lines: 103
+---
+#cloud-config
+apt_update: true
+apt_upgrade: true
+packages:
+  - at
+
+users:
+  - name: ubuntu
+    uid: 1000
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+write_files:
+  - path: /etc/cloud-init.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+      echo "OPS_CLOUD_INIT_VER=3" >>/etc/environment
+      IP="$(ip -o -4 addr | awk '$2 ~/en/ { print $4}' | cut -d/ -f1)"
+      # install k3s, direnv, task
+      curl -sfL https://get.k3s.io | sh -
+      # set home and user
+      USR="$(getent passwd 1000 | awk -F: '{print $1}')"
+      HOME="/home/$USR"
+      # copy authkey if there is a root one
+      mkdir -p /home/$USR/.ssh
+      if test -e /root/.ssh/authorized_keys
+      then cat /root/.ssh/authorized_keys >>/home/$USR/.ssh/authorized_keys
+      fi
+      # access k3s
+      mkdir -p "$HOME/.kube"
+      cat /etc/rancher/k3s/k3s.yaml "$HOME/.kube/config" | sed -e 's!server: https://127.0.0.1:!server: https://'$IP':!' >"$HOME/.kube/config"
+      echo "export KUBECONFIG=/home/$USR/.kube/config" >>$HOME/.bashrc
+      chown -Rvf "$USR" /home/$USR
+      #sudo -u $USR bash /etc/install-opsv.sh
+      echo "== DONE =="
+
+  - path: /etc/install-opsv.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+        curl -sL bit.ly/get-ops | bash
+        # TODO: use the released version not main
+        echo "export OPS_BRANCH=main" >> ~/.bashrc
+        source ~/.bashrc
+        ops -t
+        ops -info
+        # configure opsv
+        ops config slim 
+        IP="$(ip -o -4 addr | awk '$2 ~/en/ { print $4}' | cut -d/ -f1)"
+        ops config apihost "$IP.nip.io"
+        ops setup cluster
+
+  - path: /home/ubuntu/waitready
+    permissions: '0755'
+    owner: ubuntu:ubuntu
+    defer: true
+    content: |
+      #!/bin/bash
+      sudo cloud-init status --wait
+      tail -f /tmp/cloud-init.log | while read line
+      do echo "$line"
+        if [[ "$line" == *"== DONE =="* ]]
+        then exit 0
+        fi
+      done
+  
+  - path: /home/ubuntu/i-am-a-developer
+    permissions: '0755'
+    defer: true
+    owner: ubuntu:ubuntu
+    content: |
+      # get openserverless sources
+      cd $HOME
+      # install task and skywalking-eyes
+      sudo snap install task --classic
+      sudo snap install go --classic
+      go install github.com/apache/skywalking-eyes/cmd/license-eye@latest
+      echo "export PATH=\$PATH:\$HOME/go/bin" >> .bashrc
+      # install direnv and nix
+      curl -sL https://nixos.org/nix/install | sh
+      source .profile
+      curl -sL https://direnv.net/install.sh | sudo bash
+      echo 'eval "$(direnv hook bash)"' >> .bashrc
+      source .bashrc
+      # setup openserverless
+      git clone https://github.com/apache/openserverless.git --recurse-submodules
+      cd openserverless 
+      bash sync-branch.sh
+      bash direnv-init.sh
+      # TODO add a .git-hooks directory with hooks
+      #git config core.hooksPath .git-hooks
+ 
+runcmd:
+  - |
+    cd /home/ubuntu
+    # add z.sh and .aliases
+    curl -sL "https://raw.githubusercontent.com/rupa/z/master/z.sh" -o ".z.sh"
+    curl -sL https://raw.githubusercontent.com/sciabarracom/openserverless/refs/heads/main/bash_aliases -o ".bash_aliases"
+    echo 'source $HOME/.z.sh' >> .bashrc
+    chown ubuntu:ubuntu .z.sh .bashrc .bash_aliases 
+    echo -e '#!/bin/bash\n/etc/cloud-init.sh 2>&1 >/tmp/cloud-init.log\n' | at now
+
+
+---
+File: openserverless.code-workspace
+Size: 622 bytes
+Lines: 24
+---
+{
+    "folders": [
+            {
+                "name": "operator",
+                "path": "operator"
+            },
+            {
+                "name": "site",
+                "path": "site"
+            },
+            { 
+                "name": "root",
+                "path": "."
+	    }
+        ],
+    "settings": {
+            "workbench.colorCustomizations": {
+                    "activityBar.background": "#d2e313",
+                    "titleBar.activeBackground": "#d2e313",
+                    "titleBar.activeForeground": "#d2e313",
+                    "statusBar.background": "#d2e313"
+            }
     }
 }
-```
-
-## General guidelines:
-
-With the above described behavior we have defined some general rules to be adopted when developing/updating OpenServerless Tasks variables
-
-- Avoid to define variable starting with `OPS_` prefix. This prefix is reserved to the `ops` general config itself, and normally defined inside the `opsroot.json`. It is better to clearly distinguish task variable from the `ops` generated/reserved ones.
-- Considering the `_` splitting rules, prefer variable names composed by a maximum of 4 parts to avoid too much nested `json` structure. This is to simplify readability of the `config.json` if manually inspected.
-- Do not override variable used for configuration, with values obtained after the configuration has been applied (to create/update an Apache OpenServerless instance). This is to guarantee that we can always reconstruct the original `config.json` file. For instance OPS tasks defines an `OPERATOR_CONFIG_APIHOST` that should not be overridden. It is better to define a  `OUTPUT_APIHOST` instead.
-- Specify volume size parameters with numerical value expressed as GB
-- Specify memory size parameters with numerical value expressed as GB
-
-## Variable prefixes category
-
-This is a comprehensive list of variable prefix used in Ops tasks describing their purpose
-
-| Variable Prefix | Purpose |
-|---|---|
-| OPERATOR_COMPONENT_  | Used to defined which OpenServerless Components needs to be deployed by the Operator   |
-| OPERATOR_CONFIG_  | Global Ops Operator configuration parameters   |
-| OPENWHISK_CONTROLLER_  | OpenWhisk Controller Configuration |
-| OPENWHISK_INVOKER_  | OpenWhisk Invoker Configuration |
-| OPENWHISK_  | OpenWhisk General configuration for limits, triggers etc etc |
-| STORAGE_SIZE_  | Used to define various component allocated volumes size |
-| SECRET_  | Used to define autogenerated secret |
-| OUTPUT_  | Used to define calculated configuration parameters that are result of applying ops tasks against a running OpenServerless instance, if applies (APIHOST is one of them) |
-
----
-File: VERSIONS.md
-Size: 1405 bytes
-Lines: 48
----
-# Versioning in OpenServerless
-
-This document lists the versioning scheme adopted in the OpenServerles projects.
-
-# General schema:
-
-We use semantic version in this format:
-
-```
-X.Y.Z-<timestamp>.<variant>
-```
-
-the `<timestamp>`  is in format `yymmddHHMM` and can be obtained easily with  `date +%y%m%d%H%M`
-
-the `<variant>` identifies some state like `<dev>` `<alpha>` or some special cases
-
-# Tags and branches
-
-Whem using versions in tags (like in the CLI) the version MUST have the v in front.  This is  required by GO versioning. 
-
-When using version in branches (like in tasks) the version MUST NOT have the v in from. This makes easier to compare.
-
-# Image tags
-
-We should use versions in docker image tags. We have 2 cases:
-
-- normal tags of OpenServerless images, like the operator:
-
-we follow the general schema: for example apache/openserverless-operator:0.1.0-alpha.2407311416
-
-- runtimes
-
-Runtimes are special because they depends on the language so the version is actually
-
-```
-<language-version>-<timestamp>[.<variant>]
-```
-
-where:
-- `<language-version>` is the version of the language (Python 3.11, NodeJS 20.1 etc)
-- `<timestamp>` is the timestamp (and it is automatically calculated and)
-- `<variant>` identifies a variant of the image, like an `ai` version (3.11-2407311140.ai) or a customer specific version  (3.11-2407311140.ca).
-
-
-
-
-
-
 
 
 ---
-File: .github\PULL_REQUEST_TEMPLATE.md
-Size: 467 bytes
-Lines: 18
+File: get-diff.sh
+Size: 1085 bytes
+Lines: 36
 ---
-<!-- Please make sure you have read and understood the contributing guidelines -->
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
-- [ ] I have registered the PR [changes](../changes).
+F=${1:?file}
 
-### Ⅰ. Describe what this PR did
+FILE=$(realpath $F)
+echo $FILE
 
+CUR="$(basename $FILE)"
+CONT="$(dirname $FILE)"
+while ! test -d ${CONT}.diff
+do 
+    echo $CUR
+    CUR="$(basename $CONT)/$CUR"
+    CONT=$(dirname $CONT)
+    echo $CONT
+done
 
-### Ⅱ. Does this pull request fix one issue?
-<!-- If that, add "fixes #xxx" below in the next line, for example, fixes #97. -->
+echo  CONTAINER $CONT
+echo  PATH $CUR
 
-
-### Ⅲ. Why don't you add test cases (unit test/integration test)? 
-
-
-### Ⅳ. Describe how to verify it
-
-
-### Ⅴ. Special notes for reviews
-
----
-File: .github\ISSUE_TEMPLATE\BUG_REPORT.md
-Size: 793 bytes
-Lines: 39
----
----
-name: Bug Report    
-
-about: If you would like to report an issue to OpenServerless, please use this template.
-
----
-- [ ] I have searched the [issues](https://github.com/apache/openserverless/issues) of this repository and believe that this is not a duplicate.
-
-### Ⅰ. Issue Description
-
-
-### Ⅱ. Describe what happened
-
-  If there is an exception, please attach the exception trace:
-
-```
-Just paste your stack trace here!
-```
-
-
-### Ⅲ. Describe what you expected to happen
-
-
-### Ⅳ. How to reproduce it (as minimally and precisely as possible)
-
-1. xxx
-2. xxx
-3. xxx
-
-Minimal yet complete reproducer code (or URL to code):
-
-
-### Ⅴ. Anything else we need to know?
-
-### Ⅵ. Environment:
-
-- K8S Runtime and version:
-- OPS CLI version:  
-- Others:
+code -r -d ${CONT}.diff/$CUR $CONT/$CUR
 
 ---
-File: .github\ISSUE_TEMPLATE\FEATURE_REQUEST.md
-Size: 427 bytes
-Lines: 14
+File: openserverless-cli.code-workspace
+Size: 457 bytes
+Lines: 21
 ---
+{
+  "folders": [
+    {
+      "name": "cli",
+      "path": "cli"
+    },
+   { 
+      "name": "task",
+      "path": "task"
+    }
+  ],
+  "settings": {
+    "workbench.colorCustomizations": {
+      "activityBar.background": "#5b09e0",
+      "titleBar.activeBackground": "#5b09e0",
+      "titleBar.activeForeground": "#5b09e0",
+      "statusBar.background": "#5b09e0"
+    },
+    "go.goroot": "/nix/store/nnh57s7m672k6snkanhz1kb18skwjpbg-go-1.21.11/share/go"
+  }
+}
+
+
 ---
-name: Feature Request
-
-about: Suggest an idea for OpenServerless
-
+File: direnv-init.sh
+Size: 336 bytes
+Lines: 8
 ---
-## Why you need it?
- Is your feature request related to a problem? Please describe in details
+#!/bin/bash
+cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+git clone https://github.com/nix-community/nix-direnv $HOME/nix-direnv
+mkdir -p $HOME/.config/direnv
+echo 'source $HOME/nix-direnv/direnvrc' >>$HOME/.config/direnv/direnvrc
+find . -name '.envrc' -execdir direnv allow . pwd  \;
+find . -name '.envrc' -execdir direnv exec . pwd  \;
 
-## How it could be?
-A clear and concise description of what you want to happen. You can explain more about input of the feature, and output of it.
 
-## Other related information
-Add any other context or screenshots about the feature request here.

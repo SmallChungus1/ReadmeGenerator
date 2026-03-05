@@ -1,25 +1,20 @@
-Tokens: 210127
+Tokens: 201433
 Repo: apache/dubbo-go-hessian2
 Commit: a444f80f840e7b05d8947635872386151e6ab9bf
-Timestamp: 2026-03-04T19:37:30.118444
+Timestamp: 2026-03-04T19:51:49.172493
 
 --- Repository Structure ---
 .
 ├── .asf.yaml
 ├── .github
 │   ├── ISSUE_TEMPLATE
-│   │   ├── bug-report.md
-│   │   └── enhancement.md
-│   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows
 │       └── github-actions.yml
 ├── .gitignore
 ├── .golangci.yml
-├── CHANGE.md
 ├── LICENSE
 ├── Makefile
 ├── NOTICE
-├── README.md
 ├── array.go
 ├── array_test.go
 ├── before_validate_license.sh
@@ -30,7 +25,6 @@ Timestamp: 2026-03-04T19:37:30.118444
 ├── codec.go
 ├── codec_test.go
 ├── const.go
-├── contributing.md
 ├── date.go
 ├── date_test.go
 ├── decode.go
@@ -170,8 +164,6 @@ Timestamp: 2026-03-04T19:37:30.118444
 ├── java_unknown_exception.go
 ├── java_unknown_exception_test.go
 ├── java_util
-│   ├── README.md
-│   ├── README_CN.md
 │   ├── locale.go
 │   └── uuid.go
 ├── java_util.go
@@ -207,7 +199,6 @@ Timestamp: 2026-03-04T19:37:30.118444
 ├── string_test.go
 ├── test_dubbo
 │   ├── .gitignore
-│   ├── README.md
 │   ├── pom.xml
 │   └── src
 │       └── main
@@ -218,7 +209,6 @@ Timestamp: 2026-03-04T19:37:30.118444
 │                   └── TestDubbo.java
 ├── test_hessian
 │   ├── .gitignore
-│   ├── README.md
 │   ├── pom.xml
 │   └── src
 │       ├── main
@@ -269,21 +259,19 @@ Timestamp: 2026-03-04T19:37:30.118444
 │       └── user_test.go
 └── tools
     └── gen-go-enum
-        ├── README.md
         └── main.go
 
 --- Summary Report ---
 Total files scanned: 231
-Files included: 231
-Files skipped by rule: 0
+Files included: 220
+Files skipped by rule: 11
 Files skipped by size: 0
-Detected languages count: 10
+Detected languages count: 9
 Top 15 largest included files:
   69252 bytes - go.sum
   27893 bytes - test_hessian/src/main/java/test/TestCustomReply.java
   25856 bytes - object_test.go
   16874 bytes - object.go
-  14175 bytes - README.md
   14129 bytes - test_hessian/src/main/java/test/TestThrowable.java
   12963 bytes - codec.go
   12342 bytes - list.go
@@ -292,8 +280,9 @@ Top 15 largest included files:
   11025 bytes - decode.go
   9668 bytes - string.go
   9174 bytes - list_test.go
-  8610 bytes - CHANGE.md
   8501 bytes - const.go
+  8301 bytes - java_exception_test.go
+  7975 bytes - test_hessian/src/main/java/test/TestCustomDecode.java
 -----------------------
 
 ---
@@ -3744,244 +3733,6 @@ func (DecimalSerializer) DecObject(d *Decoder, typ reflect.Type, cls *ClassInfo)
 
 
 ---
-File: CHANGE.md
-Size: 8610 bytes
-Lines: 231
----
-# Release Notes
-
-## v1.12.5
-
-### Bugfixes
-- fix memory leak issue. [#374](https://github.com/apache/dubbo-go-hessian2/pull/374)
-
-## v1.12.4
-
-### Bugfixes
-- fix null encoding for nil pointer. [#368](https://github.com/apache/dubbo-go-hessian2/pull/368)
-
-## v1.12.3
-
-### Bugfixes
-- fix Decoder failed to decode int8/int16 type values of map field in struct. [#366](https://github.com/apache/dubbo-go-hessian2/pull/366)
-
-## v1.12.2
-
-### Bugfixes
-- fix pointer value set. [#361](https://github.com/apache/dubbo-go-hessian2/pull/361)
-
-## v1.12.1
-
-### Bugfixes
-- fix ref to wrong type of map for nil value. [#357](https://github.com/apache/dubbo-go-hessian2/pull/357)
-
-## v1.12.0
-
-### New Features
-- support java wrapper types. [#350](https://github.com/apache/dubbo-go-hessian2/pull/350)
-
-## v1.11.5
-
-### Bugfixes
-- fix empty slice encode/decode error. [#341](https://github.com/apache/dubbo-go-hessian2/pull/341)
-
-## v1.11.4
-
-### Bugfixes
-- fix bytes.AcquireBytes memory leak by [dubbogo/gost](https://github.com/dubbogo/gost/pull/108)
-
-## v1.11.3
-
-### Bugfixes
-- fix java enum decoding incorrectly. [#332](https://github.com/apache/dubbo-go-hessian2/pull/332)
-
-## v1.11.2
-
-### Bugfixes
-- fix java enum variable list decoding error. [#330](https://github.com/apache/dubbo-go-hessian2/pull/330)
-- fix ref list is nil when decoding. [#324](https://github.com/apache/dubbo-go-hessian2/pull/324)
-
-## v1.11.1
-
-### Bugfixes
-- fix not writing class name first when encoding pojo map. [#320](https://github.com/apache/dubbo-go-hessian2/pull/320)
-- fix nil slice decoding to empty slice. [#318](https://github.com/apache/dubbo-go-hessian2/pull/318)
-
-## v1.11.0
-
-### New Features
-- support encode object to map and vice versa. [#309](https://github.com/apache/dubbo-go-hessian2/pull/309)
-
-## v1.10.3
-
-### New Features
-- add a tool for generate hessian2 java enum define golang code. [#304](https://github.com/apache/dubbo-go-hessian2/pull/304)
-
-### Bugfixes
-- fix decode interface map bug. [#303](https://github.com/apache/dubbo-go-hessian2/pull/303)
-- fix decode bool error. [#302](https://github.com/apache/dubbo-go-hessian2/pull/302)
-
-## v1.10.2
-
-### Bugfixes
-- fix list value not unpacked. [#300](https://github.com/apache/dubbo-go-hessian2/pull/300)
-
-## v1.10.1
-
-### Bugfixes
-- support java integer null. [#296](https://github.com/apache/dubbo-go-hessian2/pull/296)
-- fix parse basic type bug. [#298](https://github.com/apache/dubbo-go-hessian2/pull/298)
- 
-## v1.10.0
-
-### New Features
-- support java function param type. [#295](https://github.com/apache/dubbo-go-hessian2/pull/295)
-
-## v1.9.5
-
-### New Features
-- support serialize UUID to string. [#285](https://github.com/apache/dubbo-go-hessian2/pull/285)
-- support encode non-pointer instance for pointer POJO definition. [#289](https://github.com/apache/dubbo-go-hessian2/pull/289)
-
-### Bugfixes
-- fix POJO registration. [#287](https://github.com/apache/dubbo-go-hessian2/pull/287)
-- fix EOF error check. [#288](https://github.com/apache/dubbo-go-hessian2/pull/288)
-- fix go type name for list. [#290](https://github.com/apache/dubbo-go-hessian2/pull/290)
-
-## v1.9.4
-
-### New Features
-- support wrapper classes for Java basic types. [#278](https://github.com/apache/dubbo-go-hessian2/pull/278)
-
-### Bugfixes
-- fix registration ignored for struct with same name in diff package. [#279](https://github.com/apache/dubbo-go-hessian2/pull/279)
-- fix cannot encode pointer of raw type. [#283](https://github.com/apache/dubbo-go-hessian2/pull/283)
-
-## v1.9.3
-
-### New Features
-- add new api `Encoder.ReuseBufferClean()`. [#271](https://github.com/apache/dubbo-go-hessian2/pull/271)
-
-### Bugfixes
-- fix not unpack ref holder for list. [#269](https://github.com/apache/dubbo-go-hessian2/pull/269)
-- fix encode null for empty map, add map tag instead. [#275](https://github.com/apache/dubbo-go-hessian2/pull/275)
-- Fix getArgType reflection value logic. [#276](https://github.com/apache/dubbo-go-hessian2/pull/276)
-
-## v1.9.2
-
-### New Features
-- support java.util.Locale. [#264](https://github.com/apache/dubbo-go-hessian2/pull/264)
-
-## v1.9.1
-
-### Bugfixes
-- fix repeatedly adding list type in type map. [#263](https://github.com/apache/dubbo-go-hessian2/pull/263)
-
-## v1.9.0
-
-### New Features
-- support java UUID object. [#256](https://github.com/apache/dubbo-go-hessian2/pull/256)
-
-### Bugfixes
-- fix map decode error. [#261](https://github.com/apache/dubbo-go-hessian2/pull/261)
-
-## v1.8.2
-
-### Bugfixes
-- fix insufficient bytes for string encoding buffers. [#255](https://github.com/apache/dubbo-go-hessian2/pull/255)
-
-## v1.8.1
-
-### Bugfixes
-- fix get wrong javaclassname for POJO struct. [#247](https://github.com/apache/dubbo-go-hessian2/pull/247)
-- fix not enough buf error when decode date. [#249](https://github.com/apache/dubbo-go-hessian2/pull/249)
-- fix emoji decoding error. [#254](https://github.com/apache/dubbo-go-hessian2/pull/254)
-
-## v1.8.0
-
-### New Features
-- support clean encoder/decoder, discard decode buffer. [#242](https://github.com/apache/dubbo-go-hessian2/pull/242)
-- support encode no pojo object. [#243](https://github.com/apache/dubbo-go-hessian2/pull/243)
-
-### Enhancement
-- change value reference to ptr to improve performance. [#244](https://github.com/apache/dubbo-go-hessian2/pull/244)
-
-### Bugfixes
-- fix issue that cannot decode java generic type. [#239](https://github.com/apache/dubbo-go-hessian2/pull/239)
-
-## v1.7.0
-
-### New Features
-- add GetStackTrace method into Throwabler and its implements. [#207](https://github.com/apache/dubbo-go-hessian2/pull/207)
-- catch user defined exceptions. [#208](https://github.com/apache/dubbo-go-hessian2/pull/208)
-- support java8 time object. [#212](https://github.com/apache/dubbo-go-hessian2/pull/212), [#221](https://github.com/apache/dubbo-go-hessian2/pull/221)
-- support test golang encoding data in java. [#213](https://github.com/apache/dubbo-go-hessian2/pull/213)
-- support java.sql.Time & java.sql.Date. [#219](https://github.com/apache/dubbo-go-hessian2/pull/219)
-
-### Enhancement
-- Export function EncNull. [#225](https://github.com/apache/dubbo-go-hessian2/pull/225)
-
-### Bugfixes
-- fix enum encode error in request. [#203](https://github.com/apache/dubbo-go-hessian2/pull/203)
-- fix []byte field decoding issue. [#216](https://github.com/apache/dubbo-go-hessian2/pull/216)
-- fix decoding error for map in map. [#229](https://github.com/apache/dubbo-go-hessian2/pull/229)
-
-## v1.6.0
-
-### New Features
-- ignore non-exist fields when decoding. [#201](https://github.com/apache/dubbo-go-hessian2/pull/201)
-
-### Enhancement
-- add cache in reflection to improve performance. [#179](https://github.com/apache/dubbo-go-hessian2/pull/179)
-- string decode performance improvement. [#188](https://github.com/apache/dubbo-go-hessian2/pull/188)
-
-### Bugfixes
-- fix attachment lost for nil value. [#191](https://github.com/apache/dubbo-go-hessian2/pull/191)
-- fix float32 accuracy issue. [#196](https://github.com/apache/dubbo-go-hessian2/pull/196)
-
-## v1.5.0
-
-### New Features
-- support java collection.  [#161](https://github.com/apache/dubbo-go-hessian2/pull/161)
-
-### Bugfixes
-- fix skipping fields bug. [#167](https://github.com/apache/dubbo-go-hessian2/pull/167)
-
-
-## v1.4.0
-
-### New Features
-- support BigInteger.  [#141](https://github.com/apache/dubbo-go-hessian2/pull/141)
-- support embedded struct. [#150](https://github.com/apache/dubbo-go-hessian2/pull/150)
-- flat anonymous struct field. [#154](https://github.com/apache/dubbo-go-hessian2/pull/154)
-
-### Enhancement
-- update bytes pool. [#147](https://github.com/apache/dubbo-go-hessian2/pull/147)
-
-### Bugfixes
-- fix check service.Group and service.Interface. [#138](https://github.com/apache/dubbo-go-hessian2/pull/138)
-- fix can't duplicately decode Serializer object. [#144](https://github.com/apache/dubbo-go-hessian2/pull/144)
-- fix bug for encTypeInt32. [#148](https://github.com/apache/dubbo-go-hessian2/pull/148)
-
-
-## v1.3.0
-
-### New Features
-- support skip unregistered pojo. [#128](https://github.com/apache/dubbo-go-hessian2/pull/128)
-
-### Enhancement
-- change nil string pointer value. [#121](https://github.com/apache/dubbo-go-hessian2/pull/121)
-- convert attachments to map[string]string]. [#127](https://github.com/apache/dubbo-go-hessian2/pull/127)
-
-### Bugfixes
-- fix nil bool error. [#114](https://github.com/apache/dubbo-go-hessian2/pull/114)
-- fix tag parse error in decType. [#120](https://github.com/apache/dubbo-go-hessian2/pull/120)
-- fix dubbo version. [#130](https://github.com/apache/dubbo-go-hessian2/pull/130)
-- fix emoji encode error. [#131](https://github.com/apache/dubbo-go-hessian2/pull/131)
-
-
-
----
 File: boolean.go
 Size: 1063 bytes
 Lines: 34
@@ -6199,412 +5950,6 @@ func doTestDateNull(t *testing.T, method string) {
 
 
 ---
-File: README.md
-Size: 14175 bytes
-Lines: 399
----
-# dubbo-go-hessian2
-
-[![Build Status](https://travis-ci.org/apache/dubbo-go-hessian2.png?branch=master)](https://travis-ci.org/apache/dubbo-go-hessian2)
-[![codecov](https://codecov.io/gh/apache/dubbo-go-hessian2/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/dubbo-go-hessian2)
-[![GoDoc](https://godoc.org/github.com/apache/dubbo-go-hessian2?status.svg)](https://godoc.org/github.com/apache/dubbo-go-hessian2)
-[![Go Report Card](https://goreportcard.com/badge/github.com/apache/dubbo-go-hessian2)](https://goreportcard.com/report/github.com/apache/dubbo-go-hessian2)
-![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
-
----
-
-> **Notice: When decoding, the java version of hessian will default skip and ignore non-exist fields.**
-> **From the version of v1.6.0 , dubbo-go-hessian2 will skip non-exist fields too, while that before v1.6.0 will return errors.**
-
-It's a golang hessian library used by [Apache/dubbo-go](https://github.com/apache/dubbo-go).
-
-There is a big performance improvement, and some bugs fix for v1.6.0,
-thanks to [micln](https://github.com/micln), [pantianying](https://github.com/pantianying), [zonghaishang](https://github.com/zonghaishang),
- [willson-chen](https://github.com/willson-chen), [champly](https://github.com/champly).
-
-## Feature List
-
-* [All JDK Exceptions](https://github.com/apache/dubbo-go-hessian2/issues/59)
-* [Field Alias By Alias](https://github.com/apache/dubbo-go-hessian2/issues/19)
-* [Java wrapper type](https://github.com/apache/dubbo-go-hessian2/issues/349)
-* [Java Bigdecimal](https://github.com/apache/dubbo-go-hessian2/issues/89)
-* [Java Date & Time](https://github.com/apache/dubbo-go-hessian2/issues/90)
-* [java8 time.Date](https://github.com/apache/dubbo-go-hessian2/pull/212)
-* [java8 java.sql.Time & java.sql.Date](https://github.com/apache/dubbo-go-hessian2/pull/219)
-* [java UUID](https://github.com/apache/dubbo-go-hessian2/pull/256)
-* [Java Generic Invokation](https://github.com/apache/dubbo-go-hessian2/issues/84)
-* [Java Extends](https://github.com/apache/dubbo-go-hessian2/issues/157)
-* [Dubbo Attachements](https://github.com/apache/dubbo-go-hessian2/issues/49)
-* [Skipping unregistered POJO](https://github.com/apache/dubbo-go-hessian2/pull/128)
-* [Emoji](https://github.com/apache/dubbo-go-hessian2/issues/129)
-
-## hessian type mapping between Java and Go
-
-Cross languages message definition should be careful, the following situations should be avoided:
-
-- define object that only exists in a special language
-- using various java exceptions (using error code/message instead)
-
-So we can maintain a cross language type mapping:
-
-| hessian type                | java type            | golang type                                            |
-|-----------------------------|----------------------|--------------------------------------------------------|
-| **null**                    | null                 | nil                                                    |
-| **binary**                  | byte[]               | []byte                                                 |
-| **boolean**                 | boolean              | bool                                                   |
-| **date**                    | java.util.Date       | time.Time                                              |
-| **double**                  | double               | float64                                                |
-| **int**                     | int                  | int32                                                  |
-| **long**                    | long                 | int64                                                  |
-| **string**                  | java.lang.String     | string                                                 |
-| **list**                    | java.util.List       | slice                                                  |
-| **map**                     | java.util.Map        | map                                                    |
-| **object**                  | custom define object | custom define struct                                   |
-| **big decimal**             | java.math.BigDecimal | github.com/dubbogo/gost/math/big/Decimal               |
-| **big integer**             | java.math.BigInteger | github.com/dubbogo/gost/math/big/Integer               |
-| **date**                    | java.sql.Date        | github.com/apache/dubbo-go-hessian2/java_sql_time/Date |
-| **date**                    | java.sql.Time        | github.com/apache/dubbo-go-hessian2/java_sql_time/Time |
-| **date**                    | all java8 sdk time   | github.com/apache/dubbo-go-hessian2/java8_time         |
-| **Integer**                 | java.lang.Integer    | *int32                                                 |
-| **Byte**                    | java.lang.Byte       | *byte                                                  |
-| **Short**                   | java.lang.Short      | *int16                                                 |
-| **Boolean**                 | java.lang.Boolean    | *bool                                                  |
-| **Long**                    | java.lang.Long       | *int64                                                 |
-| **Float**                   | java.lang.Float      | *float32                                               |
-| **Double**                  | java.lang.Double     | *float64                                               |
-| **Character**               | java.lang.Character  | *hessian.Rune                                          |
-| **OTHER COMMON USING TYPE** |                      |                                                        |
-
-
-## reference
-
-- [hessian serialization](http://hessian.caucho.com/doc/hessian-serialization.html)
-
-## Basic Usage Examples
-
-### Encode To Bytes
-
-```go
-type Circular struct {
-	Value
-	Previous *Circular
-	Next     *Circular
-}
-
-type Value struct {
-	Num int
-}
-
-func (Circular) JavaClassName() string {
-	return "com.company.Circular"
-}
-
-c := &Circular{}
-c.Num = 12345
-c.Previous = c
-c.Next = c
-
-e := NewEncoder()
-err := e.Encode(c)
-if err != nil {
-    panic(err)
-}
-
-bytes := e.Buffer()
-```
-
-### Decode From Bytes
-
-```go
-decodedObject, err := NewDecoder(bytes).Decode()
-if err != nil {
-    panic(err)
-}
-circular, ok := obj.(*Circular)
-// ...
-```
-
-## Customize Usage Examples
-
-#### Encoding filed name
-
-Hessian encoder default converts filed names of struct to lower camelcase, but you can customize it using `hessian` tag.
-
-Example:
-```go
-type MyUser struct {
-	UserFullName      string   `hessian:"user_full_name"`
-	FamilyPhoneNumber string   // default convert to => familyPhoneNumber
-}
-
-func (MyUser) JavaClassName() string {
-	return "com.company.myuser"
-}
-
-user := &MyUser{
-    UserFullName:      "username",
-    FamilyPhoneNumber: "010-12345678",
-}
-
-e := hessian.NewEncoder()
-err := e.Encode(user)
-if err != nil {
-    panic(err)
-}
-```
-
-The encoded bytes of the struct `MyUser` is as following:
-```text
- 00000000  43 12 63 6f 6d 2e 63 6f  6d 70 61 6e 79 2e 6d 79  |C.com.company.my|
- 00000010  75 73 65 72 92 0e 75 73  65 72 5f 66 75 6c 6c 5f  |user..user_full_|
- 00000020  6e 61 6d 65 11 66 61 6d  69 6c 79 50 68 6f 6e 65  |name.familyPhone|
- 00000030  4e 75 6d 62 65 72 60 08  75 73 65 72 6e 61 6d 65  |Number`.username|
- 00000040  0c 30 31 30 2d 31 32 33  34 35 36 37 38           |.010-12345678|
-```
-
-#### Decoding filed name
-
-Hessian decoder finds the correct target field though comparing all filed names of struct one by one until matching.
-
-The following example shows the order of the matching rules:
-```go
-type MyUser struct {
-	MobilePhone      string   `hessian:"mobile-phone"`
-}
-
-// You must define the tag of struct for lookup filed form encoded binary bytes, in this case：
-// 00000000  43 12 63 6f 6d 2e 63 6f  6d 70 61 6e 79 2e 6d 79  |C.com.company.my|
-// 00000010  75 73 65 72 91 0c 6d 6f  62 69 6c 65 2d 70 68 6f  |user..mobile-pho|
-// 00000020  6e 65 60 0b 31 37 36 31  32 33 34 31 32 33 34     |ne`.17612341234|
-//
-// mobile-phone(tag lookup) => mobilePhone(lowerCameCase) => MobilePhone(SameCase) => mobilephone(lowercase)
-// ^ will matched
-
-
-type MyUser struct {
-	MobilePhone      string
-}
-
-// The following encoded binary bytes will be hit automatically:
-//
-// 00000000  43 12 63 6f 6d 2e 63 6f  6d 70 61 6e 79 2e 6d 79  |C.com.company.my|
-// 00000010  75 73 65 72 91 0b 6d 6f  62 69 6c 65 50 68 6f 6e  |user..mobilePhon|
-// 00000020  65 60 0b 31 37 36 31 32  33 34 31 32 33 34        |e`.17612341234|
-//
-// mobile-phone(tag lookup) => mobilePhone(lowerCameCase) => MobilePhone(SameCase) => mobilephone(lowercase)
-//                             ^ will matched
-//
-// 00000000  43 12 63 6f 6d 2e 63 6f  6d 70 61 6e 79 2e 6d 79  |C.com.company.my|
-// 00000010  75 73 65 72 91 0b 4d 6f  62 69 6c 65 50 68 6f 6e  |user..MobilePhon|
-// 00000020  65 60 0b 31 37 36 31 32  33 34 31 32 33 34        |e`.17612341234|
-//
-// mobile-phone(tag lookup) => mobilePhone(lowerCameCase) => MobilePhone(SameCase) => mobilephone(lowercase)
-//                                                           ^ will matched
-//
-// 00000000  43 12 63 6f 6d 2e 63 6f  6d 70 61 6e 79 2e 6d 79  |C.com.company.my|
-// 00000010  75 73 65 72 91 0b 6d 6f  62 69 6c 65 70 68 6f 6e  |user..mobilephon|
-// 00000020  65 60 0b 31 37 36 31 32  33 34 31 32 33 34        |e`.17612341234|
-//
-// mobile-phone(tag lookup) => mobilePhone(lowerCameCase) => MobilePhone(SameCase) => mobilephone(lowercase)
-//                                                                                    ^ will matched
-
-```
-
-#### Encoding param name
-
-When a Java method declares an argument as a parent class, it actually hope receives a subclass，
-You can specify the encoding type of the parameter separately.
-
-##### java-server
-
-```java
-public abstract class User {
-}
-
-public class MyUser extends User implements Serializable {
-
-    private String userFullName;
-
-    private String familyPhoneNumber;
-}
-
-public interface UserProvider {
-    String GetUser(User user);
-}
-
-public class UserProviderImpl implements UserProvider {
-    public UserProviderImpl() {
-    }
-    
-    public String GetUser(User user) {
-        MyUser myUser=(MyUser)user;
-        return myUser.getUserFullName();
-    }
-}
-
-```
-
-##### go-client
-
-```go
-type MyUser struct {
-    UserFullName      string   `hessian:"userFullName"`
-    FamilyPhoneNumber string   // default convert to => familyPhoneNumber
-}
-
-func (m *MyUser) JavaClassName() string {
-    return "com.company.MyUser"
-}
-
-func (m *MyUser) JavaParamName() string {
-    return "com.company.User"
-}
-
-type UserProvider struct {
-    GetUser func(ctx context.Context, user *MyUser) (string, error) `dubbo:"GetUser"`
-}
-```
-
-
-
-#### Set method Alias
-
-When the Go client calls the Java server, the first letter of the method is converted to lowercase by default,you can use the dubbo tag to set method alias.
-
-```go
-type UserProvider struct {
-    GetUser func(ctx context.Context) (*User, error) `dubbo:"GetUser"`
-}
-```
-
-#### hessian.SetTagIdentifier
-
-You can use `hessian.SetTagIdentifier` to customize tag-identifier of hessian, which takes effect to both encoder and decoder.
-
-Example:
-
-```go
-hessian.SetTagIdentifier("json")
-
-type MyUser struct {
-	UserFullName      string   `json:"user_full_name"`
-	FamilyPhoneNumber string   // default convert to => familyPhoneNumber
-}
-
-func (MyUser) JavaClassName() string {
-	return "com.company.myuser"
-}
-
-user := &MyUser{
-    UserFullName:      "username",
-    FamilyPhoneNumber: "010-12345678",
-}
-
-e := hessian.NewEncoder()
-err := e.Encode(user)
-if err != nil {
-    panic(err)
-}
-```
-
-The encoded bytes of the struct `MyUser` is as following:
-
-```text
- 00000000  43 12 63 6f 6d 2e 63 6f  6d 70 61 6e 79 2e 6d 79  |C.com.company.my|
- 00000010  75 73 65 72 92 0e 75 73  65 72 5f 66 75 6c 6c 5f  |user..user_full_|
- 00000020  6e 61 6d 65 11 66 61 6d  69 6c 79 50 68 6f 6e 65  |name.familyPhone|
- 00000030  4e 75 6d 62 65 72 60 08  75 73 65 72 6e 61 6d 65  |Number`.username|
- 00000040  0c 30 31 30 2d 31 32 33  34 35 36 37 38           |.010-12345678|
-```
-
-#### Using Java collections
-
-By default, the output of Hessian Java impl of a Java collection like java.util.HashSet will be decoded as `[]interface{}` in `go-hessian2`.
-To apply the one-to-one mapping relationship between certain Java collection class and your Go struct, examples are as follows:
-
-```go
-//use HashSet as example
-//define your struct, which should implements hessian.JavaCollectionObject
-type JavaHashSet struct {
-	value []interface{}
-}
-
-//get the inside slice value
-func (j *JavaHashSet) Get() []interface{} {
-	return j.value
-}
-
-//set the inside slice value
-func (j *JavaHashSet) Set(v []interface{}) {
-	j.value = v
-}
-
-//should be the same as the class name of the Java collection
-func (j *JavaHashSet) JavaClassName() string {
-	return "java.util.HashSet"
-}
-
-func init() {
-        //register your struct so that hessian can recognized it when encoding and decoding
-	SetCollectionSerialize(&JavaHashSet{})
-}
-```
-
-
-
-## Notice for inheritance
-
-`go-hessian2` supports inheritance struct, but the following situations should be avoided.
-
-+ **Avoid fields with the same name in multiple parent struct**
-
-The following struct `C` have inherited field `Name`(default from the first parent),
-but it's confused in logic.
-
-```go
-type A struct { Name string }
-type B struct { Name string }
-type C struct {
-	A
-	B
-}
-```
-
-+ **Avoid inheritance for a pointer of struct**
-
-The following definition is valid for golang syntax,
-but the parent will be nil when create a new Dog, like `dog := Dog{}`,
-which will not happen in java inheritance,
-and is also not supported by `go-hessian2`.
-
-```go
-type Dog struct {
-	*Animal
-}
-```
-
-## Strict Mode
-
-Default, hessian2 will decode an object to map if it's not being registered.
-If you don't want that, change the decoder to strict mode as following, 
-and it will return error when meeting unregistered object.
-
-```go
-e := hessian.NewDecoder(bytes)
-e.Strict = true // set to strict mode, default is false
-
-// or 
-e := hessian.NewStrictDecoder(bytes)
-```
-
-## Tools
-
-###  tools/gen-go-enum
-
-A tool for generate hessian2 java enum define golang code. Read more [details](tools/gen-go-enum/README.md).
-
-
----
 File: java_sql_time_test.go
 Size: 3142 bytes
 Lines: 102
@@ -7169,77 +6514,6 @@ func TestJavaUtilLocale(t *testing.T) {
 	assert.Equal(t, java_util.ToLocale(java_util.CANADA), java_util.GetLocaleFromHandler(canada.(*java_util.LocaleHandle)))
 	assert.Equal(t, java_util.ToLocale(java_util.ROOT), java_util.GetLocaleFromHandler(root.(*java_util.LocaleHandle)))
 }
-
-
----
-File: contributing.md
-Size: 1844 bytes
-Lines: 64
----
-Contributing to Dubbo-go-hessian2
-
-## 1. Branch
-
-  >- The name of branches `SHOULD` be in the format of `feature/xxx`.
-  >- You `SHOULD` checkout a new branch after a feature branch already being merged into upstream, `DO NOT` commit in the old branch.
-
-## 2. Pull Request
-
-### 2.1. Title Format
-
-The pr head format is `<head> <subject>`. The title should be simpler to show your intent.
-
-The title format of the pull request `MUST` follow the following rules:
-
-  >- Start with `Doc:` for adding/formatting/improving docs.
-  >- Start with `Mod:` for formatting codes or adding comment.
-  >- Start with `Fix:` for fixing bug, and its ending should be ` #issue-id` if being relevant to some issue.
-  >- Start with `Imp:` for improving performance.
-  >- Start with `Ftr:` for adding a new feature.
-  >- Start with `Add:` for adding struct function/member.
-  >- Start with `Rft:` for refactoring codes.
-  >- Start with `Tst:` for adding tests.
-  >- Start with `Dep:` for adding depending libs.
-  >- Start with `Rem:` for removing feature/struct/function/member/files.
-
-## 3. Code Style
-
-### 3.1 log
-
->- 1 when logging the function's input parameter, you should add '@' before input parameter name.
-
-### 3.2 naming
-
->- 1 do not use an underscore in package name, such as `filter_impl`.
->- 2 do not use an underscore in constants, such as `DUBBO_PROTOCOL`. use 'DubboProtocol' instead.
-
-### 3.3 comment
-
->- 1 there should be comment for every export func/var.
->- 2 the comment should begin with function name/var name.
-
-### 3.4 import
-
-We dubbogo import blocks should be splited into 3 blocks.
-
-```Go
-// block 1: the go internal package
-import (
-  "fmt"
-)
-
-// block 2: the third package
-import (
-  "github.com/dubbogo/xxx"
-
-  "github.com/RoaringBitmap/roaring"
-)
-
-// block 3: the dubbo-go package
-import (
-  "github.com/apache/dubbo-go/common"
-)
-```
 
 
 ---
@@ -13778,106 +13052,6 @@ func decodeFlagAndLengthAndData(t *testing.T, d *hessian.Decoder, expect interfa
 
 
 ---
-File: tools/gen-go-enum/README.md
-Size: 2264 bytes
-Lines: 94
----
-# gen-go-enum
-
-A tool for generate hessian2 java enum define golang code.
-
-```sh
-go build -o gen-go-enum tools/gen-go-enum/main.go
-```
-
-For example, run command `gen-go-enum -c com.test.enums.TestColorEnum -v RED -v BLUE -v YELLOW` will create a golang code file like this.
-
-```go
-package enum
-
-import (
-	"strconv"
-)
-
-import (
-	hessian "github.com/apache/dubbo-go-hessian2"
-)
-
-const (
-	TestColorEnumRed TestColorEnum = iota
-	TestColorEnumBlue
-	TestColorEnumYellow
-)
-
-var _TestColorEnumValues = map[TestColorEnum]string{
-	TestColorEnumRed: "RED",
-	TestColorEnumBlue: "BLUE",
-	TestColorEnumYellow: "YELLOW",
-}
-
-var _TestColorEnumEntities = map[string]TestColorEnum{
-	"RED": TestColorEnumRed,
-	"BLUE": TestColorEnumBlue,
-	"YELLOW": TestColorEnumYellow,
-}
-
-type TestColorEnum hessian.JavaEnum
-
-func (e TestColorEnum) JavaClassName() string {
-	return "com.test.enums.TestColorEnum"
-}
-
-func (e TestColorEnum) String() string {
-	if v, ok := _TestColorEnumValues[e]; ok {
-		return v
-	}
-
-	return strconv.Itoa(int(e))
-}
-
-func (e TestColorEnum) EnumValue(s string) hessian.JavaEnum {
-	if v, ok := _TestColorEnumEntities[s]; ok {
-		return hessian.JavaEnum(v)
-	}
-
-	return hessian.InvalidJavaEnum
-}
-
-func NewTestColorEnum(s string) TestColorEnum {
-	if v, ok := _TestColorEnumEntities[s]; ok {
-		return v
-	}
-
-	return TestColorEnum(hessian.InvalidJavaEnum)
-}
-
-func init() {
-	for v := range _TestColorEnumValues {
-		hessian.RegisterJavaEnum(v)
-	}
-}
-```
-
-You can specify more options, like the usage.
-
-```sh
-gen-go-enum can generate golang code for hessian2 java enum.
-
-Usage: gen-go-enum -c java_classname [-p golang_package_name] [-e golang_enum_name] -v java_enum_value [-v java_enum_value] [-o target_file]
-
-Options
-  -c	java class name (eg: com.test.enums.TestEnum)
-  -p	golang package name, use 'enum' when not specified (eg: test_enum)
-  -e	golang enum type name, use java class name when not specified (eg: TestEnum)
-  -v	java enum values, can specify multiple (eg: -v TEST1 -v TEST2 -v TEST3)
-  -o 	golang code file path, stored in the current directory when not specified
-
-Example
-  gen-go-enum -c com.test.enums.TestColorEnum -v RED -v BLUE -v YELLOW
-  gen-go-enum -c com.test.enums.TestColorEnum -p test_enums -e ColorEnum -v RED -v BLUE -v YELLOW -o ./color_enum.go
-```
-
----
 File: tools/gen-go-enum/main.go
 Size: 5118 bytes
 Lines: 244
@@ -14847,36 +14021,6 @@ func (d *Date) Day() int {
 
 
 ---
-File: .github/PULL_REQUEST_TEMPLATE.md
-Size: 741 bytes
-Lines: 24
----
-<!--  Thanks for sending a pull request! 
--->
-
-**What this PR does**:
-
-**Which issue(s) this PR fixes**:
-<!--
-*Automatically closes linked issue when PR is merged.
-Usage: `Fixes #<issue number>`, or `Fixes (paste link of issue)`.
-_If PR is about `failing-tests or flakes`, please post the related issues/tests in a comment and do not use `Fixes`_*
--->
-Fixes #
-
-**Special notes for your reviewer**:
-
-**Does this PR introduce a user-facing change?**:
-<!--
-If no, just write "NONE" in the release-note block below.
-If yes, a release note is required:
-Enter your extended release note in the block below. If the PR requires additional action from users switching to the new release, include the string "action required".
--->
-```release-note
-
-```
-
----
 File: .github/workflows/github-actions.yml
 Size: 5172 bytes
 Lines: 131
@@ -15015,49 +14159,6 @@ jobs:
 
 
 ---
-File: .github/ISSUE_TEMPLATE/enhancement.md
-Size: 223 bytes
-Lines: 11
----
----
-name: Enhancement Request
-about: Suggest an enhancement
-labels: kind/feature
-
----
-<!-- Please only use this template for submitting enhancement requests -->
-
-**What would you like to be added**:
-
-**Why is this needed**:
-
----
-File: .github/ISSUE_TEMPLATE/bug-report.md
-Size: 402 bytes
-Lines: 19
----
----
-name: Bug Report
-about: Report a bug
-labels: kind/bug
-
----
-
-<!-- Please use this template while reporting a bug and provide as much info as possible. Not doing so may result in your bug not being addressed in a timely manner. Thanks!
-
--->
-
-
-**What happened**:
-
-**What you expected to happen**:
-
-**How to reproduce it (as minimally and precisely as possible)**:
-
-**Anything else we need to know?**:
-
-
----
 File: test_hessian/pom.xml
 Size: 4166 bytes
 Lines: 105
@@ -15168,26 +14269,6 @@ Lines: 105
     </build>
 </project>
 
-
----
-File: test_hessian/README.md
-Size: 167 bytes
-Lines: 14
----
-# Test Hessian
-
-## requirement
-
-- java 8
-- maven 3.6.1
-
-## usage
-
-```
-$ cd test_hessian
-$ mvn clean package
-$ java -jar target/test_hessian-1.0.0.jar replyBinary_0
-```
 
 ---
 File: test_hessian/.gitignore
@@ -18303,41 +17384,6 @@ public class BusinessData implements Serializable {
 
 
 ---
-File: java_util/README.md
-Size: 779 bytes
-Lines: 11
----
-# UUID-info
-
-1. explain dubbo-go-hessian2 strut UUID
-- JavaServer -> create UUID -> GO Client -> UUID struct (PASS)
-- dubbo-go-hessian2 cannot create UUID strut
-- see jdk source code of class:[java.util.UUID] learning how to create UUID struct
-- see https://github.com/satori/go.uuid
-2. explain dubbo-go-hession2 strut locale 
--java object locale -> go struct Locale (PASS), but currently implemented are objects enumerated in java. See class:java.util.Locale
--First convert to struct LocaleHandle and then call `GetLocaleFromHandler(localeHandler *LocaleHandle)` function to convert to struct Locale 
--You can use the `language.ParseBase("zh-CN")` function in the `golang.org/x/text/language` package to convert the value of `locale.String()` get go struct and do other things  
-
----
-File: java_util/README_CN.md
-Size: 907 bytes
-Lines: 12
----
-#　说明
-
-1. dubbo-go-hessian2 中 UUID 目前解析情况
-- uuid.go 中提供了解析 Java 中生成好的 UUID 对象，测试通过，但是不提供生成 UUID 的功能
-- java-server 提供的 uuid 可以解析，可以通过 UUID 的 ToString()函数解析成字符串，但是 go 目前未提供生成 uuid 的功能
-- java uuid 生成可以参考 jdk 下 java.util.UUID 类的相关源码
-- uuid 结构体创建参考 https://github.com/satori/go.uuid
-
-2. locale对象 
-- Locale.java中的对象可以转换成go的结构体Locale，但目前实现的是java中枚举的对象，具体见 class:java.util.Locale
-- 先转换成LocaleHandle对象，然后调用 `GetLocaleFromHandler(localeHandler *LocaleHandle)` 函数转成Locale对象
-- 可以使用 `golang.org/x/text/language` 包中的 `language.ParseBase("zh-CN")` 函数将 `locale.String()` 值转成go中的相关对象进行后续操作
-
----
 File: java_util/locale.go
 Size: 4104 bytes
 Lines: 202
@@ -18664,26 +17710,6 @@ Lines: 73
     </build>
 </project>
 
-
----
-File: test_dubbo/README.md
-Size: 160 bytes
-Lines: 14
----
-# Test Dubbo
-
-## requirement
-
-- java 8
-- maven 3.6.1
-
-## usage
-
-```
-$ cd test_dubbo
-$ mvn clean package
-$ java -jar target/test_dubbo-1.0.0.jar replyRequest
-```
 
 ---
 File: test_dubbo/.gitignore

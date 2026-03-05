@@ -1,7 +1,7 @@
-Tokens: 182812
+Tokens: 174155
 Repo: apache/dubbo-rust
 Commit: 026c4971346e5a21514500d261de5838f0be4d1a
-Timestamp: 2026-03-04T19:37:02.086907
+Timestamp: 2026-03-04T19:51:26.769178
 
 --- Repository Structure ---
 .
@@ -13,27 +13,16 @@ Timestamp: 2026-03-04T19:37:02.086907
 ├── .gitignore
 ├── .licenserc.yaml
 ├── .rustfmt.toml
-├── CONTRIBUTING.md
 ├── Cargo.toml
 ├── LICENSE
 ├── NOTICE
-├── README.md
-├── README_CN.md
 ├── application.yaml
 ├── docs
-│   ├── config.md
-│   ├── filter-design.md
-│   ├── generic-protocol-design.md
-│   ├── how-to-release.md
-│   ├── images
-│   │   └── examples
-│   ├── readme.md
-│   └── services.md
+│   └── images
+│       └── examples
 ├── dubbo
 │   ├── Cargo.toml
 │   ├── LICENSE
-│   ├── README.md
-│   ├── README_CN.md
 │   └── src
 │       ├── cluster
 │       │   ├── failover.rs
@@ -173,12 +162,9 @@ Timestamp: 2026-03-04T19:37:02.086907
 │       ├── prost.rs
 │       └── server.rs
 ├── examples
-│   ├── README.md
 │   ├── echo
 │   │   ├── Cargo.toml
 │   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── README_CN.md
 │   │   ├── build.rs
 │   │   ├── fixtures
 │   │   │   ├── ca.crt
@@ -198,22 +184,18 @@ Timestamp: 2026-03-04T19:37:02.086907
 │   │       │   ├── grpc.examples.echo.rs
 │   │       │   └── mod.rs
 │   │       └── lib.rs
-│   ├── greeter
-│   │   ├── Cargo.toml
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── README_CN.md
-│   │   ├── application.yaml
-│   │   ├── build.rs
-│   │   ├── proto
-│   │   │   └── greeter.proto
-│   │   └── src
-│   │       └── greeter
-│   │           ├── client.rs
-│   │           └── server.rs
-│   └── helloworld-tutorial.md
+│   └── greeter
+│       ├── Cargo.toml
+│       ├── LICENSE
+│       ├── application.yaml
+│       ├── build.rs
+│       ├── proto
+│       │   └── greeter.proto
+│       └── src
+│           └── greeter
+│               ├── client.rs
+│               └── server.rs
 ├── protocol
-│   ├── README.md
 │   ├── base
 │   │   ├── Cargo.toml
 │   │   ├── LICENSE
@@ -235,7 +217,6 @@ Timestamp: 2026-03-04T19:37:02.086907
 │           ├── lib.rs
 │           └── triple_invoker.rs
 ├── registry
-│   ├── README.md
 │   ├── nacos
 │   │   ├── Cargo.toml
 │   │   ├── LICENSE
@@ -248,7 +229,6 @@ Timestamp: 2026-03-04T19:37:02.086907
 │           └── lib.rs
 ├── release.toml
 └── remoting
-    ├── README.md
     ├── base
     │   ├── Cargo.toml
     │   ├── LICENSE
@@ -301,10 +281,10 @@ Timestamp: 2026-03-04T19:37:02.086907
 
 --- Summary Report ---
 Total files scanned: 217
-Files included: 214
-Files skipped by rule: 3
+Files included: 194
+Files skipped by rule: 23
 Files skipped by size: 0
-Detected languages count: 9
+Detected languages count: 8
 Top 15 largest included files:
   21097 bytes - registry/nacos/src/lib.rs
   16238 bytes - dubbo-build/src/server.rs
@@ -654,180 +634,6 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 ---
-File: README.md
-Size: 3118 bytes
-Lines: 81
----
-# Apache Dubbo-rust
-
-<a href="https://dubbo.apache.org/">
-    <img style="vertical-align: top;" src="https://dubbo.apache.org/imgs/dubbo_colorful.png" alt="logo" height="45px"></a>
-
-Apache Dubbo-rust, an RPC framework that implements Dubbo written in Rust.Please visit the [official website](https://dubbo.apache.org/) for more information.
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/apache/dubbo-rust/.github/workflows/github-actions.yml?branch=main&style=flat-square)](https://github.com/apache/dubbo-rust/actions/workflows/github-actions.yml?query=branch%3Amain)
-![License](https://img.shields.io/github/license/apache/dubbo-rust?style=flat-square)
-
-[ [中文](./README_CN.md) ]
-
-## Overview
-
-Dubbo-rust is still under development. For now, gRPC calls based on HTTP2 have been implemented.
-
-The following libraries are mainly dependent on:
-
-- [`Tokio`](https://github.com/tokio-rs/tokio) is an event-driven, non-blocking I/O platform for writing asynchronous applications with Rust.
-
-- [`Prost`](https://github.com/tokio-rs/prost/) is a [Protocol Buffers](https://developers.google.com/protocol-buffers/) implementation for Rust.
-
-- [`Hyper`](https://github.com/hyperium/hyper) is a fast and correct HTTP implementation for Rust.
-
-- [`Serde`](https://github.com/serde-rs/serde) is a framework for *ser*ializing and *de*serializing Rust data structures efficiently and generically.
-
-## Features
-
-- :white_check_mark: RPC synchronous / asynchronous call 
-- :white_check_mark: IDL code automatic generation
-- :construction: Multiple RPC protocol support (like Triple, Dubbo, gRPC, JSONRPC)
-- :construction: Support TCP/HTTP2 transport protocol
-- :construction: Service registration and discovery
-
-## Get started
-
-- Dubbo-rust Quick Start:  [中文](https://dubbo.apache.org/zh/docs3-v2/rust-sdk/quick-start/), English
-- Dubbo-rust Tutorials:  [Examples](https://github.com/apache/dubbo-rust/tree/main/examples)
-
-## Project structure
-
-```
-.
-├── Cargo.toml
-├── LICENSE
-├── README.md
-├── README_CN.md
-├── common
-│   ├── Cargo.toml
-│   └── src
-│       └── lib.rs
-├── config
-│   ├── Cargo.toml
-│   └── src
-│       ├── config.rs
-│       ├── lib.rs
-│       ├── protocol.rs
-│       └── service.rs
-├── contributing.md
-├── docs
-│   ├── filter-design.md
-│   ├── generic-protocol-design.md
-│   ├── readme.md
-│   └── services.md
-more ...
-```
-
-## Contact Us
-
-- Subscribe to the official Wechat Account
-![officialAccount](https://user-images.githubusercontent.com/18097545/201456442-68a7bf1e-3c84-4f32-bd45-0fedb4d1012d.png)
-
-- Search and join the DingTalk group: 44694199
-
-## Contribute
-
-Welcome more developers to join us. About more details please check "[How to contribute](https://github.com/apache/dubbo-rust/blob/main/CONTRIBUTING.md)".
-
-## License
-
-Apache Dubbo-rust software is licenced under the Apache License Version 2.0. See the [LICENSE](https://github.com/apache/dubbo-rust/blob/main/LICENSE) file for details.
-
-
----
-File: README_CN.md
-Size: 2775 bytes
-Lines: 79
----
-# Apache Dubbo-rust
-
-<a href="https://dubbo.apache.org/">
-    <img style="vertical-align: top;" src="https://dubbo.apache.org/imgs/dubbo_colorful.png" alt="logo" height="45px"></a>
-
-Apache Dubbo-rust, Dubbo RPC框架的Rust实现。请访问 [Dubbo官网](https://dubbo.apache.org/) 查看更多信息.
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/apache/dubbo-rust/.github/workflows/github-actions.yml?branch=main&style=flat-square)](https://github.com/apache/dubbo-rust/actions/workflows/github-actions.yml?query=branch%3Amain)
-![License](https://img.shields.io/github/license/apache/dubbo-rust?style=flat-square)
-
-## 概述
-
-Dubbo-rust 目前还在开发阶段. 截至目前, 已经实现了基于HTTP2的gRPC调用.
-
-以下为主要的依赖库:
-
-- [`Tokio`](https://github.com/tokio-rs/tokio) 使用Rust编写事件驱动、无阻塞I/O异步程序的框架。
-
-- [`Prost`](https://github.com/tokio-rs/prost/)  [Protocol Buffers](https://developers.google.com/protocol-buffers/) Rust实现。
-
-- [`Hyper`](https://github.com/hyperium/hyper) 构建HTTP协议的Rust库。
-
-- [`Serde`](https://github.com/serde-rs/serde) 序列化/反序列化Rust库
-
-## 功能列表
-
-- :white_check_mark: RPC 异步/同步调用
-- :white_check_mark: IDL文件代码生成器
-- :construction: RPC多协议支持（如： Triple, Dubbo, gRPC, JSONRPC）
-- :construction: 支持 TCP/HTTP2 传输层协议
-- :construction: 服务注册与发现
-
-## 开始使用
-
-- Dubbo-rust 快速开始:  [中文](https://dubbo.apache.org/zh/docs3-v2/rust-sdk/quick-start/), English
-- Dubbo-rust 教程:  [Examples](examples/README.md)
-
-## 项目结构
-
-```
-.
-├── Cargo.toml
-├── LICENSE
-├── README.md
-├── README_CN.md
-├── common
-│   ├── Cargo.toml
-│   └── src
-│       └── lib.rs
-├── config
-│   ├── Cargo.toml
-│   └── src
-│       ├── config.rs
-│       ├── lib.rs
-│       ├── protocol.rs
-│       └── service.rs
-├── contributing.md
-├── docs
-│   ├── filter-design.md
-│   ├── generic-protocol-design.md
-│   ├── readme.md
-│   └── services.md
-more ...
-```
-
-## 联系方式
-
-- 订阅官方微信公众号
-![officialAccount](https://user-images.githubusercontent.com/18097545/201456442-68a7bf1e-3c84-4f32-bd45-0fedb4d1012d.png)
-
-- 搜索并加入钉钉群组: 44694199
-
-## 贡献
-
-欢迎更多的开发者加入我们。关于更多的信息可以查看 [[CONTRIBUTING](https://github.com/apache/dubbo-rust/blob/main/CONTRIBUTING.md)]。
-
-## 许可证
-
-Apache Dubbo-rust 使用Apache许可证2.0版本。 请参考 [LICENSE](https://github.com/apache/dubbo-rust/blob/main/LICENSE) 文件获得更多信息。
-
-
----
 File: .gitignore
 Size: 66 bytes
 Lines: 7
@@ -839,75 +645,6 @@ Cargo.lock
 .idea/
 helloworld
 .DS_Store
-
-
----
-File: CONTRIBUTING.md
-Size: 1839 bytes
-Lines: 62
----
-Contributing to dubbo-rust
-
-## 1. Branch
-
-  >- The name of branches `SHOULD` be in the format of `feature/xxx`.
-  >- You `SHOULD` checkout a new branch after a feature branch already being merged into upstream, `DO NOT` commit in the old branch.
-
-## 2. Pull Request
-
-### 2.1. Title Format
-
-The pr head format is `<head> <subject>`. The title should be simpler to show your intent.
-
-The title format of the pull request `MUST` follow the following rules:
-
-  >- Start with `Doc:` for adding/formatting/improving docs.
-  >- Start with `Mod:` for formatting codes or adding comment.
-  >- Start with `Fix:` for fixing bug, and its ending should be ` #issue-id` if being relevant to some issue.
-  >- Start with `Imp:` for improving performance.
-  >- Start with `Ftr:` for adding a new feature.
-  >- Start with `Add:` for adding struct function/member.
-  >- Start with `Rft:` for refactoring codes.
-  >- Start with `Tst:` for adding tests.
-  >- Start with `Dep:` for adding depending libs.
-  >- Start with `Rem:` for removing feature/struct/function/member/files.
-
-## 3. Code Style
-
-### 3.1 log
-
-> 1 when logging the function's input parameter, you should add '@' before input parameter name.
-
-## 4. Dev
-
-### 4.1 Formating
-
-Currently, dubbo-rust recommand using rustfmt nightly version for formating:
-1. `rustup toolchain install nightly --component rustfmt`
-2. configure `settings.json`:
-```json
-{
-  "rust-analyzer.rustfmt.overrideCommand": ["cargo", "+nightly", "fmt"]
-}
-```
-
-### 4.2 Debugging
-
-Example launch configuration:
-```json
-{
-  "type": "lldb",
-  "request": "launch",
-  "name": "greeter-server",
-  "program": "${workspaceFolder}/target/debug/greeter-server",
-  "args": [],
-  "cwd": "${workspaceFolder}/examples/greeter/",
-  "terminal": "console",
-  "env": {
-    "ZOOKEEPER_SERVERS": "mse-21b397d4-p.zk.mse.aliyuncs.com:2181",
-  }
-}
-```
 
 
 ---
@@ -1040,18 +777,6 @@ dubbo:
       - service: "org.apache.dubbo.sample.tri.Greeter"
         url: tri://127.0.0.1:20000
         protocol: triple
-
----
-File: remoting/README.md
-Size: 294 bytes
-Lines: 6
----
-/remoting
-    /net   # for dubbo2
-    /http  # on top of net, for hessian/rest/grpc/triple protocol
-    /exchange # convert tcp/http to invocation or invoker for protocol layer 
-    /zookeeper # zk client for registry and config center
-    /nacos  # nacos client for registry and config center 
 
 ---
 File: remoting/net/Cargo.toml
@@ -3771,18 +3496,6 @@ pub mod server;
 
 
 ---
-File: protocol/README.md
-Size: 171 bytes
-Lines: 6
----
-```markdown
-/protocol
-    /protocol # define protocol abstract layer
-    /dubbo2   # for dubbo2 protocol, hessian2 codec as default
-    /triple   # for triple protocol
-```
-
----
 File: protocol/dubbo2/Cargo.toml
 Size: 246 bytes
 Lines: 10
@@ -4899,444 +4612,6 @@ mod tests {
 
 
 ---
-File: docs/filter-design.md
-Size: 0 bytes
-Lines: 0
----
-
-
----
-File: docs/how-to-release.md
-Size: 872 bytes
-Lines: 51
----
-# 如何发布dubbo-rust的新版本
-
-## 前置条件
-
-安装[cargo-release](https://crates.io/crates/cargo-release):
-```shell
-$ cargo install cargo-release
-```
-
-登录 crates.io
-
-```shell
-$ cargo login
-```
-
-## 如何发布一个新版本
-
-1. 更新版本号：
-    ```shell
-    $ cargo release version minor
-    $ cargo release version minor --execute
-    ```
-
-2. 提交
-    ```shell
-    $ cargo release commit
-    $ cargo release commit --execute
-    ```
-
-3. 打tag：
-    ```shell
-    $ cargo release tag
-    $ cargo release tag --execute
-    ```
-
-4. push tag：
-    ```shell
-    $ cargo release push
-    $ cargo release push --execute
-    ```
-
-5. 在邮件列表发起投票
-
-    例子：<https://lists.apache.org/thread/cb949l81yfgg0wddthp1ym2wtd2y5s7j>
-
-6. 发布到 crates.io
-
-    ```shell
-    $ cargo release publish
-    $ cargo release publish --execute
-    ```
-
-
----
-File: docs/readme.md
-Size: 267 bytes
-Lines: 11
----
-# Readme
-
-There is some RFCs of dubbo-rust design.
-
-## 关于配置的一些约定(暂时)
-
-所有的服务只能注册到一个或多个注册中心
-所有的服务只能使用Triple进行通信
-Triple只能对外暴露一个端口
-
-一个协议上的server注册到
-
----
-File: docs/config.md
-Size: 393 bytes
-Lines: 15
----
-## 关于配置的一些约定(暂时)
-
-所有的服务只能注册到一个或多个注册中心
-所有的服务只能使用Triple进行通信
-Triple只能对外暴露一个端口
-
-## Config配置
-
-每个组件的配置是独立的。
-
-Provider、Consumer等使用独立组件的配置进行工作
-
-Provider Config核心设计以及Url模型流转：
-
-Provider和Consumer使用组件的配置
-
----
-File: docs/services.md
-Size: 203 bytes
-Lines: 11
----
-# Services模块设计
-
-> 模块名待定
-
-该模块负责管理整个框架的生命周期，包括：
-+ 服务注册
-+ 服务启动
-+ 服务停止
-+ 服务治理插件初始化
-+ meta服务
-+ xds服务
-
----
-File: docs/generic-protocol-design.md
-Size: 1510 bytes
-Lines: 47
----
-author: Yang Yang
-date: 2022-06-26
-
-## 简介
-
-dubbo-rust支持多种协议：Triple、gRPC、jsonRPC等
-
-## Protocol设计
-
-Protocol的核心设计是基于dubbo的URL模型，对外暴露通用的服务端和客户端抽象接口。
-
-在Dubbo的整体生态中，服务端接口使用`Exporter`来描述；客户端接口使用`Invoker`来描述。
-
-Protocol模块的核心功能：
-+ 对外提供服务注册接口
-+ 管理注册的服务：run, destroy, stop, gracefulStop
-+ 接口路由
-+ 通用、高效的Listener层
-+ 等等
-
-Protocol API支持管理多个底层协议的server以及在一个server上暴露多个服务
-+ 多个底层通信的server：location(ip:port): server
-+ 一个server上暴露多个服务：
-
-### Exporter
-
-### Invoker
-
-Invoker: 客户端通用能力的封装。获取需要一个private withInvoker 接口
-
-Invoker应该是基于Connection(Service)实现的Service。并且进行扩展新的接口。
-protocol.rs模块：根据Url返回初始化好的Invoker实例。
-+ 如何设计Invoker接口：扩展Service接口
-+ cluster模块如何使用Invoker实例呢？这里需要画一个数据流转图
-+ 如何将初始化好的Invoker与tower::Layer相结合
-
-Invoker提供的通用的接口，使得dubbo在不同的协议下遵循相同的接口抽象。
-
-在Invoker中，需要做的功能包括
-+ 编解码层
-+ Streaming trait实现
-+ 自定义请求/响应
-+ 等等
-
-## 目前存在的问题
-
-+ 如何管理服务：服务是动态的，需要保证Server是Send+Sync的
-
----
-File: examples/helloworld-tutorial.md
-Size: 4494 bytes
-Lines: 194
----
-# Dubbo-rust quick start
-
-本文介绍如何使用Rust快速开发Dubbo服务。
-
-主要内容分为：
-+ 环境准备
-+ 使用Protobuf IDL定义Dubbo服务
-+ 使用dubbo-build来编译IDL
-+ 编写Dubbo业务代码
-
-## 环境准备
-
-首先需要安装Rust开发环境，具体步骤为：
-```
-```
-
-其次还需要下载protoc可执行文件，并将protoc添加到Path环境变量中：
-下载地址为：`https://github.com/protocolbuffers/protobuf/releases`
-
-```
-export Path = ""
-```
-
-## 使用Protobuf IDL定义Dubbo服务
-
-## 使用dubbo-build来编译IDL
-
-首先创建一个项目：
-```
-cargo new --lib dubbo-example
-```
-
-在`cargo.toml`中添加需要的依赖
-```
-[dependencies]
-http = "0.2"
-http-body = "0.4.4"
-futures-util = {version = "0.3", default-features = false}
-tokio = { version = "1.0", features = [ "rt-multi-thread", "time", "fs", "macros", "net", "signal"] }
-prost-derive = {version = "0.10", optional = true}
-prost = "0.10.4"
-prost-types = { version = "0.8", default-features = false }
-async-trait = "0.1.56"
-tokio-stream = "0.1"
-
-dubbo = {git = "https://github.com/yang20150702/dubbo-rust.git"}
-
-[build-dependencies]
-dubbo-build = {git = "https://github.com/yang20150702/dubbo-rust.git"}
-```
-
-将写好的`helloworld.proto`放在proto/目录下。
-
-编写`build.rs`文件来生成`helloworld.proto`对应的rust代码：
-```
-use std::path::PathBuf;
-
-fn main() {
-    let path = PathBuf::from("./src");
-    dubbo_build::prost::configure()
-        .output_dir(path)
-        .compile(&["proto/helloworld.proto"], &["proto/"])
-        .unwrap();
-}
-```
-
-此时在src目录下会有一个名为`helloworld.rs`的文件，这就是生成的rust代码。
-
-> `helloworld.rs`可以放在src目录下的任一位置，只要它能够被业务代码引用到即可~
-
-## 编写Dubbo业务代码
-
-Dubbo业务代码分为server和client两部分。
-
-首先在lib.rs目录下引入`helloworld.rs`mod：
-```
-pub mod helloworld;
-```
-
-然后，编写`dubbo.yaml`配置文件，将该文件放在src目录的同级目录中：
-```
-name: dubbo
-service:
-  helloworld.Greeter:
-    version: 1.0.0
-    group: test
-    protocol: triple
-    registry: ''
-    serializer: json
-    protocol_configs: {}
-protocols:
-  triple:
-    ip: 0.0.0.0
-    port: '8888'
-    name: triple
-```
-
-> 另外，可以通过环境变量`DUBBO_CONFIG_PATH`来自定义配置文件的路径。
-
-### 编写 Dubbo Server
-
-在src目录下新建server文件夹，创建`main.rs`文件，并在`Cargo.toml`中增加如下配置：
-```
-[[bin]]
-name = "hello-server"
-path = "src/server/main.rs"
-```
-
-首先引入需要的模块：
-```
-use dubbo_rust_examples::helloworld::greeter_server::{register_server, Greeter};
-use dubbo_rust_examples::helloworld::{HelloRequest, HelloReply};
-use async_trait::async_trait;
-use dubbo::codegen::{Request, Response};
-use dubbo::Dubbo;
-```
-
-接下来，实现IDL中定义的服务trait：
-```
-#[derive(Debug, Clone, Default)]
-pub struct GreeterImpl {}
-
-impl GreeterImpl {
-    pub fn new() -> Self {
-        GreeterImpl {  }
-    }
-}
-
-#[async_trait]
-impl Greeter for GreeterImpl {
-    async fn say_hello(
-        &self,
-        request: Request<HelloRequest>,
-    ) -> Result<Response<HelloReply>, dubbo::status::Status> {
-        println!("request: {:?}", request.into_inner());
-
-        Ok(Response::new(HelloReply{
-            message: "hello dubbo-rust!".to_string(),
-        }))
-    }
-}
-```
-
-接下来进行服务注册，并启动Dubbo框架：
-```
-#[tokio::main]
-async fn main() {
-    register_server(GreeterImpl::new());
-
-    Dubbo::new().start().await;
-}
-```
-
-通过如下命令启动服务：
-```
-cargo run --bin hello-server
-```
-
-### 编写 Dubbo Client
-
-在src目录下新建client文件夹，创建`main.rs`文件，并在`Cargo.toml`中增加如下配置：
-```
-[[bin]]
-name = "hello-client"
-path = "src/client/main.rs"
-```
-
-首先引入需要的模块：
-```
-use dubbo_rust_examples::helloworld::greeter_client::GreeterClient;
-use dubbo_rust_examples::helloworld::HelloRequest;
-use dubbo::codegen::Request;
-```
-
-接下来，实现IDL中定义的服务trait：
-```
-#[tokio::main]
-async fn main() {
-    let mut cli = GreeterClient::new().with_uri("http://127.0.0.1:8888".to_string());
-    let resp = cli.say_hello(Request::new(
-        HelloRequest{
-            name: "hello, I'm client".to_string(),
-        }
-    )).await.unwrap();
-
-    let (_, msg) = resp.into_parts();
-    println!("response: {:?}", msg);
-}
-```
-
-通过如下命令启动服务：
-```
-cargo run --bin hello-client
-```
-
----
-File: examples/README.md
-Size: 1689 bytes
-Lines: 58
----
-# 使用VS Code 运行 Dubbo-rust
-
-#### 首先我们拉下 Dubbo-rust 项目
-```shell
-git clone https://github.com/apache/dubbo-rust.git
-```
-#### 打开编辑器准备启动项目
-打开对应的 **Dubbo-rust** 项目
-在当前目录下创建一个新文件夹，名称为 **.vscode**
-
-```shell
-mkdir .vscode
-```
-
-创建个json文件，名称为launch.json，该文件 **.vscode** 目录下 将下文的内容复制到launch.json中
-
-```jsonc
-{
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "greeter-server",
-            "program": "${workspaceFolder}/target/debug/greeter-server",
-            "args": [],
-            "cwd": "${workspaceFolder}/examples/greeter/",
-            "terminal": "console",
-            "env": { }
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "greeter-client",
-            "program": "${workspaceFolder}/target/debug/greeter-client",
-            "args": [],
-            "cwd": "${workspaceFolder}/examples/greeter/",
-            "terminal": "console",
-            "env": {}
-        },
-    ]
-}
-```
-
-#### 打开 examples/greeter/src/greeter 目录，选择server.rs
-
-![image.png](../docs/images/examples/dir-server.png)
-
-#### 选择左侧的运行按钮，启动 server 服务
-
-![image.png](../docs/images/examples/server.png)
-
-##### 启动 client 访问server 端
-
-![image.png](../docs/images/examples/client.png)
-
-
----
 File: examples/echo/Cargo.toml
 Size: 1185 bytes
 Lines: 47
@@ -5632,89 +4907,6 @@ fn main() {
         .unwrap();
 }
 
-
----
-File: examples/echo/README.md
-Size: 879 bytes
-Lines: 35
----
-# Apache Dubbo-rust example
-
-## build and run
-
-```sh
-$ cd github.com/apache/dubbo-rust/examples/echo/
-$ cargo build
-
-$ # run sever
-$ ../../target/debug/echo-server
-
-$ # run client
-$ ../../target/debug/echo-client
-reply: EchoResponse { message: "msg1 from server" }
-reply: EchoResponse { message: "msg2 from server" }
-reply: EchoResponse { message: "msg3 from server" }
-```
-
-## build and run `echo-tls`
-
-**Please first install the `ca.crt` certificate file under the `fixtures` path to the platform's native certificate store.**
-
-```sh
-$ cd github.com/apache/dubbo-rust/examples/echo-tls/
-$ cargo build
-
-$ # run sever
-$ ../../target/debug/echo-tls-server
-
-$ # run client
-$ ../../target/debug/echo-tls-client
-reply: EchoResponse { message: "msg1 from tls-server" }
-reply: EchoResponse { message: "msg2 from tls-server" }
-reply: EchoResponse { message: "msg3 from tls-server" }
-```
-
-
----
-File: examples/echo/README_CN.md
-Size: 867 bytes
-Lines: 35
----
-# Apache Dubbo-rust 示例
-
-## 构建并运行
-
-```sh
-$ cd github.com/apache/dubbo-rust/examples/echo/
-$ cargo build
-
-$ # 运行服务端
-$ ../../target/debug/echo-server
-
-$ # 运行客户端
-$ ../../target/debug/echo-client
-reply: EchoResponse { message: "msg1 from server" }
-reply: EchoResponse { message: "msg2 from server" }
-reply: EchoResponse { message: "msg3 from server" }
-```
-
-## 构建并运行`echo-tls`
-
-**请先将`fixtures`路径下的`ca.crt`证书文件安装到系统信任根证书中.**
-
-```sh
-$ cd github.com/apache/dubbo-rust/examples/echo-tls/
-$ cargo build
-
-$ # 运行服务端
-$ ../../target/debug/echo-tls-server
-
-$ # 运行客户端
-$ ../../target/debug/echo-tls-client
-reply: EchoResponse { message: "msg1 from tls-server" }
-reply: EchoResponse { message: "msg2 from tls-server" }
-reply: EchoResponse { message: "msg3 from tls-server" }
-```
 
 ---
 File: examples/echo/proto/echo/echo.proto
@@ -7215,80 +6407,6 @@ fn main() {
 
 
 ---
-File: examples/greeter/README.md
-Size: 1362 bytes
-Lines: 30
----
-# Apache Dubbo-rust example - greeter
-
-## build and run
-
-```sh
-$ cd github.com/apache/dubbo-rust/examples/greeter/
-$ cargo build
-
-$ # run sever
-$ ../../target/debug/greeter-server
-
-$ # run client
-$ ../../target/debug/greeter-client
-# unary call
-Response: GreeterReply { message: "hello, dubbo-rust" }
-# client stream
-client streaming, Response: GreeterReply { message: "hello client streaming" }
-# bi stream
-parts: Metadata { inner: {"date": "Wed, 28 Sep 2022 08:36:50 GMT", "content-type": "application/grpc"} }
-reply: GreeterReply { message: "server reply: \"msg1 from client\"" }
-reply: GreeterReply { message: "server reply: \"msg2 from client\"" }
-reply: GreeterReply { message: "server reply: \"msg3 from client\"" }
-trailer: Some(Metadata { inner: {"grpc-message": "poll trailer successfully.", "grpc-accept-encoding": "gzip,identity", "grpc-status": "0", "content-type": "application/grpc"} })
-# server stream
-parts: Metadata { inner: {"content-type": "application/grpc", "date": "Wed, 28 Sep 2022 08:36:50 GMT"} }
-reply: GreeterReply { message: "msg1 from server" }
-reply: GreeterReply { message: "msg2 from server" }
-reply: GreeterReply { message: "msg3 from server" }
-trailer: Some(Metadata { inner: {"content-type": "application/grpc", "grpc-status": "0", "grpc-accept-encoding": "gzip,identity", "grpc-message": "poll trailer successfully."} })
-```
-
-
----
-File: examples/greeter/README_CN.md
-Size: 1374 bytes
-Lines: 30
----
-# Apache Dubbo-rust 示例 - greeter
-
-## 构建并运行
-
-```sh
-$ cd github.com/apache/dubbo-rust/examples/greeter/
-$ cargo build
-
-$ # 运行服务端
-$ ../../target/debug/greeter-server
-
-$ # 运行客户端
-$ ../../target/debug/greeter-client
-# unary call
-Response: GreeterReply { message: "hello, dubbo-rust" }
-# client stream
-client streaming, Response: GreeterReply { message: "hello client streaming" }
-# bi stream
-parts: Metadata { inner: {"date": "Wed, 28 Sep 2022 08:36:50 GMT", "content-type": "application/grpc"} }
-reply: GreeterReply { message: "server reply: \"msg1 from client\"" }
-reply: GreeterReply { message: "server reply: \"msg2 from client\"" }
-reply: GreeterReply { message: "server reply: \"msg3 from client\"" }
-trailer: Some(Metadata { inner: {"grpc-message": "poll trailer successfully.", "grpc-accept-encoding": "gzip,identity", "grpc-status": "0", "content-type": "application/grpc"} })
-# server stream
-parts: Metadata { inner: {"content-type": "application/grpc", "date": "Wed, 28 Sep 2022 08:36:50 GMT"} }
-reply: GreeterReply { message: "msg1 from server" }
-reply: GreeterReply { message: "msg2 from server" }
-reply: GreeterReply { message: "msg3 from server" }
-trailer: Some(Metadata { inner: {"content-type": "application/grpc", "grpc-status": "0", "grpc-accept-encoding": "gzip,identity", "grpc-message": "poll trailer successfully."} })
-```
-
-
----
 File: examples/greeter/application.yaml
 Size: 377 bytes
 Lines: 20
@@ -7889,15 +7007,6 @@ jobs:
         uses: apache/skywalking-eyes/dependency@main
         with:
           log: info
-
----
-File: registry/README.md
-Size: 151 bytes
-Lines: 3
----
-/registry
-    /nacos      # nacos registry and servicediscovery implementation
-    /zookeeper  # zookeeper registry and servicediscovery implementation
 
 ---
 File: registry/nacos/Cargo.toml
@@ -11293,180 +10402,6 @@ Lines: 202
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
-
----
-File: dubbo/README.md
-Size: 3118 bytes
-Lines: 81
----
-# Apache Dubbo-rust
-
-<a href="https://dubbo.apache.org/">
-    <img style="vertical-align: top;" src="https://dubbo.apache.org/imgs/dubbo_colorful.png" alt="logo" height="45px"></a>
-
-Apache Dubbo-rust, an RPC framework that implements Dubbo written in Rust.Please visit the [official website](https://dubbo.apache.org/) for more information.
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/apache/dubbo-rust/.github/workflows/github-actions.yml?branch=main&style=flat-square)](https://github.com/apache/dubbo-rust/actions/workflows/github-actions.yml?query=branch%3Amain)
-![License](https://img.shields.io/github/license/apache/dubbo-rust?style=flat-square)
-
-[ [中文](./README_CN.md) ]
-
-## Overview
-
-Dubbo-rust is still under development. For now, gRPC calls based on HTTP2 have been implemented.
-
-The following libraries are mainly dependent on:
-
-- [`Tokio`](https://github.com/tokio-rs/tokio) is an event-driven, non-blocking I/O platform for writing asynchronous applications with Rust.
-
-- [`Prost`](https://github.com/tokio-rs/prost/) is a [Protocol Buffers](https://developers.google.com/protocol-buffers/) implementation for Rust.
-
-- [`Hyper`](https://github.com/hyperium/hyper) is a fast and correct HTTP implementation for Rust.
-
-- [`Serde`](https://github.com/serde-rs/serde) is a framework for *ser*ializing and *de*serializing Rust data structures efficiently and generically.
-
-## Features
-
-- :white_check_mark: RPC synchronous / asynchronous call 
-- :white_check_mark: IDL code automatic generation
-- :construction: Multiple RPC protocol support (like Triple, Dubbo, gRPC, JSONRPC)
-- :construction: Support TCP/HTTP2 transport protocol
-- :construction: Service registration and discovery
-
-## Get started
-
-- Dubbo-rust Quick Start:  [中文](https://dubbo.apache.org/zh/docs3-v2/rust-sdk/quick-start/), English
-- Dubbo-rust Tutorials:  [Examples](https://github.com/apache/dubbo-rust/tree/main/examples)
-
-## Project structure
-
-```
-.
-├── Cargo.toml
-├── LICENSE
-├── README.md
-├── README_CN.md
-├── common
-│   ├── Cargo.toml
-│   └── src
-│       └── lib.rs
-├── config
-│   ├── Cargo.toml
-│   └── src
-│       ├── config.rs
-│       ├── lib.rs
-│       ├── protocol.rs
-│       └── service.rs
-├── contributing.md
-├── docs
-│   ├── filter-design.md
-│   ├── generic-protocol-design.md
-│   ├── readme.md
-│   └── services.md
-more ...
-```
-
-## Contact Us
-
-- Subscribe to the official Wechat Account
-![officialAccount](https://user-images.githubusercontent.com/18097545/201456442-68a7bf1e-3c84-4f32-bd45-0fedb4d1012d.png)
-
-- Search and join the DingTalk group: 44694199
-
-## Contribute
-
-Welcome more developers to join us. About more details please check "[How to contribute](https://github.com/apache/dubbo-rust/blob/main/CONTRIBUTING.md)".
-
-## License
-
-Apache Dubbo-rust software is licenced under the Apache License Version 2.0. See the [LICENSE](https://github.com/apache/dubbo-rust/blob/main/LICENSE) file for details.
-
-
----
-File: dubbo/README_CN.md
-Size: 2775 bytes
-Lines: 79
----
-# Apache Dubbo-rust
-
-<a href="https://dubbo.apache.org/">
-    <img style="vertical-align: top;" src="https://dubbo.apache.org/imgs/dubbo_colorful.png" alt="logo" height="45px"></a>
-
-Apache Dubbo-rust, Dubbo RPC框架的Rust实现。请访问 [Dubbo官网](https://dubbo.apache.org/) 查看更多信息.
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/apache/dubbo-rust/.github/workflows/github-actions.yml?branch=main&style=flat-square)](https://github.com/apache/dubbo-rust/actions/workflows/github-actions.yml?query=branch%3Amain)
-![License](https://img.shields.io/github/license/apache/dubbo-rust?style=flat-square)
-
-## 概述
-
-Dubbo-rust 目前还在开发阶段. 截至目前, 已经实现了基于HTTP2的gRPC调用.
-
-以下为主要的依赖库:
-
-- [`Tokio`](https://github.com/tokio-rs/tokio) 使用Rust编写事件驱动、无阻塞I/O异步程序的框架。
-
-- [`Prost`](https://github.com/tokio-rs/prost/)  [Protocol Buffers](https://developers.google.com/protocol-buffers/) Rust实现。
-
-- [`Hyper`](https://github.com/hyperium/hyper) 构建HTTP协议的Rust库。
-
-- [`Serde`](https://github.com/serde-rs/serde) 序列化/反序列化Rust库
-
-## 功能列表
-
-- :white_check_mark: RPC 异步/同步调用
-- :white_check_mark: IDL文件代码生成器
-- :construction: RPC多协议支持（如： Triple, Dubbo, gRPC, JSONRPC）
-- :construction: 支持 TCP/HTTP2 传输层协议
-- :construction: 服务注册与发现
-
-## 开始使用
-
-- Dubbo-rust 快速开始:  [中文](https://dubbo.apache.org/zh/docs3-v2/rust-sdk/quick-start/), English
-- Dubbo-rust 教程:  [Examples](examples/README.md)
-
-## 项目结构
-
-```
-.
-├── Cargo.toml
-├── LICENSE
-├── README.md
-├── README_CN.md
-├── common
-│   ├── Cargo.toml
-│   └── src
-│       └── lib.rs
-├── config
-│   ├── Cargo.toml
-│   └── src
-│       ├── config.rs
-│       ├── lib.rs
-│       ├── protocol.rs
-│       └── service.rs
-├── contributing.md
-├── docs
-│   ├── filter-design.md
-│   ├── generic-protocol-design.md
-│   ├── readme.md
-│   └── services.md
-more ...
-```
-
-## 联系方式
-
-- 订阅官方微信公众号
-![officialAccount](https://user-images.githubusercontent.com/18097545/201456442-68a7bf1e-3c84-4f32-bd45-0fedb4d1012d.png)
-
-- 搜索并加入钉钉群组: 44694199
-
-## 贡献
-
-欢迎更多的开发者加入我们。关于更多的信息可以查看 [[CONTRIBUTING](https://github.com/apache/dubbo-rust/blob/main/CONTRIBUTING.md)]。
-
-## 许可证
-
-Apache Dubbo-rust 使用Apache许可证2.0版本。 请参考 [LICENSE](https://github.com/apache/dubbo-rust/blob/main/LICENSE) 文件获得更多信息。
 
 
 ---

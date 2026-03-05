@@ -1,13 +1,11 @@
-Tokens: 13406
+Tokens: 12732
 Repo: apache/dubbo-proxy
 Commit: 9faa6a115e97fc19e83887a50073c1df5e57a994
-Timestamp: 2026-03-04T19:37:22.702133
+Timestamp: 2026-03-04T19:51:43.573267
 
 --- Repository Structure ---
 .
 ├── .gitignore
-├── README.md
-├── README_zh.md
 ├── mvnw
 ├── mvnw.cmd
 ├── pom.xml
@@ -56,10 +54,10 @@ Timestamp: 2026-03-04T19:37:22.702133
 
 --- Summary Report ---
 Total files scanned: 24
-Files included: 24
-Files skipped by rule: 0
+Files included: 22
+Files skipped by rule: 2
 Files skipped by size: 0
-Detected languages count: 7
+Detected languages count: 6
 Top 15 largest included files:
   9114 bytes - mvnw
   5811 bytes - mvnw.cmd
@@ -72,10 +70,10 @@ Top 15 largest included files:
   2438 bytes - src/main/java/org/apache/dubbo/proxy/metadata/impl/ZookeeperMetadataCollector.java
   2387 bytes - src/main/java/org/apache/dubbo/proxy/utils/InetAddressUtil.java
   1297 bytes - src/main/java/org/apache/dubbo/proxy/utils/Tool.java
-  1197 bytes - README.md
-  1146 bytes - README_zh.md
   1094 bytes - src/main/java/org/apache/dubbo/proxy/utils/NamingThreadFactory.java
   1078 bytes - src/main/java/org/apache/dubbo/proxy/dao/ServiceDefinition.java
+  454 bytes - src/main/java/org/apache/dubbo/proxy/DubboProxyApplication.java
+  366 bytes - src/main/java/org/apache/dubbo/proxy/metadata/MetadataCollector.java
 -----------------------
 
 ---
@@ -387,48 +385,6 @@ Lines: 133
 
 
 ---
-File: README.md
-Size: 1197 bytes
-Lines: 35
----
-[中文版本](README_zh.md)  
-## Dubbo Proxy
-Dubbo Proxy, a gateway of Dubbo, switch from HTTP request to Dubbo protocol，then invoke Dubbo service and return to the result. Later Dubbo Proxy would combine several features, including circuit breaker, current-limiting, api management. 
-
-
-### instructions
- 
-HTTP request format:
-
-```
-{application Name}/​{Interface name}?version={version}&group={group}
-```
-Group and version is the mapping data in Dubbo service. 
-
-http POST body: 
-
-```json
-{
-    "methodName" : "sayHello",
-    "paramTypes" : ["org.apache.dubbo.demo.model.User"],
-    "paramValues": [
-        {
-            "id": 23,
-            "username": "testUser"
-        }
-    ]
-}
-```
-
-* In the Dubbo 2.7 version  and later updates versions, paramTypes is optional data, if not filled in, Dubbo Proxy would get related mapping data from metadata center.
-* You can set registry address and metadata center address in `application.yml`
-```
-proxy.registry.address: zookeeper://127.0.0.1:2181   #registry center address, same as Dubbo service's 
-proxy.metadata-report.address: zookeeper://127.0.0.1:2181  #metadata center address, used by paramType search, support for dubbo 2.7 or later
-```
-
-
----
 File: .gitignore
 Size: 249 bytes
 Lines: 30
@@ -463,45 +419,6 @@ target/
 # system ignore
 .DS_Store
 Thumbs.db
-
-
----
-File: README_zh.md
-Size: 1146 bytes
-Lines: 32
----
-[English Version](README.md)  
-### Dubbo Proxy
-Dubbo Proxy是一个Dubbo网关，可以将Http请求转换成Dubbo的协议，调用Dubbo服务并且返回结果，后续还会集成熔断，限流，api管理等功能。
-
-### 用法
-http请求格式如下： 
-```
-POST {application Name}/​{Interface name}?version={version}&group={group}
-```
-其中group和version是Dubbo服务对应的group和version，为可选参数
-
-http POST body如下: 
-
-```json
-{
-    "methodName" : "sayHello",
-    "paramTypes" : ["org.apache.dubbo.demo.model.User"],
-    "paramValues": [
-        {
-            "id": 23,
-            "username": "testUser"
-        }
-    ]
-}
-```
-
-* 在Dubbo 2.7及后续版本中，paramTypes为可选，如果不填写，Dubbo Proxy会在元数据中心获取对应的参数类型。
-* 可以在`application.yml`中指定注册中心和元数据中心的地址
-```
-proxy.registry.address: zookeeper://127.0.0.1:2181   #注册中心地址，和Dubbo服务的注册中心相同
-proxy.metadata-report.address: zookeeper://127.0.0.1:2181  #元数据中心的地址，未指定paramTypes时查找使用，支持Dubbo 2.7及以后版本
-```
 
 
 ---

@@ -1,7 +1,7 @@
-Tokens: 19063
+Tokens: 17153
 Repo: apache/rocketmq-client-python
 Commit: 143af507040d30173908b96b81f338e34e1f81e9
-Timestamp: 2026-03-04T19:37:13.915426
+Timestamp: 2026-03-04T19:51:36.691843
 
 --- Repository Structure ---
 .
@@ -9,15 +9,11 @@ Timestamp: 2026-03-04T19:37:13.915426
 ├── .coveragerc
 ├── .github
 │   └── ISSUE_TEMPLATE
-│       └── issue_template.md
 ├── .gitignore
 ├── .travis.yml
-├── CONTRIBUTING.md
 ├── LICENSE
 ├── MANIFEST.in
 ├── NOTICE
-├── PULL_REQUEST_TEMPLATE.md
-├── README.md
 ├── ci
 │   └── Dockerfile
 ├── dev-requirements.txt
@@ -42,26 +38,26 @@ Timestamp: 2026-03-04T19:37:13.915426
 
 --- Summary Report ---
 Total files scanned: 28
-Files included: 28
-Files skipped by rule: 0
+Files included: 24
+Files skipped by rule: 4
 Files skipped by size: 0
-Detected languages count: 9
+Detected languages count: 8
 Top 15 largest included files:
   15843 bytes - rocketmq/client.py
   11393 bytes - rocketmq/ffi.py
   11333 bytes - LICENSE
   4202 bytes - samples/producer.py
-  3864 bytes - README.md
   2948 bytes - setup.py
   2920 bytes - tests/test_consumer.py
   2792 bytes - tests/test_producer.py
   2588 bytes - rocketmq/exceptions.py
   2215 bytes - .travis.yml
   2010 bytes - ci/Dockerfile
-  1943 bytes - .github/ISSUE_TEMPLATE/issue_template.md
   1599 bytes - rocketmq/consts.py
   1488 bytes - tests/conftest.py
   1440 bytes - samples/consumer.py
+  1078 bytes - manylinux.sh
+  998 bytes - setup.cfg
 -----------------------
 
 ---
@@ -387,32 +383,6 @@ current_version = 2.0.1rc1
 
 
 ---
-File: PULL_REQUEST_TEMPLATE.md
-Size: 1252 bytes
-Lines: 19
----
-## What is the purpose of the change
-
-XXXXX
-
-## Brief changelog
-
-XX
-
-## Verifying this change
-
-XXXX
-
-Follow this checklist to help us incorporate your contribution quickly and easily. Notice, `it would be helpful if you could finish the following 5 checklist(the last one is not necessary)before request the community to review your PR`.
-
-- [x] Make sure there is a [Github issue](https://github.com/apache/rocketmq/issues) filed for the change (usually before you start working on it). Trivial changes like typos do not require a Github issue. Your pull request should address just this issue, without pulling in other changes - one PR resolves one issue. 
-- [x] Format the pull request title like `[ISSUE #123] Fix UnknownException when host config not exist`. Each commit in the pull request should have a meaningful subject line and body.
-- [x] Write a pull request description that is detailed enough to understand what the pull request does, how, and why.
-- [x] Write necessary unit-test(over 80% coverage) to verify your logic correction, more mock a little better when a cross-module dependency exists.
-- [ ] If this contribution is large, please file an [Apache Individual Contributor License Agreement](http://www.apache.org/licenses/#clas).
-
-
----
 File: MANIFEST.in
 Size: 175 bytes
 Lines: 3
@@ -449,111 +419,6 @@ Copyright 2016-2020 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
-
-
----
-File: README.md
-Size: 3864 bytes
-Lines: 98
----
-# rocketmq-client-python
-
-[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Build Status](https://travis-ci.org/apache/rocketmq-client-python.svg?branch=master)](https://travis-ci.org/apache/rocketmq-client-python)
-[![codecov](https://codecov.io/gh/apache/rocketmq-client-python/branch/ctypes/graph/badge.svg)](https://codecov.io/gh/apache/rocketmq-client-python/branch/ctypes)
-[![PyPI](https://img.shields.io/pypi/v/rocketmq-client-python.svg)](https://pypi.org/project/rocketmq-client-python)
-[![GitHub release](https://img.shields.io/badge/release-download-default.svg)](https://github.com/apache/rocketmq-client-python/releases)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/apache/rocketmq-client-python.svg)](http://isitmaintained.com/project/apache/rocketmq-client-python "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/apache/rocketmq-client-python.svg)](http://isitmaintained.com/project/apache/rocketmq-client-python "Percentage of issues still open")
-![Twitter Follow](https://img.shields.io/twitter/follow/ApacheRocketMQ?style=social)
-
-RocketMQ Python client, based on [rocketmq-client-cpp](https://github.com/apache/rocketmq-client-cpp), supports Linux and macOS
-## Prerequisites
-
-### Install `librocketmq`
-rocketmq-client-python is a lightweight wrapper around [rocketmq-client-cpp](https://github.com/apache/rocketmq-client-cpp), so you need install 
-`librocketmq` first.
-
-#### Download by binary release.
-download specific release according you OS: [rocketmq-client-cpp-2.0.0](https://github.com/apache/rocketmq-client-cpp/releases/tag/2.0.0)
-- centos
-    
-    take centos7 as example, you can install the library in centos6 by the same method.
-    ```bash
-        wget https://github.com/apache/rocketmq-client-cpp/releases/download/2.0.0/rocketmq-client-cpp-2.0.0-centos7.x86_64.rpm
-        sudo rpm -ivh rocketmq-client-cpp-2.0.0-centos7.x86_64.rpm
-    ```
-- debian
-    ```bash
-        wget https://github.com/apache/rocketmq-client-cpp/releases/download/2.0.0/rocketmq-client-cpp-2.0.0.amd64.deb
-        sudo dpkg -i rocketmq-client-cpp-2.0.0.amd64.deb
-    ```
-- macOS
-    ```bash
-        wget https://github.com/apache/rocketmq-client-cpp/releases/download/2.0.0/rocketmq-client-cpp-2.0.0-bin-release.darwin.tar.gz
-        tar -xzf rocketmq-client-cpp-2.0.0-bin-release.darwin.tar.gz
-        cd rocketmq-client-cpp
-        mkdir /usr/local/include/rocketmq
-        cp include/* /usr/local/include/rocketmq
-        cp lib/* /usr/local/lib
-        install_name_tool -id "@rpath/librocketmq.dylib" /usr/local/lib/librocketmq.dylib
-    ```
-#### Build from source
-you can also build it manually from source according to [Build and Install](https://github.com/apache/rocketmq-client-cpp/tree/master#build-and-install)
-
-## Installation
-
-```bash
-pip install rocketmq-client-python
-```
-
-## Usage
-
-### Producer
-
-```python
-from rocketmq.client import Producer, Message
-
-producer = Producer('PID-XXX')
-producer.set_name_server_address('127.0.0.1:9876')
-producer.start()
-
-msg = Message('YOUR-TOPIC')
-msg.set_keys('XXX')
-msg.set_tags('XXX')
-msg.set_body('XXXX')
-ret = producer.send_sync(msg)
-print(ret.status, ret.msg_id, ret.offset)
-producer.shutdown()
-```
-
-### PushConsumer
-
-```python
-import time
-
-from rocketmq.client import PushConsumer, ConsumeStatus
-
-
-def callback(msg):
-    print(msg.id, msg.body)
-    return ConsumeStatus.CONSUME_SUCCESS
-
-
-consumer = PushConsumer('CID_XXX')
-consumer.set_name_server_address('127.0.0.1:9876')
-consumer.subscribe('YOUR-TOPIC', callback)
-consumer.start()
-
-while True:
-    time.sleep(3600)
-
-consumer.shutdown()
-
-```
-
-## License
-[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
 
 
 ---
@@ -736,15 +601,6 @@ docs/_build/
 rocketmq/*.dylib
 rocketmq/*.so
 rocketmq/*.dll
-
-
----
-File: CONTRIBUTING.md
-Size: 226 bytes
-Lines: 2
----
-## How to Contribute
-  Contributions are warmly welcome! Be it trivial cleanup, major new feature or other suggestion. Read this [how to contribute](http://rocketmq.apache.org/docs/how-to-contribute/) guide for more details. 
 
 
 ---
@@ -1337,61 +1193,6 @@ def start_consume_message():
 
 if __name__ == '__main__':
     start_consume_message()
-
----
-File: .github/ISSUE_TEMPLATE/issue_template.md
-Size: 1943 bytes
-Lines: 48
----
----
-name: ISSUE_TEMPLATE
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
-
----
-
-The issue tracker is **ONLY** used for the python client (feature request of RocketMQ need to follow [RIP process](https://github.com/apache/rocketmq/wiki/RocketMQ-Improvement-Proposal)). Keep in mind, please check whether there is an existing same report before your raise a new one.
-
-Alternately (especially if your communication is not a bug report), you can send mail to our [mailing lists](http://rocketmq.apache.org/about/contact/). We welcome any friendly suggestions, bug fixes, collaboration, and other improvements.
-
-Please ensure that your bug report is clear and that it is complete. Otherwise, we may be unable to understand it or to reproduce it, either of which would prevent us from fixing the bug. We strongly recommend the report(bug report or feature request) could include some hints as to the following:
-
-**BUG REPORT**
-
-1. Please describe the issue you observed:
-
-- What did you do (The steps to reproduce)?
-
-- What did you expect to see?
-
-- What did you see instead?
-
-2. Please tell us about your environment:
-
- - What is your OS?
-
- - What is your client version?
-
- - What is your RocketMQ version?
-
-3. Other information (e.g. detailed explanation, logs, related issues, suggestions on how to fix, etc):
-
-**FEATURE REQUEST**
-
-1. Please describe the feature you are requesting.
-
-2. Provide any additional detail on your proposed use case for this feature.
-
-2. Indicate the importance of this issue to you (blocker, must-have, should-have, nice-to-have). Are you currently using any workarounds to address this issue?
-
-4. If there are some sub-tasks using -[] for each subtask and create a corresponding issue to map to the sub task:
-
-- [sub-task1-issue-number](example_sub_issue1_link_here): sub-task1 description here, 
-- [sub-task2-issue-number](example_sub_issue2_link_here): sub-task2 description here,
-- ...
-
 
 ---
 File: rocketmq/client.py

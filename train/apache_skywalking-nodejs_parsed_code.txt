@@ -1,7 +1,7 @@
-Tokens: 83331
+Tokens: 78535
 Repo: apache/skywalking-nodejs
 Commit: 2d85ed5ec59123274d7a4a6fcdafd12e3c6f1851
-Timestamp: 2026-03-04T19:37:19.234653
+Timestamp: 2026-03-04T19:51:41.093103
 
 --- Repository Structure ---
 .
@@ -21,13 +21,9 @@ Timestamp: 2026-03-04T19:37:19.234653
 │   └── pre-commit
 ├── .licenserc.yaml
 ├── .prettierrc
-├── CHANGELOG.md
-├── CONTRIBUTING.md
 ├── LICENSE
 ├── NOTICE
-├── README.md
 ├── docs
-│   └── How-to-release.md
 ├── jest.config.js
 ├── jest.setup.js
 ├── package-lock.json
@@ -181,26 +177,26 @@ Timestamp: 2026-03-04T19:37:19.234653
 
 --- Summary Report ---
 Total files scanned: 133
-Files included: 132
-Files skipped by rule: 0
+Files included: 128
+Files skipped by rule: 4
 Files skipped by size: 1
-Detected languages count: 10
+Detected languages count: 9
 Top 15 largest included files:
   15112 bytes - src/plugins/MongoDBPlugin.ts
-  11995 bytes - README.md
   11357 bytes - LICENSE
   8850 bytes - src/core/PluginInstaller.ts
   7741 bytes - src/plugins/HttpPlugin.ts
   7582 bytes - src/trace/context/SpanContext.ts
   7305 bytes - src/plugins/AWS2SQSPlugin.ts
   7187 bytes - src/plugins/MongoosePlugin.ts
-  6770 bytes - docs/How-to-release.md
   6654 bytes - src/aws/SDK2.ts
   5463 bytes - src/config/AgentConfig.ts
   5132 bytes - tests/plugins/mongoose/expected.data.yaml
   5132 bytes - src/aws/AWSLambdaTriggerPlugin.ts
   4708 bytes - src/agent/protocol/grpc/clients/TraceReportClient.ts
   4491 bytes - src/trace/context/ContextManager.ts
+  4474 bytes - src/trace/span/Span.ts
+  4439 bytes - tests/plugins/ioredis/expected.data.yaml
 -----------------------
 
 ---
@@ -493,16 +489,6 @@ waitForExpect.defaults.timeout = 120000; // ms
 
 
 ---
-File: CHANGELOG.md
-Size: 123 bytes
-Lines: 3
----
-## Change Logs
-
-Head to the [release page](https://github.com/apache/skywalking-nodejs/releases) for the detailed changes.
-
-
----
 File: jest.config.js
 Size: 923 bytes
 Lines: 24
@@ -587,177 +573,6 @@ Copyright 2017-2021 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
-
-
----
-File: README.md
-Size: 11995 bytes
-Lines: 164
----
-# SkyWalking NodeJS Agent
-
-<img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
-
-**SkyWalking-NodeJS**: The NodeJS Agent for Apache SkyWalking, which provides the native tracing abilities for NodeJS backend project.
-
-**SkyWalking**: an APM(application performance monitor) system, especially designed for
-microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
-
-[![GitHub stars](https://img.shields.io/github/stars/apache/skywalking-nodejs.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/skywalking-nodejs)
-[![Twitter Follow](https://img.shields.io/twitter/follow/asfskywalking.svg?style=for-the-badge&label=Follow&logo=twitter)](https://twitter.com/AsfSkyWalking)
-
-
-[![Build](https://github.com/apache/skywalking-nodejs/workflows/Build/badge.svg?branch=master)](https://github.com/apache/skywalking-nodejs/actions?query=branch%3Amaster+event%3Apush+workflow%3A%22Build%22)
-[![npm version](https://badge.fury.io/js/skywalking-backend-js.svg)](https://badge.fury.io/js/skywalking-backend-js)
-
-## Install SkyWalking NodeJS package from npmjs
-
-```bash
-$ npm install --save skywalking-backend-js
-```
-
-## Set up NodeJS Agent
-
-SkyWalking NodeJS SDK requires SkyWalking backend (OAP) 8.0+ and NodeJS >= 14,
-other versions are not tested and SkyWalking NodeJS SDK may or may not work,
-please make sure to use the supported versions before reporting any issue.
-
-```typescript
-import agent from 'skywalking-backend-js';
-
-agent.start();
-```
-
-This will use default configurations to start the SkyWalking agent above, if you want to specify your own configurations, here are two methods.
-
-- Pass those values to `agent.start` method, such as:
-
-```typescript
-agent.start({
-  serviceName: 'my-service-name',
-  serviceInstance: 'my-service-instance-name',
-  collectorAddress: 'my.collector.address:port',
-});
-```
-
-Note that all options given (including empty/null values) will override the corresponding default values, e.g. `agent.start({ collectorAddress: '' })` will override the default value of `collectorAddress` to empty string, causing errors like `DNS resolution failed`.
-
-- Use environment variables.
-
-The supported environment variables are as follows:
-
-Environment Variable | Description | Default
-| :--- | :--- | :--- |
-| `SW_AGENT_NAME` | The name of the service | `your-nodejs-service` |
-| `SW_AGENT_INSTANCE` | The name of the service instance | Randomly generated |
-| `SW_AGENT_COLLECTOR_BACKEND_SERVICES` | The backend OAP server address | `127.0.0.1:11800` |
-| `SW_AGENT_SECURE` | Whether to use secure connection to backend OAP server | `false` |
-| `SW_AGENT_AUTHENTICATION` | The authentication token to verify that the agent is trusted by the backend OAP, as for how to configure the backend, refer to [the yaml](https://github.com/apache/skywalking/blob/4f0f39ffccdc9b41049903cc540b8904f7c9728e/oap-server/server-bootstrap/src/main/resources/application.yml#L155-L158). | not set |
-| `SW_AGENT_LOGGING_LEVEL` | The logging level, could be one of `error`, `warn`, `info`, `debug` | `info` |
-| `SW_AGENT_DISABLE_PLUGINS` | Comma-delimited list of plugins to disable in the plugins directory (e.g. "mysql", "express") | `` |
-| `SW_COLD_ENDPOINT` | Cold start detection is as follows: First span to run is considered a cold start. This span gets the tag `coldStart` set to 'true'. This span also optionally gets the text '\<cold\>' appended to the endpoint name if SW_COLD_ENDPOINT is set to 'true'. | `false` |
-| `SW_IGNORE_SUFFIX` | The suffices of endpoints that will be ignored (not traced), comma separated | `.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg` |
-| `SW_TRACE_IGNORE_PATH` | The paths of endpoints that will be ignored (not traced), comma separated | `` |
-| `SW_HTTP_IGNORE_METHOD` | Comma-delimited list of http methods to ignore (GET, POST, HEAD, OPTIONS, etc...) | `` |
-| `SW_SQL_TRACE_PARAMETERS` | If set to 'true' then SQL query parameters will be included | `false` |
-| `SW_SQL_PARAMETERS_MAX_LENGTH` | The maximum string length of SQL parameters to log | `512` |
-| `SW_MONGO_TRACE_PARAMETERS` | If set to 'true' then mongodb query parameters will be included | `false` |
-| `SW_MONGO_PARAMETERS_MAX_LENGTH` | The maximum string length of mongodb parameters to log | `512` |
-| `SW_AWS_LAMBDA_FLUSH` | Maximum number of float seconds allowed to pass between invocations before consecutive Lambda function calls flush automatically upon exit, 0 means always flush, -1 means never. | `2` |
-| `SW_AWS_LAMBDA_CHAIN` | Pass trace ID to AWS Lambda function in its parameters (to allow linking). Only use if both caller and callee will be instrumented. | `false` |
-| `SW_AWS_SQS_CHECK_BODY` | Incoming SQS messages check inside the body for trace ID in order to allow linking outgoing SNS messages to incoming SQS. | `false` |
-| `SW_AGENT_MAX_BUFFER_SIZE` | The maximum buffer size before sending the segment data to backend | `'1000'` |
-| `SW_AGENT_TRACE_TIMEOUT` | The timeout for trace requests to backend services | `'10000'` |
-
-
-Note that the various ignore options like `SW_IGNORE_SUFFIX`, `SW_TRACE_IGNORE_PATH` and `SW_HTTP_IGNORE_METHOD` as well as endpoints which are not recorded due to exceeding `SW_AGENT_MAX_BUFFER_SIZE` all propagate their ignored status downstream to any other endpoints they may call. If that endpoint is running the Node Skywalking agent then regardless of its ignore settings it will not be recorded since its upstream parent was not recorded. This allows the elimination of entire trees of endpoints you are not interested in as well as eliminating partial traces if a span in the chain is ignored but calls out to other endpoints which are recorded as children of ROOT instead of the actual parent.
-
-## Supported Libraries
-
-Some built-in plugins support automatic instrumentation of NodeJS libraries, the complete list is as follows:
-
-Library | Plugin Name
-| :--- | :--- |
-| built-in `http` and `https` module | `http` / `https` |
-| [`Express`](https://expressjs.com) | `express` |
-| [`Axios`](https://github.com/axios/axios) | `axios` |
-| [`MySQL`](https://github.com/mysqljs/mysql) | `mysql` |
-| [`MySQL`](https://github.com/sidorares/node-mysql2) | `mysql2` |
-| [`PostgreSQL`](https://github.com/brianc/node-postgres) | `pg` |
-| [`pg-cursor`](https://github.com/brianc/node-postgres) | `pg-cursor` |
-| [`MongoDB`](https://github.com/mongodb/node-mongodb-native) | `mongodb` |
-| [`Mongoose`](https://github.com/Automattic/mongoose) | `mongoose` |
-| [`RabbitMQ`](https://github.com/squaremo/amqp.node) | `amqplib` |
-| [`Redis`](https://github.com/luin/ioredis) | `ioredis` |
-| [`AWS2DynamoDB`](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html) | `aws-sdk` |
-| [`AWS2Lambda`](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Lambda.html) | `aws-sdk` |
-| [`AWS2SNS`](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SNS.html) | `aws-sdk` |
-| [`AWS2SQS`](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html) | `aws-sdk` |
-
-### Compatible Libraries
-
-The following are packages that have been tested to some extent and are compatible because they work through the instrumentation of an underlying package:
-
-Library | Underlying Plugin Name
-| :--- | :--- |
-| [`request`](https://github.com/request/request) | `http` / `https` |
-| [`request-promise`](https://github.com/request/request-promise) | `http` / `https` |
-| [`koa`](https://github.com/koajs/koa) | `http` / `https` |
-
-## Experimental Azure Functions Support
-
-The plugin `AzureHttpTriggerPlugin` provides a wrapper function for an Azure Functions Javascript HttpTrigger endpoint. This is an http server endpoint and currently must be instrumented manually. So far all other plugins tested work within the HttpTrigger and so a trace can pass through the Function and onto other endpoints called by the function. How much sense it makes to instrument an Azure Function which already lives in the cloud and has robust monitoring incorporated is a good question, but at the least, this plugin will allow those endpoints to show up in a Skywalking trace.
-
-### Usage:
-
-```javascript
-const {default: agent, AzureHttpTriggerPlugin} = require('skywalking-backend-js');
-
-agent.start({ ... });
-
-module.exports = AzureHttpTriggerPlugin.wrap(async function (context, req) {
-
-  /* contents of http trigger function */
-
-});
-```
-
-All that needs to be done is the actual trigger function needs to be wrapped with `azureHttpTriggerPlugin.wrap()`, whether that function is a default export or an explicitly named `entryPoint` or `run` or `index`.
-
-## Experimental AWS Lambda Functions Support
-
-The plugins `AWSLambdaTriggerPlugin`, `AWSLambdaGatewayAPIHTTP` and `AWSLambdaGatewayAPIREST` provide a wrapper functions for AWS Lambda Functions endpoints. `AWSLambdaTriggerPlugin` is a generic wrapper plugin which should work with any kind of Lambda trigger but also stores the least amount of information since it does not know anything about the incoming data format. For this reason, this type of trigger also can not link back to the caller, but it can create a new segment that will be propagated to all downstream children, thus starting its own trace. `AWSLambdaGatewayAPIHTTP` and `AWSLambdaGatewayAPIREST` are specific wrappers for Lambda functions triggered by the GatewayAPI HTTP or REST triggers. They have the advantage of knowing the incoming data format and can thus extract existing trace segment information from incoming requests and chain correctly from upstream to any downstream endpoints.
-
-### Usage:
-
-```javascript
-const {default: agent, AWSLambdaGatewayAPIHTTP} = require('skywalking-backend-js');
-
-agent.start({ ... });
-
-exports.handler = AWSLambdaGatewayAPIHTTP.wrap(async function (event, context, callback) {
-
-  /* contents of http trigger function */
-
-});
-```
-
-This is similar to Azure Functions wrapping, just wrap your handler function with `AWSLambdaTriggerPlugin.wrap()` or `AWSLambdaGatewayAPIHTTP.wrap()` or `AWSLambdaGatewayAPIREST.wrap()`. One thing to note is that AWS freezes processes in between invocations of lambda functions so whether you are doing async or sync handler functions with callbacks, you should make sure everything you need to do finishes before returning control to AWS or calling the synchronous callback. These plugins take this into account and automatically flush the segment buffers before closing a trace span.
-
-## Experimental Webpack Support
-
-Webpack requires that all imports be statically defined at compile-time and so was not compatible with the dynamic search and loading done by the standard `PluginInstaller`. This has been extended to attempt static imports if the application is determined to be running out of a webpack bundle. This requires that any new plugins be manually added to `PluginInstaller.installBundled()`. Only plugins which allow a `require('module/package.json')` will work with this method as `package.json` needs to be loaded to determine the version of the plugin module present. Some modules specifically disallow import of their package.json and so can not be loaded like this.
-
-Upon compile with `webpack` it will complain about missing modules for which imports are attempted in the sw agent but which are not present. Simply add these modules to the list of modules to be ignored by webpack, for example by `resolve: {alias: {'module': false}}`.
-
-## Contact Us
-* Submit [an issue](https://github.com/apache/skywalking/issues/new) by using [Nodejs] as title prefix.
-* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
-* Join `skywalking` channel at [Apache Slack](http://s.apache.org/slack-invite). If the link is not working, find the latest one at [Apache INFRA WIKI](https://cwiki.apache.org/confluence/display/INFRA/Slack+Guest+Invites).
-* Twitter, [ASFSkyWalking](https://twitter.com/ASFSkyWalking)
-
-## License
-Apache 2.0
 
 
 ---
@@ -899,34 +714,6 @@ Lines: 92
     ]
   }
 }
-
-
----
-File: CONTRIBUTING.md
-Size: 723 bytes
-Lines: 21
----
-# Compiling and Building
-
-We use NodeJS 14 to build skywalking-nodejs project, if you don't have NodeJS 14 installed,
-you can choose a node version manager like [nvm](https://github.com/nvm-sh/nvm) to easily
-manage multiple node vesions, or you can start a Docker container and build this project inside
-the container.
-
-```shell
-# Suppose you have the source codes in folder skywalking-nodejs
-docker run -it --rm -v $(pwd)/skywalking-nodejs:/workspace -w /workspace node:14 bash
-```
-
-Then run the following commands to build the project:
-
-```shell
-npm install
-npm run build
-```
-
-Warnings can be ignored, but if you have any error that prevents you to continue, try
-`rm -rf node_modules/` and then rerun the commands above.
 
 
 ---
@@ -4765,194 +4552,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(5000, () => console.info('Listening on port 5000...'));
-
-
----
-File: docs/How-to-release.md
-Size: 6770 bytes
-Lines: 181
----
-# Apache SkyWalking NodeJS Release Guide
-
-This documentation guides the release manager to release the SkyWalking NodeJS in the Apache Way, and also helps people to check the release for voting.
-
-## Prerequisites
-
-1. Close (if finished, or move to next milestone otherwise) all issues in the current milestone from [skywalking-nodejs](https://github.com/apache/skywalking-nodejs/milestones) and [skywalking](https://github.com/apache/skywalking/milestones), create a new milestone for the next release.
-1. Update [CHANGELOG.md](../CHANGELOG.md) and `version` in [package.json](../package.json).
-
-
-## Add your GPG public key to Apache svn
-
-1. Upload your GPG public key to a public GPG site, such as [MIT's site](http://pgp.mit.edu:11371/).
-
-1. Log in [id.apache.org](https://id.apache.org/) and submit your key fingerprint.
-
-1. Add your GPG public key into [SkyWalking GPG KEYS](https://dist.apache.org/repos/dist/release/skywalking/KEYS) file, **you can do this only if you are a PMC member**.  You can ask a PMC member for help. **DO NOT override the existed `KEYS` file content, only append your key at the end of the file.**
-
-
-## Build and sign the source code package
-
-```shell
-export VERSION=<the version to release>
-
-git clone --recurse-submodules git@github.com:apache/skywalking-nodejs && cd skywalking-nodejs
-git tag -a "v$VERSION" -m "Release Apache SkyWalking-NodeJS $VERSION"
-git push --tags
-
-npm install && npm run release-src
-```
-
-## Upload to Apache svn
-
-```bash
-svn co https://dist.apache.org/repos/dist/dev/skywalking/node-js/ release/skywalking/node-js
-mkdir -p release/skywalking/node-js/"$VERSION"
-cp skywalking-node-js/skywalking*.tgz release/skywalking/node-js/"$VERSION"
-cp skywalking-node-js/skywalking*.tgz.asc release/skywalking/node-js/"$VERSION"
-cp skywalking-node-js/skywalking*.tgz.sha512 release/skywalking/node-js/"$VERSION"
-
-cd release/skywalking && svn add node-js/$VERSION && svn commit node-js -m "Draft Apache SkyWalking-NodeJS release $VERSION"
-```
-
-## Call for vote in dev@ mailing list
-
-Call for vote in `dev@skywalking.apache.org`.
-
-```text
-Subject: [VOTE] Release Apache SkyWalking NodeJS version $VERSION
-
-Content:
-
-Hi the SkyWalking Community:
-This is a call for vote to release Apache SkyWalking NodeJS version $VERSION.
-
-Release notes:
-
- * https://github.com/apache/skywalking-nodejs/blob/v$VERSION/CHANGELOG.md
-
-Release Candidate:
-
- * https://dist.apache.org/repos/dist/dev/skywalking/node-js/$VERSION
- * sha512 checksums
-   - sha512xxxxyyyzzz skywalking-nodejs-src-x.x.x.tgz
-
-Release Tag :
-
- * (Git Tag) v$VERSION
-
-Release Commit Hash :
-
- * https://github.com/apache/skywalking-nodejs/tree/<Git Commit Hash>
-
-Keys to verify the Release Candidate :
-
- * https://dist.apache.org/repos/dist/release/skywalking/KEYS
-
-Guide to build the release from source :
-
- * https://github.com/apache/skywalking-nodejs/blob/master/CONTRIBUTING.md#compiling-and-building
-
-Voting will start now and will remain open for at least 72 hours, all PMC members are required to give their votes.
-
-[ ] +1 Release this package.
-[ ] +0 No opinion.
-[ ] -1 Do not release this package because....
-
-Thanks.
-
-[1] https://github.com/apache/skywalking-nodejs/blob/master/docs/How-to-release.md#vote-check
-```
-
-## Vote Check
-
-All PMC members and committers should check these before voting +1:
-
-1. Features test.
-1. All artifacts in staging repository are published with `.asc`, `.md5`, and `sha` files.
-1. Source codes and distribution packages (`skywalking-nodejs-src-$VERSION.tgz`)
-are in `https://dist.apache.org/repos/dist/dev/skywalking/node-js/$VERSION` with `.asc`, `.sha512`.
-1. `LICENSE` and `NOTICE` are in source codes and distribution package.
-1. Check `shasum -c skywalking-nodejs-src-$VERSION.tgz.sha512`.
-1. Check `gpg --verify skywalking-nodejs-src-$VERSION.tgz.asc skywalking-nodejs-src-$VERSION.tgz`.
-1. Build distribution from source code package by following this [the build guide](#build-and-sign-the-source-code-package).
-1. Licenses check, `make license`.
-
-Vote result should follow these:
-
-1. PMC vote is +1 binding, all others is +1 no binding.
-
-1. Within 72 hours, you get at least 3 (+1 binding), and have more +1 than -1. Vote pass.
-
-1. **Send the closing vote mail to announce the result**.  When count the binding and no binding votes, please list the names of voters. An example like this:
-
-   ```
-   [RESULT][VOTE] Release Apache SkyWalking NodeJS version $VERSION
-
-   72+ hours passed, we’ve got ($NUMBER) +1 bindings (and ... +1 non-bindings):
-
-   (list names)
-   +1 bindings:
-   xxx
-   ...
-
-   +1 non-bindings:
-   xxx
-   ...
-
-   Thank you for voting, I’ll continue the release process.
-   ```
-
-## Publish release
-
-1. Move source codes tar balls and distributions to `https://dist.apache.org/repos/dist/release/skywalking/`, **you can do this only if you are a PMC member**.
-
-    ```shell
-    svn mv https://dist.apache.org/repos/dist/dev/skywalking/node-js/"$VERSION" https://dist.apache.org/repos/dist/release/skywalking/node-js/"$VERSION"
-    ```
-
-1. Refer to the previous [PR](https://github.com/apache/skywalking-website/pull/190), update news and links on the website. There are several files need to modify.
-
-1. Update [Github release page](https://github.com/apache/skywalking-nodejs/releases), follow the previous convention.
-
-1. Publish to npmjs.com, this is optional for Apache releases, but we usually want to do this to let users use it conveniently.
-
-  ```shell
-  npm run build && npm pack && npm publish
-  ```
-
-**NOTE**: please double check before publishing to npmjs.com, it's difficult to unpublish and republish the module at the moment.
-
-1. Send ANNOUNCE email to `dev@skywalking.apache.org` and `announce@apache.org`, the sender should use his/her Apache email account.
-
-    ```
-    Subject: [ANNOUNCEMENT] Apache SkyWalking NodeJS $VERSION Released
-
-    Content:
-
-    Hi the SkyWalking Community
-
-    On behalf of the SkyWalking Team, I’m glad to announce that SkyWalking NodeJS $VERSION is now released.
-
-    SkyWalking NodeJS: The NodeJS Agent for Apache SkyWalking, which provides the native tracing abilities for NodeJS backend project.
-
-    SkyWalking: APM (application performance monitor) tool for distributed systems, especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
-
-    Download Links: http://skywalking.apache.org/downloads/
-
-    Release Notes : https://github.com/apache/skywalking-nodejs/blob/v$VERSION/CHANGELOG.md
-
-    Website: http://skywalking.apache.org/
-
-    SkyWalking NodeJS Resources:
-- Issue: https://github.com/apache/skywalking/issues
-    - Mailing list: dev@skywalking.apache.org
-    - Documents: https://github.com/apache/skywalking-nodejs/blob/v$VERSION/README.md
-
-    The Apache SkyWalking Team
-```
-
-
 
 
 ---
