@@ -1,0 +1,2895 @@
+Tokens: 24196
+Repo: apache/skywalking-nodejs
+Commit: 2d85ed5ec59123274d7a4a6fcdafd12e3c6f1851
+Timestamp: 2026-04-12T23:32:20.982941
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .dockerignore
+├── .editorconfig
+├── .eslintrc.js
+├── .file-headerrc
+├── .gitignore
+├── .gitmodules
+├── .husky
+│   └── pre-commit
+├── .licenserc.yaml
+├── .prettierrc
+├── docs
+├── jest.config.js
+├── jest.setup.js
+├── package-lock.json
+├── package.json
+├── protocol
+├── scripts
+│   └── protoc.sh
+├── src
+│   ├── Log.ts
+│   ├── Tag.ts
+│   ├── agent
+│   │   └── protocol
+│   │       ├── Protocol.ts
+│   │       └── grpc
+│   │           ├── AuthInterceptor.ts
+│   │           ├── GrpcProtocol.ts
+│   │           ├── SegmentObjectAdapter.ts
+│   │           └── clients
+│   │               ├── Client.ts
+│   │               ├── HeartbeatClient.ts
+│   │               └── TraceReportClient.ts
+│   ├── annotations
+│   │   └── index.ts
+│   ├── aws
+│   │   ├── AWSLambdaGatewayAPIHTTP.ts
+│   │   ├── AWSLambdaGatewayAPIREST.ts
+│   │   ├── AWSLambdaTriggerPlugin.ts
+│   │   └── SDK2.ts
+│   ├── azure
+│   │   └── AzureHttpTriggerPlugin.ts
+│   ├── config
+│   │   └── AgentConfig.ts
+│   ├── core
+│   │   ├── OptionMethods.ts
+│   │   ├── PluginInstaller.ts
+│   │   └── SwPlugin.ts
+│   ├── egg
+│   │   └── index.ts
+│   ├── index.ts
+│   ├── lib
+│   │   └── EventEmitter.ts
+│   ├── logging
+│   │   └── index.ts
+│   ├── plugins
+│   │   ├── AMQPLibPlugin.ts
+│   │   ├── AWS2DynamoDBPlugin.ts
+│   │   ├── AWS2LambdaPlugin.ts
+│   │   ├── AWS2SNSPlugin.ts
+│   │   ├── AWS2SQSPlugin.ts
+│   │   ├── AxiosPlugin.ts
+│   │   ├── ExpressPlugin.ts
+│   │   ├── HttpPlugin.ts
+│   │   ├── IORedisPlugin.ts
+│   │   ├── MongoDBPlugin.ts
+│   │   ├── MongoosePlugin.ts
+│   │   ├── MySQL2Plugin.ts
+│   │   ├── MySQLPlugin.ts
+│   │   └── PgPlugin.ts
+│   ├── trace
+│   │   ├── Component.ts
+│   │   ├── ID.ts
+│   │   ├── NewID.ts
+│   │   ├── context
+│   │   │   ├── CarrierItem.ts
+│   │   │   ├── Context.ts
+│   │   │   ├── ContextCarrier.ts
+│   │   │   ├── ContextManager.ts
+│   │   │   ├── DummyContext.ts
+│   │   │   ├── Segment.ts
+│   │   │   ├── SegmentRef.ts
+│   │   │   └── SpanContext.ts
+│   │   └── span
+│   │       ├── DummySpan.ts
+│   │       ├── EntrySpan.ts
+│   │       ├── ExitSpan.ts
+│   │       ├── LocalSpan.ts
+│   │       └── Span.ts
+│   └── tsconfig.json
+└── tsconfig.json
+
+--- Summary Report ---
+Total files scanned: 70
+Files included: 69
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 28
+Files with dependency extraction: 0
+Detected languages count: 6
+Top 15 largest included files:
+  15480 bytes - src\plugins\MongoDBPlugin.ts
+  9155 bytes - src\core\PluginInstaller.ts
+  7968 bytes - src\plugins\HttpPlugin.ts
+  7836 bytes - src\trace\context\SpanContext.ts
+  7519 bytes - src\plugins\AWS2SQSPlugin.ts
+  7377 bytes - src\plugins\MongoosePlugin.ts
+  6884 bytes - src\aws\SDK2.ts
+  5612 bytes - src\config\AgentConfig.ts
+  5288 bytes - src\aws\AWSLambdaTriggerPlugin.ts
+  4851 bytes - src\agent\protocol\grpc\clients\TraceReportClient.ts
+  4660 bytes - src\trace\context\ContextManager.ts
+  4644 bytes - src\trace\span\Span.ts
+  4492 bytes - src\plugins\AWS2LambdaPlugin.ts
+  4453 bytes - src\plugins\AWS2SNSPlugin.ts
+  4411 bytes - src\plugins\MySQL2Plugin.ts
+-----------------------
+
+---
+File: package.json
+Size: 3213 bytes
+Lines: 92
+---
+{
+  "name": "skywalking-backend-js",
+  "version": "0.8.0",
+  "description": "The NodeJS agent for Apache SkyWalking",
+  "homepage": "skywalking.apache.org",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "postinstall": "node -e \"if(require('fs').existsSync('.git')){process.exit(1)}\" || husky install",
+    "prepare": "npm run generate-source",
+    "generate-source": "scripts/protoc.sh",
+    "build": "npm run clean && npm run prepare && tsc --build src && OUT_DIR=lib/proto/ scripts/protoc.sh",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "prettier --write \"src/**/*.ts\"",
+    "lint-staged": "lint-staged",
+    "test": "DEBUG=testcontainers* jest",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "clean": "(rm -rf src/proto || true) && (rm -rf src/proto || true) && (rm -rf lib || true)",
+    "package-src": "touch skywalking-nodejs-src-$npm_package_version.tgz && tar -zcvf skywalking-nodejs-src-$npm_package_version.tgz --exclude bin --exclude .git --exclude .idea --exclude .DS_Store --exclude .github --exclude node_modules --exclude skywalking-nodejs-src-$npm_package_version.tgz .",
+    "release-src": "npm run prepare && npm run package-src && gpg --batch --yes --armor --detach-sig skywalking-nodejs-src-$npm_package_version.tgz && shasum -a 512 skywalking-nodejs-src-$npm_package_version.tgz > skywalking-nodejs-src-$npm_package_version.tgz.sha512"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "keywords": [
+    "SkyWalking",
+    "APM",
+    "Dapper",
+    "Tracing",
+    "Agent",
+    "Instrumentation"
+  ],
+  "author": "Apache SkyWalking Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apache/skywalking-nodejs"
+  },
+  "bugs": {
+    "url": "https://github.com/apache/skywalking/issues",
+    "email": "dev@skywalking.apache.org"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/google-protobuf": "^3.7.2",
+    "@types/ioredis": "^4.26.4",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.0.11",
+    "@types/semver": "^7.2.0",
+    "@types/uuid": "^8.0.0",
+    "@typescript-eslint/parser": "^5.10.1",
+    "amqplib": "^0.7.0",
+    "axios": "^0.21.0",
+    "eslint": "^8.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "express": "^4.17.1",
+    "grpc-tools": "^1.11.1",
+    "grpc_tools_node_protoc_ts": "^5.3.0",
+    "ioredis": "^4.27.2",
+    "jest": "^26.6.3",
+    "lint-staged": "^12.3.2",
+    "mongodb": "^3.6.4",
+    "mongoose": "^5.12.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
+    "pg": "^8.5.1",
+    "prettier": "^2.5.1",
+    "testcontainers": "^10.3.2",
+    "ts-jest": "^26.4.4",
+    "ts-node": "^8.10.2",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.9.5",
+    "wait-for-expect": "^3.0.2"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.6.7",
+    "google-protobuf": "^3.14.0",
+    "husky": "^7.0.4",
+    "semver": "^7.3.2",
+    "tslib": "^2.0.3",
+    "uuid": "^8.1.0",
+    "winston": "^3.2.1"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint",
+      "prettier --write"
+    ]
+  }
+}
+
+
+---
+File: .asf.yaml
+Size: 1371 bytes
+Lines: 42
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+github:
+  description: The NodeJS agent for Apache SkyWalking
+  homepage: https://skywalking.apache.org/
+  labels:
+    - skywalking
+    - observability
+    - apm
+    - distributed-tracing
+    - nodejs
+    - typescript
+    - dapper
+  dependabot_updates: false
+  enabled_merge_buttons:
+    squash:  true
+    merge:   false
+    rebase:  false
+  protected_branches:
+    master:
+      required_status_checks:
+        strict: true
+
+      required_pull_request_reviews:
+        dismiss_stale_reviews: true
+        required_approving_review_count: 1
+
+
+
+---
+File: .dockerignore
+Size: 841 bytes
+Lines: 22
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+node_modules/
+lib/
+.idea
+.git
+
+
+---
+File: .editorconfig
+Size: 980 bytes
+Lines: 27
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+quote_type = single
+
+
+---
+File: .eslintrc.js
+Size: 603 bytes
+Lines: 24
+---
+module.exports = {
+  extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  plugins: ["header"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    sourceType: "module"
+  },
+  rules: {
+    "header/header": ["error", ".file-headerrc"],
+    "no-useless-escape": "off",
+    "no-unused-vars": [
+      "error",
+      // we are only using this rule to check for unused arguments since TS
+      // catches unused variables but not args.
+      { varsIgnorePattern: ".*", args: "none" }
+    ]
+  },
+  env: {
+    node: true
+  },
+  globals: {
+    "NodeJS": true
+  }
+};
+
+
+---
+File: .file-headerrc
+Size: 827 bytes
+Lines: 18
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+
+---
+File: .gitignore
+Size: 67 bytes
+Lines: 6
+---
+node_modules
+.idea
+lib
+src/proto/
+*.log
+tsconfig.tsbuildinfo
+
+
+---
+File: .gitmodules
+Size: 113 bytes
+Lines: 3
+---
+[submodule "protocol"]
+	path = protocol
+	url = https://github.com/apache/skywalking-data-collect-protocol.git
+
+
+---
+File: .licenserc.yaml
+Size: 1184 bytes
+Lines: 39
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Apache Software Foundation
+
+  paths-ignore:
+    - 'dist'
+    - 'licenses'
+    - '**/*.md'
+    - '**/*.json'
+    - 'LICENSE'
+    - 'NOTICE'
+    - '.gitignore'
+    - '.gitmodules'
+    - '.prettierrc'
+    - 'lib'
+    - '.husky'
+    - '.file-headerrc'
+    - '.eslintrc.js'
+
+  comment: on-failure
+
+
+---
+File: .prettierrc
+Size: 78 bytes
+Lines: 5
+---
+{
+  "printWidth": 120,
+  "trailingComma": "all",
+  "singleQuote": true
+}
+
+
+---
+File: tsconfig.json
+Size: 306 bytes
+Lines: 18
+---
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "outDir": ".",
+    "resolveJsonModule": true,
+    "composite": true,
+    "esModuleInterop": true
+  },
+  "files": [
+    "package.json"
+  ],
+  "include": [
+    "src/**/*",
+    "tests/**/*"
+  ]
+}
+
+
+---
+File: src\index.ts
+Size: 3415 bytes
+Lines: 97 [structural]
+---
+import config, { AgentConfig, finalizeConfig } from './config/AgentConfig';
+import Protocol from './agent/protocol/Protocol';
+import GrpcProtocol from './agent/protocol/grpc/GrpcProtocol';
+import { createLogger } from './logging';
+import PluginInstaller from './core/PluginInstaller';
+import SpanContext from './trace/context/SpanContext';
+const logger = createLogger(__filename);
+class Agent {
+  start(options: AgentConfig = {}): void {
+  flush(): Promise<any> | null {
+    const spanContextFlush = SpanContext.flush(); // if there are spans which haven't finished then wait for them
+    const protocol = this.protocol;
+    return new Promise((resolve) => {
+      spanContextFlush.then(() => {
+        const protocolFlush = protocol.flush();
+        else protocolFlush.then(() => resolve(null));
+  destroy(): void {
+export default new Agent();
+export { default as config } from './config/AgentConfig';
+export { default as ContextManager } from './trace/context/ContextManager';
+export { default as AzureHttpTriggerPlugin } from './azure/AzureHttpTriggerPlugin';
+export { default as AWSLambdaTriggerPlugin } from './aws/AWSLambdaTriggerPlugin';
+export { default as AWSLambdaGatewayAPIHTTP } from './aws/AWSLambdaGatewayAPIHTTP';
+export { default as AWSLambdaGatewayAPIREST } from './aws/AWSLambdaGatewayAPIREST';
+
+---
+File: src\annotations\index.ts
+Size: 1368 bytes
+Lines: 42
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import ContextManager from '../trace/context/ContextManager';
+
+export function trace(op?: string) {
+  return (target: any, key: string, descriptor?: PropertyDescriptor) => {
+    if (descriptor === undefined) {
+      return;
+    }
+
+    const original = descriptor.value;
+
+    descriptor.value = function (...args: any[]) {
+      const span = ContextManager.current.newLocalSpan(op || key);
+
+      span.start();
+
+      const result = original.apply(this, args);
+
+      span.stop();
+
+      return result;
+    };
+  };
+}
+
+
+---
+File: src\egg\index.ts
+Size: 880 bytes
+Lines: 22
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import agent from '../index';
+
+agent.start({});
+
+
+---
+File: src\logging\index.ts
+Size: 2389 bytes
+Lines: 75
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import * as winston from 'winston';
+import { Logger } from 'winston';
+
+type LoggerLevelAware = Logger & {
+  _isDebugEnabled: boolean;
+  _isInfoEnabled: boolean;
+};
+
+export function createLogger(name: string): LoggerLevelAware {
+  const loggingLevel = (process.env.SW_AGENT_LOGGING_LEVEL || 'error').toLowerCase();
+
+  const logger = winston.createLogger({
+    level: loggingLevel,
+    format: winston.format.json(),
+    defaultMeta: {
+      file: name,
+    },
+  });
+
+  if (process.env.NODE_ENV !== 'production' || process.env.SW_LOGGING_TARGET === 'console') {
+    logger.add(
+      new winston.transports.Console({
+        format: winston.format.prettyPrint(),
+      }),
+    );
+  } else {
+    logger.add(
+      new winston.transports.File({
+        filename: 'skywalking.log',
+      }),
+    );
+  }
+
+  const loggerLevel = logger.levels[logger.level];
+  const _isDebugEnabled = loggerLevel >= logger.levels.debug;
+  const _isInfoEnabled = loggerLevel >= logger.levels.info;
+
+  Object.assign(logger, {
+    _isDebugEnabled,
+    _isInfoEnabled,
+  });
+
+  const nop = (): void => {
+    /* a cookie for the linter */
+  };
+
+  if (loggerLevel < logger.levels.debug)
+    // we do this because logger still seems to stringify anything sent to it even if it is below the logging level, costing performance
+    (logger as any).debug = nop;
+
+  if (loggerLevel < logger.levels.info) (logger as any).info = nop;
+
+  if (loggerLevel < logger.levels.warn) (logger as any).warn = nop;
+
+  return logger as LoggerLevelAware;
+}
+
+
+---
+File: jest.config.js
+Size: 947 bytes
+Lines: 24
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  setupFilesAfterEnv: ['./jest.setup.js'],
+};
+
+
+---
+File: jest.setup.js
+Size: 1008 bytes
+Lines: 25
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+const waitForExpect = require('wait-for-expect');
+
+jest.setTimeout(30000000);
+
+waitForExpect.defaults.interval = 10000; // ms
+waitForExpect.defaults.timeout = 120000; // ms
+
+
+---
+File: src\Log.ts
+Size: 972 bytes
+Lines: 28
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+export interface LogItem {
+  key: string;
+  val: string;
+}
+
+export default interface Log {
+  timestamp: number;
+  items: LogItem[];
+}
+
+
+---
+File: src\Tag.ts
+Size: 3719 bytes
+Lines: 140 [structural]
+---
+export interface Tag {
+export default {
+  coldStart(val: boolean = true): Tag {
+  httpStatusCode(val: string | number | undefined): Tag {
+  httpStatusMsg(val: string | undefined): Tag {
+  httpURL(val: string | undefined): Tag {
+  httpMethod(val: string | undefined): Tag {
+  dbType(val: string | undefined): Tag {
+  dbInstance(val: string | undefined): Tag {
+  dbStatement(val: string | undefined): Tag {
+  dbSqlParameters(val: string | undefined): Tag {
+  dbMongoParameters(val: string | undefined): Tag {
+  mqBroker(val: string | undefined): Tag {
+  mqTopic(val: string | undefined): Tag {
+  mqQueue(val: string | undefined): Tag {
+  arn(val: string | undefined): Tag {
+
+---
+File: .husky\pre-commit
+Size: 66 bytes
+Lines: 4
+---
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npm run lint-staged
+
+
+---
+File: scripts\protoc.sh
+Size: 1351 bytes
+Lines: 38
+---
+#!/usr/bin/env bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ROOT_DIR=$(cd "$(dirname "$0")"/..; pwd)
+OUT_DIR="$ROOT_DIR"/${OUT_DIR:-src/proto/}
+
+mkdir -p $OUT_DIR || true
+
+cd "${ROOT_DIR}"/protocol || exit
+
+PROTOC_GEN_TS_PATH="${ROOT_DIR}/node_modules/.bin/protoc-gen-ts"
+PROTOC="${ROOT_DIR}/node_modules/.bin/grpc_tools_node_protoc"
+
+${PROTOC} \
+    --js_out=import_style=commonjs,binary:$OUT_DIR \
+    --grpc_out=grpc_js:$OUT_DIR \
+      **/*.proto
+
+${PROTOC} \
+    --plugin=protoc-gen-ts="${PROTOC_GEN_TS_PATH}" \
+    --ts_out=grpc_js:$OUT_DIR \
+      **/*.proto
+
+
+
+---
+File: src\tsconfig.json
+Size: 604 bytes
+Lines: 31
+---
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "../lib",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "allowJs": true,
+    "sourceMap": true
+  },
+  "references": [
+    {
+      "path": ".."
+    }
+  ],
+  "include": [
+    "**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
+  ]
+}
+
+
+---
+File: src\plugins\AMQPLibPlugin.ts
+Size: 4200 bytes
+Lines: 124 [structural]
+---
+import SwPlugin from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import PluginInstaller from '../core/PluginInstaller';
+class AMQPLibPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const { BaseChannel } = installer.require?.('amqplib/lib/channel') ?? require('amqplib/lib/channel');
+  interceptProducer(BaseChannel: any): void {
+    const _sendMessage = BaseChannel.prototype.sendMessage;
+      const topic = fields.exchange || '';
+      const queue = fields.routingKey || '';
+      const peer = `${this.connection.stream.remoteAddress}:${this.connection.stream.remotePort}`;
+      const span = ContextManager.current.newExitSpan(
+        span.inject().items.forEach((item) => {
+        const ret = _sendMessage.call(this, fields, properties, content);
+  interceptConsumer(BaseChannel: any): void {
+    const _dispatchMessage = BaseChannel.prototype.dispatchMessage;
+      const topic = message?.fields?.exchange || '';
+      const queue = message?.fields?.routingKey || '';
+      const carrier = ContextCarrier.from(message?.properties?.headers || {});
+      const span = ContextManager.current.newEntrySpan('RabbitMQ/' + topic + '/' + queue + '/Consumer', carrier);
+        const ret = _dispatchMessage.call(this, fields, message);
+export default new AMQPLibPlugin();
+
+---
+File: src\plugins\AWS2DynamoDBPlugin.ts
+Size: 3131 bytes
+Lines: 89 [structural]
+---
+import SwPlugin from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import { getAWS, execute } from '../aws/SDK2';
+class AWS2DynamoDBPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const AWS = getAWS(installer);
+    const DocumentClient = AWS.DynamoDB.DocumentClient;
+    function instrument(name: string): void {
+      const _func = DocumentClient.prototype[name];
+        const span = ContextManager.current.newExitSpan(`AWS/DynamoDB/${name}`, Component.AWS_DYNAMODB, Component.HTTP);
+export default new AWS2DynamoDBPlugin();
+
+---
+File: src\plugins\AWS2LambdaPlugin.ts
+Size: 4492 bytes
+Lines: 128 [structural]
+---
+import { hostname } from 'os';
+import config from '../config/AgentConfig';
+import SwPlugin from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import { KeyTrace, KeyParams } from '../aws/AWSLambdaTriggerPlugin';
+import { getAWS, execute } from '../aws/SDK2';
+class AWS2LambdaPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const AWS = getAWS(installer);
+    const _Lambda = AWS.Lambda;
+    function Lambda(this: any) {
+      const lambda = _Lambda.apply(this, arguments);
+      const _invoke = lambda.invoke;
+        let funcName = params.FunctionName;
+        const li = funcName.lastIndexOf(':');
+        let name;
+        const span = ContextManager.current.newExitSpan(
+          let payload = params.Payload;
+            const traceid = JSON.stringify(`${span.inject().value}/${hostname()}`);
+            const keyTrace = JSON.stringify(KeyTrace);
+            const keyParams = JSON.stringify(KeyParams);
+export default new AWS2LambdaPlugin();
+
+---
+File: src\plugins\AWS2SNSPlugin.ts
+Size: 4453 bytes
+Lines: 127 [structural]
+---
+import { hostname } from 'os';
+import SwPlugin from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import Span from '../trace/span/Span';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import { getAWS, execute } from '../aws/SDK2';
+class AWS2SNSPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const AWS = getAWS(installer);
+    const _SNS = AWS.SNS;
+    function SNS(this: any) {
+      const sns = _SNS.apply(this, arguments);
+      function instrument(name: string, addTraceId: any): void {
+        const _func = sns[name];
+          const to = params.TopicArn
+          const operation = `AWS/SNS/${name}/${to}`;
+          const span = ContextManager.current.newExitSpan(operation, Component.AWS_SNS, Component.HTTP);
+          const arn = params.TopicArn || params.TargetArn;
+      instrument('publish', (params: any, span: Span) => {
+      instrument('publishBatch', (params: any, span: Span) => {
+        const traceId = { __revdTraceId: { DataType: 'String', StringValue: `${span.inject().value}/${hostname()}` } };
+          (e: any) =>
+export default new AWS2SNSPlugin();
+
+---
+File: src\plugins\AWS2SQSPlugin.ts
+Size: 7519 bytes
+Lines: 214 [structural]
+---
+import { hostname } from 'os';
+import config from '../config/AgentConfig';
+import SwPlugin from '../core/SwPlugin';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import Span from '../trace/span/Span';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import { getAWS, execute } from '../aws/SDK2';
+class AWS2SQSPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const AWS = getAWS(installer);
+    const _SQS = AWS.SQS;
+    function SQS(this: any) {
+      const sqs = _SQS.apply(this, arguments);
+      function instrumentSend(name: string, addTraceId: any): void {
+        const _func = sqs[name];
+          const queueUrl = params.QueueUrl;
+          const operation = `AWS/SQS/${name}/${queueUrl.slice(queueUrl.lastIndexOf('/') + 1)}`;
+          const span = ContextManager.current.newExitSpan(operation, Component.AWS_SQS, Component.HTTP);
+      instrumentSend('sendMessage', (params: any, span: Span) => {
+      instrumentSend('sendMessageBatch', (params: any, span: Span) => {
+        const traceId = { __revdTraceId: { DataType: 'String', StringValue: `${span.inject().value}/${hostname()}` } };
+          (e: any) =>
+      const _receiveMessage = sqs.receiveMessage;
+        const _MessageAttributeNames = params.MessageAttributeNames;
+        const queueUrl = params.QueueUrl;
+        const operation = `AWS/SQS/receiveMessage/${queueUrl.slice(queueUrl.lastIndexOf('/') + 1)}`;
+        const span = ContextManager.current.newExitSpan(`${operation}<check>`, Component.AWS_SQS, Component.HTTP);
+        function beforeCB(this: any, span: Span, err: any, res: any): Span {
+            const delall = !_MessageAttributeNames || !_MessageAttributeNames.length;
+            let traceId;
+            let peer = 'Unknown';
+            let carrier: ContextCarrier | undefined = undefined;
+              const idx = traceId.lastIndexOf('/');
+export default new AWS2SQSPlugin();
+
+---
+File: src\aws\AWSLambdaGatewayAPIHTTP.ts
+Size: 3242 bytes
+Lines: 84 [structural]
+---
+import { URL } from 'url';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import Span from '../trace/span/Span';
+import DummySpan from '../trace/span/DummySpan';
+import { ignoreHttpMethodCheck } from '../config/AgentConfig';
+import { AWSLambdaTriggerPlugin } from './AWSLambdaTriggerPlugin';
+class AWSLambdaGatewayAPIHTTP extends AWSLambdaTriggerPlugin {
+  start(event: any, context: any): [Span, any] {
+    const headers = event.headers;
+    const reqCtx = event.requestContext;
+    const http = reqCtx?.http;
+    const method = http?.method;
+    const proto = http?.protocol ? http.protocol.split('/')[0].toLowerCase() : headers?.['x-forwarded-proto'];
+    const port = headers?.['x-forwarded-port'] || '';
+    const host = headers?.host ?? (reqCtx?.domainName || '');
+    const hostport = host ? (port ? `${host}:${port}` : host) : port;
+    const operation = http?.path ?? event.rawPath ?? (context.functionName ? `/${context.functionName}` : '/');
+    const query = event.rawQueryString
+          .map(([k, v]) => `${k}=${v}`)
+    const carrier = headers && ContextCarrier.from(headers);
+    const span =
+  stop(span: Span, err: Error | null, res: any): void {
+    const statusCode = res?.statusCode || (typeof res === 'number' ? res : err ? 500 : null);
+export default new AWSLambdaGatewayAPIHTTP();
+
+---
+File: src\aws\AWSLambdaGatewayAPIREST.ts
+Size: 3414 bytes
+Lines: 86 [structural]
+---
+import { URL } from 'url';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import Span from '../trace/span/Span';
+import DummySpan from '../trace/span/DummySpan';
+import { ignoreHttpMethodCheck } from '../config/AgentConfig';
+import { AWSLambdaTriggerPlugin } from './AWSLambdaTriggerPlugin';
+class AWSLambdaGatewayAPIREST extends AWSLambdaTriggerPlugin {
+  start(event: any, context: any): [Span, any] {
+    const headers = event.headers;
+    const reqCtx = event.requestContext;
+    const method = reqCtx?.httpMethod ?? event.httpMethod;
+    const proto = reqCtx?.protocol ? reqCtx.protocol.split('/')[0].toLowerCase() : headers?.['X-Forwarded-Proto'];
+    const port = headers?.['X-Forwarded-Port'] || '';
+    const host = headers?.Host ?? (reqCtx?.domainName || '');
+    const hostport = host ? (port ? `${host}:${port}` : host) : port;
+    const operation = reqCtx?.path ?? event.path ?? (context.functionName ? `/${context.functionName}` : '/');
+    const query = event.multiValueQueryStringParameters
+          .map(([k, vs]: any[]) => vs.map((v: String) => `${k}=${v}`).join('&'))
+          .map(([k, v]) => `${k}=${v}`)
+    const carrier = headers && ContextCarrier.from(headers);
+    const span =
+  stop(span: Span, err: Error | null, res: any): void {
+    const statusCode = res?.statusCode || (typeof res === 'number' ? res : err ? 500 : null);
+export default new AWSLambdaGatewayAPIREST();
+
+---
+File: src\aws\AWSLambdaTriggerPlugin.ts
+Size: 5288 bytes
+Lines: 156 [structural]
+---
+import { performance } from 'perf_hooks';
+import config from '../config/AgentConfig';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import Span from '../trace/span/Span';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import { default as agent } from '../index';
+let _lastTimestamp = -Infinity;
+const KeyTrace = '__revdTraceId';
+const KeyParams = '__revdParams'; // original params (if not originally an object)
+class AWSLambdaTriggerPlugin {
+  start(event: any, context: any): [Span, any] {
+    let peer = 'Unknown';
+    let carrier: ContextCarrier | undefined = undefined;
+      let traceId = event[KeyTrace];
+        const idx = traceId.lastIndexOf('/');
+              const params = event[KeyParams];
+    const span = ContextManager.current.newEntrySpan('AWS/Lambda/' + (context.functionName || ''), carrier);
+  stop(span: Span, err: Error | null, res: any): void {
+  wrap(func: any) {
+    return async (event: any, context: any, callback: any) => {
+      const ts = performance.now() / 1000;
+      let done = async (err: Error | null, res?: any) => {
+        done = async (err: Error | null, res?: any) => res;
+            await new Promise((resolve) => setTimeout(resolve, 0)); // child spans of this span may have finalization waiting in the event loop in which case we give them a chance to run so that the segment can be archived properly for flushing
+            const p = agent.flush(); // flush all data before aws freezes the process on exit
+      let cbdone = (err: Error | null, res?: any): any => {
+        cbdone = (err: Error | null, res?: any) => ({ finally: () => undefined });
+      const _done = context.done;
+      const [span, _event] = this.start(event, context);
+        context.done = (err: Error | null, res: any) => {
+          cbdone(err, res).finally(() => _done(err, res));
+        context.succeed = (res: any) => {
+          cbdone(null, res).finally(() => _done(null, res));
+        context.fail = (err: Error | null) => {
+          cbdone(err).finally(() => _done(err));
+        let ret = func(event, context, (err: Error | null, res: any) => {
+          cbdone(err, res).finally(() => callback(err, res));
+export default new AWSLambdaTriggerPlugin();
+export { AWSLambdaTriggerPlugin, KeyTrace, KeyParams };
+
+---
+File: src\config\AgentConfig.ts
+Size: 5612 bytes
+Lines: 149 [structural]
+---
+import * as os from 'os';
+export type AgentConfig = {
+export function finalizeConfig(config: AgentConfig): void {
+  const escapeRegExp = (s: string) => s.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+      .map((s) => escapeRegExp(s.trim()))
+  const convertIgnoreSuffix = (configuredIgnoreSuffix: string | undefined) => {
+        .map((s) => escapeRegExp(s.trim()))
+  const ignoreSuffix = convertIgnoreSuffix(config.ignoreSuffix);
+  const ignorePath =
+        (s0) =>
+              (s1) =>
+                    (s2) =>
+                          (s3) => s3.split('?').map(escapeRegExp).join('[^/]'), // replaces "?"
+      .map((s) => escapeRegExp(s.trim()))
+const _config = {
+    ((): string => {
+  awsLambdaFlush: ((n) => (Number.isNaN(n) ? -1 : n))(Number(process.env.SW_AWS_LAMBDA_FLUSH || 2)),
+export default _config;
+export function ignoreHttpMethodCheck(method: string): boolean {
+
+---
+File: src\plugins\AxiosPlugin.ts
+Size: 4253 bytes
+Lines: 128 [structural]
+---
+import SwPlugin from '../core/SwPlugin';
+import { URL } from 'url';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import DummySpan from '../trace/span/DummySpan';
+import { ignoreHttpMethodCheck } from '../config/AgentConfig';
+import PluginInstaller from '../core/PluginInstaller';
+import * as fs from 'fs';
+import * as path from 'path';
+class AxiosPlugin implements SwPlugin {
+  getVersion(installer: PluginInstaller): string {
+      const indexPath = installer.resolve(this.module);
+      const dirname = indexPath.slice(
+      const packageJsonStr = fs.readFileSync(`${dirname}package.json`, { encoding: 'utf-8' });
+      const pkg = JSON.parse(packageJsonStr);
+  install(installer: PluginInstaller): void {
+  private interceptClientRequest(installer: PluginInstaller): void {
+    const axios = installer.require?.('axios') ?? require('axios');
+    const Axios = axios.Axios;
+    const _request = Axios.prototype.request;
+      const { origin, host, pathname: operation } = new URL(config.url, config.baseURL ?? this.defaults?.baseURL);
+      const method = (config.method || 'GET').toUpperCase();
+      const span = ignoreHttpMethodCheck(method)
+        span.inject().items.forEach((item) => (config.headers[item.key] = item.value));
+        const copyStatus = (response: any) => {
+        const ret = _request.call(this, config).then(
+          (res: any) => {
+          (err: any) => {
+export default new AxiosPlugin();
+
+---
+File: src\azure\AzureHttpTriggerPlugin.ts
+Size: 3711 bytes
+Lines: 128 [structural]
+---
+import { URL } from 'url';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import DummySpan from '../trace/span/DummySpan';
+import { ignoreHttpMethodCheck } from '../config/AgentConfig';
+class AzureHttpTriggerPlugin {
+  wrap(func: any) {
+      let outRet = true;
+      let outName: any;
+      const req = context.req;
+      const url = new URL(req.url);
+      const operation = url.pathname.replace(/\?.*$/g, '');
+      const carrier = ContextCarrier.from(req.headers);
+      const span: any = ignoreHttpMethodCheck(req.method)
+      let stop = (_ret?: any) => {
+        stop = (v: any) => v;
+        const res = outRet ? _ret : context.bindings[outName] || context.res;
+        const status = span.errored ? 500 : !res ? 0 : res.status || 200;
+      const done = context.done;
+      let did = false;
+      let ret;
+          (_ret: any) => {
+          (err: any) => {
+export default new AzureHttpTriggerPlugin();
+
+---
+File: src\trace\Component.ts
+Size: 1905 bytes
+Lines: 42
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+export class Component {
+  static readonly UNKNOWN = new Component(0);
+  static readonly HTTP = new Component(2);
+  static readonly MYSQL = new Component(5);
+  static readonly REDIS = new Component(7);
+  static readonly MONGODB = new Component(9);
+  static readonly POSTGRESQL = new Component(22);
+  static readonly HTTP_SERVER = new Component(49);
+  static readonly RABBITMQ_PRODUCER = new Component(52);
+  static readonly RABBITMQ_CONSUMER = new Component(53);
+  static readonly AZURE_HTTPTRIGGER = new Component(111);
+  static readonly AWSLAMBDA_FUNCTION = new Component(124);
+  static readonly AWSLAMBDA_GATEWAYAPIHTTP = new Component(125);
+  static readonly AWSLAMBDA_GATEWAYAPIREST = new Component(126);
+  static readonly AWS_DYNAMODB = new Component(138);
+  static readonly AWS_SNS = new Component(139);
+  static readonly AWS_SQS = new Component(140);
+  static readonly EXPRESS = new Component(4002);
+  static readonly AXIOS = new Component(4005);
+  static readonly MONGOOSE = new Component(4006);
+
+  constructor(public readonly id: number) {}
+}
+
+
+---
+File: src\lib\EventEmitter.ts
+Size: 1295 bytes
+Lines: 32
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+/* tslint:disable:unified-signatures */
+
+import { EventEmitter } from 'events';
+import Segment from '../trace/context/Segment';
+
+declare interface SkyWalkingEventEmitter {
+  on(event: 'segment-finished', listener: (segment: Segment) => void): this;
+  on(event: 'segments-sent', listener: () => void): this;
+}
+
+class SkyWalkingEventEmitterImpl extends EventEmitter {}
+
+export const emitter: SkyWalkingEventEmitterImpl = new SkyWalkingEventEmitterImpl();
+
+
+---
+File: src\plugins\ExpressPlugin.ts
+Size: 3260 bytes
+Lines: 80
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import SwPlugin from '../core/SwPlugin';
+import { ServerResponse } from 'http';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import DummySpan from '../trace/span/DummySpan';
+import { ignoreHttpMethodCheck } from '../config/AgentConfig';
+import PluginInstaller from '../core/PluginInstaller';
+import HttpPlugin from './HttpPlugin';
+import { Request } from 'express';
+
+class ExpressPlugin implements SwPlugin {
+  readonly module = 'express';
+  readonly versions = '*';
+
+  install(installer: PluginInstaller): void {
+    this.interceptServerRequest(installer);
+  }
+
+  private interceptServerRequest(installer: PluginInstaller) {
+    const express = installer.require?.('express') ?? require('express');
+    const router = express.Router ?? installer.require?.('express/lib/router') ?? require('express/lib/router');
+    const _handle = router.handle;
+
+    router.handle = function (req: Request, res: ServerResponse, next: any) {
+      const carrier = ContextCarrier.from((req as any).headers || {});
+      const reqMethod = req.method ?? 'GET';
+      const operation = reqMethod + ':' + (req.originalUrl || req.url || '/').replace(/\?.*/g, '');
+      const span = ignoreHttpMethodCheck(reqMethod)
+        ? DummySpan.create()
+        : ContextManager.current.newEntrySpan(operation, carrier, [Component.HTTP_SERVER, Component.EXPRESS]);
+
+      span.component = Component.EXPRESS;
+
+      if (span.depth)
+        // if we inherited from http then just change component ID and let http do the work
+        return _handle.apply(this, arguments);
+
+      return HttpPlugin.wrapHttpResponse(span, req, res, () => {
+        // http plugin disabled, we use its mechanism anyway
+        try {
+          return _handle.call(this, req, res, (err: Error) => {
+            span.error(err);
+            next.call(this, err);
+          });
+        } finally {
+          // req.protocol is only possibly available after call to _handle()
+          span.tag(
+            Tag.httpURL(
+              ((req as any).protocol ? (req as any).protocol + '://' : '') + (req.headers.host || '') + req.url,
+            ),
+          );
+        }
+      });
+    };
+  }
+}
+
+// noinspection JSUnusedGlobalSymbols
+export default new ExpressPlugin();
+
+
+---
+File: src\plugins\HttpPlugin.ts
+Size: 7968 bytes
+Lines: 227 [structural]
+---
+import SwPlugin, { wrapEmit } from '../core/SwPlugin';
+import { URL } from 'url';
+import { ClientRequest, IncomingMessage, RequestOptions, ServerResponse } from 'http';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import Span from '../trace/span/Span';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../trace/context/ContextCarrier';
+import DummySpan from '../trace/span/DummySpan';
+import { ignoreHttpMethodCheck } from '../config/AgentConfig';
+class HttpPlugin implements SwPlugin {
+  install(): void {
+    const http = require('http');
+    const https = require('https');
+  private interceptClientRequest(module: any, protocol: string) {
+    const _request = module.request; // BUG! this doesn't work with "import {request} from http", but haven't found an alternative yet
+      const url: URL | string | RequestOptions = arguments[0];
+      const { host, pathname } =
+      const operation = pathname.replace(/\?.*$/g, '');
+      const method = arguments[url instanceof URL || typeof url === 'string' ? 1 : 0]?.method || 'GET';
+      const span = ignoreHttpMethodCheck(method)
+        const copyStatusAndWrapEmit = (res: any) => {
+        const responseCB = function (this: any, res: any) {
+        const idxCallback = typeof arguments[2] === 'function' ? 2 : typeof arguments[1] === 'function' ? 1 : 0;
+        const callback = arguments[idxCallback];
+        let arg0 = arguments[0];
+        const expect = arg0.headers && (arg0.headers.Expect || arg0.headers.expect);
+          span.inject().items.forEach((item) => {
+        const req: ClientRequest = _request.apply(this, arguments);
+          .items.filter((item) => expect != '100-continue')
+          .forEach((item) => req.setHeader(item.key, item.value));
+        req.on('timeout', () => span.log('Timeout', true));
+        req.on('abort', () => span.log('Abort', (span.errored = true)));
+  private interceptServerRequest(module: any, protocol: string) {
+    const plugin = this;
+    const _addListener = module.Server.prototype.addListener; // TODO? full event protocol support not currently implemented (prependListener(), removeListener(), etc...)
+      function _sw_request(this: any, req: IncomingMessage, res: ServerResponse, ...reqArgs: any[]) {
+        const carrier = ContextCarrier.from((req as any).headers || {});
+        const reqMethod = req.method ?? 'GET';
+        const operation = reqMethod + ':' + (req.url || '/').replace(/\?.*/g, '');
+        const span = ignoreHttpMethodCheck(reqMethod)
+        return plugin.wrapHttpResponse(span, req, res, () => handler.call(this, req, res, ...reqArgs));
+  wrapHttpResponse(span: Span, req: IncomingMessage, res: ServerResponse, handler: any): any {
+      const ret = handler();
+      const stopper = (stopEvent: any) => {
+        const stop = (emittedEvent: any) => {
+      const isSub12 = process.version < 'v12';
+export default new HttpPlugin();
+
+---
+File: src\trace\ID.ts
+Size: 1034 bytes
+Lines: 28
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import { v4 as uuid } from 'uuid';
+
+export default class ID {
+  constructor(public rawId: string = uuid().replace(/-/gi, '')) {}
+
+  public toString = (): string => {
+    return this.rawId;
+  };
+}
+
+
+---
+File: src\plugins\IORedisPlugin.ts
+Size: 2352 bytes
+Lines: 68
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import PluginInstaller from '../core/PluginInstaller';
+import SwPlugin, { wrapPromise } from '../core/SwPlugin';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import Tag from '../Tag';
+import { Component } from '../trace/Component';
+import ContextManager from '../trace/context/ContextManager';
+
+class IORedisPlugin implements SwPlugin {
+  readonly module = 'ioredis';
+  readonly versions = '*';
+
+  install(installer: PluginInstaller): void {
+    const Redis = installer.require?.('ioredis') ?? require('ioredis');
+
+    this.interceptOperation(Redis, 'sendCommand');
+  }
+
+  interceptOperation(Cls: any, operation: string): void {
+    const _original = Cls.prototype[operation];
+
+    if (!_original) return;
+
+    Cls.prototype[operation] = function (...args: any[]) {
+      const command = args[0];
+      const host = `${this.options.host}:${this.options.port}`;
+      const span = ContextManager.current.newExitSpan(`redis/${command?.name}`, Component.REDIS);
+
+      span.start();
+      span.component = Component.REDIS;
+      span.layer = SpanLayer.CACHE;
+      span.peer = host;
+      span.tag(Tag.dbType('Redis'));
+      span.tag(Tag.dbInstance(`${this.condition?.select ?? host}`));
+
+      try {
+        const ret = wrapPromise(span, _original.apply(this, args));
+        span.async();
+        return ret;
+      } catch (err) {
+        span.error(err);
+        span.stop();
+
+        throw err;
+      }
+    };
+  }
+}
+
+export default new IORedisPlugin();
+
+
+---
+File: src\plugins\MongoDBPlugin.ts
+Size: 15480 bytes
+Lines: 368 [structural]
+---
+import SwPlugin, { wrapEmit, wrapPromise } from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import agentConfig from '../config/AgentConfig';
+class MongoDBPlugin implements SwPlugin {
+  hookCursorMaybe(span: any, cursor: any): boolean {
+  install(installer: PluginInstaller): void {
+    const plugin = this;
+    const wrapCallbackWithCursorMaybe = (span: any, args: any[], idx: number): boolean => {
+      const callback = args.length > idx && typeof args[(idx = args.length - 1)] === 'function' ? args[idx] : null;
+    const stringify = (params: any) => {
+      let str = JSON.stringify(params);
+    const collInsertFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const collDeleteFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const collUpdateFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const collFindOneFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const collFindAndRemoveFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const collFindAndModifyFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+      let params = stringify(args[0]);
+    const collMapReduceFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const collDropFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const dbAddUserFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const dbRemoveUserFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const dbRenameCollectionFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const dbCollectionsFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+    const dbEvalFunc = function (this: any, operation: string, span: any, args: any[]): boolean {
+  interceptOperation(Cls: any, operation: string, operationFunc: any): void {
+    const plugin = this;
+    const _original = Cls.prototype[operation];
+      let span = ContextManager.currentSpan;
+      let host = '???';
+        const db = this instanceof plugin.Collection ? this.s.db : this;
+        host = db.serverConfig.s.options.servers.map((s: any) => `${s.host}:${s.port}`).join(','); // will this work for non-NativeTopology?
+        const hasCB = operationFunc.call(this, operation, span, args);
+        let ret = _original.apply(this, args);
+export default new MongoDBPlugin();
+
+---
+File: src\plugins\MongoosePlugin.ts
+Size: 7377 bytes
+Lines: 190 [structural]
+---
+import SwPlugin, { wrapCallback, wrapPromise } from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+class MongoosePlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const { Model } = installer.require?.('mongoose') ?? require('mongoose');
+  interceptOperation(Container: any, operation: string): void {
+    const _original = Container[operation];
+      let span = ContextManager.currentSpan;
+      const host = `${this.db.host}:${this.db.port}`;
+        const hasCB = typeof arguments[arguments.length - 1] === 'function';
+          const wrappedCallback = wrapCallback(span, arguments[arguments.length - 1], 0);
+        let ret = _original.apply(this, arguments);
+              const chainMethods = ['select', 'sort', 'skip', 'limit', 'populate'];
+              const originalThen = ret.then;
+              const originalExec = ret.exec;
+              const originalLean = ret.lean;
+              ret.then = (...args: any[]) => wrapPromise(span, originalThen.apply(ret, args));
+              ret.exec = (...args: any[]) => wrapPromise(span, originalExec.apply(ret, args));
+              ret.lean = (...args: any[]) => {
+                const leanQuery = originalLean.apply(ret, args);
+              chainMethods.forEach((method) => {
+                  const originalMethod = ret[method];
+                  ret[method] = (...args: any[]) => {
+                    const result = originalMethod.apply(ret, args);
+export default new MongoosePlugin();
+
+---
+File: src\plugins\MySQL2Plugin.ts
+Size: 4411 bytes
+Lines: 136 [structural]
+---
+import SwPlugin, { wrapEmit, wrapCallback } from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import agentConfig from '../config/AgentConfig';
+import * as fs from 'fs';
+import * as path from 'path';
+class MySQL2Plugin implements SwPlugin {
+  getVersion(installer: PluginInstaller): string {
+      let indexPath = installer.resolve(this.module);
+      let packageJsonStr = fs.readFileSync(`${path.dirname(indexPath)}${path.sep}package.json`, { encoding: 'utf-8' });
+      const pkg = JSON.parse(packageJsonStr);
+  install(installer: PluginInstaller): void {
+    const Connection = (installer.require?.('mysql2') ?? require('mysql2')).Connection;
+    const _query = Connection.prototype.query;
+      let query: any;
+      const host = `${this.config.host}:${this.config.port}`;
+      const span = ContextManager.current.newExitSpan('mysql/query', Component.MYSQL);
+        let _sql: any;
+        let _values: any;
+        let streaming: any;
+          let vals = _values.map((v: any) => (v === undefined ? 'undefined' : JSON.stringify(v))).join(', ');
+export default new MySQL2Plugin();
+
+---
+File: src\plugins\MySQLPlugin.ts
+Size: 3953 bytes
+Lines: 122 [structural]
+---
+import SwPlugin, { wrapEmit, wrapCallback } from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import agentConfig from '../config/AgentConfig';
+class MySQLPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const Connection = installer.require?.('mysql/lib/Connection') ?? require('mysql/lib/Connection');
+    const _query = Connection.prototype.query;
+      let query: any;
+      const host = `${this.config.host}:${this.config.port}`;
+      const span = ContextManager.current.newExitSpan('mysql/query', Component.MYSQL);
+        let _sql: any;
+        let _values: any;
+        let streaming: any;
+          let vals = _values.map((v: any) => (v === undefined ? 'undefined' : JSON.stringify(v))).join(', ');
+export default new MySQLPlugin();
+
+---
+File: src\trace\NewID.ts
+Size: 904 bytes
+Lines: 22
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import ID from '../trace/ID';
+
+export default class NewID extends ID {}
+
+
+---
+File: src\core\OptionMethods.ts
+Size: 978 bytes
+Lines: 24
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import PluginInstaller from './PluginInstaller';
+
+export default interface OptionMethods {
+  getVersion?(installer: PluginInstaller): string;
+}
+
+
+---
+File: src\plugins\PgPlugin.ts
+Size: 3828 bytes
+Lines: 112 [structural]
+---
+import SwPlugin, { wrapEmit, wrapCallback, wrapPromise } from '../core/SwPlugin';
+import ContextManager from '../trace/context/ContextManager';
+import { Component } from '../trace/Component';
+import Tag from '../Tag';
+import { SpanLayer } from '../proto/language-agent/Tracing_pb';
+import PluginInstaller from '../core/PluginInstaller';
+import agentConfig from '../config/AgentConfig';
+class MySQLPlugin implements SwPlugin {
+  install(installer: PluginInstaller): void {
+    const Client = installer.require?.('pg/lib/client') ?? require('pg/lib/client');
+    let Cursor: any;
+    const _query = Client.prototype.query;
+      let query: any;
+      const host = `${this.host}:${this.port}`;
+      const span = ContextManager.current.newExitSpan('pg/query', Component.POSTGRESQL);
+        let _sql: any;
+        let _values: any;
+          let vals = _values.map((v: any) => (v === undefined ? 'undefined' : JSON.stringify(v))).join(', ');
+export default new MySQLPlugin();
+
+---
+File: src\core\PluginInstaller.ts
+Size: 9155 bytes
+Lines: 305 [structural]
+---
+import * as fs from 'fs';
+import * as path from 'path';
+import SwPlugin from '../core/SwPlugin';
+import { createLogger } from '../logging';
+import * as semver from 'semver';
+import config from '../config/AgentConfig';
+const logger = createLogger(__filename);
+let topModule = module;
+  const filename = topModule.filename;
+export default class PluginInstaller {
+  readonly resolve = (request: string) => (module.constructor as any)._resolveFilename(request, topModule);
+  constructor() {
+  private checkModuleVersion = (plugin: SwPlugin): { version: string; isSupported: boolean } => {
+    let version = null;
+      const packageJsonPath = this.resolve(`${plugin.module}/package.json`);
+  isPluginEnabled = (name: string): boolean => !name.match(config.reDisablePlugins);
+  installNormal(): void {
+      .filter((file) => !(file.endsWith('.d.ts') || file.endsWith('.js.map')))
+      .forEach((file) => {
+        let plugin;
+        const pluginFile = path.join(this.pluginDir, file);
+          const { isSupported, version } = this.checkModuleVersion(plugin);
+  private checkBundledModuleVersion = (
+  private installBundledPlugin = (pluginFile: string, plugin: SwPlugin, packageVersion: string) => {
+      const { isSupported, version } = this.checkBundledModuleVersion(plugin, packageVersion);
+  installBundled(): void {
+  install(): void {
+
+---
+File: src\aws\SDK2.ts
+Size: 6884 bytes
+Lines: 230 [structural]
+---
+import Tag from '../Tag';
+import Span from '../trace/span/Span';
+import PluginInstaller from '../core/PluginInstaller';
+let _AWS: any = null;
+let _runTo: any, _send: any, _promise: any;
+const wrapCallback = (span: Span, callback: any, idxError: any = false, state?: any) => {
+    let ret;
+    let isErrorOrPostCall = idxError !== false && args[idxError];
+const wrapPromise = (span: Span, promise: any, state?: any, initialized?: boolean) => {
+      (res: any) => {
+          setTimeout(() => {
+      (err: any) => {
+          setTimeout(() => {
+  const _then = promise.then;
+  const _catch = promise.catch;
+      const _promise = _then.apply(this, args);
+      const _promise = _catch.call(this, err);
+export function getAWS(installer: PluginInstaller): any {
+export const execute = (
+  const state = beforeCB ? { beforeCB } : null;
+    const req = func.call(_this, params, callback);
+        let ret = _promise.apply(this, arguments);
+            beforeCB ? { beforeCB: (span: Span, res: any) => beforeCB(span, null, res) } : null,
+          const block = span.resync();
+
+---
+File: src\core\SwPlugin.ts
+Size: 2470 bytes
+Lines: 86 [structural]
+---
+import PluginInstaller from './PluginInstaller';
+import Span from '../trace/span/Span';
+import OptionMethods from './OptionMethods';
+export default interface SwPlugin extends OptionMethods {
+export const wrapEmit = (span: Span, ee: any, doError: boolean = true, stop: any = NaN) => {
+  const stopIsFunc = typeof stop === 'function';
+  const _emit = ee.emit;
+      const event = arguments[0];
+export const wrapCallback = (span: Span, callback: any, idxError: any = false) => {
+export const wrapPromise = (span: Span, promise: any) => {
+    (res: any) => {
+    (err: any) => {
+
+---
+File: src\trace\context\CarrierItem.ts
+Size: 988 bytes
+Lines: 25
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+export abstract class CarrierItem {
+  abstract get value(): string;
+  abstract set value(val: string);
+
+  protected constructor(public key: string) {}
+}
+
+
+---
+File: src\trace\context\Context.ts
+Size: 2864 bytes
+Lines: 60
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Span from '../../trace/span/Span';
+import Segment from '../../trace/context/Segment';
+import { Component } from '../Component';
+import { ContextCarrier } from './ContextCarrier';
+
+export default interface Context {
+  segment: Segment;
+  nSpans: number;
+  finished: boolean;
+
+  newLocalSpan(operation: string): Span;
+
+  /* If 'inherit' is specified then if the span at the top of the stack is an Entry span of this component type then the
+     span is reused instead of a new child span being created. This is intended for situations like an express handler
+     inheriting an opened incoming http connection to present a single span. */
+  newEntrySpan(operation: string, carrier?: ContextCarrier, inherit?: Component | Component[]): Span;
+
+  /* if 'inherit' is specified then the span returned is marked for inheritance by an Exit span component which is
+     created later and calls this function with a matching 'component' value. For example Axios using an Http exit
+     connection will be merged into a single exit span, see those plugins for how this is done. */
+  newExitSpan(operation: string, component: Component, inherit?: Component): Span;
+
+  start(span: Span): Context;
+
+  stop(span: Span): boolean;
+
+  /* This should be called just before a span is passed to a different async context, like for example a callback from
+     an asynchronous operation the code belonging to the span initiated. After this is called a span should only call
+     .resync() or .stop(). See HttpPlugin.interceptClientRequest() in plugins/HttpPlugin.ts for example of usage. */
+  async(span: Span): void;
+
+  /* This should be called upon entering the new async context for a span that has previously executed .async(), it
+     should be the first thing the callback function belonging to the span does. */
+  resync(span: Span): void;
+
+  /**
+   * Returns the global trace id of the current trace, if there is no trace when invoking this method,
+   * "N/A" is returned.
+   */
+  traceId(): string;
+}
+
+
+---
+File: src\trace\context\ContextCarrier.ts
+Size: 3125 bytes
+Lines: 101 [structural]
+---
+import ID from '../../trace/ID';
+import { CarrierItem } from './CarrierItem';
+export class ContextCarrier extends CarrierItem {
+  constructor(
+  private encode = (s: string): string => {
+  private decode = (s: string): string => {
+  get value(): string {
+  set value(val) {
+    const parts = val.split('-');
+  isValid(): boolean {
+  public static from(map: { [key: string]: string }): ContextCarrier | undefined {
+    const carrier = new ContextCarrier();
+      .filter((item) => Object.prototype.hasOwnProperty.call(map, item.key))
+      .forEach((item) => (item.value = map[item.key]));
+
+---
+File: src\trace\context\ContextManager.ts
+Size: 4660 bytes
+Lines: 169 [structural]
+---
+import config from '../../config/AgentConfig';
+import Context from '../../trace/context/Context';
+import Span from '../../trace/span/Span';
+import SpanContext from '../../trace/context/SpanContext';
+import DummyContext from '../../trace/context/DummyContext';
+import async_hooks from 'async_hooks';
+type AsyncState = { spans: Span[] };
+let store: {
+  const executionAsyncId = async_hooks.executionAsyncId;
+  const asyncLocalStore: { [index: string]: any } = {};
+    getStore(): AsyncState | undefined {
+    enterWith(s: AsyncState): void {
+      init(asyncId: number, type: string, triggerId: number) {
+      destroy(asyncId: number) {
+class ContextManager {
+  checkCold(): boolean {
+    const isCold = this.isCold;
+  get asyncState(): AsyncState {
+    let asyncState = store.getStore();
+  get currentSpan(): Span {
+    const spans = store.getStore()?.spans;
+  get hasContext(): boolean | undefined {
+  get current(): Context {
+    const asyncState = this.asyncState;
+  get spans(): Span[] {
+  spansDup(): Span[] {
+    let asyncState = store.getStore();
+  clear(span: Span): void {
+    const spans = this.spansDup(); // this needed to make sure async tasks created before this call will still have this span at the top of their span list
+    const idx = spans.indexOf(span);
+  restore(span: Span): void {
+    const spans = this.spansDup();
+  clearAll(): void {
+  withSpan(span: Span, callback: (...args: any[]) => any, ...args: any[]): any {
+  async withSpanAwait(span: Span, callback: (...args: any[]) => any, ...args: any[]): Promise<any> {
+export default new ContextManager();
+
+---
+File: src\trace\context\DummyContext.ts
+Size: 2355 bytes
+Lines: 79
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Context from '../../trace/context/Context';
+import Span from '../../trace/span/Span';
+import DummySpan from '../../trace/span/DummySpan';
+import Segment from '../../trace/context/Segment';
+import { Component } from '../Component';
+import { ContextCarrier } from './ContextCarrier';
+import ContextManager from './ContextManager';
+
+export default class DummyContext implements Context {
+  segment: Segment = new Segment();
+  nSpans = 0;
+  finished = false;
+
+  newEntrySpan(operation: string, carrier?: ContextCarrier, inherit?: Component | Component[]): Span {
+    return DummySpan.create(this);
+  }
+
+  newExitSpan(operation: string, component: Component, inherit?: Component): Span {
+    return DummySpan.create(this);
+  }
+
+  newLocalSpan(operation: string): Span {
+    return DummySpan.create(this);
+  }
+
+  start(span: DummySpan): Context {
+    const spans = ContextManager.spansDup();
+
+    if (!this.nSpans++) {
+      ContextManager.checkCold(); // set cold to false
+
+      if (spans.indexOf(span) === -1) spans.push(span);
+    }
+
+    return this;
+  }
+
+  stop(span: DummySpan): boolean {
+    if (--this.nSpans) return false;
+
+    ContextManager.clear(span);
+
+    return true;
+  }
+
+  async(span: DummySpan) {
+    ContextManager.clear(span);
+  }
+
+  resync(span: DummySpan) {
+    ContextManager.restore(span);
+  }
+
+  traceId(): string {
+    if (!this.segment.relatedTraces) {
+      return 'N/A';
+    }
+    return this.segment.relatedTraces[0].toString();
+  }
+}
+
+
+---
+File: src\trace\span\DummySpan.ts
+Size: 1844 bytes
+Lines: 62
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Span from '../../trace/span/Span';
+import { ContextCarrier } from '../context/ContextCarrier';
+import Context from '../context/Context';
+import { SpanType } from '../../proto/language-agent/Tracing_pb';
+import DummyContext from '../context/DummyContext';
+
+export default class DummySpan extends Span {
+  static create(context?: Context): DummySpan {
+    return new DummySpan({
+      context: context ?? new DummyContext(),
+      operation: '',
+      type: SpanType.LOCAL,
+    });
+  }
+
+  start(): any {
+    if (!this.depth++) this.context.start(this);
+  }
+
+  stop(block?: any): void {
+    if (!--this.depth) this.context.stop(this);
+  }
+
+  async(block?: any): void {
+    this.context.async(this);
+  }
+
+  resync(): any {
+    this.context.resync(this);
+  }
+
+  error(error: Error, statusOverride?: number): this {
+    return this;
+  }
+
+  inject(): ContextCarrier {
+    return new ContextCarrier();
+  }
+
+  extract(carrier: ContextCarrier): this {
+    return this;
+  }
+}
+
+
+---
+File: src\trace\span\EntrySpan.ts
+Size: 1471 bytes
+Lines: 44
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Span from '../../trace/span/Span';
+import { SpanCtorOptions } from './Span';
+import SegmentRef from '../../trace/context/SegmentRef';
+import { SpanType } from '../../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../context/ContextCarrier';
+
+export default class EntrySpan extends Span {
+  constructor(options: SpanCtorOptions) {
+    super(
+      Object.assign(options, {
+        type: SpanType.ENTRY,
+      }),
+    );
+  }
+
+  extract(carrier: ContextCarrier): this {
+    super.extract(carrier);
+
+    const ref = SegmentRef.fromCarrier(carrier);
+
+    this.refer(ref);
+
+    return this;
+  }
+}
+
+
+---
+File: src\trace\span\ExitSpan.ts
+Size: 1628 bytes
+Lines: 48
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Span from '../../trace/span/Span';
+import { SpanCtorOptions } from './Span';
+import config from '../../config/AgentConfig';
+import { SpanType } from '../../proto/language-agent/Tracing_pb';
+import { ContextCarrier } from '../context/ContextCarrier';
+import ContextManager from '../context/ContextManager';
+
+export default class ExitSpan extends Span {
+  constructor(options: SpanCtorOptions) {
+    super(
+      Object.assign(options, {
+        type: SpanType.EXIT,
+      }),
+    );
+  }
+
+  inject(): ContextCarrier {
+    return new ContextCarrier(
+      this.context.segment.relatedTraces[0],
+      this.context.segment.segmentId,
+      this.id,
+      config.serviceName,
+      config.serviceInstance,
+      this.operation,
+      this.peer,
+      [],
+    );
+  }
+}
+
+
+---
+File: src\trace\span\LocalSpan.ts
+Size: 1154 bytes
+Lines: 31
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Span, { SpanCtorOptions } from '../../trace/span/Span';
+import { SpanType } from '../../proto/language-agent/Tracing_pb';
+
+export default class LocalSpan extends Span {
+  constructor(options: SpanCtorOptions) {
+    super(
+      Object.assign(options, {
+        type: SpanType.LOCAL,
+      }),
+    );
+  }
+}
+
+
+---
+File: src\agent\protocol\Protocol.ts
+Size: 1075 bytes
+Lines: 33
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+/**
+ * The transport protocol between the agent and the backend (OAP).
+ */
+export default interface Protocol {
+  isConnected: boolean;
+
+  heartbeat(): this;
+
+  report(): this;
+
+  flush(): Promise<any> | null;
+
+  destroy?(): void;
+}
+
+
+---
+File: src\trace\context\Segment.ts
+Size: 1582 bytes
+Lines: 51
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Span from '../../trace/span/Span';
+import ID from '../../trace/ID';
+import NewID from '../../trace/NewID';
+import SegmentRef from '../../trace/context/SegmentRef';
+
+export default class Segment {
+  segmentId = new ID();
+  spans: Span[] = [];
+  relatedTraces: ID[] = [new NewID()];
+  references: SegmentRef[] = [];
+
+  archive(span: Span): void {
+    this.spans.push(span);
+  }
+
+  relate(id: ID) {
+    if (this.relatedTraces[0] instanceof NewID) {
+      this.relatedTraces.shift();
+    }
+    if (!this.relatedTraces.includes(id)) {
+      this.relatedTraces.push(id);
+    }
+  }
+
+  refer(ref: SegmentRef): this {
+    if (!this.references.includes(ref)) {
+      this.references.push(ref);
+    }
+
+    return this;
+  }
+}
+
+
+---
+File: src\trace\context\SegmentRef.ts
+Size: 1825 bytes
+Lines: 55
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import ID from '../../trace/ID';
+import { ContextCarrier } from './ContextCarrier';
+
+export default class SegmentRef {
+  private constructor(
+    public refType: 'CrossProcess' | 'CrossThread' = 'CrossProcess',
+    public traceId: ID,
+    public segmentId: ID,
+    public spanId: number,
+    public service: string,
+    public serviceInstance: string,
+    public endpoint: string,
+    public clientAddress: string,
+  ) {
+    this.traceId = traceId;
+    this.segmentId = segmentId;
+    this.spanId = spanId;
+    this.service = service;
+    this.serviceInstance = serviceInstance;
+    this.endpoint = endpoint;
+    this.clientAddress = clientAddress;
+  }
+
+  static fromCarrier(carrier: ContextCarrier): SegmentRef {
+    return new SegmentRef(
+      'CrossProcess',
+      carrier.traceId!,
+      carrier.segmentId!,
+      carrier.spanId!,
+      carrier.service!,
+      carrier.serviceInstance!,
+      carrier.endpoint!,
+      carrier.clientAddress!,
+    );
+  }
+}
+
+
+---
+File: src\trace\span\Span.ts
+Size: 4644 bytes
+Lines: 170 [structural]
+---
+import config from '../../config/AgentConfig';
+import Context from '../../trace/context/Context';
+import { Component } from '../Component';
+import { Tag } from '../../Tag';
+import Log, { LogItem } from '../../Log';
+import Segment from '../../trace/context/Segment';
+import SegmentRef from '../../trace/context/SegmentRef';
+import { SpanLayer, SpanType } from '../../proto/language-agent/Tracing_pb';
+import { createLogger } from '../../logging';
+import * as packageInfo from '../../../package.json';
+import { ContextCarrier } from '../context/ContextCarrier';
+export type SpanCtorOptions = {
+const logger = createLogger(__filename);
+export default abstract class Span {
+  constructor(options: SpanCtorOptions & { type: SpanType }) {
+  start(): void {
+  stop(): void {
+  async(): void {
+  resync(): void {
+  finish(segment: Segment): boolean {
+  inject(): ContextCarrier {
+  extract(carrier: ContextCarrier): this {
+  hasTag(key: string) {
+    return !this.tags.every((t) => t.key !== key);
+  tag(tag: Tag, insert?: boolean): this {
+      const sameTags = this.tags.filter((it) => it.key === tag.key);
+        sameTags.forEach((it) => (it.val = tag.val));
+    const tagObj = Object.assign({}, tag);
+  log(key: string, val: any): this {
+  error(error: Error): this {
+  refer(ref: SegmentRef): this {
+
+---
+File: src\trace\context\SpanContext.ts
+Size: 7836 bytes
+Lines: 254 [structural]
+---
+import config from '../../config/AgentConfig';
+import Context from '../../trace/context/Context';
+import Span from '../../trace/span/Span';
+import DummySpan from '../../trace/span/DummySpan';
+import Segment from '../../trace/context/Segment';
+import EntrySpan from '../../trace/span/EntrySpan';
+import ExitSpan from '../../trace/span/ExitSpan';
+import LocalSpan from '../../trace/span/LocalSpan';
+import SegmentRef from './SegmentRef';
+import ContextManager from './ContextManager';
+import Tag from '../../Tag';
+import { Component } from '../Component';
+import { createLogger } from '../../logging';
+import { ContextCarrier } from './ContextCarrier';
+import { SpanType } from '../../proto/language-agent/Tracing_pb';
+import { emitter } from '../../lib/EventEmitter';
+const logger = createLogger(__filename);
+emitter.on('segments-sent', () => {
+export default class SpanContext implements Context {
+  ignoreCheck(operation: string, type: SpanType, carrier?: ContextCarrier): Span | undefined {
+  spanCheck(spanType: SpanType, operation: string, carrier?: ContextCarrier): [Span | null, Span?] {
+    const span = this.ignoreCheck(operation, SpanType.ENTRY, carrier);
+    const spans = ContextManager.spans;
+    const parent = spans[spans.length - 1];
+  newSpan(spanClass: typeof EntrySpan | typeof ExitSpan | typeof LocalSpan, parent: Span, operation: string): Span {
+    const context = !this.finished ? this : new SpanContext();
+    const span = new spanClass({
+      const carrier = new ContextCarrier(
+      const ref = SegmentRef.fromCarrier(carrier);
+  newEntrySpan(operation: string, carrier?: ContextCarrier, inherit?: Component | Component[]): Span {
+    let [span, parent] = this.spanCheck(SpanType.ENTRY, operation, carrier);
+  newExitSpan(operation: string, component: Component, inherit?: Component): Span {
+    let [span, parent] = this.spanCheck(SpanType.EXIT, operation);
+  newLocalSpan(operation: string): Span {
+    const [span, parent] = this.spanCheck(SpanType.LOCAL, operation);
+  start(span: Span): Context {
+    const spans = ContextManager.spansDup();
+  stop(span: Span): boolean {
+        let resolve: ((value: unknown) => void) | undefined;
+  async(span: Span) {
+  resync(span: Span) {
+  static flush(): Promise<any> | null {
+      : new Promise((resolve: (value: unknown) => void) => {
+  traceId(): string {
+
+---
+File: src\agent\protocol\grpc\AuthInterceptor.ts
+Size: 1114 bytes
+Lines: 29
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import * as grpc from '@grpc/grpc-js';
+import config from '../../../config/AgentConfig';
+
+export default function AuthInterceptor() {
+  const mata = new grpc.Metadata();
+  if (config.authorization) {
+    mata.add('Authentication', config.authorization);
+  }
+  return mata;
+}
+
+
+---
+File: src\agent\protocol\grpc\GrpcProtocol.ts
+Size: 1902 bytes
+Lines: 56
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import Protocol from '../../../agent/protocol/Protocol';
+import HeartbeatClient from '../../../agent/protocol/grpc/clients/HeartbeatClient';
+import TraceReportClient from '../../../agent/protocol/grpc/clients/TraceReportClient';
+
+export default class GrpcProtocol implements Protocol {
+  private readonly heartbeatClient: HeartbeatClient;
+  private readonly traceReportClient: TraceReportClient;
+
+  constructor() {
+    this.heartbeatClient = new HeartbeatClient();
+    this.traceReportClient = new TraceReportClient();
+  }
+
+  get isConnected(): boolean {
+    return this.heartbeatClient.isConnected && this.traceReportClient.isConnected;
+  }
+
+  heartbeat(): this {
+    this.heartbeatClient.start();
+    return this;
+  }
+
+  report(): this {
+    this.traceReportClient.start();
+    return this;
+  }
+
+  flush(): Promise<any> | null {
+    return this.traceReportClient.flush();
+  }
+
+  destroy(): void {
+    // Clean up both clients to prevent memory leaks
+    this.heartbeatClient.destroy?.();
+    this.traceReportClient.destroy?.();
+  }
+}
+
+
+---
+File: src\agent\protocol\grpc\SegmentObjectAdapter.ts
+Size: 3074 bytes
+Lines: 74
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import config from '../../../config/AgentConfig';
+import { KeyStringValuePair } from '../../../proto/common/Common_pb';
+import Segment from '../../../trace/context/Segment';
+import { Log, RefType, SegmentObject, SegmentReference, SpanObject } from '../../../proto/language-agent/Tracing_pb';
+
+/**
+ * An adapter that adapts {@link Segment} objects to gRPC object {@link SegmentObject}.
+ */
+export default class SegmentObjectAdapter extends SegmentObject {
+  constructor(segment: Segment) {
+    super();
+    super
+      .setService(config.serviceName)
+      .setServiceinstance(config.serviceInstance)
+      .setTraceid(segment.relatedTraces[0].toString())
+      .setTracesegmentid(segment.segmentId.toString())
+      .setSpansList(
+        segment.spans.map((span) =>
+          new SpanObject()
+            .setSpanid(span.id)
+            .setParentspanid(span.parentId)
+            .setStarttime(span.startTime)
+            .setEndtime(span.endTime)
+            .setOperationname(span.operation)
+            .setPeer(span.peer)
+            .setSpantype(span.type)
+            .setSpanlayer(span.layer)
+            .setComponentid(span.component.id)
+            .setIserror(span.errored)
+            .setLogsList(
+              span.logs.map((log) =>
+                new Log()
+                  .setTime(log.timestamp)
+                  .setDataList(
+                    log.items.map((logItem) => new KeyStringValuePair().setKey(logItem.key).setValue(logItem.val)),
+                  ),
+              ),
+            )
+            .setTagsList(span.tags.map((tag) => new KeyStringValuePair().setKey(tag.key).setValue(tag.val)))
+            .setRefsList(
+              span.refs.map((ref) =>
+                new SegmentReference()
+                  .setReftype(RefType.CROSSPROCESS)
+                  .setTraceid(ref.traceId.toString())
+                  .setParenttracesegmentid(ref.segmentId.toString())
+                  .setParentspanid(ref.spanId)
+                  .setParentservice(ref.service)
+                  .setParentserviceinstance(ref.serviceInstance)
+                  .setNetworkaddressusedatpeer(ref.clientAddress),
+              ),
+            ),
+        ),
+      );
+  }
+}
+
+
+---
+File: src\agent\protocol\grpc\clients\Client.ts
+Size: 979 bytes
+Lines: 28
+---
+/*!
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+export default interface Client {
+  readonly isConnected: boolean;
+
+  start(): void;
+
+  flush(): Promise<any> | null;
+
+  destroy?(): void;
+}
+
+
+---
+File: src\agent\protocol\grpc\clients\HeartbeatClient.ts
+Size: 3853 bytes
+Lines: 102 [structural]
+---
+import * as grpc from '@grpc/grpc-js';
+import { connectivityState } from '@grpc/grpc-js';
+import * as packageInfo from '../../../../../package.json';
+import { createLogger } from '../../../../logging';
+import Client from './Client';
+import { ManagementServiceClient } from '../../../../proto/management/Management_grpc_pb';
+import AuthInterceptor from '../AuthInterceptor';
+import { InstancePingPkg, InstanceProperties } from '../../../../proto/management/Management_pb';
+import config from '../../../../config/AgentConfig';
+import { KeyStringValuePair } from '../../../../proto/common/Common_pb';
+import * as os from 'os';
+const logger = createLogger(__filename);
+export default class HeartbeatClient implements Client {
+  constructor() {
+  get isConnected(): boolean {
+  start() {
+    const keepAlivePkg = new InstancePingPkg()
+    const instanceProperties = new InstanceProperties()
+    this.heartbeatTimer = setInterval(() => {
+      this.managementServiceClient.reportInstanceProperties(instanceProperties, AuthInterceptor(), (error, _) => {
+      this.managementServiceClient.keepAlive(keepAlivePkg, AuthInterceptor(), (error, _) => {
+  flush(): Promise<any> | null {
+  destroy(): void {
+
+---
+File: src\agent\protocol\grpc\clients\TraceReportClient.ts
+Size: 4851 bytes
+Lines: 143 [structural]
+---
+import config from '../../../../config/AgentConfig';
+import * as grpc from '@grpc/grpc-js';
+import { connectivityState } from '@grpc/grpc-js';
+import { createLogger } from '../../../../logging';
+import Client from './Client';
+import { TraceSegmentReportServiceClient } from '../../../../proto/language-agent/Tracing_grpc_pb';
+import AuthInterceptor from '../AuthInterceptor';
+import SegmentObjectAdapter from '../SegmentObjectAdapter';
+import { emitter } from '../../../../lib/EventEmitter';
+import Segment from '../../../../trace/context/Segment';
+const logger = createLogger(__filename);
+export default class TraceReportClient implements Client {
+  constructor() {
+    this.segmentFinishedListener = (segment: Segment) => {
+  get isConnected(): boolean {
+  private reportFunction(callback?: any) {
+      const stream = this.reporterClient.collect(
+        (error, _) => {
+  start() {
+  flush(): Promise<any> | null {
+      : new Promise((resolve) => {
+  destroy(): void {

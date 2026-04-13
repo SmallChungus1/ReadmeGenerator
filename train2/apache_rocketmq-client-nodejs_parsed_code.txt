@@ -1,0 +1,2333 @@
+Tokens: 15426
+Repo: apache/rocketmq-client-nodejs
+Commit: 05748af0c86230a6fb21a684903287978ec079a4
+Timestamp: 2026-04-12T23:32:12.610009
+
+--- Repository Structure ---
+.
+├── .eslintrc.js
+├── .gitignore
+├── .gitmodules
+├── .travis.yml
+├── binding.gyp
+├── deps
+│   ├── lib
+│   │   └── .gitkeep
+│   └── rocketmq
+├── example
+│   ├── common.js
+│   ├── producer.js
+│   └── push_consumer.js
+├── index.js
+├── lib
+│   ├── common.js
+│   ├── env_init.js
+│   ├── producer.js
+│   └── push_consumer.js
+├── package.json
+├── script
+│   ├── download_lib.js
+│   └── get_linux_distro_route.js
+└── src
+    ├── consumer_ack.cpp
+    ├── consumer_ack.h
+    ├── consumer_ack_inner.cpp
+    ├── consumer_ack_inner.h
+    ├── producer.cpp
+    ├── producer.h
+    ├── push_consumer.cpp
+    ├── push_consumer.h
+    ├── rocketmq.cpp
+    └── workers
+        ├── producer
+        │   ├── send_message.h
+        │   └── start_or_shutdown.h
+        └── push_consumer
+            └── start_or_shutdown.h
+
+--- Summary Report ---
+Total files scanned: 29
+Files included: 29
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 4
+Files with dependency extraction: 0
+Detected languages count: 7
+Top 15 largest included files:
+  11917 bytes - src\push_consumer.cpp
+  8876 bytes - src\producer.cpp
+  6243 bytes - lib\producer.js
+  4640 bytes - lib\push_consumer.js
+  4267 bytes - script\download_lib.js
+  3477 bytes - .gitignore
+  2763 bytes - script\get_linux_distro_route.js
+  2702 bytes - src\consumer_ack.cpp
+  2442 bytes - src\workers\push_consumer\start_or_shutdown.h
+  2368 bytes - src\workers\producer\start_or_shutdown.h
+  2350 bytes - example\push_consumer.js
+  2278 bytes - binding.gyp
+  2255 bytes - src\push_consumer.h
+  2218 bytes - src\workers\producer\send_message.h
+  2081 bytes - src\consumer_ack_inner.cpp
+-----------------------
+
+---
+File: package.json
+Size: 735 bytes
+Lines: 26
+---
+{
+  "name": "apache-rocketmq",
+  "version": "1.0.0-rc1",
+  "cppSDKVersion": "1.2.0",
+  "description": "RocketMQ binding for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run lint && echo 'temp example test' && node example/producer.js && node example/push_consumer.js",
+    "lint": "eslint .",
+    "install": "node ./script/download_lib.js && node-gyp rebuild"
+  },
+  "author": "XadillaX <i@2333.moe>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "co": "^4.6.0",
+    "destroy": "^1.0.4",
+    "getos": "^3.1.1",
+    "mkdirp": "^0.5.1",
+    "nan": "^2.11.1",
+    "urllib": "^2.31.3"
+  },
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "eslint-config-rocketmq-style": "^1.0.0"
+  }
+}
+
+
+---
+File: .eslintrc.js
+Size: 906 bytes
+Lines: 23
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+module.exports = {
+    extends: [
+      "rocketmq-style"
+    ]
+};
+
+
+---
+File: .gitignore
+Size: 3477 bytes
+Lines: 202
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+### IDE ###
+.idea
+idea/*
+
+### C++ ###
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+### Linux ###
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+### Node ###
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directory for instrumented libs generated by jscoverage/JSCover
+lib-cov
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript v1 declaration files
+typings/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+build
+package-lock.json
+.vscode
+
+
+---
+File: .gitmodules
+Size: 108 bytes
+Lines: 3
+---
+[submodule "deps/rocketmq"]
+path = deps/rocketmq
+url = https://github.com/apache/rocketmq-client-cpp.git
+
+
+---
+File: .travis.yml
+Size: 1172 bytes
+Lines: 41
+---
+language: node_js
+
+node_js: 10
+env:
+  NODE_ROCKETMQ_REGISTRY=https://opensource-rocketmq-client-us.oss-us-west-1.aliyuncs.com/
+
+before_script:
+  - wget https://archive.apache.org/dist/rocketmq/4.3.2/rocketmq-all-4.3.2-bin-release.zip
+  - unzip rocketmq-all-4.3.2-bin-release.zip
+  - cd rocketmq-all-4.3.2-bin-release
+  - perl -i -pe's/-Xms8g -Xmx8g -Xmn4g/-Xms2g -Xmx2g -Xmn1g/g' bin/runbroker.sh
+  - nohup sh bin/mqnamesrv &
+  - nohup sh bin/mqbroker -n localhost:9876 &
+  - sleep 10
+  - ./bin/mqadmin updateTopic -b '127.0.0.1:10911' –n '127.0.0.1:9876' -t test
+  - ./bin/mqadmin updateSubGroup -b '127.0.0.1:10911' –n '127.0.0.1:9876' -g testGroup
+
+script:
+  - npm test
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+    - os: linux
+      dist: xenial
+      jdk: openjdk8
+      env:
+        JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+      apt:
+        packages:
+          - openjdk8
+    - os: windows
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_112.jdk/Contents/Home/jre
+  allow_failures:
+    - os: linux
+      dist: xenial
+    - os: windows
+
+
+---
+File: index.js
+Size: 938 bytes
+Lines: 20
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+exports.Producer = require("./lib/producer");
+exports.PushConsumer = require("./lib/push_consumer");
+
+
+---
+File: binding.gyp
+Size: 2278 bytes
+Lines: 63
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{
+  "targets": [
+    {
+      "target_name": "rocketmq",
+      "sources": [
+        "src/rocketmq.cpp",
+        "src/producer.cpp",
+        "src/push_consumer.cpp",
+        "src/consumer_ack.cpp",
+        "src/consumer_ack_inner.cpp"
+      ],
+      "include_dirs": [
+        "deps/rocketmq/include",
+        "<!(node -e \"require('nan')\")"
+      ],
+      "conditions": [
+        ["OS==\"linux\"", {
+          "libraries": [
+            "<(module_root_dir)/deps/lib/librocketmq.a"
+          ],
+          "cflags_cc!": [ "-fno-exceptions", "-pthread", "-Wl,--no-as-needed", "-ldl" ],
+          "cflags_cc": [ "-Wno-ignored-qualifiers" ],
+          "cflags": [ "-std=c++11", "-g" ]
+        }],
+        ["OS==\"win\"", {
+          "libraries": [
+            "<(module_root_dir)/deps/lib/rocketmq-client-cpp.lib"
+          ],
+          "copies": [
+            {
+              "destination": "<(module_root_dir)/build/Release/",
+              "files": [ "<(module_root_dir)/deps/lib/rocketmq-client-cpp.dll" ]
+            }
+          ]
+        }],
+        ["OS==\"mac\"", {
+          "xcode_settings": {
+            "GCC_ENABLE_CPP_EXCEPTIONS": "YES"
+          },
+          "cflags!": [ "-fno-exceptions" ],
+          "cflags_cc!": [ "-fno-exceptions", "-pthread", "-Wl,--no-as-needed", "-ldl" ],
+          "cflags_cc": [ "-Wno-ignored-qualifiers" ],
+          "cflags": [ "-std=c++11", "-stdlib=libc++" ]
+        }]
+      ]
+    }
+  ]
+}
+
+
+---
+File: lib\common.js
+Size: 1053 bytes
+Lines: 28
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+exports.requireBinding = function(name) {
+    let mod;
+    try {
+        mod = require(`../build/Debug/${name}`);
+    } catch(e) {
+        mod = require(`../build/Release/${name}`);
+    }
+
+    return mod;
+};
+
+
+---
+File: src\consumer_ack.cpp
+Size: 2702 bytes
+Lines: 90
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "consumer_ack.h"
+
+namespace __node_rocketmq__ {
+
+Nan::Persistent<Function> ConsumerAck::constructor;
+
+ConsumerAck::ConsumerAck() :
+    inner(NULL)
+{
+}
+
+ConsumerAck::~ConsumerAck()
+{
+    inner = NULL;
+}
+
+NAN_MODULE_INIT(ConsumerAck::Init)
+{
+    Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+    tpl->SetClassName(Nan::New("ConsumerAck").ToLocalChecked());
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+    Nan::SetPrototypeMethod(tpl, "done", Done);
+
+    constructor.Reset(tpl->GetFunction());
+    Nan::Set(target, Nan::New("ConsumerAck").ToLocalChecked(), tpl->GetFunction());
+}
+
+NAN_METHOD(ConsumerAck::New)
+{
+    Isolate* isolate = info.GetIsolate();
+    Local<Context> context = Context::New(isolate);
+
+    if(!info.IsConstructCall())
+    {
+        Local<Function> _constructor = Nan::New<Function>(constructor);
+        info.GetReturnValue().Set(_constructor->NewInstance(context, 0, 0).ToLocalChecked());
+        return;
+    }
+
+    ConsumerAck* producer = new ConsumerAck();
+    producer->Wrap(info.This());
+    info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(ConsumerAck::Done)
+{
+    ConsumerAck* ack = ObjectWrap::Unwrap<ConsumerAck>(info.Holder());
+    bool succ = true;
+
+    if(info.Length() >= 1)
+    {
+        succ = (info[0]->IsUndefined() || info[0]->IsNull() || Nan::To<bool>(info[0]).FromJust());
+    }
+
+    // call inner ack's `Ack` function to emit the true `Acker`'s `Ack` function
+    // and finish waiting of consume thread
+    CConsumeStatus status = succ ?
+        CConsumeStatus::E_CONSUME_SUCCESS :
+        CConsumeStatus::E_RECONSUME_LATER;
+    ack->Ack(status);
+}
+
+void ConsumerAck::Ack(CConsumeStatus status)
+{
+    if(inner)
+    {
+        // call inner ack in the main event loop
+        inner->Ack(status);
+        inner = NULL;
+    }
+}
+
+}
+
+
+---
+File: src\consumer_ack.h
+Size: 1717 bytes
+Lines: 66
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_CONSUMER_ACK_H__
+#define __ROCKETMQ_CONSUMER_ACK_H__
+
+#include "consumer_ack_inner.h"
+#include <nan.h>
+
+namespace __node_rocketmq__ {
+
+using v8::Context;
+using v8::Function;
+using v8::FunctionTemplate;
+using v8::Isolate;
+using v8::Local;
+using v8::Object;
+using v8::String;
+using v8::Value;
+
+class ConsumerAck : public Nan::ObjectWrap {
+public:
+    static NAN_MODULE_INIT(Init);
+
+private:
+    explicit ConsumerAck();
+    ~ConsumerAck();
+
+    static NAN_METHOD(New);
+    static NAN_METHOD(Done);
+
+    void Ack(CConsumeStatus status);
+
+    static Nan::Persistent<v8::Function> constructor;
+
+public:
+    void SetInner(ConsumerAckInner* _inner)
+    {
+        inner = _inner;
+    }
+
+    static Nan::Persistent<v8::Function>& GetConstructor()
+    {
+        return constructor;
+    }
+
+private:
+    ConsumerAckInner* inner;
+};
+
+}
+
+#endif
+
+
+---
+File: src\consumer_ack_inner.cpp
+Size: 2081 bytes
+Lines: 77
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "consumer_ack_inner.h"
+
+namespace __node_rocketmq__ {
+
+ConsumerAckInner::ConsumerAckInner() :
+    acked(false)
+{
+    uv_cond_init(&cond);
+    uv_mutex_init(&mutex);
+}
+
+ConsumerAckInner::~ConsumerAckInner()
+{
+    uv_mutex_destroy(&mutex);
+    uv_cond_destroy(&cond);
+}
+
+void ConsumerAckInner::Ack(CConsumeStatus _status)
+{
+    uv_mutex_lock(&mutex);
+    bool _acked = acked;
+
+    if(_acked)
+    {
+        uv_mutex_unlock(&mutex);
+        return;
+    }
+
+    status = _status;
+    acked = true;
+
+    // tell `this->WaitResult()` to continue
+    uv_cond_signal(&cond);
+    uv_mutex_unlock(&mutex);
+}
+
+CConsumeStatus ConsumerAckInner::WaitResult()
+{
+    uv_mutex_lock(&mutex);
+
+    // if `cond signal` send before `WaitResult()`,
+    // `uv_cond_wait` will be blocked and never continue
+    //
+    // so we have to return result directly without `uv_cond_wait`
+    if(acked)
+    {
+        CConsumeStatus _status = status;
+        uv_mutex_unlock(&mutex);
+        return _status;
+    }
+
+    // wait for `this->Ack()` and that will emit `uv_cond_signal` to let it stop wait
+    uv_cond_wait(&cond, &mutex);
+
+    CConsumeStatus _status = status;
+    uv_mutex_unlock(&mutex);
+
+    return _status;
+}
+
+}
+
+
+---
+File: src\consumer_ack_inner.h
+Size: 1267 bytes
+Lines: 42
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_CONSUMER_ACK_INNER_H__
+#define __ROCKETMQ_CONSUMER_ACK_INNER_H__
+
+#include <uv.h>
+#include <CPushConsumer.h>
+
+namespace __node_rocketmq__ {
+
+class ConsumerAckInner {
+public:
+    ConsumerAckInner();
+    ~ConsumerAckInner();
+
+    void Ack(CConsumeStatus _status);
+    CConsumeStatus WaitResult();
+
+private:
+    bool acked;
+    CConsumeStatus status;
+    uv_mutex_t mutex;
+    uv_cond_t cond;
+};
+
+}
+
+#endif
+
+
+---
+File: script\download_lib.js
+Size: 4267 bytes
+Lines: 131 [structural]
+---
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const co = require("co");
+const destroy = require("destroy");
+const _mkdirp = require("mkdirp");
+const urllib = require("urllib");
+const getLinuxDistroRoute = require("./get_linux_distro_route");
+const pkg = require("../package");
+let REGISTRY_MIRROR =
+const CPP_SDK_VERSION = pkg.cppSDKVersion;
+const LIB_DIR = path.join(__dirname, "..", "deps", "lib");
+const URL_ROOT = `${REGISTRY_MIRROR}cpp-client`;
+function mkdirp(dir) {
+    return new Promise((resolve, reject) => {
+        _mkdirp(dir, null, err => {
+    const platform = os.platform();
+    const ret = [];
+    let distro;
+    let urls;
+    let writeTimes = 0;
+        const resp = yield urllib.request(url, {
+        const readStream = resp.res;
+        const filename = path.join(LIB_DIR, path.basename(url));
+        const writeStream = fs.createWriteStream(filename, {
+        function handleDownladCallback(err) {
+
+---
+File: lib\env_init.js
+Size: 1181 bytes
+Lines: 32
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+const os = require("os");
+const path = require("path");
+
+const common = require("./common");
+
+const binding = common.requireBinding("rocketmq");
+
+switch(os.platform()) {
+case "darwin":
+    process.env.EVENT_NOKQUEUE = "1";
+    binding.macosDLOpen(path.join(__dirname, "../deps/lib/librocketmq.dylib"));
+    break;
+default: break;
+}
+
+
+---
+File: script\get_linux_distro_route.js
+Size: 2763 bytes
+Lines: 102 [structural]
+---
+const assert = require("assert");
+const getos = require("getos");
+const RHEL_MAP_ARRAY = [
+const NORMAL_MAP_ARRAY = [
+function realGetLinuxDistroRoute(dist, release) {
+    let major;
+function getLinuxDistroRoute() {
+    return new Promise((resolve, reject) => {
+            let route;
+
+---
+File: src\producer.cpp
+Size: 8876 bytes
+Lines: 267
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include "producer.h"
+#include "workers/producer/send_message.h"
+#include "workers/producer/start_or_shutdown.h"
+
+#include <MQClientException.h>
+#include <string>
+using namespace std;
+
+namespace __node_rocketmq__ {
+
+#define NAN_GET_CPRODUCER() \
+    RocketMQProducer* _v8_producer = ObjectWrap::Unwrap<RocketMQProducer>(info.Holder()); \
+    CProducer* producer_ptr = _v8_producer->GetProducer();
+
+Nan::Persistent<Function> RocketMQProducer::constructor;
+
+RocketMQProducer::RocketMQProducer(const char* group_id, const char* instance_name)
+{
+    producer_ptr = CreateProducer(group_id);
+    if(instance_name)
+    {
+        SetProducerInstanceName(producer_ptr, instance_name);
+    }
+}
+
+RocketMQProducer::~RocketMQProducer()
+{
+    try
+    {
+        ShutdownProducer(producer_ptr);
+    }
+    catch (...)
+    {
+        //
+    }
+
+    DestroyProducer(producer_ptr);
+}
+
+void RocketMQProducer::SetOptions(Local<Object> options)
+{
+    // set name server
+    Local<Value> _name_server_v = Nan::Get(options, Nan::New<String>("nameServer").ToLocalChecked()).ToLocalChecked();
+    if(_name_server_v->IsString())
+    {
+        Nan::Utf8String namesrv(_name_server_v);
+        SetProducerNameServerAddress(producer_ptr, *namesrv);
+    }
+
+    // set group name
+    Local<Value> _group_name_v = Nan::Get(options, Nan::New<String>("groupName").ToLocalChecked()).ToLocalChecked();
+    if(_group_name_v->IsString())
+    {
+        Nan::Utf8String group_name(_group_name_v);
+        SetProducerGroupName(producer_ptr, *group_name);
+    }
+
+    // set log num & single log size
+    int file_num = 3;
+    int64 file_size = 104857600;
+    Local<Value> _log_file_num_v = Nan::Get(options, Nan::New<String>("logFileNum").ToLocalChecked()).ToLocalChecked();
+    Local<Value> _log_file_size_v = Nan::Get(options, Nan::New<String>("logFileSize").ToLocalChecked()).ToLocalChecked();
+    if(_log_file_num_v->IsNumber())
+    {
+        file_num = _log_file_num_v->Int32Value();
+    }
+    if(_log_file_size_v->IsNumber())
+    {
+        file_size = _log_file_size_v->Int32Value();
+    }
+    SetProducerLogFileNumAndSize(producer_ptr, file_num, file_size);
+
+    // set log level
+    Local<Value> _log_level_v = Nan::Get(options, Nan::New<String>("logLevel").ToLocalChecked()).ToLocalChecked();
+    if(_log_level_v->IsNumber())
+    {
+        int level = _log_level_v->Int32Value();
+        SetProducerLogLevel(producer_ptr, (CLogLevel)level);
+    }
+
+    // set compress level
+    Local<Value> _compress_level_v = Nan::Get(options, Nan::New<String>("compressLevel").ToLocalChecked()).ToLocalChecked();
+    if(_compress_level_v->IsNumber()) {
+        int level = _compress_level_v->Int32Value();
+        SetProducerCompressLevel(producer_ptr, level);
+    }
+
+    // set send message timeout
+    Local<Value> _send_message_timeout_v = Nan::Get(options, Nan::New<String>("sendMessageTimeout").ToLocalChecked()).ToLocalChecked();
+    if(_send_message_timeout_v->IsNumber())
+    {
+        int timeout = _send_message_timeout_v->Int32Value();
+        SetProducerSendMsgTimeout(producer_ptr, timeout);
+    }
+
+    // set max message size
+    Local<Value> _max_message_size_v = Nan::Get(options, Nan::New<String>("maxMessageSize").ToLocalChecked()).ToLocalChecked();
+    if(_max_message_size_v->IsNumber())
+    {
+        int size = _max_message_size_v->Int32Value();
+        SetProducerMaxMessageSize(producer_ptr, size);
+    }
+}
+
+NAN_MODULE_INIT(RocketMQProducer::Init)
+{
+    Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+    tpl->SetClassName(Nan::New("RocketMQProducer").ToLocalChecked());
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+    Nan::SetPrototypeMethod(tpl, "start", Start);
+    Nan::SetPrototypeMethod(tpl, "shutdown", Shutdown);
+    Nan::SetPrototypeMethod(tpl, "send", Send);
+    Nan::SetPrototypeMethod(tpl, "setSessionCredentials", SetSessionCredentials);
+
+    constructor.Reset(tpl->GetFunction());
+    Nan::Set(target, Nan::New("Producer").ToLocalChecked(), tpl->GetFunction());
+}
+
+NAN_METHOD(RocketMQProducer::New)
+{
+    Isolate* isolate = info.GetIsolate();
+    Local<Context> context = Context::New(isolate);
+
+    if(!info.IsConstructCall())
+    {
+        const int argc = 3;
+        Local<Value> argv[argc] = { info[0], info[1], info[2] };
+        Local<Function> _constructor = Nan::New<v8::Function>(constructor);
+        info.GetReturnValue().Set(_constructor->NewInstance(context, argc, argv).ToLocalChecked());
+        return;
+    }
+
+    Nan::Utf8String group_id(info[0]);
+    Nan::Utf8String instance_name(info[1]);
+    Local<Object> options = Nan::To<Object>(info[2]).ToLocalChecked();
+    RocketMQProducer* producer = new RocketMQProducer(*group_id, info[1]->IsNull() ? NULL : *instance_name);
+
+    producer->Wrap(info.This());
+
+    // try to set options
+    try
+    {
+        producer->SetOptions(options);
+    }
+    catch (runtime_error e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+
+    info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(RocketMQProducer::Start)
+{
+    NAN_GET_CPRODUCER();
+
+    Nan::Callback* callback = (info[0]->IsFunction()) ?
+        new Nan::Callback(Nan::To<Function>(info[0]).ToLocalChecked()) :
+        NULL;
+
+    Nan::AsyncQueueWorker(new ProducerStartOrShutdownWorker(callback, producer_ptr, ProducerWorkerType::START_PRODUCER));
+}
+
+NAN_METHOD(RocketMQProducer::Shutdown)
+{
+    NAN_GET_CPRODUCER();
+
+    Nan::Callback* callback = (info[0]->IsFunction()) ?
+        new Nan::Callback(Nan::To<Function>(info[0]).ToLocalChecked()) :
+        NULL;
+
+    Nan::AsyncQueueWorker(new ProducerStartOrShutdownWorker(callback, producer_ptr, ProducerWorkerType::SHUTDOWN_PRODUCER));
+}
+
+NAN_METHOD(RocketMQProducer::SetSessionCredentials)
+{
+    NAN_GET_CPRODUCER();
+
+    Nan::Utf8String access_key(info[0]);
+    Nan::Utf8String secret_key(info[1]);
+    Nan::Utf8String ons_channel(info[2]);
+
+    int ret;
+    try
+    {
+        ret = SetProducerSessionCredentials(producer_ptr, *access_key, *secret_key, *ons_channel);
+    }
+    catch(runtime_error e)
+    {
+        Nan::ThrowError(e.what());
+    }
+    catch(std::exception& e)
+    {
+        Nan::ThrowError(e.what());
+    }
+    catch(rocketmq::MQException& e)
+    {
+        Nan::ThrowError(e.what());
+    }
+    info.GetReturnValue().Set(ret);
+}
+
+NAN_METHOD(RocketMQProducer::Send)
+{
+    Nan::Utf8String topic(info[0]);
+    Local<Object> options = Nan::To<Object>(info[2]).ToLocalChecked();
+
+    CMessage* msg = CreateMessage(*topic);
+
+    Local<Value> _tags_to_be_checked = Nan::Get(options, Nan::New<String>("tags").ToLocalChecked()).ToLocalChecked();
+    Local<Value> _keys_to_be_checked = Nan::Get(options, Nan::New<String>("keys").ToLocalChecked()).ToLocalChecked();
+
+    if(_tags_to_be_checked->IsString())
+    {
+        Nan::Utf8String tags(_tags_to_be_checked);
+        SetMessageTags(msg, *tags);
+    }
+
+    if(_keys_to_be_checked->IsString())
+    {
+        Nan::Utf8String keys(_keys_to_be_checked);
+        SetMessageKeys(msg, *keys);
+    }
+
+    // set message body:
+    //   1. if it's a string, call `SetMessageBody`;
+    //   2. if it's a buffer, call `SetByteMessageBody`.
+    if(info[1]->IsString())
+    {
+        Nan::Utf8String body(info[1]);
+        SetMessageBody(msg, *body);
+    }
+    else
+    {
+        Local<Object> node_buff_object = Nan::To<Object>(info[1]).ToLocalChecked();
+        unsigned int length = node::Buffer::Length(node_buff_object);
+        const char* buff = node::Buffer::Data(node_buff_object);
+        SetByteMessageBody(msg, buff, length);
+    }
+
+    Nan::Callback* callback = (info[3]->IsFunction()) ?
+        new Nan::Callback(Nan::To<Function>(info[3]).ToLocalChecked()) :
+        NULL;
+
+    RocketMQProducer* producer = ObjectWrap::Unwrap<RocketMQProducer>(info.Holder());
+    Nan::AsyncQueueWorker(new ProducerSendMessageWorker(callback, producer, msg));
+}
+
+}
+
+
+---
+File: src\producer.h
+Size: 1753 bytes
+Lines: 62
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_PRODUCER_H__
+#define __ROCKETMQ_PRODUCER_H__
+
+#include <CProducer.h>
+#include <nan.h>
+
+namespace __node_rocketmq__ {
+
+using v8::Context;
+using v8::Function;
+using v8::FunctionTemplate;
+using v8::Isolate;
+using v8::Local;
+using v8::Object;
+using v8::String;
+using v8::Value;
+
+class RocketMQProducer : public Nan::ObjectWrap {
+public:
+    static NAN_MODULE_INIT(Init);
+
+public:
+    CProducer* GetProducer() { return producer_ptr; }
+
+private:
+    explicit RocketMQProducer(const char* group_id, const char* instance_name);
+    ~RocketMQProducer();
+
+    static NAN_METHOD(New);
+    static NAN_METHOD(Start);
+    static NAN_METHOD(Shutdown);
+    static NAN_METHOD(Send);
+    static NAN_METHOD(SetSessionCredentials);
+
+    static Nan::Persistent<Function> constructor;
+
+private:
+    void SetOptions(Local<Object> options);
+
+private:
+    CProducer* producer_ptr;
+};
+
+}
+
+#endif
+
+
+---
+File: lib\producer.js
+Size: 6243 bytes
+Lines: 200 [structural]
+---
+const assert = require("assert");
+const common = require("./common");
+const binding = common.requireBinding("rocketmq");
+const START_OR_SHUTDOWN = Symbol("RocketMQProducer#startOrShutdown");
+const SEND_RESULT_STATUS = {
+const SEND_RESULT_STATUS_STR = {
+const DEFAULT_OPTIONS = {};
+const START_STATUS = {
+const OPTIONS_LOG_LEVEL = {
+let producerRef = 0;
+let timer;
+class RocketMQProducer {
+    constructor(groupId, instanceName, options) {
+    setSessionCredentials(accessKey, secretKey, onsChannel) {
+    [START_OR_SHUTDOWN](method, callback) {
+        let promise;
+        let resolve;
+        let reject;
+            promise = new Promise((_resolve, _reject) => {
+        this.core[method]((err, ret) => {
+    start(callback) {
+    shutdown(callback) {
+    send(topic, body, options, callback) {
+        let promise;
+        let resolve;
+        let reject;
+            promise = new Promise((_resolve, _reject) => {
+            const ret = {
+
+---
+File: src\push_consumer.cpp
+Size: 11917 bytes
+Lines: 394
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include <map>
+#include "push_consumer.h"
+#include "consumer_ack.h"
+#include "workers/push_consumer/start_or_shutdown.h"
+
+using namespace std;
+
+namespace __node_rocketmq__ {
+
+struct MessageHandlerParam
+{
+    RocketMQPushConsumer* consumer;
+    ConsumerAckInner* ack;
+    CMessageExt* msg;
+};
+char message_handler_param_keys[5][8] = { "topic", "tags", "keys", "body", "msgId" };
+
+uv_mutex_t _get_msg_ext_column_lock;
+
+map<CPushConsumer*, RocketMQPushConsumer*> _push_consumer_map;
+
+#define NAN_GET_CPUSHCONSUMER() \
+    RocketMQPushConsumer* _v8_consumer = ObjectWrap::Unwrap<RocketMQPushConsumer>(info.Holder()); \
+    CPushConsumer* consumer_ptr = _v8_consumer->GetConsumer();
+
+Nan::Persistent<Function> RocketMQPushConsumer::constructor;
+
+RocketMQPushConsumer::RocketMQPushConsumer(const char* group_id, const char* instance_name) :
+    consumer_ptr(NULL)
+{
+    consumer_ptr = CreatePushConsumer(group_id);
+
+    if(instance_name)
+    {
+        SetPushConsumerInstanceName(consumer_ptr, instance_name);
+    }
+
+    _push_consumer_map[consumer_ptr] = this;
+
+    RegisterMessageCallback(consumer_ptr, RocketMQPushConsumer::OnMessage);
+}
+
+RocketMQPushConsumer::~RocketMQPushConsumer()
+{
+    try
+    {
+        ShutdownPushConsumer(consumer_ptr);
+        auto it = _push_consumer_map.find(consumer_ptr);
+        if(it != _push_consumer_map.end())
+        {
+            _push_consumer_map.erase(consumer_ptr);
+        }
+    }
+    catch(...)
+    {
+        //
+    }
+
+    DestroyPushConsumer(consumer_ptr);
+    consumer_ptr = NULL;
+}
+
+void RocketMQPushConsumer::SetOptions(Local<Object> options)
+{
+    // set name server
+    Local<Value> _name_server_v = Nan::Get(options, Nan::New<String>("nameServer").ToLocalChecked()).ToLocalChecked();
+    if(_name_server_v->IsString())
+    {
+        Nan::Utf8String namesrv(_name_server_v);
+        SetPushConsumerNameServerAddress(consumer_ptr, *namesrv);
+    }
+
+    // set thread count
+    Local<Value> _thread_count_v = Nan::Get(options, Nan::New<String>("threadCount").ToLocalChecked()).ToLocalChecked();
+    if(_thread_count_v->IsNumber())
+    {
+        int thread_count = Nan::To<int32_t>(_thread_count_v).FromJust();
+        if(thread_count > 0)
+        {
+            SetPushConsumerThreadCount(consumer_ptr, thread_count);
+        }
+    }
+
+    // set message batch max size
+    Local<Value> _max_batch_size_v = Nan::Get(options, Nan::New<String>("maxBatchSize").ToLocalChecked()).ToLocalChecked();
+    if(_max_batch_size_v->IsNumber())
+    {
+        int max_batch_size = Nan::To<int32_t>(_max_batch_size_v).FromJust();
+        if(max_batch_size > 0)
+        {
+            SetPushConsumerMessageBatchMaxSize(consumer_ptr, max_batch_size);
+        }
+    }
+
+    // set log num & single log size
+    int file_num = 3;
+    int64 file_size = 104857600;
+    Local<Value> _log_file_num_v = Nan::Get(options, Nan::New<String>("logFileNum").ToLocalChecked()).ToLocalChecked();
+    Local<Value> _log_file_size_v = Nan::Get(options, Nan::New<String>("logFileSize").ToLocalChecked()).ToLocalChecked();
+    if(_log_file_num_v->IsNumber())
+    {
+        file_num = _log_file_num_v->Int32Value();
+    }
+    if(_log_file_size_v->IsNumber())
+    {
+        file_size = _log_file_size_v->Int32Value();
+    }
+    SetPushConsumerLogFileNumAndSize(consumer_ptr, file_num, file_size);
+
+    // set log level
+    Local<Value> _log_level_v = Nan::Get(options, Nan::New<String>("logLevel").ToLocalChecked()).ToLocalChecked();
+    if(_log_level_v->IsNumber())
+    {
+        int level = _log_level_v->Int32Value();
+        SetPushConsumerLogLevel(consumer_ptr, (CLogLevel) level);
+    }
+}
+
+NAN_MODULE_INIT(RocketMQPushConsumer::Init)
+{
+    uv_mutex_init(&_get_msg_ext_column_lock);
+    Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+    tpl->SetClassName(Nan::New("RocketMQPushConsumer").ToLocalChecked());
+    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+    Nan::SetPrototypeMethod(tpl, "start", Start);
+    Nan::SetPrototypeMethod(tpl, "shutdown", Shutdown);
+    Nan::SetPrototypeMethod(tpl, "subscribe", Subscribe);
+    Nan::SetPrototypeMethod(tpl, "setListener", SetListener);
+    Nan::SetPrototypeMethod(tpl, "setSessionCredentials", SetSessionCredentials);
+
+    constructor.Reset(tpl->GetFunction());
+    Nan::Set(target, Nan::New("PushConsumer").ToLocalChecked(), tpl->GetFunction());
+}
+
+NAN_METHOD(RocketMQPushConsumer::New)
+{
+    Isolate* isolate = info.GetIsolate();
+    Local<Context> context = Context::New(isolate);
+
+    if(!info.IsConstructCall())
+    {
+        const int argc = 3;
+        Local<Value> argv[argc] = { info[0], info[1], info[2] };
+        Local<Function> _constructor = Nan::New<v8::Function>(constructor);
+        info.GetReturnValue().Set(_constructor->NewInstance(context, argc, argv).ToLocalChecked());
+        return;
+    }
+
+    Nan::Utf8String v8_group_id(info[0]);
+    Nan::Utf8String v8_instance_name(info[1]);
+    string group_id = *v8_group_id;
+    string instance_name = *v8_instance_name;
+    Local<Object> options = Nan::To<Object>(info[2]).ToLocalChecked();
+    RocketMQPushConsumer* consumer = new RocketMQPushConsumer(group_id.c_str(), info[1]->IsNull() ? NULL : instance_name.c_str());
+
+    consumer->Wrap(info.This());
+
+    // try to set options
+    try
+    {
+        consumer->SetOptions(options);
+    }
+    catch(const runtime_error e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+    catch(const std::exception& e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+
+    info.GetReturnValue().Set(info.This());
+}
+
+NAN_METHOD(RocketMQPushConsumer::Start)
+{
+    NAN_GET_CPUSHCONSUMER();
+
+    Nan::Callback* callback = (info[0]->IsFunction()) ?
+        new Nan::Callback(Nan::To<Function>(info[0]).ToLocalChecked()) :
+        NULL;
+
+    Nan::AsyncQueueWorker(new PushConsumerStartOrShutdownWorker(callback, consumer_ptr, PushConsumerWorkerType::START_PUSH_CONSUMER));
+}
+
+NAN_METHOD(RocketMQPushConsumer::Shutdown)
+{
+    NAN_GET_CPUSHCONSUMER();
+
+    Nan::Callback* callback = (info[0]->IsFunction()) ?
+        new Nan::Callback(Nan::To<Function>(info[0]).ToLocalChecked()) :
+        NULL;
+
+    Nan::AsyncQueueWorker(new PushConsumerStartOrShutdownWorker(callback, consumer_ptr, PushConsumerWorkerType::SHUTDOWN_PUSH_CONSUMER));
+}
+
+NAN_METHOD(RocketMQPushConsumer::Subscribe)
+{
+    NAN_GET_CPUSHCONSUMER();
+
+    Nan::Utf8String v8_topic(info[0]);
+    Nan::Utf8String v8_expression(info[1]);
+    string topic = *v8_topic;
+    string expression = *v8_expression;
+
+    int ret;
+    try
+    {
+        ret = ::Subscribe(consumer_ptr, topic.c_str(), expression.c_str());
+    }
+    catch(const runtime_error e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+    catch(const std::exception& e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+
+    info.GetReturnValue().Set(ret);
+}
+
+NAN_METHOD(RocketMQPushConsumer::SetListener)
+{
+    RocketMQPushConsumer* consumer = ObjectWrap::Unwrap<RocketMQPushConsumer>(info.Holder());
+    if(!consumer->listener_func.IsEmpty())
+    {
+        consumer->listener_func.Reset();
+    }
+
+    consumer->listener_func.Reset(Nan::To<Function>(info[0]).ToLocalChecked());
+}
+
+NAN_METHOD(RocketMQPushConsumer::SetSessionCredentials)
+{
+    NAN_GET_CPUSHCONSUMER();
+
+    Nan::Utf8String access_key(info[0]);
+    Nan::Utf8String secret_key(info[1]);
+    Nan::Utf8String ons_channel(info[2]);
+
+    int ret;
+    try
+    {
+        ret = SetPushConsumerSessionCredentials(consumer_ptr, *access_key, *secret_key, *ons_channel);
+    }
+    catch(const runtime_error e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+    catch(const std::exception& e)
+    {
+        Nan::ThrowError(e.what());
+        return;
+    }
+
+    info.GetReturnValue().Set(ret);
+}
+
+string RocketMQPushConsumer::GetMessageColumn(char* name, CMessageExt* msg)
+{
+    const char* orig = NULL;
+
+    uv_mutex_lock(&_get_msg_ext_column_lock);
+    switch(name[0])
+    {
+    // topic / tags
+    case 't':
+        orig = name[1] == 'o' ? GetMessageTopic(msg) : GetMessageTags(msg);
+        break;
+
+    // keys
+    case 'k':
+        orig = GetMessageKeys(msg);
+        break;
+
+    // body
+    case 'b':
+        orig = GetMessageBody(msg);
+        break;
+
+    // msgId
+    case 'm':
+        orig = GetMessageId(msg);
+        break;
+
+    default:
+        orig = NULL;
+        break;
+    }
+
+    uv_mutex_unlock(&_get_msg_ext_column_lock);
+
+    if(!orig) return "";
+    return orig;
+}
+
+void close_async_done(uv_handle_t* handle)
+{
+    free(handle);
+}
+
+void RocketMQPushConsumer::HandleMessageInEventLoop(uv_async_t* async)
+{
+    Nan::HandleScope scope;
+
+    Isolate* isolate = Isolate::GetCurrent();
+    Local<Context> context = isolate->GetCurrentContext();
+
+    MessageHandlerParam* param = (MessageHandlerParam*)(async->data);
+    RocketMQPushConsumer* consumer = param->consumer;
+    ConsumerAckInner* ack_inner = param->ack;
+    CMessageExt* msg = param->msg;
+
+    // create the JavaScript ack object and then set inner ack object
+    Local<Function> cons = Nan::New<Function>(ConsumerAck::GetConstructor());
+    Local<Object> ack_obj = cons->NewInstance(context, 0, 0).ToLocalChecked();
+    ConsumerAck* ack = ObjectWrap::Unwrap<ConsumerAck>(ack_obj);
+    ack->SetInner(ack_inner);
+
+    // TODO: const char *GetMessageProperty(CMessageExt *msgExt, const char *key);
+    Local<Object> result = Nan::New<Object>();
+    for(int i = 0; i < 5; i++)
+    {
+        Nan::Set(
+            result,
+            Nan::New(message_handler_param_keys[i]).ToLocalChecked(),
+            Nan::New(RocketMQPushConsumer::GetMessageColumn(message_handler_param_keys[i], msg)).ToLocalChecked());
+    }
+
+    Local<Value> argv[2] = {
+        result,
+        ack_obj
+    };
+    Nan::Callback* callback = consumer->GetListenerFunction();
+    callback->Call(2, argv);
+
+    uv_close((uv_handle_t*)async, close_async_done);
+}
+
+int RocketMQPushConsumer::OnMessage(CPushConsumer* consumer_ptr, CMessageExt* msg_ext)
+{
+    RocketMQPushConsumer* consumer = _push_consumer_map[consumer_ptr];
+    if (!consumer)
+    {
+        // TODO: error handle
+        return CConsumeStatus::E_RECONSUME_LATER;
+    }
+
+    ConsumerAckInner ack_inner;
+
+    // create async parameter
+    MessageHandlerParam param;
+    param.consumer = consumer;
+    param.ack = &ack_inner;
+    param.msg = msg_ext;
+
+    // create a new async handler and bind with `RocketMQPushConsumer::HandleMessageInEventLoop`
+    uv_async_t* async = (uv_async_t*)malloc(sizeof(uv_async_t));
+    uv_async_init(uv_default_loop(), async, RocketMQPushConsumer::HandleMessageInEventLoop);
+    async->data = (void*)(&param);
+
+    // send async handler
+    uv_async_send(async);
+
+    // wait for result
+    CConsumeStatus status = ack_inner.WaitResult();
+
+    return status;
+}
+
+}
+
+
+---
+File: src\push_consumer.h
+Size: 2255 bytes
+Lines: 78
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_PUSH_CONSUMER_H__
+#define __ROCKETMQ_PUSH_CONSUMER_H__
+
+#include <CPushConsumer.h>
+#include <uv.h>
+#include <nan.h>
+#include <string>
+
+namespace __node_rocketmq__ {
+
+using v8::Context;
+using v8::Function;
+using v8::FunctionTemplate;
+using v8::Isolate;
+using v8::Local;
+using v8::Object;
+using v8::String;
+using v8::Value;
+
+class RocketMQPushConsumer : public Nan::ObjectWrap {
+public:
+    static NAN_MODULE_INIT(Init);
+    static int OnMessage(CPushConsumer* consumer_ptr, CMessageExt* msg_ext);
+    static std::string GetMessageColumn(char* name, CMessageExt* msg);
+
+private:
+    explicit RocketMQPushConsumer(const char* group_id, const char* instance_name);
+    ~RocketMQPushConsumer();
+
+    static NAN_METHOD(New);
+    static NAN_METHOD(Start);
+    static NAN_METHOD(Shutdown);
+    static NAN_METHOD(Subscribe);
+    static NAN_METHOD(SetListener);
+    static NAN_METHOD(SetSessionCredentials);
+
+    static Nan::Persistent<v8::Function> constructor;
+
+    void SetOptions(Local<Object>);
+    static void HandleMessageInEventLoop(uv_async_t* async);
+
+protected:
+    CPushConsumer* GetConsumer()
+    {
+        return consumer_ptr;
+    }
+
+    Nan::Callback* GetListenerFunction()
+    {
+        Nan::Callback* cb;
+        cb = &listener_func;
+        return cb;
+    }
+
+private:
+    CPushConsumer* consumer_ptr;
+    Nan::Callback listener_func;
+};
+
+}
+
+#endif
+
+
+---
+File: lib\push_consumer.js
+Size: 4640 bytes
+Lines: 142 [structural]
+---
+const assert = require("assert");
+const EventEmitter = require("events").EventEmitter;
+const common = require("./common");
+const binding = common.requireBinding("rocketmq");
+const START_OR_SHUTDOWN = Symbol("RocketMQPushConsumer#startOrShutdown");
+const START_STATUS = {
+const OPTIONS_LOG_LEVEL = {
+const DEFAULT_OPTIONS = {};
+let producerRef = 0;
+let timer;
+class RocketMQPushConsumer extends EventEmitter {
+    constructor(groupId, instanceName, options) {
+    [START_OR_SHUTDOWN](method, callback) {
+        let promise;
+        let resolve;
+        let reject;
+            promise = new Promise((_resolve, _reject) => {
+        this.core[method]((err, ret) => {
+    start(callback) {
+    shutdown(callback) {
+    subscribe(topic, expression) {
+
+---
+File: src\rocketmq.cpp
+Size: 1430 bytes
+Lines: 48
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include <nan.h>
+
+#include "producer.h"
+#include "push_consumer.h"
+#include "consumer_ack.h"
+
+namespace __node_rocketmq__ {
+
+#if defined(__APPLE__)
+uv_lib_t lib;
+
+NAN_METHOD(DLOpen)
+{
+    Nan::Utf8String filename(info[0]);
+    uv_dlopen(*filename, &lib);
+}
+#endif
+
+NAN_MODULE_INIT(Init)
+{
+    RocketMQProducer::Init(target);
+    RocketMQPushConsumer::Init(target);
+    ConsumerAck::Init(target);
+
+#if defined(__APPLE__)
+    Nan::Set(target, Nan::New("macosDLOpen").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(DLOpen)->GetFunction());
+#endif
+}
+
+NODE_MODULE(rocketmq, Init)
+
+}
+
+
+---
+File: deps\lib\.gitkeep
+Size: 0 bytes
+Lines: 0
+---
+
+
+---
+File: src\workers\producer\send_message.h
+Size: 2218 bytes
+Lines: 80
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_SEND_MESSAGE_H__
+#define __ROCKETMQ_SEND_MESSAGE_H__
+
+#include <nan.h>
+#include <CProducer.h>
+#include <MQClientException.h>
+
+namespace __node_rocketmq__ {
+
+using namespace std;
+
+class ProducerSendMessageWorker : public Nan::AsyncWorker {
+public:
+    ProducerSendMessageWorker(Nan::Callback* callback, RocketMQProducer* producer, CMessage* msg) :
+        AsyncWorker(callback),
+        msg(msg),
+        producer(producer)
+    {
+    }
+
+    ~ProducerSendMessageWorker()
+    {
+        DestroyMessage(msg);
+    }
+
+    void Execute()
+    {
+        try
+        {
+            SendMessageSync(producer->GetProducer(), msg, &send_ret);
+        }
+        catch(const runtime_error e)
+        {
+            SetErrorMessage(e.what());
+        }
+        catch(const std::exception& e)
+        {
+            SetErrorMessage(e.what());
+        }
+    }
+
+    void HandleOKCallback()
+    {
+        Nan::HandleScope scope;
+
+        Local<Value> argv[] = {
+            Nan::Undefined(),
+            Nan::New<v8::Number>((unsigned int)send_ret.sendStatus),
+            Nan::New<v8::String>(send_ret.msgId).ToLocalChecked(),
+            Nan::New<v8::Number>((long long)send_ret.offset)
+        };
+        callback->Call(4, argv);
+    }
+
+private:
+    CMessage* msg;
+    RocketMQProducer* producer;
+
+    CSendResult send_ret;
+};
+
+}
+
+#endif
+
+
+---
+File: src\workers\producer\start_or_shutdown.h
+Size: 2368 bytes
+Lines: 88
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_PRODUCER_START_OR_SHUTDOWN_H__
+#define __ROCKETMQ_PRODUCER_START_OR_SHUTDOWN_H__
+
+#include <nan.h>
+#include <CProducer.h>
+#include <MQClientException.h>
+
+namespace __node_rocketmq__ {
+
+using namespace std;
+
+enum ProducerWorkerType {
+    START_PRODUCER = 0,
+    SHUTDOWN_PRODUCER
+};
+
+class ProducerStartOrShutdownWorker : public Nan::AsyncWorker {
+public:
+    ProducerStartOrShutdownWorker(Nan::Callback* callback, CProducer* producer_ptr, ProducerWorkerType type) :
+        AsyncWorker(callback),
+        producer_ptr(producer_ptr),
+        ret(0),
+        type(type)
+    {
+    }
+
+    ~ProducerStartOrShutdownWorker()
+    {
+    }
+
+    void Execute()
+    {
+        try
+        {
+            switch(type) {
+            case START_PRODUCER:
+                ret = StartProducer(producer_ptr); break;
+            case SHUTDOWN_PRODUCER:
+                ret = ShutdownProducer(producer_ptr); break;
+            default: break;
+            }
+        }
+        catch(const runtime_error e)
+        {
+            SetErrorMessage(e.what());
+        }
+        catch(const exception& e)
+        {
+            SetErrorMessage(e.what());
+        }
+    }
+
+    void HandleOKCallback()
+    {
+        Nan::HandleScope scope;
+
+        Local<Value> argv[] = {
+            Nan::Undefined(),
+            Nan::New<v8::Number>((int)ret),
+        };
+        callback->Call(2, argv);
+    }
+
+private:
+    CProducer* producer_ptr;
+    int ret;
+    ProducerWorkerType type;
+};
+
+}
+
+#endif
+
+
+---
+File: src\workers\push_consumer\start_or_shutdown.h
+Size: 2442 bytes
+Lines: 88
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#ifndef __ROCKETMQ_PUSH_CONSUMER_START_OR_SHUTDOWN_H__
+#define __ROCKETMQ_PUSH_CONSUMER_START_OR_SHUTDOWN_H__
+
+#include <nan.h>
+#include <CPushConsumer.h>
+#include <MQClientException.h>
+
+namespace __node_rocketmq__ {
+
+using namespace std;
+
+enum PushConsumerWorkerType {
+    START_PUSH_CONSUMER = 0,
+    SHUTDOWN_PUSH_CONSUMER
+};
+
+class PushConsumerStartOrShutdownWorker : public Nan::AsyncWorker {
+public:
+    PushConsumerStartOrShutdownWorker(Nan::Callback* callback, CPushConsumer* consumer_ptr, PushConsumerWorkerType type) :
+        AsyncWorker(callback),
+        consumer_ptr(consumer_ptr),
+        ret(0),
+        type(type)
+    {
+    }
+
+    ~PushConsumerStartOrShutdownWorker()
+    {
+    }
+
+    void Execute()
+    {
+        try
+        {
+            switch(type) {
+            case START_PUSH_CONSUMER:
+                ret = StartPushConsumer(consumer_ptr); break;
+            case SHUTDOWN_PUSH_CONSUMER:
+                ret = ShutdownPushConsumer(consumer_ptr); break;
+            default: break;
+            }
+        }
+        catch(const runtime_error e)
+        {
+            SetErrorMessage(e.what());
+        }
+        catch(const exception& e)
+        {
+            SetErrorMessage(e.what());
+        }
+    }
+
+    void HandleOKCallback()
+    {
+        Nan::HandleScope scope;
+
+        Local<Value> argv[] = {
+            Nan::Undefined(),
+            Nan::New<v8::Number>((int)ret),
+        };
+        callback->Call(2, argv);
+    }
+
+private:
+    CPushConsumer* consumer_ptr;
+    int ret;
+    PushConsumerWorkerType type;
+};
+
+}
+
+#endif
+
+
+---
+File: example\common.js
+Size: 916 bytes
+Lines: 22
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+module.exports = {
+    nameServer: "127.0.0.1:9876",
+    messageCount: 10
+};
+
+
+---
+File: example\producer.js
+Size: 2056 bytes
+Lines: 63
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+const co = require("co");
+
+const common = require("./common");
+const Producer = require("../").Producer;
+
+co(function *() {
+    const producer = new Producer("testGroup", {
+        nameServer: common.nameServer,
+        groupName: "testGroupName",
+        logFileNum: 5,
+        logFileSize: 1048576000,
+        logLevel: "debug",
+        compressLevel: 3,
+        sendMessageTimeout: 5000,
+        maxMessageSize: 1024 * 256
+    });
+
+    console.time("producer start");
+    try {
+        yield producer.start();
+    } catch(e) {
+        console.error(e);
+        process.exit(4);
+    }
+    console.timeEnd("producer start");
+    for(let i = 0; i < common.messageCount; i++) {
+        console.time(`send ${i}`);
+        try {
+            const ret = yield producer.send("test", `baz ${i}`, {
+                keys: "foo",
+                tags: "bar"
+            });
+            console.timeEnd(`send ${i}`);
+            console.log(ret);
+        } catch(e) {
+            console.error(e);
+            console.error(e.stack);
+            process.exit(4);
+        }
+    }
+
+    console.time("producer end");
+    yield producer.shutdown();
+    console.timeEnd("producer end");
+});
+
+
+---
+File: example\push_consumer.js
+Size: 2350 bytes
+Lines: 74
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+"use strict";
+
+const assert = require("assert");
+
+const co = require("co");
+
+const common = require("./common");
+const PushConsumer = require("../").PushConsumer;
+
+co(function *() {
+    const msgs = [];
+    const consumer = new PushConsumer("testGroup", {
+        nameServer: common.nameServer,
+        logFileNum: 5,
+        logFileSize: 1048576000,
+        logLevel: "debug"
+    });
+
+    consumer.subscribe("test", "*");
+    consumer.on("message", function(msg, ack) {
+        msgs.push(msg);
+        ack.done();
+
+        // console.log(msg);
+        // return;
+
+        if(msgs.length === common.messageCount) {
+            msgs.sort(function(a, b) {
+                return a.body < b.body ? -1 : 1;
+            });
+
+            console.log(msgs);
+
+            for(let i = 0; i < msgs.length; i++) {
+                assert.deepStrictEqual(msgs[i], {
+                    topic: "test",
+                    tags: "bar",
+                    keys: "foo",
+                    body: `baz ${i}`,
+                    msgId: msgs[i].msgId
+                });
+            }
+
+            console.time("consumer end");
+            consumer.shutdown().then(() => {
+                console.timeEnd("consumer end");
+                process.exit(0);
+            }).catch(e => {
+                console.error(e);
+                process.exit(4);
+            });
+        }
+    });
+
+    console.time("consumer start");
+    yield consumer.start();
+    console.timeEnd("consumer start");
+});
+

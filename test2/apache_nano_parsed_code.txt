@@ -1,0 +1,486 @@
+Tokens: 3873
+Repo: apache/nano
+Commit: a10f6e6c337c761993c19cc8829bbf8cc9ba4c3a
+Timestamp: 2026-04-12T23:33:05.159437
+
+--- Repository Structure ---
+.
+├── .gitignore
+├── .jshintrc
+├── .travis.yml
+├── examples
+│   ├── bulk_transform.js
+│   ├── express.js
+│   ├── lazy_creation_of_views.js
+│   ├── lazy_db_creation_and_replication.js
+│   └── pipe.js
+├── lib
+│   ├── logger.js
+│   └── nano.js
+└── package.json
+
+--- Summary Report ---
+Total files scanned: 11
+Files included: 11
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 2
+Files with dependency extraction: 0
+Detected languages count: 4
+Top 15 largest included files:
+  21560 bytes - lib\nano.js
+  4081 bytes - examples\lazy_creation_of_views.js
+  2310 bytes - examples\lazy_db_creation_and_replication.js
+  1568 bytes - examples\bulk_transform.js
+  1495 bytes - package.json
+  1071 bytes - examples\express.js
+  1017 bytes - lib\logger.js
+  892 bytes - examples\pipe.js
+  268 bytes - .travis.yml
+  243 bytes - .jshintrc
+  52 bytes - .gitignore
+-----------------------
+
+---
+File: package.json
+Size: 1495 bytes
+Lines: 56
+---
+{
+  "name": "nano",
+  "description": "The official CouchDB client for Node.js",
+  "license": "Apache-2.0",
+  "homepage": "http://github.com/apache/couchdb-nano",
+  "repository": "git://github.com/apache/couchdb-nano",
+  "version": "6.2.0",
+  "author": "Apache CouchDB <dev@couchdb.apache.org> (http://couchdb.apache.org)",
+  "keywords": [
+    "couchdb",
+    "data",
+    "request",
+    "json",
+    "nosql",
+    "micro",
+    "nano",
+    "database"
+  ],
+  "dependencies": {
+    "request": "^2.53.0",
+    "follow": "^0.12.1",
+    "errs": "^0.3.0",
+    "underscore": "^1.7.0",
+    "debug": "^2.0.0"
+  },
+  "devDependencies": {
+    "async": "^0.9.0",
+    "tape": "^3.0.0",
+    "istanbul": "^0.3.2",
+    "jshint": "^2.5.6",
+    "jscs": "^1.7.0",
+    "nock": "^0.48.1",
+    "endswith": "^0.0.0",
+    "tape-it": "^0.3.1"
+  },
+  "scripts": {
+    "test": "DEBUG=* NOCK_OFF=true istanbul cover tape tests/*/*/*.js",
+    "unmocked": "NOCK_OFF=true tape tests/*/*/*.js",
+    "mocked": "tape tests/*/*/*.js",
+    "jshint": "jshint tests/*/*/*.js lib/*.js",
+    "codestyle": "jscs -p google tests/*/*/*.js lib/*.js",
+    "coverage": "open coverage/lcov-report/index.html",
+    "checkcoverage": "istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100"
+  },
+  "main": "./lib/nano.js",
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "pre-commit": [
+    "jshint",
+    "codestyle",
+    "mocked",
+    "test",
+    "checkcoverage"
+  ]
+}
+
+
+---
+File: .gitignore
+Size: 52 bytes
+Lines: 5
+---
+.DS_Store
+*tmp.*
+*.log
+node_modules/
+coverage/
+
+
+---
+File: .jshintrc
+Size: 243 bytes
+Lines: 13
+---
+{
+  "boss":      true,
+  "node":      true,
+  "strict":    true,
+  "smarttabs": true,
+  "maxlen":    80,
+  "newcap":    false,
+  "undef":     true,
+  "unused":    true,
+  "onecase":   true,
+  "indent":    2,
+  "sub":       true
+}
+
+
+---
+File: .travis.yml
+Size: 268 bytes
+Lines: 21
+---
+language: "node_js"
+env: DEBUG=*
+branches:
+  only:
+    - master
+    - next
+    - rewrite
+node_js:
+  - "0.8"
+  - "0.10"
+  - "0.11"
+  - "0.12"
+  - "iojs"
+  - "4.2"
+  - "node"
+services:
+  - couchdb
+os:
+  - linux
+before_install:
+  - npm update -g npm
+
+
+---
+File: lib\logger.js
+Size: 1017 bytes
+Lines: 28
+---
+// Licensed under the Apache License, Version 2.0 (the 'License'); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+'use strict';
+
+var debug = require('debug')('nano/logger');
+
+module.exports = function logging(cfg) {
+  var log = cfg && cfg.log;
+  var logStrategy = typeof log === 'function' ? log : debug;
+
+  return function logEvent(prefix) {
+    var eventId = (prefix ? prefix + '-' : '') +
+      (~~(Math.random() * 1e9)).toString(36);
+    return function log() {
+      logStrategy.call(this, eventId, [].slice.call(arguments, 0));
+    };
+  };
+};
+
+
+---
+File: lib\nano.js
+Size: 21560 bytes
+Lines: 803 [structural]
+---
+var u = require('url');
+var assert = require('assert');
+var querystring = require('querystring');
+var request = require('request');
+var errs = require('errs');
+var _ = require('underscore');
+var follow = require('follow');
+var logger = require('./logger');
+var nano;
+  var serverScope = {};
+  var httpAgent = (typeof cfg.request === 'function') ? cfg.request :
+  var followAgent = (typeof cfg.follow === 'function') ? cfg.follow : follow;
+  var log = typeof cfg.log === 'function' ? cfg.log : logger(cfg);
+  var parseUrl = 'parseUrl' in cfg ? cfg.parseUrl : true;
+  function maybeExtractDatabaseComponent() {
+    var path = u.parse(cfg.url);
+    var pathArray = path.pathname.split('/').filter(function(e) { return e; });
+    var db = pathArray.pop();
+    var rootPath = path.pathname.replace(/\/?$/, '/..');
+  function scrub(str) {
+  function relax(opts, callback) {
+    var qs = _.extend({}, opts.qs);
+    var headers = {
+    var req = {
+    var parsed;
+    var rh;
+    var isJar = opts.jar || cfg.jar;
+  function auth(username, password, callback) {
+  function session(callback) {
+  function updates(qs, callback) {
+  function followUpdates(qs, callback) {
+  function createDb(dbName, callback) {
+  function destroyDb(dbName, callback) {
+  function getDb(dbName, callback) {
+  function listDbs(callback) {
+  function compactDb(dbName, ddoc, callback) {
+  function changesDb(dbName, qs, callback) {
+  function followDb(dbName, qs, callback) {
+  function _serializeAsUrl(db) {
+  function replicateDb(source, target, opts, callback) {
+  function docModule(dbName) {
+    var docScope = {};
+    function insertDoc(doc, qs, callback) {
+      var opts = {db: dbName, body: doc, method: 'POST'};
+    function destroyDoc(docName, rev, callback) {
+    function getDoc(docName, qs, callback) {
+    function headDoc(docName, callback) {
+    function copyDoc(docSrc, docDest, opts, callback) {
+      var qs = {
+    function listDoc(qs, callback) {
+    function fetchDocs(docNames, qs, callback) {
+    function fetchRevs(docNames, qs, callback) {
+    function view(ddoc, viewName, meta, qs, callback) {
+      var viewPath = '_design/' + ddoc + '/_' + meta.type + '/'  + viewName;
+      var paramsToEncode = ['counts', 'drilldown', 'group_sort', 'ranges', 'sort'];
+        var body = {keys: qs.keys};
+        var req = {
+    function viewDocs(ddoc, viewName, qs, callback) {
+    function viewSpatial(ddoc, viewName, qs, callback) {
+    function viewSearch(ddoc, viewName, qs, callback) {
+    function showDoc(ddoc, viewName, docName, qs, callback) {
+    function updateWithHandler(ddoc, viewName, docName, body, callback) {
+    function viewWithList(ddoc, viewName, listName, qs, callback) {
+    function bulksDoc(docs, qs, callback) {
+    function insertMultipart(doc, attachments, qs, callback) {
+      var docName = qs.docName;
+      var multipart = [];
+    function getMultipart(docName, qs, callback) {
+    function insertAtt(docName, attName, att, contentType, qs, callback) {
+    function getAtt(docName, attName, qs, callback) {
+    function destroyAtt(docName, attName, qs, callback) {
+  var db = maybeExtractDatabaseComponent();
+function urlResolveFix(couchUrl, dbName) {
+
+---
+File: examples\bulk_transform.js
+Size: 1568 bytes
+Lines: 48
+---
+// Licensed under the Apache License, Version 2.0 (the 'License'); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+var db    = require('nano')('http://localhost:5984/emails')
+  , async = require('async')
+  ;
+
+function update_row(row,cb) {
+  var doc = row.doc;
+  delete doc.subject;
+  db.insert(doc, doc._id, function (err, data) {
+    if(err)  { console.log('err at ' + doc._id);  cb(err); }
+    else     { console.log('updated ' + doc._id); cb(); }
+  });
+}
+
+function list(offset) {
+  var ended = false;
+  offset = offset || 0;
+  db.list({include_docs: true, limit: 10, skip: offset}, 
+    function(err, data) {
+      var total, offset, rows;
+      if(err) { console.log('fuuuu: ' + err.message); rows = []; return; }
+      total  = data.total_rows;
+      offset = data.offset;
+      rows   = data.rows;
+      if(offset === total) { 
+        ended = true;
+        return; 
+      }
+      async.forEach(rows, update_row, function (err) {
+        if(err) { console.log('something failed, check logs'); }
+        if(ended) { return; }
+        list(offset+10);
+      });
+  });
+}
+
+list();
+
+---
+File: examples\express.js
+Size: 1071 bytes
+Lines: 30
+---
+// Licensed under the Apache License, Version 2.0 (the 'License'); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+var express = require('express')
+   , db    = require('nano')('http://localhost:5984/my_couch')
+   , app     = module.exports = express()
+   ;
+
+app.get('/', function(req, res) {
+   db.get('foo', function (error, body, headers) {
+      if(error) {
+         res.status(error.statusCode);
+         return res.send(error.message); 
+      }
+      res.status(200);
+      res.send(body);
+   });
+});
+
+app.listen(3333);
+console.log('server is running. check expressjs.com for more cool tricks');
+
+
+---
+File: examples\lazy_creation_of_views.js
+Size: 4081 bytes
+Lines: 114 [structural]
+---
+var nano       = require('nano')('http://localhost:5984')
+function user_get(id, callback){
+function user_new(id, body, callback) {
+function create_users_database(email_address,secret,name,retries) {
+function user_create(email_address,secret,name,retries) {
+function user_find(view, id, opts, tried, callback) {
+      var current_view = VIEWS[view];
+          var design_doc = {views: {}};
+function user_first(view, id, callback) {
+
+---
+File: examples\lazy_db_creation_and_replication.js
+Size: 2310 bytes
+Lines: 65
+---
+// Licensed under the Apache License, Version 2.0 (the 'License'); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+var nano    = require('nano')
+  , couch   = 
+    { "master"  : "http://localhost:5984/landing_m"
+    , "replica" : "http://localhost:5984/landing_r"
+    }
+  ;
+
+function insert_with_retry(db, email, retries, callback) {
+  if (typeof retries === 'function') {
+   callback = retries;
+   retries  = 0;
+  }
+  callback = callback || function(){};
+  db.insert(email, function(err, resp, head) {
+    if(err) { 
+      if(err.message === 'no_db_file'  && retries < 1) {
+        var db_name = db.config.db
+          , server  = nano(db.config.url)
+          ;
+        server.db.create(db_name, function (err2,resp2,head2) {
+          if(err2) { return callback(err2,resp2,head2); }
+          insert_with_retry(db,email,retries+1,callback);
+        });
+      } else { return callback(err,resp,head); }
+    }
+    callback(err, resp, head);
+  });
+}
+
+function replicate_with_retry(master_uri, replica_uri, retries, callback) {
+  if (typeof retries === 'function') {
+    callback = retries;
+    retries  = 0;
+  }
+  callback   = callback || function(){};
+  retries    = retries  || 0;
+  var master = nano(couch.master);
+  master.replicate(couch.replica, function(err, resp, head) {
+    if(err && err['error'] === 'db_not_found' && retries < 1) {
+      var replica = nano(couch.replica)
+        , db_name = replica.config.db
+        , server  = nano(replica.config.url)
+        ;
+      server.db.create(db_name, function (err2, resp2, head2) {
+        if(err2) { return callback(err2,resp2,head2); }
+        replicate_with_retry(master_uri, replica_uri, retries+1, callback);
+      });
+    }
+    callback(err, resp, head);
+  });
+}
+
+module.exports = {insert: insert_with_retry, replicate: replicate_with_retry};
+
+---
+File: examples\pipe.js
+Size: 892 bytes
+Lines: 23
+---
+// Licensed under the Apache License, Version 2.0 (the 'License'); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+var express = require('express')
+  , nano    = require('nano')('http://localhost:5984')
+  , app     = module.exports = express.createServer()
+  , db_name = "test"
+  , db      = nano.use(db_name);
+
+app.get("/", function(request,response) {
+  db.attachment.get("new", "logo.png").pipe(response);
+});
+
+app.listen(3333);

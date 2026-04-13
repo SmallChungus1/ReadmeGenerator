@@ -1,0 +1,626 @@
+Tokens: 4659
+Repo: apache/cordova-plugin-battery-status
+Commit: 752759d8162df31bc5387e490a105299f66d9e12
+Timestamp: 2026-04-12T23:31:50.125159
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .eslintrc.yml
+├── .gitattributes
+├── .gitignore
+├── .npmignore
+├── package-lock.json
+├── package.json
+├── plugin.xml
+├── src
+│   ├── android
+│   │   └── BatteryListener.java
+│   ├── browser
+│   │   └── BatteryProxy.js
+│   └── ios
+│       ├── CDVBattery.h
+│       └── CDVBattery.m
+├── types
+│   └── index.d.ts
+└── www
+    └── battery.js
+
+--- Summary Report ---
+Total files scanned: 14
+Files included: 13
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 3
+Files with dependency extraction: 0
+Detected languages count: 10
+Top 15 largest included files:
+  5647 bytes - src\android\BatteryListener.java
+  5556 bytes - src\ios\CDVBattery.m
+  3902 bytes - www\battery.js
+  3050 bytes - types\index.d.ts
+  2805 bytes - src\browser\BatteryProxy.js
+  2366 bytes - plugin.xml
+  1403 bytes - .asf.yaml
+  1346 bytes - src\ios\CDVBattery.h
+  927 bytes - .eslintrc.yml
+  851 bytes - package.json
+  175 bytes - .gitignore
+  13 bytes - .gitattributes
+  9 bytes - .npmignore
+-----------------------
+
+---
+File: package.json
+Size: 851 bytes
+Lines: 39
+---
+{
+  "name": "cordova-plugin-battery-status",
+  "version": "3.0.0-dev",
+  "description": "Cordova Battery Plugin",
+  "types": "./types/index.d.ts",
+  "cordova": {
+    "id": "cordova-plugin-battery-status",
+    "platforms": [
+      "android",
+      "ios",
+      "browser"
+    ]
+  },
+  "repository": "github:apache/cordova-plugin-battery-status",
+  "bugs": "https://github.com/apache/cordova-plugin-battery-status/issues",
+  "keywords": [
+    "cordova",
+    "battery",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "eslint ."
+  },
+  "author": "Apache Software Foundation",
+  "license": "Apache-2.0",
+  "engines": {
+    "cordovaDependencies": {
+      "4.0.0": {
+        "cordova": ">100"
+      }
+    }
+  },
+  "devDependencies": {
+    "@cordova/eslint-config": "^3.0.0"
+  }
+}
+
+
+---
+File: .asf.yaml
+Size: 1403 bytes
+Lines: 48
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+github:
+  description: Apache Cordova Battery Status Plugin
+  homepage: https://cordova.apache.org/
+
+  labels:
+    - android
+    - cordova
+    - hacktoberfest
+    - ios
+    - java
+    - javascript
+    - library
+    - mobile
+    - nodejs
+    - objective-c
+
+  features:
+    wiki: false
+    issues: true
+    projects: true
+
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: false
+
+notifications:
+  commits:              commits@cordova.apache.org
+  issues:               issues@cordova.apache.org
+  pullrequests_status:  issues@cordova.apache.org
+  pullrequests_comment: issues@cordova.apache.org
+
+
+---
+File: .eslintrc.yml
+Size: 927 bytes
+Lines: 23
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+root: true
+extends: "@cordova/eslint-config/browser"
+
+overrides:
+  - files: [tests/**/*.js]
+    extends: "@cordova/eslint-config/node-tests"
+
+
+---
+File: .gitattributes
+Size: 13 bytes
+Lines: 1
+---
+* text eol=lf
+
+---
+File: .gitignore
+Size: 175 bytes
+Lines: 23
+---
+﻿#If ignorance is bliss, then somebody knock the smile off my face
+
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+*.DS_Store
+
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+node_modules
+
+
+
+
+
+
+
+ 
+
+---
+File: .npmignore
+Size: 9 bytes
+Lines: 2
+---
+.*
+tests
+
+
+---
+File: plugin.xml
+Size: 2366 bytes
+Lines: 63
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+      id="cordova-plugin-battery-status"
+      version="3.0.0-dev">
+    <name>Battery</name>
+    <description>Cordova Battery Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,battery</keywords>
+    <repo>https://github.com/apache/cordova-plugin-battery-status</repo>
+    <issue>https://github.com/apache/cordova-plugin-battery-status/issues</issue>
+
+    <js-module src="www/battery.js" name="battery">
+        <clobbers target="navigator.battery" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Battery" >
+                <param name="android-package" value="org.apache.cordova.batterystatus.BatteryListener"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/BatteryListener.java" target-dir="src/org/apache/cordova/batterystatus" />
+    </platform>
+
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Battery">
+                <param name="ios-package" value="CDVBattery" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/CDVBattery.h" />
+	    <source-file src="src/ios/CDVBattery.m" />
+    </platform>
+
+    <!-- browser -->
+    <platform name="browser">
+        <js-module src="src/browser/BatteryProxy.js" name="Battery">
+            <runs />
+        </js-module>
+    </platform>
+</plugin>
+
+
+---
+File: www\battery.js
+Size: 3902 bytes
+Lines: 108 [structural]
+---
+var cordova = require('cordova');
+var exec = require('cordova/exec');
+var STATUS_CRITICAL = 5;
+var STATUS_LOW = 20;
+var Battery = function () {
+function handlers () {
+var battery = new Battery();
+
+---
+File: types\index.d.ts
+Size: 3050 bytes
+Lines: 46
+---
+// Type definitions for cordova-plugin-battery-status
+// Project: https://github.com/apache/cordova-plugin-battery-status
+// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
+//                 Tim Brust <https://github.com/timbru31>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+
+type batteryEvent = 'batterystatus' | 'batterycritical' | 'batterylow';
+
+interface Window {
+    onbatterystatus: (type: BatteryStatusEvent) => void;
+    onbatterycritical: (type: BatteryStatusEvent) => void;
+    onbatterylow: (type: BatteryStatusEvent) => void;
+    /**
+     * Adds a listener for an event from the BatteryStatus plugin.
+     * @param type       - The event to listen for.
+     * 
+     *                     `batterystatus`: event fires when the percentage of battery charge changes by at least 1 percent, or if the device is plugged in or unplugged.
+     * 
+     *                     `batterycritical`: event fires when the percentage of battery charge has reached the critical battery threshold. The value is device-specific.
+     * 
+     *                     `batterylow`: event fires when the percentage of battery charge has reached the low battery threshold, device-specific value.
+     * @param listener   - The function that executes when the event fires. The function is passed an BatteryStatusEvent object as a parameter.
+     * @param useCapture - A Boolean indicating whether events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+     */
+    addEventListener(type: batteryEvent, listener: (ev: BatteryStatusEvent) => any, useCapture?: boolean): void;
+    /**
+     * Removes a listener for an event from the BatteryStatus plugin.
+     * @param Atype      - The event to stop listening for.
+     * 
+     *                     `batterystatus`: event fires when the percentage of battery charge changes by at least 1 percent, or if the device is plugged in or unplugged.
+     *                    
+     *                     `batterycritical`: event fires when the percentage of battery charge has reached the critical battery threshold. The value is device-specific.
+     *                    
+     *                     `batterylow`: event fires when the percentage of battery charge has reached the low battery threshold, device-specific value.
+     * @param callback   - The function that executes when the event fires. The function is passed an BatteryStatusEvent object as a parameter.
+     * @param useCapture - A Boolean indicating whether events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+     */
+    removeEventListener(type: batteryEvent, listener: (ev: BatteryStatusEvent) => any, useCapture?: boolean): void;
+}
+
+interface BatteryStatusEvent extends Event {
+	/* The percentage of battery charge (0-100). */
+    level: number;
+	/* A boolean that indicates whether the device is plugged in. */
+    isPlugged: boolean;
+}
+
+
+---
+File: src\android\BatteryListener.java
+Size: 5647 bytes
+Lines: 162 [structural]
+---
+package org.apache.cordova.batterystatus;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.LOG;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+public class BatteryListener extends CordovaPlugin {
+    private static final String LOG_TAG = "BatteryManager";
+    private CallbackContext batteryCallbackContext = null;
+    public BatteryListener() {
+    }
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
+            }
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                    }
+                };
+            }
+        }
+        }
+    }
+    public void onDestroy() {
+    }
+    public void onReset() {
+    }
+    private void removeBatteryListener() {
+            } catch (Exception e) {
+            }
+    private JSONObject getBatteryInfo(Intent batteryIntent) {
+        } catch (JSONException e) {
+        }
+    }
+    private void updateBatteryInfo(Intent batteryIntent) {
+    }
+    private void sendUpdate(JSONObject info, boolean keepCallback) {
+        }
+
+---
+File: src\browser\BatteryProxy.js
+Size: 2805 bytes
+Lines: 85 [structural]
+---
+var w3cBattery;
+var winCallBack;
+function success () {
+var Battery = {
+            var subscribe = function (battery) {
+                var origBattery = cordova.require('cordova/modulemapper').getOriginalSymbol(window, 'navigator.battery');
+
+---
+File: src\ios\CDVBattery.h
+Size: 1346 bytes
+Lines: 40
+---
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+#import <Foundation/Foundation.h>
+#import <Cordova/CDVPlugin.h>
+
+@interface CDVBattery : CDVPlugin {
+    UIDeviceBatteryState state;
+    float level;
+    bool isPlugged;
+    NSString* callbackId;
+}
+
+@property (nonatomic) UIDeviceBatteryState state;
+@property (nonatomic) float level;
+@property (nonatomic) bool isPlugged;
+@property (strong) NSString* callbackId;
+
+- (void)updateBatteryStatus:(NSNotification*)notification;
+- (NSDictionary*)getBatteryStatus;
+- (void)start:(CDVInvokedUrlCommand*)command;
+- (void)stop:(CDVInvokedUrlCommand*)command;
+- (void)dealloc;
+@end
+
+
+---
+File: src\ios\CDVBattery.m
+Size: 5556 bytes
+Lines: 148
+---
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+#import "CDVBattery.h"
+
+@interface CDVBattery (PrivateMethods)
+- (void)updateOnlineStatus;
+@end
+
+@implementation CDVBattery
+
+@synthesize state, level, callbackId, isPlugged;
+
+/*  determining type of event occurs on JavaScript side
+- (void) updateBatteryLevel:(NSNotification*)notification
+{
+    // send batterylow event for less than 25% battery
+    // send batterycritical  event for less than 10% battery
+    // W3c says to send batteryStatus event when batterylevel changes by more than 1% (iOS seems to notify each 5%)
+    // always update the navigator.device.battery info
+    float currentLevel = [[UIDevice currentDevice] batteryLevel];
+    NSString* type = @"";
+    // no check for level == -1 since this api is only called when monitoring is enabled so level should be valid
+    if (currentLevel < 0.10){
+        type = @"batterycritical";
+    } else if (currentLevel < 0.25) {
+        type = @"batterylow";
+    } else {
+        float onePercent = 0.1;
+        if (self.level >= 0 ){
+            onePercent = self.level * 0.01;
+        }
+        if (fabsf(currentLevel - self.level) > onePercent){
+            // issue batteryStatus event
+            type = @"batterystatus";
+        }
+    }
+    // update the battery info and fire event
+    NSString* jsString = [NSString stringWithFormat:@"navigator.device.battery._status(\"%@\", %@)", type,[[self getBatteryStatus] JSONRepresentation]];
+    [super writeJavascript:jsString];
+}
+ */
+
+- (void)updateBatteryStatus:(NSNotification*)notification
+{
+    NSDictionary* batteryData = [self getBatteryStatus];
+
+    if (self.callbackId) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:batteryData];
+        [result setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+    }
+}
+
+/* Get the current battery status and level.  Status will be unknown and level will be -1.0 if
+ * monitoring is turned off.
+ */
+- (NSDictionary*)getBatteryStatus
+{
+    UIDevice* currentDevice = [UIDevice currentDevice];
+    UIDeviceBatteryState currentState = [currentDevice batteryState];
+
+    isPlugged = FALSE; // UIDeviceBatteryStateUnknown or UIDeviceBatteryStateUnplugged
+    if ((currentState == UIDeviceBatteryStateCharging) || (currentState == UIDeviceBatteryStateFull)) {
+        isPlugged = TRUE;
+    }
+    float currentLevel = [currentDevice batteryLevel];
+
+    if ((currentLevel != self.level) || (currentState != self.state)) {
+        self.level = currentLevel;
+        self.state = currentState;
+    }
+
+    // W3C spec says level must be null if it is unknown
+    NSObject* w3cLevel = nil;
+    if ((currentState == UIDeviceBatteryStateUnknown) || (currentLevel == -1.0)) {
+        w3cLevel = [NSNull null];
+    } else {
+        w3cLevel = [NSNumber numberWithFloat:(currentLevel * 100)];
+    }
+    NSMutableDictionary* batteryData = [NSMutableDictionary dictionaryWithCapacity:2];
+    [batteryData setObject:[NSNumber numberWithBool:isPlugged] forKey:@"isPlugged"];
+    [batteryData setObject:w3cLevel forKey:@"level"];
+    return batteryData;
+}
+
+/* turn on battery monitoring*/
+- (void)start:(CDVInvokedUrlCommand*)command
+{
+    self.callbackId = command.callbackId;
+
+    if ([UIDevice currentDevice].batteryMonitoringEnabled == NO) {
+        [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBatteryStatus:)
+                                                     name:UIDeviceBatteryStateDidChangeNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateBatteryStatus:)
+                                                     name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+    }
+}
+
+/* turn off battery monitoring */
+- (void)stop:(CDVInvokedUrlCommand*)command
+{
+    // callback one last time to clear the callback function on JS side
+    if (self.callbackId) {
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:[self getBatteryStatus]];
+        [result setKeepCallbackAsBool:NO];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+    }
+    self.callbackId = nil;
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:NO];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+}
+
+- (void)pluginInitialize
+{
+    self.state = UIDeviceBatteryStateUnknown;
+    self.level = -1.0;
+}
+
+- (void)dealloc
+{
+    [self stop:nil];
+}
+
+- (void)onReset
+{
+    [self stop:nil];
+}
+
+@end
+

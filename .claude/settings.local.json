@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import json; nb=json.load\\(open\\('readme_generator_colab.ipynb','r',encoding='utf-8'\\)\\); [print\\(i, c.get\\('source',''\\)[:120] if isinstance\\(c.get\\('source',''\\),str\\) else ''.join\\(c.get\\('source',[]\\)\\)[:120]\\) for i,c in enumerate\\(nb.get\\('cells',[]\\)\\)]\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('e:/personalProj/ReadmeGenerator/repo_ingest.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "Bash(grep \"^Tokens:\" e:/personalProj/ReadmeGenerator/test2/*_parsed_code.txt)",
+      "Bash(sort -t: -k2 -rn)",
+      "Bash(grep \"^Tokens:\" e:/personalProj/ReadmeGenerator/train2/*_parsed_code.txt)",
+      "Bash(grep \"^Tokens:\" e:/personalProj/ReadmeGenerator/train/*_parsed_code.txt)",
+      "Bash(grep -vE \"\\\\.\\(go|yml|yaml|mod|sum|sh|gitignore|txt|tpl|xml\\)$|Makefile|Dockerfile\")",
+      "Bash(grep -vE \"\\\\.\\(go|yml|yaml|mod|sum|sh|gitignore|md\\)$|Makefile|Dockerfile\")",
+      "Bash(python -c ':*)",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\s\" e:/personalProj/ReadmeGenerator/repo_ingest.py)",
+      "Bash(python -W error::SyntaxWarning -c \"import ast; ast.parse\\(open\\('e:/personalProj/ReadmeGenerator/repo_ingest.py'\\).read\\(\\)\\)\")",
+      "Bash(python -)"
+    ]
+  }
+}

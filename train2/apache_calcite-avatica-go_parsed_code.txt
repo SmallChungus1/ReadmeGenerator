@@ -1,0 +1,2933 @@
+Tokens: 18070
+Repo: apache/calcite-avatica-go
+Commit: 9317273e461ea5c2359a49d2bf0b64b838b7bca4
+Timestamp: 2026-04-12T23:31:49.394291
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .gitignore
+├── adapter.go
+├── class_mappings.go
+├── compat.go
+├── compat_go18.go
+├── connection.go
+├── connection_go18.go
+├── docker-compose.yml
+├── docker.sh
+├── driver.go
+├── driver_go18_hsqldb_test.go
+├── driver_go18_phoenix_test.go
+├── driver_go18_test.go
+├── driver_hsqldb_test.go
+├── driver_phoenix_test.go
+├── driver_test.go
+├── dsn.go
+├── dsn_test.go
+├── errors
+│   └── errors.go
+├── generic
+│   └── generic.go
+├── go.mod
+├── go.sum
+├── hsqldb
+│   └── hsqldb.go
+├── http_client.go
+├── http_client_wrappers.go
+├── internal
+│   └── column.go
+├── message
+│   └── helper.go
+├── phoenix
+│   └── phoenix.go
+├── result.go
+├── rows.go
+├── rows_go18.go
+├── site
+│   ├── _docs
+│   ├── _posts
+│   └── develop
+├── statement.go
+├── statement_go18.go
+├── test-fixtures
+└── transaction.go
+
+--- Summary Report ---
+Total files scanned: 35
+Files included: 35
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 18
+Files with dependency extraction: 2
+Detected languages count: 7
+Top 15 largest included files:
+  33271 bytes - driver_phoenix_test.go
+  30848 bytes - driver_hsqldb_test.go
+  20172 bytes - docker.sh
+  17571 bytes - driver_go18_phoenix_test.go
+  13533 bytes - driver_go18_hsqldb_test.go
+  11711 bytes - phoenix\phoenix.go
+  11033 bytes - dsn_test.go
+  7767 bytes - rows.go
+  7580 bytes - connection.go
+  7438 bytes - go.sum
+  7414 bytes - statement.go
+  5883 bytes - dsn.go
+  4778 bytes - http_client.go
+  4749 bytes - driver.go
+  4500 bytes - class_mappings.go
+-----------------------
+
+---
+File: docker-compose.yml
+Size: 3385 bytes
+Lines: 110
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to you under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  phoenix:
+    image: ghcr.io/boostport/hbase-phoenix-all-in-one:${PHOENIX_VERSION:-2.0-5.0}
+
+  hsqldb:
+    image: apache/calcite-avatica-hypersql:${HSQLDB_VERSION:-1.26.0}
+    command: -u jdbc:hsqldb:mem:public
+
+  test:
+    image: golang:${GO_VERSION:-1.24}
+    command: sh -c "export AVATICA_FLAVOR=HSQLDB && go test -v ./...; export AVATICA_FLAVOR=PHOENIX && go test -v ./..."
+    working_dir: /source
+    environment:
+      PHOENIX_HOST: http://phoenix:8765
+      HSQLDB_HOST: http://hsqldb:8765
+    volumes:
+      - .:/source
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+    depends_on:
+      - phoenix
+      - hsqldb
+
+  test-phoenix:
+    image: golang:${GO_VERSION:-1.24}
+    command: go test -v ./...
+    working_dir: /source
+    environment:
+      PHOENIX_HOST: http://phoenix:8765
+      AVATICA_FLAVOR: PHOENIX
+    volumes:
+      - .:/source
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+    depends_on:
+      - phoenix
+
+  test-hsqldb:
+    image: golang:${GO_VERSION:-1.24}
+    command: go test -v ./...
+    working_dir: /source
+    environment:
+      HSQLDB_HOST: http://hsqldb:8765
+      AVATICA_FLAVOR: HSQLDB
+    volumes:
+      - .:/source
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+    depends_on:
+      - hsqldb
+
+  dry-run:
+    image: alpine
+    working_dir: /source
+    command: sh -c "apk --no-cache --no-progress add bash; ./docker.sh dry-run"
+    volumes:
+      - .:/source
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+
+  release:
+    image: alpine
+    working_dir: /source
+    command: sh -c "apk --no-cache --no-progress add bash; ./docker.sh release"
+    volumes:
+      - .:/source
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+
+  clean:
+    image: alpine
+    working_dir: /source
+    command: sh -c "apk --no-cache --no-progress add bash; ./docker.sh clean"
+    volumes:
+      - .:/source
+
+  publish-release-for-voting:
+    image: alpine
+    working_dir: /source
+    command: sh -c "apk --no-cache --no-progress add bash; ./docker.sh publish-release-for-voting"
+    volumes:
+      - .:/source
+
+  promote-release:
+    image: alpine
+    working_dir: /source
+    command: sh -c "apk --no-cache --no-progress add bash; ./docker.sh promote-release"
+    volumes:
+      - .:/source
+
+  compile-protobuf:
+    image: golang:1.24
+    working_dir: /source
+    command: sh -c "./docker.sh compile-protobuf"
+    environment:
+      AVATICA_VERSION: 1.26.0
+      PROTOBUF_VERSION: 29.3
+    volumes:
+      - .:/source
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache
+
+
+---
+File: go.mod
+Size: 649 bytes
+Lines: 23 [deps]
+---
+### Required Packages
+github.com/google/uuid==v1.6.0, github.com/icholy/digest==v1.1.0, github.com/jcmturner/gokrb5/v8==v8.4.4, google.golang.org/protobuf==v1.36.5, github.com/hashicorp/go-uuid==v1.0.3, github.com/jcmturner/aescts/v2==v2.0.0, github.com/jcmturner/dnsutils/v2==v2.0.0, github.com/jcmturner/gofork==v1.7.6, github.com/jcmturner/goidentity/v6==v6.0.1, github.com/jcmturner/rpc/v2==v2.0.3
+golang.org/x/crypto==v0.36.0, golang.org/x/net==v0.38.0
+
+---
+File: go.sum
+Size: 7438 bytes
+Lines: 81 [deps]
+---
+### Required Packages
+github.com/davecgh/go-spew==v1.1.1, github.com/google/go-cmp==v0.5.9, github.com/google/uuid==v1.6.0, github.com/gorilla/securecookie==v1.1.1, github.com/gorilla/sessions==v1.2.1, github.com/hashicorp/go-uuid==v1.0.3, github.com/icholy/digest==v1.1.0, github.com/jcmturner/aescts/v2==v2.0.0, github.com/jcmturner/dnsutils/v2==v2.0.0, github.com/jcmturner/gofork==v1.7.6
+github.com/jcmturner/goidentity/v6==v6.0.1, github.com/jcmturner/gokrb5/v8==v8.4.4, github.com/jcmturner/rpc/v2==v2.0.3, github.com/pmezard/go-difflib==v1.0.0, github.com/stretchr/testify==v1.8.1, golang.org/x/crypto==v0.36.0, golang.org/x/net==v0.38.0, google.golang.org/protobuf==v1.36.5, gopkg.in/yaml.v3==v3.0.1, gotest.tools/v3==v3.5.1
+
+---
+File: .asf.yaml
+Size: 1460 bytes
+Lines: 35
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+github:
+  description: "Apache Calcite Go"
+  homepage: https://calcite.apache.org/avatica
+  features:
+    wiki: false
+    issues: false
+    projects: false
+  enabled_merge_buttons:
+    # "squash and merge" replaces committer with noreply@github, and we don't want that
+    # See https://lists.apache.org/thread/vxxpt1x316kjryb4dptsbs95p66d9xrv
+    squash:  false
+    # We prefer linear history, so creating merge commits is disabled in UI
+    merge:   false
+    rebase:  true
+notifications:
+  commits:      commits@calcite.apache.org
+  issues:       issues@calcite.apache.org
+  pullrequests: commits@calcite.apache.org
+  jira_options: link label
+
+---
+File: .gitignore
+Size: 1055 bytes
+Lines: 39
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to you under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+*~
+vendor/
+avatica-tmp/
+dist/
+
+# intellij
+.idea
+*.iml
+settings.xml
+.classpath.txt
+.fullclasspath.txt
+
+# eclipse
+.project
+.buildpath
+.classpath
+.settings
+.checkstyle
+
+# netbeans
+nb-configuration.xml
+*/nb-configuration.xml
+
+# End .gitignore
+
+---
+File: adapter.go
+Size: 1207 bytes
+Lines: 30
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"github.com/apache/calcite-avatica-go/v5/errors"
+	"github.com/apache/calcite-avatica-go/v5/internal"
+	"github.com/apache/calcite-avatica-go/v5/message"
+)
+
+type Adapter interface {
+	GetPingStatement() string
+	GetColumnTypeDefinition(*message.ColumnMetaData) *internal.Column
+	ErrorResponseToResponseError(*message.ErrorResponse) errors.ResponseError
+}
+
+
+---
+File: class_mappings.go
+Size: 4500 bytes
+Lines: 126 [structural]
+---
+package avatica
+import (
+	"fmt"
+	"strings"
+	"google.golang.org/protobuf/proto"
+const (
+func classNameFromRequest(message interface{}) string {
+	var class string
+	}
+}
+func responseFromClassName(className string) (proto.Message, error) {
+	}
+
+---
+File: compat.go
+Size: 1467 bytes
+Lines: 52
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"database/sql/driver"
+)
+
+type namedValue struct {
+	Name    string
+	Ordinal int
+	Value   driver.Value
+}
+
+func driverValueToNamedValue(values []driver.Value) []namedValue {
+	list := make([]namedValue, len(values))
+
+	for i, v := range values {
+		list[i] = namedValue{
+			Ordinal: i + 1,
+			Value:   v,
+		}
+	}
+
+	return list
+}
+
+type isoLevel int32
+
+const (
+	isolationUseCurrent      isoLevel = -1
+	isolationNone            isoLevel = 0
+	isolationReadUncommitted isoLevel = 1
+	isolationReadComitted    isoLevel = 2
+	isolationRepeatableRead  isoLevel = 4
+	isolationSerializable    isoLevel = 8
+)
+
+
+---
+File: compat_go18.go
+Size: 1233 bytes
+Lines: 39
+---
+//go:build go1.8
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"database/sql/driver"
+	"fmt"
+)
+
+func driverNamedValueToNamedValue(values []driver.NamedValue) ([]namedValue, error) {
+	list := make([]namedValue, len(values))
+
+	for i, nv := range values {
+		list[i] = namedValue(nv)
+
+		if nv.Name != "" {
+			return list, fmt.Errorf("named parameters are not supported: %s given", nv.Name)
+		}
+	}
+
+	return list, nil
+}
+
+
+---
+File: connection.go
+Size: 7580 bytes
+Lines: 255 [structural]
+---
+package avatica
+import (
+	"context"
+	"database/sql/driver"
+	"errors"
+	"github.com/apache/calcite-avatica-go/v5/message"
+type conn struct {
+}
+func (c *conn) Prepare(query string) (driver.Stmt, error) {
+}
+func (c *conn) prepare(ctx context.Context, query string) (driver.Stmt, error) {
+	}
+	}.Build())
+	}
+	}, nil
+func (c *conn) Close() error {
+	}
+	}.Build())
+	}
+}
+func (c *conn) Begin() (driver.Tx, error) {
+}
+func (c *conn) begin(ctx context.Context, isolationLevel isoLevel) (driver.Tx, error) {
+	}
+	}
+		}.Build(),
+	}.Build())
+	}
+}
+func (c *conn) Exec(query string, args []driver.Value) (driver.Result, error) {
+}
+func (c *conn) exec(ctx context.Context, query string, args []namedValue) (driver.Result, error) {
+	}
+	}
+	}.Build())
+	}
+	}.Build())
+	}
+	}, nil
+func (c *conn) Query(query string, args []driver.Value) (driver.Rows, error) {
+}
+func (c *conn) query(ctx context.Context, query string, args []namedValue) (driver.Rows, error) {
+	}
+	}
+	}.Build())
+	}
+	}.Build())
+	}
+}
+func (c *conn) avaticaErrorToResponseErrorOrError(err error) error {
+	var avaticaErr avaticaError
+	}
+	}
+		},
+func (c *conn) ResetSession(_ context.Context) error {
+	}
+}
+func (c *conn) closeStatement(ctx context.Context, statementID uint32) error {
+	}.Build())
+}
+
+---
+File: connection_go18.go
+Size: 2957 bytes
+Lines: 95 [structural]
+---
+package avatica
+import (
+	"context"
+	"database/sql"
+	"database/sql/driver"
+	"errors"
+	"fmt"
+func (c *conn) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
+	}
+	var isolation isoLevel
+	}
+}
+func (c *conn) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
+}
+func (c *conn) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+	}
+}
+func (c *conn) Ping(ctx context.Context) error {
+	}
+}
+func (c *conn) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+	}
+}
+
+---
+File: docker.sh
+Size: 20172 bytes
+Lines: 653
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to you under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -e
+
+GITBOX_URL=https://gitbox.apache.org/repos/asf/calcite-avatica-go.git
+RELEASE_REPO=https://dist.apache.org/repos/dist/release/calcite/
+DEV_REPO=https://dist.apache.org/repos/dist/dev/calcite/
+PRODUCT=apache-calcite-avatica-go
+
+function terminate() {
+    printf "\n\nUser terminated build. Exiting...\n"
+    exit 1
+}
+
+trap terminate SIGINT
+
+init_release(){
+    apk --no-cache add git gnupg tar
+}
+
+init_upload(){
+    apk --no-cache add git subversion
+}
+
+make_directory_safe_for_git(){
+   git config --global --add safe.directory /source
+}
+
+KEYS=()
+
+GPG_COMMAND="gpg"
+
+get_gpg_keys (){
+    GPG_KEYS=$($GPG_COMMAND --list-keys --with-colons --keyid-format LONG)
+
+    KEY_NUM=1
+
+    KEY_DETAILS=""
+
+    while read -r line; do
+
+        IFS=':' read -ra PART <<< "$line"
+
+        if [ ${PART[0]} == "pub" ]; then
+
+            if [ -n "$KEY_DETAILS" ]; then
+                KEYS[$KEY_NUM]=$KEY_DETAILS
+                KEY_DETAILS=""
+                ((KEY_NUM++))
+
+            fi
+
+            KEY_DETAILS=${PART[4]}
+        fi
+
+        if [ ${PART[0]} == "uid" ]; then
+            KEY_DETAILS="$KEY_DETAILS - ${PART[9]}"
+        fi
+
+    done <<< "$GPG_KEYS"
+
+    if [ -n "$KEY_DETAILS" ]; then
+        KEYS[$KEY_NUM]=$KEY_DETAILS
+    fi
+}
+
+mount_gpg_keys(){
+    mkdir -p /.gnupg
+
+    if [[ -z "$(ls -A /.gnupg)" ]]; then
+        echo "Please mount the contents of your .gnupg folder into /.gnupg. Exiting..."
+        exit 1
+    fi
+
+    mkdir -p /root/.gnupg
+
+    cp -r /.gnupg/ /root/
+
+    chmod -R 700 /root/.gnupg/
+
+    rm -rf /root/.gnupg/*.lock
+}
+
+SELECTED_GPG_KEY=""
+
+select_gpg_key(){
+
+    get_gpg_keys
+
+    export GPG_TTY=/dev/console
+
+    touch /root/.gnupg/gpg-agent.conf
+    echo 'default-cache-ttl 10000' >> /root/.gnupg/gpg-agent.conf
+    echo 'max-cache-ttl 10000' >> /root/.gnupg/gpg-agent.conf
+
+    echo "Starting GPG agent..."
+    gpg-agent --daemon
+
+    while $INVALID_KEY_SELECTED; do
+
+        if [[ "${#KEYS[@]}" -le 0 ]]; then
+            echo "You do not have any GPG keys available. Exiting..."
+            exit 1
+        fi
+
+        echo "You have the following GPG keys:"
+
+        for i in "${!KEYS[@]}"; do
+                echo "$i) ${KEYS[$i]}"
+        done
+
+        read -p "Select your GPG key for signing: " KEY_INDEX
+
+        SELECTED_GPG_KEY=$(sed 's/ -.*//' <<< ${KEYS[$KEY_INDEX]})
+
+        if [[ -z $SELECTED_GPG_KEY ]]; then
+            echo "Selected key is invalid, please try again."
+            continue
+        fi
+
+        echo "Authenticating your GPG key..."
+
+        echo "test" | $GPG_COMMAND --local-user $SELECTED_GPG_KEY --output /dev/null --sign -
+
+        if [[ $? != 0 ]]; then
+            echo "Invalid GPG passphrase or GPG error. Please try again."
+            continue
+        fi
+
+        echo "You have selected the following GPG key to sign the release:"
+        echo "${KEYS[$KEY_INDEX]}"
+
+        INVALID_CONFIRMATION=true
+
+        while $INVALID_CONFIRMATION; do
+            read -p "Is this correct? (y/n) " CONFIRM
+
+            if [[ ($CONFIRM == "Y") || ($CONFIRM == "y") ]]; then
+                INVALID_KEY_SELECTED=false
+                INVALID_CONFIRMATION=false
+            elif [[ ($CONFIRM == "N") || ($CONFIRM == "n") ]]; then
+                INVALID_CONFIRMATION=false
+            fi
+        done
+    done
+}
+
+check_release_guidelines(){
+
+    # Exclude files without the Apache license header
+    missingHeaders=0
+
+    for i in $(git ls-files); do
+       case "$i" in
+       # The following are excluded from the license header check
+
+       # License files
+       (LICENSE|NOTICE);;
+
+       # Generated files
+       (message/common.pb.go|message/requests.pb.go|message/responses.pb.go|Gopkg.lock|Gopkg.toml|go.mod|go.sum);;
+
+       # Binaries
+       (test-fixtures/calcite.png);;
+
+       (*) if ! grep -q "Licensed to the Apache Software Foundation" $i; then
+             echo "$i has no header" && ((missingHeaders=missingHeaders+1))
+           fi;;
+       esac
+    done
+
+    # Check copyright year in NOTICE
+    if ! grep -Fq "Copyright 2012-$(date +%Y)" NOTICE; then
+        echo "Ending copyright year in NOTICE is not $(date +%Y)"
+        exit 1
+    fi
+
+    if [[ $missingHeaders -gt 0 ]]; then
+        echo "Some files are missing the Apache license header"
+        exit 1
+    fi
+}
+
+check_if_tag_exists(){
+    # Get new tags from remote
+    git fetch --tags $GITBOX_URL
+
+    for tag in "$@"
+    do
+        # Check to see if a tag with a v in front of it has been released
+        if  git show-ref --tags | egrep -q "refs/tags/v$tag$"; then
+            echo "A release with version $1 was already released. Check that the version number entered is correct."
+            exit 1
+        fi
+
+        # Check to see if a tag without a v in front of it has been released (3.0.0 and below)
+        if  git show-ref --tags | egrep -q "refs/tags/$tag$"; then
+            echo "A release with version $1 was already released. Check that the version number entered is correct."
+            exit 1
+        fi
+    done
+}
+
+check_local_remote_are_even(){
+    REMOTE_COMMIT=$(git ls-remote $GITBOX_URL | head -1 | sed "s/[[:space:]]HEAD//")
+    LOCAL_COMMIT=$(git rev-parse main)
+
+    if [[ $REMOTE_COMMIT != $LOCAL_COMMIT ]]; then
+        echo "Main branch in Apache repository is not even with local branch main"
+        exit 1
+    fi
+}
+
+
+check_import_paths(){
+    TAG_MAJOR_VERSION=$(echo $1 | sed -e 's/\..*//')
+
+    # Check that go.mod's module path contains the right version
+    if ! grep -Fq "module github.com/apache/calcite-avatica-go/$TAG_MAJOR_VERSION" go.mod; then
+        echo "Module declaration in go.mod does not contain the correct version. Expected: $TAG_MAJOR_VERSION"
+        exit 1
+    fi
+
+    # Make sure import paths contain the correct version
+    BAD_IMPORT_PATHS=false
+
+    for i in $(git ls-files); do
+
+        if [[ "$i" == "docker.sh" || "$i" =~ \.md$ ]]; then
+            continue
+        fi
+
+        lines=$(grep -F -s '"github.com/apache/calcite-avatica-go' $i) || true
+
+        if ! [[ -z "$lines" ]]; then
+            while read -r line; do
+                if ! grep -q "github.com/apache/calcite-avatica-go/$TAG_MAJOR_VERSION" <<< "$line" ; then
+                    BAD_IMPORT_PATHS=true
+                    echo "Import for github.com/apache/calcite-avatica-go in $i does not have the correct version ($TAG_MAJOR_VERSION) in its path"
+                fi
+            done <<< "$lines"
+        fi
+    done
+
+    if "$BAD_IMPORT_PATHS" == true; then
+        exit 1
+    fi
+}
+
+RELEASE_VERSION=""
+RC_NUMBER=""
+ASF_USERNAME=""
+ASF_PASSWORD=""
+
+set_git_credentials(){
+    echo https://$ASF_USERNAME:$ASF_PASSWORD@gitbox.apache.org >> /root/.git-credentials
+    git config --global credential.helper 'store --file=/root/.git-credentials'
+}
+
+get_asf_credentials(){
+    while $ASF_CREDS_NOT_CONFIRMED; do
+        read -p "Enter your ASF username: " ASF_USERNAME
+        read -s -p "Enter your ASF password: " ASF_PASSWORD
+        printf "\n"
+        echo "Your ASF Username is:" $ASF_USERNAME
+
+        INVALID_CONFIRMATION=true
+
+        while $INVALID_CONFIRMATION; do
+            read -p "Is this correct? (y/n) " CONFIRM
+
+            if [[ ($CONFIRM == "Y") || ($CONFIRM == "y") ]]; then
+                ASF_CREDS_NOT_CONFIRMED=false
+                INVALID_CONFIRMATION=false
+            elif [[ ($CONFIRM == "N") || ($CONFIRM == "n") ]]; then
+                INVALID_CONFIRMATION=false
+            fi
+        done
+    done
+}
+
+clean_release_directory(){
+    rm -rf dist
+}
+
+make_release_artifacts(){
+
+    CURRENT_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
+
+    if [ $CURRENT_BRANCH != "main" ]; then
+        echo "You are currently on the $CURRENT_BRANCH branch. A release must be made from the main branch. Exiting..."
+        exit 1
+    fi
+
+    check_local_remote_are_even
+
+    check_release_guidelines
+
+    while $NOT_CONFIRMED; do
+        read -p "Enter the version number to be released (example: 4.0.0, do not include the rc number): " RELEASE_VERSION
+        read -p "Enter the release candidate number (example: if you are releasing rc0, enter 0): " RC_NUMBER
+        echo "Build configured as follows:"
+        echo "Release: $RELEASE_VERSION-rc$RC_NUMBER"
+
+        INVALID_CONFIRMATION=true
+
+        while $INVALID_CONFIRMATION; do
+            read -p "Is this correct? (y/n) " CONFIRM
+
+            if [[ ($CONFIRM == "Y") || ($CONFIRM == "y") ]]; then
+                NOT_CONFIRMED=false
+                INVALID_CONFIRMATION=false
+            elif [[ ($CONFIRM == "N") || ($CONFIRM == "n") ]]; then
+                INVALID_CONFIRMATION=false
+            fi
+        done
+    done
+
+    select_gpg_key
+
+    check_if_tag_exists $RELEASE_VERSION $RELEASE_VERSION-rc$RC_NUMBER
+
+    TAG="v$RELEASE_VERSION-rc$RC_NUMBER"
+
+    check_import_paths $TAG
+
+    clean_release_directory
+
+    TAR_FILE=$PRODUCT-$RELEASE_VERSION-src.tar.gz
+    RELEASE_DIR=dist/$PRODUCT-$RELEASE_VERSION-rc$RC_NUMBER
+
+    #Make release dir
+    mkdir -p $RELEASE_DIR
+
+    # Make tar
+    tar -zcf $RELEASE_DIR/$TAR_FILE --transform "s/^/$PRODUCT-$RELEASE_VERSION-src\//g" $(git ls-files)
+
+    cd $RELEASE_DIR
+
+    # Calculate SHA512
+    gpg --print-md SHA512 $TAR_FILE > $TAR_FILE.sha512
+
+    # Sign
+    gpg -u $SELECTED_GPG_KEY --armor --output $TAR_FILE.asc --detach-sig $TAR_FILE
+
+    echo "Release artifacts created!"
+}
+
+make_release_artifacts_and_push_tag(){
+    make_release_artifacts
+
+    get_asf_credentials
+
+    # Create the tag
+    git tag $TAG
+
+    # Push the tag
+    set_git_credentials
+
+    git push $GITBOX_URL $TAG
+
+    echo "Release $RELEASE_VERSION-rc$RC_NUMBER has been tagged and pushed!"
+}
+
+publish_release_for_voting(){
+
+    LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+    if [[ ! $LATEST_TAG =~ .+-rc[[:digit:]]+$ ]]; then
+        echo "The latest tag ($LATEST_TAG) is not a RC release and should not be published for voting."
+        exit 1
+    fi
+
+    TAG_WITHOUT_V=$(echo $LATEST_TAG | sed -e 's/v//')
+    TAG_WITHOUT_RC=$(echo $TAG_WITHOUT_V | sed -e 's/-rc[0-9][0-9]*//')
+    SOURCE_RELEASE=$PRODUCT-$TAG_WITHOUT_RC-src.tar.gz
+    GPG_SIGNATURE=$PRODUCT-$TAG_WITHOUT_RC-src.tar.gz.asc
+    SHA512=$PRODUCT-$TAG_WITHOUT_RC-src.tar.gz.sha512
+    COMMIT=$(git rev-list -n 1 $LATEST_TAG)
+
+    # Check to see a release is built
+    MISSING_FILES=false
+
+    if [ ! -f "dist/$PRODUCT-$TAG_WITHOUT_V/$SOURCE_RELEASE" ]; then
+        echo "Did not find source release ($SOURCE_RELEASE) in dist folder."
+        MISSING_FILES=true
+    fi
+
+    if [ ! -f "dist/$PRODUCT-$TAG_WITHOUT_V/$GPG_SIGNATURE" ]; then
+        echo "Did not find GPG signature ($GPG_SIGNATURE) in dist folder."
+        MISSING_FILES=true
+    fi
+
+    if [ ! -f "dist/$PRODUCT-$TAG_WITHOUT_V/$SHA512" ]; then
+        echo "Did not find SHA512 ($SHA512) in dist folder."
+        MISSING_FILES=true
+    fi
+
+    if $MISSING_FILES == true; then
+        exit 1
+    fi
+
+    while $NOT_CONFIRMED; do
+        echo "Publish configured as follows:"
+        echo "Release: $TAG_WITHOUT_V"
+
+        INVALID_CONFIRMATION=true
+
+        while $INVALID_CONFIRMATION; do
+            read -p "Is this correct? (y/n) " CONFIRM
+
+            if [[ ($CONFIRM == "Y") || ($CONFIRM == "y") ]]; then
+                NOT_CONFIRMED=false
+                INVALID_CONFIRMATION=false
+            elif [[ ($CONFIRM == "N") || ($CONFIRM == "n") ]]; then
+                INVALID_CONFIRMATION=false
+            fi
+        done
+    done
+
+    HASH_CONTENTS=$(cat "dist/$PRODUCT-$TAG_WITHOUT_V/$SHA512" | tr -d '\n')
+    HASH=${HASH_CONTENTS#"$SOURCE_RELEASE: "}
+
+    get_asf_credentials
+
+    svn checkout $DEV_REPO /tmp/calcite --depth empty
+    cp -R dist/$PRODUCT-$TAG_WITHOUT_V /tmp/calcite/
+
+    cd /tmp/calcite
+    svn add $PRODUCT-$TAG_WITHOUT_V
+    chmod -x $PRODUCT-$TAG_WITHOUT_V/*
+
+    svn commit -m "$PRODUCT-$TAG_WITHOUT_V" --force-log --username $ASF_USERNAME --password $ASF_PASSWORD
+
+    [[ $LATEST_TAG =~ -rc([[:digit:]]+)$ ]]
+    RC_NUMBER=${BASH_REMATCH[1]}
+
+    read -p "Please enter your first name for the voting email: " FIRST_NAME
+
+    echo "The release $PRODUCT-$TAG_WITHOUT_V has been uploaded to the development repository."
+    printf "\n"
+    printf "\n"
+    echo "Email the following message to dev@calcite.apache.org. Please check the message before sending."
+    printf "\n"
+    echo "To: dev@calcite.apache.org"
+    echo "Subject: [VOTE] Release $PRODUCT-$TAG_WITHOUT_RC (release candidate $RC_NUMBER)"
+    echo "Message:
+Hi all,
+
+I have created a release for Apache Calcite Avatica Go $TAG_WITHOUT_RC, release candidate $RC_NUMBER.
+
+Thanks to everyone who has contributed to this release. The release notes are available here:
+https://github.com/apache/calcite-avatica-go/blob/$LATEST_TAG/site/_docs/go_history.md
+
+The commit to be voted on:
+https://gitbox.apache.org/repos/asf?p=calcite-avatica-go.git;a=commit;h=$COMMIT
+
+The hash is $COMMIT
+
+The artifacts to be voted on are located here:
+$DEV_REPO$PRODUCT-$TAG_WITHOUT_V/
+
+The hashes of the artifacts are as follows:
+src.tar.gz $HASH
+
+Release artifacts are signed with the following key:
+https://people.apache.org/keys/committer/$ASF_USERNAME.asc
+
+Instructions for running the test suite is located here:
+https://github.com/apache/calcite-avatica-go/blob/$LATEST_TAG/site/develop/avatica-go.md#testing
+
+Please vote on releasing this package as Apache Calcite Avatica Go $TAG_WITHOUT_RC.
+
+To run the tests without a Go environment, install docker and docker compose. Then, in the root of the release's directory, run: docker compose run test
+
+When the test suite completes, run \"docker compose down\" to remove and shutdown all the containers.
+
+The vote is open for the next 72 hours and passes if a majority of at least three +1 PMC votes are cast.
+
+[ ] +1 Release this package as Apache Calcite Avatica Go $TAG_WITHOUT_RC
+[ ]  0 I don't feel strongly about it, but I'm okay with the release
+[ ] -1 Do not release this package because...
+
+
+Here is my vote:
+
++1 (binding)
+
+$FIRST_NAME
+"
+}
+
+promote_release(){
+    LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+    if [[ ! $LATEST_TAG =~ .+-rc[[:digit:]]+$ ]]; then
+        echo "The latest tag ($LATEST_TAG) is not a RC release and should not be re-released."
+        exit 1
+    fi
+
+    TAG_WITHOUT_V=$(echo $LATEST_TAG | sed -e 's/v//')
+    TAG_WITHOUT_RC=$(echo $TAG_WITHOUT_V | sed -e 's/-rc[0-9][0-9]*//')
+
+    if ! svn ls $DEV_REPO/$PRODUCT-$TAG_WITHOUT_V; then
+        echo "The release $PRODUCT-$TAG_WITHOUT_V was not found in the dev repository. Was it uploaded for voting?"
+        exit 1
+    fi
+
+    get_asf_credentials
+
+    set_git_credentials
+
+    git tag v$TAG_WITHOUT_RC $LATEST_TAG
+    git tag rel/v$TAG_WITHOUT_RC $LATEST_TAG
+
+    git push $GITBOX_URL v$TAG_WITHOUT_RC
+    git push $GITBOX_URL rel/v$TAG_WITHOUT_RC
+
+    svn checkout $RELEASE_REPO /tmp/release
+    rm -rf /tmp/release/$PRODUCT-$TAG_WITHOUT_RC
+    mkdir -p /tmp/release/$PRODUCT-$TAG_WITHOUT_RC
+
+    svn checkout $DEV_REPO/$PRODUCT-$TAG_WITHOUT_V /tmp/rc
+    cp -rp /tmp/rc/* /tmp/release/$PRODUCT-$TAG_WITHOUT_RC
+
+    cd /tmp/release
+
+    svn add $PRODUCT-$TAG_WITHOUT_RC
+
+    # If there is more than 1 release, delete all of them, except for the newest one
+    # To do this, we do the following:
+    # 1. Get the list of releases with verbose information from svn
+    # 2. Sort by the first field (revision number) in descending order
+    # 3. Select apache-calcite-avatica-go releases
+    # 4. Exclude the release we're trying to promote, in case it was from a failed promotion.
+    # 5. Trim all whitespace down to 1 empty space.
+    # 6. Select field 7, which is each release's folder
+    CURRENT_RELEASES=$(svn ls -v $RELEASE_REPO | sort -k1 -r | grep $PRODUCT | grep -v $PRODUCT-$TAG_WITHOUT_RC | tr -s ' ' | cut -d ' ' -f 7)
+
+    RELEASE_COUNT=0
+    while read -r RELEASE; do
+        if [[ $RELEASE_COUNT -ne 0 ]]; then
+            svn rm $RELEASE
+            echo "Removing release $RELEASE"
+        fi
+
+        RELEASE_COUNT=$((RELEASE_COUNT+1))
+    done <<< "$CURRENT_RELEASES"
+
+    svn commit -m "Release $PRODUCT-$TAG_WITHOUT_RC" --force-log --username $ASF_USERNAME --password $ASF_PASSWORD
+
+    echo "Release $PRODUCT-$LATEST_TAG successfully promoted to $PRODUCT-$TAG_WITHOUT_RC"
+}
+
+compile_protobuf(){
+
+    if [ -z "$AVATICA_VERSION" ]; then
+        echo "The AVATICA_VERSION environment variable must be set to a valid avatica version"
+    fi
+
+    if [ -z "$PROTOBUF_VERSION" ]; then
+        echo "The PROTOBUF_VERSION environment variable must be set to a valid protobuf version"
+    fi
+
+    apt update && apt install unzip
+
+    # Install go protobuf compiler
+    go install google.golang.org/protobuf/cmd/protoc-gen-go
+
+    # Install protoc
+    mkdir -p /tmp/protoc
+    wget -q -O /tmp/protoc/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
+    cd /tmp/protoc
+    unzip protoc.zip
+    mv /tmp/protoc/include /usr/local/include
+    mv /tmp/protoc/bin/protoc /usr/local/bin/protoc
+
+    # Clone a temp copy of avatica and check out the selected version
+    mkdir /tmp/avatica
+    cd /tmp/avatica
+    git init
+    git remote add origin https://github.com/apache/calcite-avatica.git
+    git config core.sparsecheckout true
+    echo "core/src/main/protobuf/*" >> .git/info/sparse-checkout
+
+    git fetch --depth=1 origin rel/avatica-$AVATICA_VERSION
+    git checkout FETCH_HEAD
+
+    # Compile the protobuf
+    GITHUB_PACKAGE=github.com/apache/calcite-avatica-go
+    protoc --proto_path=/tmp/avatica/core/src/main/protobuf --go_out=/source --go_opt=module=$GITHUB_PACKAGE --go_opt=Mcommon.proto=$GITHUB_PACKAGE/message --go_opt=Mrequests.proto=$GITHUB_PACKAGE/message --go_opt=Mresponses.proto=$GITHUB_PACKAGE/message /tmp/avatica/core/src/main/protobuf/*.proto --go_opt=default_api_level=API_OPAQUE #Remove API_OPAQUE when Avatica protobufs are updated to edition 2024
+
+    echo "Protobuf compiled successfully"
+}
+
+case $1 in
+    dry-run)
+        init_release
+        make_directory_safe_for_git
+        mount_gpg_keys
+        make_release_artifacts
+        ;;
+
+    release)
+        init_release
+        make_directory_safe_for_git
+        mount_gpg_keys
+        make_release_artifacts_and_push_tag
+        ;;
+
+    clean)
+        clean_release_directory
+        echo "Release directory ./dist removed"
+        ;;
+
+    publish-release-for-voting)
+        init_upload
+        make_directory_safe_for_git
+        publish_release_for_voting
+        ;;
+
+    promote-release)
+        init_upload
+        make_directory_safe_for_git
+        promote_release
+        ;;
+
+    compile-protobuf)
+        compile_protobuf
+        ;;
+
+    *)
+       echo $"Usage: $0 {dry-run|release|clean|publish-release-for-voting|promote-release}"
+       ;;
+
+esac
+
+# End
+
+---
+File: driver.go
+Size: 4749 bytes
+Lines: 173 [structural]
+---
+	import "database/sql"
+	import _ "github.com/apache/calcite-avatica-go/v5"
+package avatica
+import (
+	"context"
+	"database/sql"
+	"database/sql/driver"
+	"fmt"
+	"net/http"
+	"github.com/apache/calcite-avatica-go/v5/generic"
+	"github.com/apache/calcite-avatica-go/v5/hsqldb"
+	"github.com/apache/calcite-avatica-go/v5/message"
+	"github.com/apache/calcite-avatica-go/v5/phoenix"
+	"github.com/google/uuid"
+type Driver struct{}
+type Connector struct {
+}
+func NewConnector(dsn string) driver.Connector {
+	}
+func (c *Connector) Connect(ctx context.Context) (driver.Conn, error) {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}.Build())
+	}
+		}
+}
+func registerConn(conn *conn) error {
+		"AutoCommit":  "true",
+		"Consistency": "8",
+	}
+	}
+	}.Build()
+	}
+	}
+}
+func (c *Connector) Driver() driver.Driver {
+}
+func (a *Driver) Open(dsn string) (driver.Conn, error) {
+}
+func getAdapter(e string) Adapter {
+	}
+func init() {
+}
+
+---
+File: driver_go18_hsqldb_test.go
+Size: 13533 bytes
+Lines: 587 [structural]
+---
+package avatica
+import (
+	"database/sql"
+	"math"
+	"reflect"
+	"testing"
+	"time"
+func TestHSQLDBContext(t *testing.T) {
+			var count int
+			}
+			}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+		var (
+		}
+		}
+		}
+	})
+func TestHSQLDBMultipleResultSets(t *testing.T) {
+		}
+			var (
+			}
+			}
+			}
+		}
+	})
+func TestHSQLDBColumnTypes(t *testing.T) {
+				var VARCHAR(10),
+		}
+		}
+		}
+		type decimalSize struct {
+		}
+		type length struct {
+		}
+		type nullable struct {
+		}
+		}{
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+		}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+	})
+
+---
+File: driver_go18_phoenix_test.go
+Size: 17571 bytes
+Lines: 777 [structural]
+---
+package avatica
+import (
+	"database/sql"
+	"math"
+	"reflect"
+	"testing"
+	"time"
+func TestPhoenixContext(t *testing.T) {
+			var count int
+			}
+			}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+		var (
+		}
+		}
+		}
+	})
+func TestPhoenixMultipleResultSets(t *testing.T) {
+		}
+			var (
+			}
+			}
+			}
+		}
+	})
+func TestPhoenixColumnTypes(t *testing.T) {
+				var VARCHAR(10),
+		}
+		}
+		}
+		type decimalSize struct {
+		}
+		type length struct {
+		}
+		type nullable struct {
+		}
+		}{
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+				},
+				},
+				},
+			},
+		}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+			}
+	})
+
+---
+File: driver_go18_test.go
+Size: 1952 bytes
+Lines: 71
+---
+//go:build go1.8
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"context"
+	"database/sql"
+	"testing"
+	"time"
+)
+
+func (dbt *DBTest) mustExecContext(ctx context.Context, query string, args ...interface{}) (res sql.Result) {
+	res, err := dbt.db.ExecContext(ctx, query, args...)
+
+	if err != nil {
+		dbt.fail("exec", query, err)
+	}
+
+	return res
+}
+
+func (dbt *DBTest) mustQueryContext(ctx context.Context, query string, args ...interface{}) (rows *sql.Rows) {
+	rows, err := dbt.db.QueryContext(ctx, query, args...)
+
+	if err != nil {
+		dbt.fail("query", query, err)
+	}
+
+	return rows
+}
+
+func getContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), 4*time.Minute)
+}
+
+func TestPing(t *testing.T) {
+	runTests(t, dsn, func(dbt *DBTest) {
+		err := dbt.db.Ping()
+
+		if err != nil {
+			t.Errorf("Expected ping to succeed, got error: %s", err)
+		}
+	})
+}
+
+func TestInvalidPing(t *testing.T) {
+	runTests(t, "http://invalid-server:8765", func(dbt *DBTest) {
+		err := dbt.db.Ping()
+
+		if err == nil {
+			t.Error("Expected ping to fail, but did not get any error")
+		}
+	})
+}
+
+
+---
+File: driver_hsqldb_test.go
+Size: 30848 bytes
+Lines: 1409 [structural]
+---
+package avatica
+import (
+	"bytes"
+	"crypto/sha256"
+	"database/sql"
+	"os"
+	"path/filepath"
+	"sync"
+	"testing"
+	"time"
+func skipTestIfNotHSQLDB(t *testing.T) {
+	}
+func TestHSQLDBConnectionMustBeOpenedWithAutoCommitTrue(t *testing.T) {
+			var count int
+			}
+			}
+	})
+func TestHSQLDBZeroValues(t *testing.T) {
+			var i int
+			var flt float64
+			var b bool
+			var s string
+			}
+			}
+			}
+			}
+			}
+	})
+func TestHSQLDBDataTypes(t *testing.T) {
+			var VARCHAR(128),
+				var VARCHAR(128),
+		var (
+		var (
+			}
+		}{
+		}
+				}
+			} else if v, ok := tt.expected.([]byte); ok {
+				}
+			} else if tt.expected != tt.result {
+			}
+	})
+func TestHSQLDBSQLNullTypes(t *testing.T) {
+				var VARCHAR(128),
+		var (
+		var (
+			}
+		}{
+		}
+				}
+			} else if v, ok := tt.expected.([]byte); ok {
+				}
+			} else if tt.expected != tt.result {
+			}
+	})
+func TestHSQLDBNulls(t *testing.T) {
+				var VARCHAR(128),
+		var (
+			}
+		}{
+		}
+				}
+			} else if v, ok := tt.expected.([]byte); ok {
+				}
+			} else if tt.expected != tt.result {
+			}
+	})
+		}
+		var (
+		var (
+			}
+		}{
+		}
+			}
+	})
+}*/
+func TestHSQLDBDateAndTimestampsBefore1970(t *testing.T) {
+		var (
+		var (
+			}
+		}{
+		}
+			}
+	})
+func TestHSQLDBStoreAndRetrieveBinaryData(t *testing.T) {
+		}
+		var receivedFile []byte
+			}
+		}
+	})
+func TestHSQLDBCommittingTransactions(t *testing.T) {
+		}
+		}
+			}
+		var count int
+		}
+		}
+		var countAfterRollback int
+			}
+		}
+	})
+func TestHSQLDBRollingBackTransactions(t *testing.T) {
+		}
+		}
+			}
+		var count int
+		}
+		}
+		var countAfterRollback int
+			}
+		}
+	})
+func TestHSQLDBPreparedStatements(t *testing.T) {
+		}
+			}
+		}
+		var res int
+			}
+			}
+	})
+func TestHSQLDBFetchingMoreRows(t *testing.T) {
+		}
+			}
+		}
+		}
+	})
+func TestHSQLDBExecuteShortcut(t *testing.T) {
+		}
+		}
+		}
+	})
+func TestHSQLDBQueryShortcut(t *testing.T) {
+		}
+			}
+		}
+		}
+	})
+		}
+			}
+		}
+		}
+		}
+		}
+		}
+		}
+		}
+	})
+}*/
+func TestHSQLDBLastInsertIDShouldReturnError(t *testing.T) {
+		}
+		}
+	})
+func TestHSQLDBSchemaSupport(t *testing.T) {
+	}
+	}
+		}
+		}
+		}
+	})
+func TestHSQLDBMultipleSchemaSupport(t *testing.T) {
+	}
+	}
+	}
+		}
+		}
+		}
+	})
+func TestHSQLDBExecBatch(t *testing.T) {
+		}
+			}
+		}
+		}
+		var res int
+			}
+			}
+	})
+func TestHSQLDBExecBatchConcurrency(t *testing.T) {
+		}
+		var wg sync.WaitGroup
+				}
+			}(i)
+		}
+		}
+		var res int
+			}
+			}
+	})
+	}
+	}
+	}
+	}
+	}
+}*/
+
+---
+File: driver_phoenix_test.go
+Size: 33271 bytes
+Lines: 1502 [structural]
+---
+package avatica
+import (
+	"bytes"
+	"crypto/sha256"
+	"database/sql"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+	"testing"
+	"time"
+	"github.com/apache/calcite-avatica-go/v5/errors"
+func skipTestIfNotPhoenix(t *testing.T) {
+	}
+func TestPhoenixConnectionMustBeOpenedWithAutoCommitTrue(t *testing.T) {
+			var count int
+			}
+			}
+	})
+func TestPhoenixZeroValues(t *testing.T) {
+			var i int
+			var flt float64
+			var b bool
+			var s sql.NullString
+			}
+			}
+			}
+			}
+			}
+	})
+func TestPhoenixDataTypes(t *testing.T) {
+				var VARCHAR,
+		var (
+		var (
+			}
+		}{
+		}
+				}
+			} else if v, ok := tt.expected.([]byte); ok {
+				}
+			} else if tt.expected != tt.result {
+			}
+	})
+func TestPhoenixSQLNullTypes(t *testing.T) {
+				var VARCHAR,
+		var (
+		var (
+			}
+		}{
+		}
+				}
+			} else if v, ok := tt.expected.([]byte); ok {
+				}
+			} else if tt.expected != tt.result {
+			}
+	})
+func TestPhoenixNulls(t *testing.T) {
+				var VARCHAR,
+		var (
+			}
+		}{
+		}
+				}
+			} else if v, ok := tt.expected.([]byte); ok {
+				}
+			} else if tt.expected != tt.result {
+			}
+	})
+func TestPhoenixLocations(t *testing.T) {
+		}
+		var (
+		var (
+			}
+		}{
+		}
+			}
+	})
+func TestPhoenixDateAndTimestampsBefore1970(t *testing.T) {
+		var (
+		var (
+			}
+		}{
+		}
+			}
+	})
+func TestPhoenixStoreAndRetrieveBinaryData(t *testing.T) {
+		}
+		var receivedFile []byte
+			}
+		}
+	})
+func TestPhoenixCommittingTransactions(t *testing.T) {
+		}
+		}
+			}
+		var count int
+		}
+		}
+		var countAfterRollback int
+			}
+		}
+	})
+func TestPhoenixRollingBackTransactions(t *testing.T) {
+		}
+		}
+			}
+		var count int
+		}
+		}
+		var countAfterRollback int
+			}
+		}
+	})
+func TestPhoenixPreparedStatements(t *testing.T) {
+		}
+			}
+		}
+		var res int
+			}
+			}
+	})
+func TestPhoenixFetchingMoreRows(t *testing.T) {
+		}
+			}
+		}
+		}
+	})
+func TestPhoenixExecuteShortcut(t *testing.T) {
+		}
+		}
+		}
+	})
+func TestPhoenixQueryShortcut(t *testing.T) {
+		}
+			}
+		}
+		}
+	})
+func TestPhoenixOptimisticConcurrency(t *testing.T) {
+		}
+			}
+		}
+		}
+		}
+		}
+		}
+		}
+		var responseError errors.ResponseError
+		}
+	})
+func TestPhoenixLastInsertIDShouldReturnError(t *testing.T) {
+		}
+		}
+	})
+func TestPhoenixSchemaSupport(t *testing.T) {
+	}
+	}
+		}
+		}
+		}
+	})
+func TestPhoenixMultipleSchemaSupport(t *testing.T) {
+	}
+	}
+	}
+		}
+		}
+		}
+	})
+func TestPhoenixErrorCodeParsing(t *testing.T) {
+	}
+	}
+	var resErr errors.ResponseError
+	}
+	}
+	}
+func TestPhoenixExecBatch(t *testing.T) {
+		}
+			}
+		}
+		}
+		var res int
+			}
+			}
+	})
+func TestPhoenixExecBatchConcurrency(t *testing.T) {
+		}
+		var wg sync.WaitGroup
+				}
+			}(i)
+		}
+		}
+		var res int
+			}
+			}
+	})
+
+---
+File: driver_test.go
+Size: 3624 bytes
+Lines: 155 [structural]
+---
+package avatica
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"math/rand"
+	"net/http"
+	"os"
+	"testing"
+	"time"
+var (
+func init() {
+		}
+	}
+	var serverAddr string
+	} else if val == "HSQLDB" {
+	} else {
+	}
+			}
+func generateTableName() string {
+}
+type DBTest struct {
+}
+func (dbt *DBTest) fail(method, query string, err error) {
+	}
+}
+func (dbt *DBTest) mustExec(query string, args ...interface{}) (res sql.Result) {
+	}
+}
+func (dbt *DBTest) mustQuery(query string, args ...interface{}) (rows *sql.Rows) {
+	}
+}
+func runTests(t *testing.T, dsn string, tests ...func(dbt *DBTest)) {
+	}
+	}
+func TestConnectionToInvalidServerShouldReturnError(t *testing.T) {
+		}
+	})
+
+---
+File: dsn.go
+Size: 5883 bytes
+Lines: 221 [structural]
+---
+package avatica
+import (
+	"errors"
+	"fmt"
+	"net/url"
+	"strconv"
+	"strings"
+	"time"
+type authentication int
+const (
+type Config struct {
+}
+type krb5Principal struct {
+}
+func ParseDSN(dsn string) (*Config, error) {
+	}
+	}
+		}
+	}
+		}
+	}
+		}
+	}
+		}
+		}
+	}
+		}
+		} else if auth == "DIGEST" {
+		} else if auth == "SPNEGO" {
+		} else {
+		}
+			}
+			}
+		} else if conf.authentication == spnego {
+			}
+			}
+			}
+				}
+				}
+			} else if krb5CredentialCache != "" {
+			}
+	}
+}
+
+---
+File: dsn_test.go
+Size: 11033 bytes
+Lines: 364 [structural]
+---
+package avatica
+import (
+	"strconv"
+	"testing"
+	"time"
+func TestParseDSN(t *testing.T) {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+func TestParseDSNProxy(t *testing.T) {
+	}
+	}
+	}
+	}
+	}
+	}
+func TestParseEmptyDSN(t *testing.T) {
+	}
+func TestDSNDefaults(t *testing.T) {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+func TestDSNDefaultsProxy(t *testing.T) {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+func TestLocalLocation(t *testing.T) {
+	}
+	}
+func TestBadInput(t *testing.T) {
+	}
+	}
+	}
+func TestInvalidTransactionIsolation(t *testing.T) {
+		}
+func TestValidTransactionIsolation(t *testing.T) {
+		}
+func TestInvalidAuthentication(t *testing.T) {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+func TestValidAuthentication(t *testing.T) {
+	}
+	}
+	}
+	}
+
+---
+File: http_client.go
+Size: 4778 bytes
+Lines: 172 [structural]
+---
+package avatica
+import (
+	"bytes"
+	"context"
+	"database/sql/driver"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"regexp"
+	"runtime"
+	"time"
+	"google.golang.org/protobuf/proto"
+var (
+type httpClient struct {
+}
+type avaticaError struct {
+}
+func (e avaticaError) Error() string {
+}
+func NewHTTPClient(host string, baseClient *http.Client, config *Config) (*httpClient, error) {
+				}).DialContext,
+			},
+			}
+		}
+	}
+}
+func (c *httpClient) post(ctx context.Context, message proto.Message) (proto.Message, error) {
+	}
+	}.Build()
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+			}
+	}
+}
+
+---
+File: http_client_wrappers.go
+Size: 4306 bytes
+Lines: 124 [structural]
+---
+package avatica
+import (
+	"fmt"
+	"net/http"
+	"github.com/jcmturner/gokrb5/v8/client"
+	"github.com/jcmturner/gokrb5/v8/config"
+	"github.com/jcmturner/gokrb5/v8/credentials"
+	"github.com/jcmturner/gokrb5/v8/keytab"
+func WithDigestAuth(cli *http.Client, username, password string) *http.Client {
+	}
+}
+func WithBasicAuth(cli *http.Client, username, password string) *http.Client {
+}
+func WithKerberosAuth(cli *http.Client, username, realm, keyTab, krb5Conf, krb5CredentialCache string) (*http.Client, error) {
+	var kerberosClient *client.Client
+		}
+		}
+	} else {
+		}
+		}
+		}
+	}
+}
+func WithAdditionalHeaders(cli *http.Client, headers http.Header) *http.Client {
+}
+type basicAuthTransport struct {
+}
+func (t *basicAuthTransport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+}
+type krb5Transport struct {
+}
+func (t *krb5Transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+	}
+}
+type additionalHeaderTransport struct {
+}
+func (t *additionalHeaderTransport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+	}
+}
+
+---
+File: result.go
+Size: 1427 bytes
+Lines: 38
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import "errors"
+
+type result struct {
+	affectedRows int64
+	insertId     int64
+}
+
+// LastInsertId returns the database's auto-generated ID
+// after, for example, an INSERT into a table with primary
+// key.
+func (r *result) LastInsertId() (int64, error) {
+	return 0, errors.New("use 'SELECT CURRENT VALUE FOR your.sequence' to get the last inserted id. For more information, see: https://phoenix.apache.org/sequences.html")
+}
+
+// RowsAffected returns the number of rows affected by the
+// query.
+func (r *result) RowsAffected() (int64, error) {
+	return r.affectedRows, nil
+}
+
+
+---
+File: rows.go
+Size: 7767 bytes
+Lines: 268 [structural]
+---
+package avatica
+import (
+	"context"
+	"database/sql/driver"
+	"io"
+	"time"
+	"github.com/apache/calcite-avatica-go/v5/internal"
+	"github.com/apache/calcite-avatica-go/v5/message"
+type resultSet struct {
+}
+type rows struct {
+}
+func (r *rows) Columns() []string {
+	}
+	var cols []string
+	}
+	}
+}
+func (r *rows) Close() error {
+	var err error
+	}
+}
+func (r *rows) Next(dest []driver.Value) error {
+	}
+		}
+		}.Build())
+		}
+		var data [][]*message.TypedValue
+		}
+			var rowData []*message.TypedValue
+			}
+		}
+	}
+	}
+}
+func newRows(conn *conn, statementID uint32, closeStatement bool, resultSets []*message.ResultSetResponse) *rows {
+	var rsets []*resultSet
+		}
+		var columns []*internal.Column
+		}
+		var data [][]*message.TypedValue
+			var rowData []*message.TypedValue
+			}
+		}
+		})
+	}
+func typedValueToNative(rep message.Rep, v *message.TypedValue, config *Config) interface{} {
+	}
+	}
+func forceTimezone(t time.Time, loc *time.Location) time.Time {
+}
+
+---
+File: rows_go18.go
+Size: 2081 bytes
+Lines: 77
+---
+//go:build go1.8
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"io"
+	"reflect"
+)
+
+func (r *rows) HasNextResultSet() bool {
+	lastResultSetID := len(r.resultSets) - 1
+	return lastResultSetID > r.currentResultSet
+}
+
+func (r *rows) NextResultSet() error {
+
+	lastResultSetID := len(r.resultSets) - 1
+
+	if r.currentResultSet+1 > lastResultSetID {
+		return io.EOF
+	}
+
+	r.currentResultSet++
+
+	return nil
+}
+
+func (r *rows) ColumnTypeDatabaseTypeName(index int) string {
+
+	return r.resultSets[r.currentResultSet].columns[index].TypeName
+}
+
+func (r *rows) ColumnTypeLength(index int) (length int64, ok bool) {
+	l := r.resultSets[r.currentResultSet].columns[index].Length
+
+	if l == 0 {
+		return 0, false
+	}
+
+	return l, true
+}
+
+func (r *rows) ColumnTypeNullable(index int) (nullable, ok bool) {
+	return r.resultSets[r.currentResultSet].columns[index].Nullable, true
+}
+
+func (r *rows) ColumnTypePrecisionScale(index int) (precision, scale int64, ok bool) {
+
+	ps := r.resultSets[r.currentResultSet].columns[index].PrecisionScale
+
+	if ps != nil {
+		return ps.Precision, ps.Scale, true
+	}
+
+	return 0, 0, false
+}
+
+func (r *rows) ColumnTypeScanType(index int) reflect.Type {
+	return r.resultSets[r.currentResultSet].columns[index].ScanType
+}
+
+
+---
+File: statement.go
+Size: 7414 bytes
+Lines: 256 [structural]
+---
+package avatica
+import (
+	"context"
+	"database/sql/driver"
+	"errors"
+	"math"
+	"sync"
+	"time"
+	"github.com/apache/calcite-avatica-go/v5/message"
+type stmt struct {
+}
+func (s *stmt) Close() error {
+	}
+		}.Build())
+		}
+	}.Build())
+	}
+}
+func (s *stmt) NumInput() int {
+}
+func (s *stmt) Exec(args []driver.Value) (driver.Result, error) {
+}
+func (s *stmt) exec(ctx context.Context, args []namedValue) (driver.Result, error) {
+	}
+		}.Build())
+		}, nil
+	}.Build()
+	} else {
+	}
+	}
+	}
+	}, nil
+func (s *stmt) Query(args []driver.Value) (driver.Rows, error) {
+}
+func (s *stmt) query(ctx context.Context, args []namedValue) (driver.Rows, error) {
+	}
+	}.Build()
+	} else {
+	}
+	}
+}
+func (s *stmt) parametersToTypedValues(vals []namedValue) []*message.TypedValue {
+	var result []*message.TypedValue
+		} else {
+				} else {
+				}
+				}
+	}
+}
+
+---
+File: statement_go18.go
+Size: 1456 bytes
+Lines: 48
+---
+//go:build go1.8
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"context"
+	"database/sql/driver"
+	"fmt"
+)
+
+func (s *stmt) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
+
+	list, err := driverNamedValueToNamedValue(args)
+
+	if err != nil {
+		return nil, fmt.Errorf("error executing statement: %w", err)
+	}
+
+	return s.exec(ctx, list)
+}
+
+func (s *stmt) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
+
+	list, err := driverNamedValueToNamedValue(args)
+
+	if err != nil {
+		return nil, fmt.Errorf("error executing query: %w", err)
+	}
+
+	return s.query(ctx, list)
+}
+
+
+---
+File: transaction.go
+Size: 2171 bytes
+Lines: 79
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package avatica
+
+import (
+	"context"
+
+	"github.com/apache/calcite-avatica-go/v5/message"
+)
+
+type tx struct {
+	conn *conn
+}
+
+// Commit commits a transaction
+func (t *tx) Commit() error {
+
+	defer t.enableAutoCommit()
+
+	_, err := t.conn.httpClient.post(context.Background(), message.CommitRequest_builder{
+		ConnectionId: t.conn.connectionId,
+	}.Build())
+
+	if err != nil {
+		return t.conn.avaticaErrorToResponseErrorOrError(err)
+	}
+
+	return nil
+}
+
+// Rollback rolls back a transaction
+func (t *tx) Rollback() error {
+
+	defer t.enableAutoCommit()
+
+	_, err := t.conn.httpClient.post(context.Background(), message.RollbackRequest_builder{
+		ConnectionId: t.conn.connectionId,
+	}.Build())
+
+	if err != nil {
+		return t.conn.avaticaErrorToResponseErrorOrError(err)
+	}
+
+	return nil
+}
+
+// enableAutoCommit enables auto-commit on the server
+func (t *tx) enableAutoCommit() error {
+
+	_, err := t.conn.httpClient.post(context.Background(), message.ConnectionSyncRequest_builder{
+		ConnectionId: t.conn.connectionId,
+		ConnProps: message.ConnectionProperties_builder{
+			AutoCommit:           true,
+			HasAutoCommit:        true,
+			TransactionIsolation: t.conn.config.transactionIsolation,
+		}.Build(),
+	}.Build())
+
+	if err != nil {
+		return t.conn.avaticaErrorToResponseErrorOrError(err)
+	}
+
+	return nil
+}
+
+
+---
+File: internal\column.go
+Size: 1198 bytes
+Lines: 39
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package internal
+
+import (
+	"reflect"
+
+	"github.com/apache/calcite-avatica-go/v5/message"
+)
+
+type Column struct {
+	Name           string
+	TypeName       string
+	Rep            message.Rep
+	Length         int64
+	Nullable       bool
+	PrecisionScale *PrecisionScale
+	ScanType       reflect.Type
+}
+
+type PrecisionScale struct {
+	Precision int64
+	Scale     int64
+}
+
+
+---
+File: errors\errors.go
+Size: 1850 bytes
+Lines: 63
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package errors
+
+// Error severity codes
+const (
+	Eunknown int8 = iota
+	Efatal
+	Eerror
+	Ewarning
+)
+
+// RPCMetadata contains metadata about the call that caused the error.
+type RPCMetadata struct {
+	ServerAddress string
+}
+
+// ErrorCode represents the error code returned by the avatica server
+type ErrorCode uint32
+
+// SQLState represents the SQL code returned by the avatica server
+type SQLState string
+
+// ResponseError is an error type that contains detailed information on
+// what caused the server to return an error.
+type ResponseError struct {
+	Exceptions    []string
+	HasExceptions bool
+	ErrorMessage  string
+	Severity      int8
+	ErrorCode     ErrorCode
+	SqlState      SQLState
+	Metadata      *RPCMetadata
+	Name          string
+}
+
+func (r ResponseError) Error() string {
+
+	msg := "An error was encountered while processing your request"
+
+	if r.ErrorMessage != "" {
+		msg += ": " + r.ErrorMessage
+	} else if len(r.Exceptions) > 0 {
+		msg += ":\n" + r.Exceptions[0]
+	}
+
+	return msg
+}
+
+
+---
+File: generic\generic.go
+Size: 3742 bytes
+Lines: 125 [structural]
+---
+package generic
+import (
+	"math"
+	"reflect"
+	"time"
+	"github.com/apache/calcite-avatica-go/v5/errors"
+	"github.com/apache/calcite-avatica-go/v5/internal"
+	"github.com/apache/calcite-avatica-go/v5/message"
+type Adapter struct {
+}
+func (a Adapter) GetPingStatement() string {
+}
+func (a Adapter) GetColumnTypeDefinition(col *message.ColumnMetaData) *internal.Column {
+	}
+		}
+		}
+		}
+	}
+	}
+	}
+}
+func (a Adapter) ErrorResponseToResponseError(err *message.ErrorResponse) errors.ResponseError {
+		},
+
+---
+File: message\helper.go
+Size: 1118 bytes
+Lines: 31
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package message
+
+type MetadataProvider interface {
+	GetMetadata() *RpcMetadata
+}
+
+func ServerAddressFromMetadata(message MetadataProvider) string {
+	serverAddress := "unknown"
+	md := message.GetMetadata()
+	if md != nil {
+		serverAddress = md.GetServerAddress()
+	}
+	return serverAddress
+}
+
+
+---
+File: hsqldb\hsqldb.go
+Size: 3540 bytes
+Lines: 123 [structural]
+---
+package hsqldb
+import (
+	"math"
+	"reflect"
+	"time"
+	"github.com/apache/calcite-avatica-go/v5/errors"
+	"github.com/apache/calcite-avatica-go/v5/internal"
+	"github.com/apache/calcite-avatica-go/v5/message"
+type Adapter struct {
+}
+func (a Adapter) GetPingStatement() string {
+}
+func (a Adapter) GetColumnTypeDefinition(col *message.ColumnMetaData) *internal.Column {
+	}
+		}
+		}
+		}
+	}
+	}
+	}
+}
+func (a Adapter) ErrorResponseToResponseError(err *message.ErrorResponse) errors.ResponseError {
+		},
+
+---
+File: phoenix\phoenix.go
+Size: 11711 bytes
+Lines: 363 [structural]
+---
+package phoenix
+import (
+	"math"
+	"reflect"
+	"regexp"
+	"strconv"
+	"time"
+	"github.com/apache/calcite-avatica-go/v5/errors"
+	"github.com/apache/calcite-avatica-go/v5/internal"
+	"github.com/apache/calcite-avatica-go/v5/message"
+type Adapter struct {
+}
+func (a Adapter) GetPingStatement() string {
+}
+func (a Adapter) GetColumnTypeDefinition(col *message.ColumnMetaData) *internal.Column {
+	}
+		}
+		}
+		}
+	}
+	}
+	}
+}
+func (a Adapter) ErrorResponseToResponseError(err *message.ErrorResponse) errors.ResponseError {
+	var (
+	}
+	}
+		},
+	}
+var errorCodeNames = map[uint32]string{
+}
