@@ -1,29 +1,39 @@
 ```markdown
-# Apache CouchDB Nano
+# nano
 
-[![Build Status](https://travis-ci.org/apache/couchdb-nano.svg?branch=master)](https://travis-ci.org/apache/couchdb-nano)
+![Apache License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+
+The official CouchDB client for Node.js.
 
 ## Description
 
-CouchDB Nano is the official CouchDB client for Node.js. It provides a simple and expressive API for interacting with CouchDB databases, making it easy to perform common operations like creating databases, inserting documents, querying data, and more. It's designed to be lightweight and flexible, suitable for a wide range of applications.
+nano is a lightweight and performant JavaScript library for interacting with Apache CouchDB databases. It provides a simple and intuitive API for common CouchDB operations, making it easy to build applications that leverage the power of NoSQL document storage.  It's designed for Node.js environments and simplifies tasks like database creation, document management, view querying, and replication.
 
 ## Features
 
-* **Simple API:** Easy to learn and use for common CouchDB operations.
-* **Promise Support:** Supports promises for asynchronous operations.
-* **Database Management:** Create, read, update, and delete databases.
-* **Document Management:** Insert, read, update, and delete documents.
-* **View Queries:** Execute complex queries using MapReduce views.
-* **Bulk Operations:**  Efficiently insert, update, or delete multiple documents.
-* **Authentication:** Supports user authentication.
-* **Attachment Handling:**  Manage attachments associated with documents.
-* **Replication:** Replicate databases between CouchDB instances.
-* **Extensible:** Customizable with options for request configuration and logging.
-* **Compact Support:** Manage database compaction.
-* **Changes Feed:** Listen for changes in a database.
-* **Multipart Support:** Handle multipart requests for attachments.
+*   **Simple API:**  Provides a clean and easy-to-use interface for interacting with CouchDB.
+*   **Lightweight:** Minimal dependencies and a small footprint.
+*   **Comprehensive Functionality:** Supports a wide range of CouchDB features, including document CRUD operations, view queries, replication, and more.
+*   **Configuration Options:**  Allows customization of request settings, URL parsing, and logging.
+*   **Error Handling:** Robust error handling with detailed error messages.
+*   **Streaming Support:** Enables efficient handling of large attachments and data streams.
+
+## Table of Contents
+
+*   [Prerequisites / Requirements](#prerequisites--requirements)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [Contributing](#contributing)
+*   [License](#license)
+*   [Contact / Authors](#contact--authors)
+
+## Prerequisites / Requirements
+
+*   Node.js version 0.8.0 or higher.
 
 ## Installation
+
+To install nano, use npm:
 
 ```bash
 npm install nano
@@ -31,65 +41,91 @@ npm install nano
 
 ## Usage
 
+Here are a few examples of how to use nano:
+
+**1. Connecting to CouchDB:**
+
 ```javascript
-const nano = require('nano')('http://localhost:5984');
+var nano = require('nano')('http://localhost:5984');
+```
 
-// Create a database
-nano.db.create('mydb', function(err) {
+**2. Creating a Database:**
+
+```javascript
+nano.db.create('my_database', function(err) {
   if (err) {
-    console.error('Error creating database:', err);
-    return;
+    console.error(err);
+  } else {
+    console.log('Database created successfully!');
   }
-  console.log('Database created successfully!');
-
-  // Get a database object
-  const db = nano.use('mydb');
-
-  // Insert a document
-  db.insert({ 'foo': 'bar' }, 'someid', function(err, body) {
-    if (err) {
-      console.error('Error inserting document:', err);
-      return;
-    }
-    console.log('Document inserted successfully:', body);
-
-    // Get the document
-    db.get('someid', function(err, body) {
-      if (err) {
-        console.error('Error getting document:', err);
-        return;
-      }
-      console.log('Document retrieved successfully:', body);
-    });
-
-  });
 });
 ```
 
-## API Reference
+**3. Inserting a Document:**
 
-The Nano API consists of the following main components:
+```javascript
+var db = nano.use('my_database');
+var doc = {
+  _id: 'my_document',
+  title: 'Example Document',
+  content: 'This is an example document in CouchDB.'
+};
 
-* **`nano(url, options)`:** Initializes a Nano instance, connecting to the specified CouchDB URL.
-* **`nano.db`:** Provides methods for database management (create, destroy, list).
-* **`nano.use(dbName)`:**  Returns a database object for interacting with a specific database.
-* **`db.insert(doc, docId, options, callback)`:** Inserts or updates a document in the database.
-* **`db.get(docId, options, callback)`:** Retrieves a document from the database.
-* **`db.destroy(docId, rev, callback)`:** Deletes a document from the database.
-* **`db.bulk(docs, options, callback)`:** Performs bulk insertion, update, or deletion of documents.
-* **`db.view(ddoc, viewName, options, callback)`:** Executes a view query.
-* **`db.compact(callback)`:** Compacts the database.
-* **`db.changes(qs, callback)`:** Fetches changes in the database.
-* **`db.followUpdates(qs, callback)`:**  Streams updates from the database.
-* **`db.replicate(source, target, options, callback)`:**  Replicates a database.
+db.insert(doc, function(err, body, headers) {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log('Document inserted successfully!');
+  }
+});
+```
+
+**4. Getting a Document:**
+
+```javascript
+db.get('my_document', function(err, body, headers) {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log('Document retrieved successfully:', body);
+  }
+});
+```
+
+**5. Using Express.js with nano:**
+
+```javascript
+var express = require('express')
+   , db    = require('nano')('http://localhost:5984/my_couch')
+   , app     = module.exports = express();
+
+app.get('/', function(req, res) {
+   db.get('foo', function (error, body, headers) {
+      if(error) {
+         res.status(error.statusCode);
+         return res.send(error.message);
+      }
+      res.status(200);
+      res.send(body);
+   });
+});
+
+app.listen(3333);
+console.log('server is running. check expressjs.com for more cool tricks');
+```
+
+Refer to the **examples** directory in the repository for more detailed usage scenarios, including bulk transformations, lazy database creation, and piping attachments.
 
 ## Contributing
 
-Feel free to contribute to CouchDB Nano by submitting issues and pull requests on [GitHub](https://github.com/apache/couchdb-nano).
+We welcome contributions to nano! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to report bugs, submit feature requests, and contribute code.
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE) for more information.
+This project is licensed under the [Apache License, Version 2.0](LICENSE).
 
-## Development Notes
-This documentation is based on commit `a10f6e6c337c761993c19cc8829bbf8cc9ba4c3a` as of March 4, 2026.  The code base includes comprehensive integration and unit tests.  The project benefits from extensive documentation and examples. The tests are located in the `/tests` directory, split into `integration` and `unit` folders and are invaluable for understanding expected functionality.
+## Contact / Authors
+
+Created by [Apache CouchDB <dev@couchdb.apache.org>](http://couchdb.apache.org).
+
+For questions or support, please visit the [Apache CouchDB website](http://couchdb.apache.org) or engage with the community.

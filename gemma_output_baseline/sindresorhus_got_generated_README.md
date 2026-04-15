@@ -1,108 +1,142 @@
-# Got - Delightful HTTP requests
+```markdown
+# got
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![npm version](https://badge.fury.io/js/got.svg)](https://badge.fury.io/js/got)
-[![Build Status](https://github.com/sindresorhus/got/workflows/main/badge.svg)](https://github.com/sindresorhus/got/actions)
-[![Donate](https://img.shields.io/badge/Donate-GitHub%20Sponsor-blue.svg)](https://github.com/sindresorhus/got?sponsor=1)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Got** is a human-friendly and powerful HTTP request library for Node.js. It provides a simple and intuitive API for making HTTP requests, with advanced features such as automatic JSON parsing, request timeouts, and retry mechanisms.
+Human-friendly and powerful HTTP request library for Node.js.
 
 ## Description
 
-Got simplifies making HTTP requests in Node.js, providing a cleaner and more expressive API compared to Node.js' built-in `http` and `https` modules. It builds on top of these modules, adding features like:
-
-*   Automatic JSON parsing
-*   Request timeouts
-*   Retry mechanisms
-*   Streaming support
-*   Automatic decompression of response bodies (gzip, deflate, br, zstd)
-*   Support for HTTP/2
-*   Extensible options and plugins
+`got` is a versatile and developer-friendly HTTP request library for Node.js. It simplifies making HTTP requests with a clean and intuitive API, while offering powerful features for handling complex scenarios like redirects, timeouts, streams, and more. It's designed to be a modern alternative to libraries like `request` and `node-fetch`.
 
 ## Features
 
-*   **Simple API:** Easy-to-use methods for making various types of HTTP requests (GET, POST, PUT, DELETE, etc.).
-*   **Automatic JSON Parsing:** Automatically parses JSON responses when appropriate.
-*   **Request Timeouts:** Configurable timeouts for requests to prevent hanging.
-*   **Retry Mechanisms:** Automatically retries failed requests with configurable rules.
-*   **Streaming Support:** Supports streaming of request and response bodies.
-*   **HTTP/2 Support:** Supports HTTP/2 for improved performance.
-*   **Compression:** Automatic decompression of gzip, deflate, br, and zstd encoded responses.
-*   **Extensible:**  Easily extendable with custom options and plugins.
-*   **Unicode Support:** Full support for Unicode characters in URLs, headers, and bodies.
-*   **Redirect Handling:** Handles redirects automatically.
-*   **Proxy Support:** Supports proxies.
-*   **Streamlined Error Handling:**  Provides clear and informative error messages.
-*   **TypeScript Support:**  Written in TypeScript for strong typing and improved developer experience.
+*   **Simple and intuitive API:**  Easy to use for basic requests and highly configurable for advanced use cases.
+*   **Promise-based:** Uses Promises for asynchronous operations, making it easy to integrate with async/await.
+*   **Automatic JSON parsing:**  Automatically parses JSON responses.
+*   **Stream support:**  Handles both request and response streams efficiently.
+*   **Timeout control:**  Configurable timeouts for requests and individual stages (connect, send, response).
+*   **Redirect handling:**  Automatic redirect following with customizable behavior.
+*   **Retry mechanism:**  Built-in retry logic with configurable backoff strategies.
+*   **HTTP/2 support:** Supports HTTP/2 for improved performance.
+*   **Proxy support:**  Configurable proxy settings.
+*   **Cookie handling:**  Automatic cookie management.
+*   **Extensible:**  Hooks and middleware for customizing request behavior.
+*   **TypeScript support:**  Provides excellent TypeScript definitions.
+
+## Table of Contents
+
+*   [Prerequisites / Requirements](#prerequisites--requirements)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [Contributing](#contributing)
+*   [License](#license)
+*   [Contact / Authors](#contact--authors)
+
+## Prerequisites / Requirements
+
+*   Node.js version 22 or higher.
 
 ## Installation
 
+Install `got` using npm or yarn:
+
 ```bash
 npm install got
+# or
+yarn add got
 ```
 
 ## Usage
 
-Here are some basic examples of how to use Got:
+Here are a few examples of how to use `got`:
+
+**Simple GET request:**
 
 ```javascript
 import got from 'got';
 
-// Make a GET request
-const response = await got('https://example.com');
-console.log(response.body); // "Hello World"
+async function fetchData() {
+  try {
+    const response = await got('https://api.github.com/users/sindresorhus');
+    console.log(response.body);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-// Make a POST request with JSON data
-const postResponse = await got('https://example.com/api/posts', {
-  method: 'POST',
-  json: {
-    title: 'My Post',
-    body: 'This is the content of my post.'
+fetchData();
+```
+
+**POST request with JSON body:**
+
+```javascript
+import got from 'got';
+
+async function postData() {
+  try {
+    const response = await got('https://httpbin.org/post', {
+      json: {
+        key: 'value'
+      }
+    });
+    console.log(response.body);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+postData();
+```
+
+**Using streams:**
+
+```javascript
+import got from 'got';
+
+async function streamData() {
+  const stream = got.stream('https://example.com');
+
+  stream.on('data', (chunk) => {
+    console.log(chunk.toString());
+  });
+
+  stream.on('end', () => {
+    console.log('Stream finished');
+  });
+
+  stream.on('error', (error) => {
+    console.error(error);
+  });
+}
+
+streamData();
+```
+
+**Advanced Creation with Context:**
+
+```javascript
+import got from '../../dist/source/index.js';
+
+const instance = got.extend({
+  context: {
+    secret: 'your-secret'
   }
 });
-console.log(postResponse.body);
 
-// Set a timeout
-const timeoutResponse = await got('https://example.com', { timeout: { request: 1000 }});
-
-// Handle errors
-try {
-  const errorResponse = await got('https://example.com/nonexistent');
-} catch (error) {
-  console.error(error.message);
-}
+const response = await instance('https://example.com');
 ```
-
-## Advanced Examples
-
-* **Custom Headers:**
-```javascript
-const response = await got('https://example.com', { headers: { 'User-Agent': 'My Custom Agent' } });
-```
-
-* **Authentication:**
-```javascript
-const response = await got('https://example.com/protected', {
-  username: 'your_username',
-  password: 'your_password'
-});
-```
-
-* **Streaming:**
-```javascript
-const stream = got.stream('https://example.com/large-file');
-stream.pipe(fs.createWriteStream('output.txt'));
-```
-
-* **Redirects:**
-Got automatically follows redirects by default.  You can control redirect behavior using the `followRedirect` option.
 
 ## Contributing
 
-Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.
+We welcome contributions to `got`! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute.
 
 ## License
 
-[MIT License](LICENSE)
+`got` is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+## Contact / Authors
+
+*   **Author:** Sindre Sorhus
+*   **Repository:** [https://github.com/sindresorhus/got](https://github.com/sindresorhus/got)

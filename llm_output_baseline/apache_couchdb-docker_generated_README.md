@@ -1,101 +1,183 @@
 # Apache CouchDB Docker Images
 
+![Build Status](https://github.com/apache/couchdb-docker/workflows/Build/badge.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+
+A collection of semi-official Docker images for Apache CouchDB, providing pre-built, production-ready containers for easy deployment across various environments including Docker, Kubernetes, and OpenShift.
+
+---
+
 ## Description
 
-The Apache CouchDB Docker images provide a collection of pre-built, containerized environments for running Apache CouchDB, a NoSQL document database. This repository contains Dockerfile configurations for multiple CouchDB versions (2.3.1, 3.1.2, 3.2.3, 3.3.3, 3.4.1, 3.4.2, 3.4.3, 3.5.0, 3.5.1) across different base images, including standard Debian-based and Red Hat UBI (Universal Base Image) variants.
+Apache CouchDB is a document-oriented, distributed database that runs on top of the Erlang/OTP platform. This repository provides Docker images for Apache CouchDB across multiple versions, enabling developers and operations teams to deploy, manage, and scale CouchDB with minimal configuration.
 
-These images are designed for ease of deployment in Docker environments, offering built-in support for container orchestration platforms like Kubernetes and OpenShift. The repository includes specialized configurations for distributed search capabilities (Clouseau) and optimized performance settings for production workloads.
+The images are designed to be lightweight, secure, and compatible with container orchestration platforms. Each version includes pre-configured settings, proper user permissions, and support for common deployment patterns such as distributed clusters and search functionality via Clouseau.
+
+This project is maintained by the Apache CouchDB community and is intended to serve as a reliable, standardized way to run CouchDB in containerized environments.
+
+---
 
 ## Features
 
-- **Multiple Version Support**: Pre-built images for CouchDB 2.3.1 through 3.5.1
-- **Base Image Flexibility**: Available in both Debian-based and Red Hat UBI (Universal Base Image) variants
-- **Distributed Search Support**: Specialized `3.1.2-ubi-clouseau` images with Clouseau search engine integration
-- **Performance Optimization**: Configurations with enhanced IO scheduling, distribution buffer sizes, and CPU scheduling for containerized environments
-- **Security Enhancements**: Default logging suppression, restricted file permissions, and mandatory admin authentication enforcement (3.0+)
-- **Customizable Configuration**: Support for setting admin credentials, authentication secrets, and node names via environment variables
-- **Automatic Permission Management**: Scripts automatically fix ownership and permissions for data and configuration directories
-- **Graceful Shutdown**: Enhanced `pre_stop` scripts for proper process termination in distributed setups
-- **Multi-Architecture Support**: Build scripts support building for multiple architectures (amd64, arm64, s390x)
+- ✅ **Multiple Versions**: Support for CouchDB 2.3.1, 3.1.2, 3.2.3, 3.3.3, 3.4.1, 3.4.2, 3.4.3, 3.5.0, and 3.5.1.
+- 🚀 **Multi-Architecture Support**: Builds for `amd64`, `arm64`, and `s390x` platforms via Docker Buildx.
+- 🔐 **Security by Default**: Runs as a non-root user (`couchdb`) with restricted permissions and secure default configurations.
+- 🔍 **Admin Access Enforcement**: Starting from CouchDB 3.0+, admin access is required. Running in "Admin Party" mode is explicitly blocked with clear warnings.
+- 📦 **Flexible Configuration**: Custom settings can be applied via environment variables or mounted configuration files.
+- 🌐 **Distributed Support**: Includes support for clustering via `NODENAME` and `ERL_FLAGS` environment variables.
+- 🔎 **Search Engine (Clouseau)**: Optional Clouseau search engine included in specific versions (e.g., `3.1.2-ubi-clouseau`).
+- 📝 **Easy Setup**: Simple `docker run` commands with optional environment variables for authentication and node naming.
+- 📦 **Open Source & Apache Licensed**: Fully open source under the Apache License 2.0.
+
+---
+
+## Table of Contents
+
+- [Prerequisites / Requirements](#prerequisites--requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact / Authors](#contact--authors)
+
+---
+
+## Prerequisites / Requirements
+
+To use these Docker images, you need:
+
+- **Docker** (version 18.03 or later) or **Docker Desktop**
+- **Docker Compose** (optional, for multi-container setups)
+- A modern operating system (Linux, macOS, or Windows with Docker support)
+
+No additional software or dependencies are required beyond Docker.
+
+---
 
 ## Installation
 
-To install and use the Apache CouchDB Docker images, follow these steps:
+The images are available on Docker Hub at `apache/couchdb`.
+
+### 1. Pull a Version
 
 ```bash
-# Pull a specific version of the CouchDB image
 docker pull apache/couchdb:3.5.1
-
-# Pull the UBI-based version
-docker pull apache/couchdb:3.5.1-ubi
-
-# Pull the Clouseau search-enabled version
-docker pull apache/couchdb:3.1.2-ubi-clouseau
 ```
 
-For building images from source, use the provided `build.sh` script:
+> Replace `3.5.1` with any version listed in the repository (e.g., `2.3.1`, `3.4.2`, `3.5.0-nouveau`).
+
+### 2. Run the Container
 
 ```bash
-# Build all platforms for a specific version
-./build.sh buildx 3.5.1
-
-# Build and tag with a custom name
-./build.sh buildx 3.5.1 as latest
+docker run -d \
+  --name couchdb \
+  -p 5984:5984 \
+  -e COUCHDB_USER=admin \
+  -e COUCHDB_PASSWORD=password \
+  apache/couchdb:3.5.1
 ```
+
+> This starts a CouchDB instance with an admin user and password.
+
+### 3. Optional: Use with Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  couchdb:
+    image: apache/couchdb:3.5.1
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=password
+    volumes:
+      - ./data:/opt/couchdb/data
+```
+
+Then start with:
+
+```bash
+docker-compose up -d
+```
+
+---
 
 ## Usage
 
-### Basic Usage with Admin Credentials
+### Basic Operations
+
+Once running, you can interact with the CouchDB instance via HTTP:
+
+- **Access the web interface**: `http://localhost:5984/_utils`
+- **Query databases**: `GET /_all_dbs`
+- **Create a database**: `POST /mydb`
+
+### Environment Variables
+
+| Variable | Purpose |
+|--------|--------|
+| `COUCHDB_USER` | Username for admin access |
+| `COUCHDB_PASSWORD` | Password for admin access |
+| `COUCHDB_SECRET` | Authentication secret for HTTP access |
+| `NODENAME` | Node name for distributed clusters (e.g., `couchdb@mycluster`) |
+| `ERL_FLAGS` | Additional Erlang VM flags (e.g., `-setcookie mycookie`) |
+| `COUCHDB_ERLANG_COOKIE` | Sets the Erlang cookie for cluster communication |
+
+> ⚠️ **Important**: Starting from CouchDB 3.0+, **admin access is mandatory**. Running without a user/password will result in an error and exit.
+
+### Clouseau Search (Optional)
+
+The `3.1.2-ubi-clouseau` image includes Clouseau, a full-text search engine for CouchDB. To use it:
 
 ```bash
-# Start CouchDB with admin user and password
 docker run -d \
-  --name couchdb \
-  -e COUCHDB_USER=admin \
-  -e COUCHDB_PASSWORD=secret \
-  -p 5984:5984 \
-  apache/couchdb:3.5.1
-```
-
-### Using with Custom Configuration
-
-```bash
-# Mount a custom configuration file
-docker run -d \
-  --name couchdb \
-  -v /host/config:/opt/couchdb/etc \
-  -p 5984:5984 \
-  apache/couchdb:3.5.1
-```
-
-### Starting Clouseau Search Service
-
-```bash
-# Start with Clouseau search enabled
-docker run -d \
-  --name couchdb \
-  -e COUCHDB_USER=admin \
-  -e COUCHDB_PASSWORD=secret \
-  -p 5984:5984 \
+  --name couchdb-search \
   -p 5988:5988 \
+  -e COUCHDB_USER=admin \
+  -e COUCHDB_PASSWORD=password \
   apache/couchdb:3.1.2-ubi-clouseau
 ```
 
-### Using Environment Variables for Node Configuration
+> Clouseau runs on port 5988 and can be accessed at `http://localhost:5988/_utils`.
 
-```bash
-# Set a custom node name
-docker run -d \
-  --name couchdb \
-  -e NODENAME=my-node \
-  -e COUCHDB_USER=admin \
-  -e COUCHDB_PASSWORD=secret \
-  -p 5984:5984 \
-  apache/couchdb:3.5.1
-```
+---
 
-### Accessing the Admin Interface
+## Contributing
 
-After starting the container, access the CouchDB web interface at `http://localhost:5984` with the provided admin credentials.
+We welcome contributions to improve the stability, security, and usability of these Docker images.
 
-> **Note**: Starting with CouchDB 3.0+, the "Admin Party" mode (where no admin credentials are required) has been deprecated. All versions require explicit admin credentials to be set via environment variables or configuration files.
+### How to Contribute
+
+1. **Fork the repository** on GitHub.
+2. **Create a new branch** for your feature or bug fix.
+3. **Submit a pull request** with a clear description of your changes.
+
+### Reporting Issues
+
+If you encounter a bug or have a feature request, please open an issue in the [GitHub Issues](https://github.com/apache/couchdb-docker/issues) section.
+
+### Code of Conduct
+
+We follow the [Apache Code of Conduct](https://www.apache.org/foundation/policies/conduct) and encourage respectful, inclusive discussions.
+
+---
+
+## License
+
+This project is licensed under the **Apache License, Version 2.0**.
+
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact / Authors
+
+- **Project Maintainers**: Apache CouchDB Developers (`dev@couchdb.apache.org`)
+- **GitHub Repository**: [https://github.com/apache/couchdb-docker](https://github.com/apache/couchdb-docker)
+- **Documentation**: [https://docs.couchdb.org](https://docs.couchdb.org)
+- **Community Forum**: [https://couchdb.apache.org/community](https://couchdb.apache.org/community)
+
+For questions or feedback, please reach out to the project maintainers or join the community discussions.

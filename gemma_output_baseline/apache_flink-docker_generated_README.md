@@ -1,67 +1,85 @@
+```markdown
 # Apache Flink Docker Images
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+This repository provides Docker images for Apache Flink, built and maintained by the Apache Flink project.
 
 ## Description
 
-This repository provides Docker images for Apache Flink, built and maintained by the Apache Flink community. It offers pre-built images for various Flink versions, Scala versions, and Java runtimes, making it easy to quickly get started with Flink without the need for manual installation and configuration.
+These Docker images offer a convenient and reproducible way to run Apache Flink. They are available for various Flink versions, Scala versions, and Java versions, simplifying deployment and ensuring consistency across different environments.  These images are intended for development, testing, and production use.
 
 ## Features
 
-*   **Multiple Flink Versions:** Supports Flink versions 1.20, 2.0, 2.1, and 2.2.
-*   **Scala and Java Compatibility:** Provides images with Scala 2.12 and varying Java versions (8, 11, 17, and 21).
-*   **Automated Builds:** Uses GitHub Actions for automated builds and pushes of images to Docker Hub.
-*   **Multi-Architecture Support:**  Images are built for both `amd64` and `arm64/v8` architectures.
-*   **Pre-configured Environment:**  Images come with Flink pre-installed and configured, minimizing setup effort.
-*   **Snapshot Builds:** Includes nightly snapshot builds for testing and experimentation.
+*   **Multiple Flink Versions:** Images are provided for Flink versions 1.20, 2.0, 2.1, and 2.2.
+*   **Multiple Java Versions:** Support for Java 8, 11, 17, and 21.
+*   **Scala 2.12 Support:** All images are built with Scala 2.12.
+*   **Ubuntu Base Images:**  Images are based on Ubuntu, providing a familiar and well-supported environment.
+*   **Pre-configured:** Images come with Flink pre-installed and configured, ready to run.
+*   **Multi-Architecture Support:** Images are built for `amd64` and `arm64v8` architectures.
+
+## Table of Contents
+
+*   [Prerequisites / Requirements](#prerequisites--requirements)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [Contributing](#contributing)
+*   [License](#license)
+*   [Contact / Authors](#contact--authors)
+
+## Prerequisites / Requirements
+
+*   **Docker:** You need to have Docker installed and configured on your system.  See the official Docker documentation for installation instructions: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+*   **Docker Hub Account (for pushing images):** If you intend to build and push your own images based on these, you'll need a Docker Hub account.
 
 ## Installation
 
-To use these images, you simply need to have Docker installed on your system. You can then pull the images from Docker Hub using the following format:
+These images are readily available on Docker Hub. You don't need to build them unless you want to customize them.  To pull an image, use the following command:
 
 ```bash
 docker pull apache/flink:<tag>
 ```
 
-Replace `<tag>` with the desired tag, for example:
+Replace `<tag>` with the desired tag.  For example:
 
-*   `apache/flink:2.2.0-scala_2.12-java11` (Flink 2.2.0 with Scala 2.12 and Java 11)
-*   `apache/flink:latest` (Most recent stable release)
+```bash
+docker pull apache/flink:2.2.0-scala_2.12-java11
+```
 
 ## Usage
 
-Once you have pulled the image, you can use it to run Flink jobs.  Here are some common examples:
+Once you've pulled an image, you can run it using `docker run`.  Here are some examples:
 
-*   **Run JobManager in standalone mode:**
+**Running in standalone mode:**
 
-    ```bash
-    docker run -d --name flink-jobmanager apache/flink:2.2.0-scala_2.12-java11 standalone-job
-    ```
+```bash
+docker run -it --rm apache/flink:2.2.0-scala_2.12-java11 standalone-job
+```
 
-*   **Run TaskManager:**
+**Running a Job Manager:**
 
-    ```bash
-    docker run -d --name flink-taskmanager --link flink-jobmanager apache/flink:2.2.0-scala_2.12-java11 taskmanager
-    ```
+```bash
+docker run -d --name flink-jobmanager -p 8081:8081 apache/flink:2.2.0-scala_2.12-java11 jobmanager
+```
 
-*   **Access Flink Web UI:**
+**Running a Task Manager (after starting a Job Manager):**
 
-    Once the JobManager is running, you can access the Flink web UI at `http://localhost:8081`.
+```bash
+docker run --rm --link flink-jobmanager:flink apache/flink:2.2.0-scala_2.12-java11 taskmanager
+```
 
-Refer to the official Flink documentation for more details on running Flink jobs: [https://flink.apache.org/docs/](https://flink.apache.org/docs/)
+**Note:** Replace `2.2.0-scala_2.12-java11` with the appropriate tag for your desired Flink version, Scala version, and Java version.  The `--link` option is deprecated, consider using Docker networks for better isolation and communication.
 
 ## Contributing
 
-Contributions are welcome! If you find a bug or want to add support for a new Flink version or Java runtime, please submit a pull request.  See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## Workflow
-
-The following GitHub Actions workflows are used to maintain these images:
-
-*   **docker-bake.hcl:** Defines the build targets using Docker Buildx.
-*   **snapshot.yml:** Automatically builds and pushes nightly snapshot images.
-*   **docker_push.yml:**  Builds and pushes official release images on tagging the repository.
+Contributions are welcome! Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to this project.
 
 ## License
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more information.
+This project is licensed under the Apache License, Version 2.0. See the [LICENSE](LICENSE) file for more information.
+
+## Contact / Authors
+
+This project is maintained by the [Apache Flink community](https://flink.apache.org/). You can reach us through the following channels:
+
+*   **Flink Mailing Lists:** [https://flink.apache.org/community/mailing-lists.html](https://flink.apache.org/community/mailing-lists.html)
+*   **Flink Slack Channel:** [https://flink.apache.org/community/slack.html](https://flink.apache.org/community/slack.html)
+*   **GitHub Issues:** [https://github.com/apache/flink-docker/issues](https://github.com/apache/flink-docker/issues)

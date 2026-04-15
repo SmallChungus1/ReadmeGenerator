@@ -1,42 +1,80 @@
 # Apache RocketMQ Docker
 
+![Apache License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![GitHub Stars](https://img.shields.io/github/stars/apache/rocketmq-docker?style=flat)
+![Docker Hub](https://img.shields.io/docker/pulls/apache/rocketmq)
+
+A comprehensive Docker and Kubernetes solution for deploying Apache RocketMQ, the high-performance, distributed messaging system.
+
+---
+
 ## Description
 
-Apache RocketMQ Docker provides a comprehensive set of tools and configurations for deploying and managing Apache RocketMQ, a distributed messaging and event bus system. This repository includes Docker images for RocketMQ components (nameserver, broker, proxy), Kubernetes Helm charts, and scripts to facilitate quick setup and testing in various environments, including Docker Compose and Kubernetes.
+Apache RocketMQ Docker provides a complete, production-ready environment for running Apache RocketMQ using Docker containers and Kubernetes Helm charts. This project enables developers and operations teams to quickly deploy, configure, and manage RocketMQ clusters across various environments — from local development to production Kubernetes clusters.
 
-The project supports multiple base images (Alpine, Ubuntu, CentOS) and offers both standard and secure (TLS) configurations. It includes pre-defined templates for common deployment scenarios such as asynchronous and synchronous replication, standalone brokers, and distributed clusters with DLedger support. The repository also provides a dashboard for monitoring and managing RocketMQ instances.
+The solution includes:
+- **Docker images** built for multiple base OSes (Alpine, Ubuntu, CentOS) with support for both standard and TLS-secured communication.
+- **Docker Compose** templates for easy local development and testing.
+- **Helm charts** for Kubernetes deployment with support for brokers, nameservers, controllers, and proxies.
+- **Configuration templates** for different cluster topologies (e.g., master-slave, synchronous replication, Dledger Raft clusters).
+- **SSL/TLS support** for secure messaging and client authentication.
+
+This project is ideal for developers, DevOps engineers, and cloud architects who need a reliable, scalable messaging platform with minimal configuration overhead.
+
+---
 
 ## Features
 
-- **Multi-Platform Support**: Docker images built for Alpine, Ubuntu, and CentOS base images.
-- **Secure Communication**: TLS/SSL support with certificate generation and configuration.
-- **Docker Compose Templates**: Pre-configured `docker-compose.yml` files for common setups.
-- **Kubernetes Helm Charts**: Full Kubernetes deployment support with configurable resources and networking.
-- **Distributed Clusters**: Support for DLedger-based distributed brokers with automatic failover.
-- **Dashboard Integration**: A standalone RocketMQ dashboard for monitoring and management.
-- **Customizable Configurations**: Pre-defined configuration files for various deployment topologies.
-- **Automated Image Building**: Scripts to build and push RocketMQ images to Docker registries.
-- **Version Management**: Tools to stage and update templates with specific RocketMQ versions.
+- ✅ **Multi-Platform Support**: Docker images built for Alpine, Ubuntu, and CentOS.
+- ✅ **Flexible Deployment Options**: Deploy via Docker Compose or Kubernetes (Helm).
+- ✅ **Secure Communication**: Built-in support for TLS/SSL with client and server certificate authentication.
+- ✅ **Dledger Raft Clusters**: Support for distributed, fault-tolerant broker clusters.
+- ✅ **Configurable Topologies**: Support for ASYNC_MASTER, SYNC_MASTER, and SLAVE broker roles.
+- ✅ **Dashboard Integration**: Pre-built RocketMQ Dashboard for monitoring and management.
+- ✅ **Automated Image Building**: Scripts to build and push RocketMQ images to Docker registries.
+- ✅ **Customizable JVM Settings**: Fine-tuned memory and GC options for performance optimization.
+- ✅ **Production-Grade Helm Charts**: Fully annotated Kubernetes manifests with readiness/liveness probes and resource limits.
+
+---
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage Examples](#usage-examples)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Prerequisites
+
+Before using this project, ensure the following are installed:
+
+- **Docker** (v19.03+ or later) — for local containerization.
+- **Docker Compose** (v2.0+ or later) — for running RocketMQ in local environments.
+- **kubectl** (v1.20+ or later) — for Kubernetes operations (optional, for Helm usage).
+- **Helm** (v3.0+ or later) — for deploying RocketMQ on Kubernetes clusters.
+- **Java 8 or 11** — required for RocketMQ runtime.
+- **Git** — to clone the repository.
+
+> **Note**: The project supports multiple base images. For Docker, Alpine is lightweight and efficient; Ubuntu and CentOS offer more compatibility with older tools.
+
+---
 
 ## Installation
 
-### Prerequisites
-
-- Docker installed and running
-- Docker Compose installed (version 2.0 or later)
-- `git` for cloning the repository
-- Java 8 or 11 (required for RocketMQ runtime)
-
-### Clone and Prepare the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/apache/rocketmq-docker.git
 cd rocketmq-docker
 ```
 
-### Build Docker Images
+### 2. Build RocketMQ Docker Images (Optional)
 
-Build RocketMQ images for specific base images (Alpine, Ubuntu, or CentOS):
+To build and tag images for local use:
 
 ```bash
 # Build for Alpine
@@ -44,145 +82,149 @@ sh image-build/build-image.sh 4.5.0 alpine
 
 # Build for Ubuntu
 sh image-build/build-image.sh 4.5.0 ubuntu
-
-# Build for CentOS
-sh image-build/build-image.sh 4.5.0 centos
 ```
 
-> **Note**: Replace `4.5.0` with the desired RocketMQ version. The version must follow the format `X.X.X`.
+> **Note**: Replace `4.5.0` with the desired RocketMQ version. Valid versions must follow `X.X.X` format (e.g., `4.5.0`).
 
-### Build Dashboard Image (Optional)
-
-To build the RocketMQ Dashboard image:
+### 3. Build RocketMQ Dashboard (Optional)
 
 ```bash
 sh image-build/build-image-dashboard.sh 4.5.0 centos
 ```
 
-## Usage
+This builds the RocketMQ Dashboard image for CentOS-based environments.
 
-### Run a Basic RocketMQ Cluster with Docker Compose
+---
 
-1. Create a directory for your project:
-   ```bash
-   mkdir rocketmq-demo && cd rocketmq-demo
-   ```
+## Usage Examples
 
-2. Copy the `docker-compose.yml` file from the templates:
-   ```bash
-   cp ../templates/docker-compose/rmq4-docker-compose.yml .
-   ```
+### 1. Run RocketMQ Locally with Docker Compose
 
-3. Edit the `docker-compose.yml` file to specify your RocketMQ version:
-   ```yaml
-   version: '2'
-   services:
-     namesrv:
-       image: apache/rocketmq:4.5.0
-       ports:
-         - 9876:9876
-       volumes:
-         - ./data/namesrv/logs:/home/rocketmq/logs
-       command: sh mqnamesrv
+Create a local `docker-compose.yml` using the provided templates:
 
-     broker:
-       image: apache/rocketmq:4.5.0
-       ports:
-         - 10909:10909
-         - 10911:10911
-         - 10912:10912
-       environment:
-         - NAMESRV_ADDR=namesrv:9876
-       volumes:
-         - ./data/broker/logs:/home/rocketmq/logs
-         - ./data/broker/store:/home/rocketmq/store
-         - ./data/broker/conf/broker.conf:/opt/rocketmq-4.5.0/conf/broker.conf
-       command: sh mqbroker -c /opt/rocketmq-4.5.0/conf/broker.conf
-   ```
+```yaml
+# templates/docker-compose/rmq4-docker-compose.yml
+version: '2'
+services:
+  namesrv:
+    image: apache/rocketmq:4.5.0
+    ports:
+      - 9876:9876
+    volumes:
+      - ./data/namesrv/logs:/home/rocketmq/logs
+    command: sh mqnamesrv
 
-4. Start the services:
-   ```bash
-   docker compose up -d
-   ```
-
-### Run a Cluster with DLedger (Distributed Replication)
-
-Use the `play-docker-dledger.sh` script to start a distributed broker cluster:
-
-```bash
-sh templates/play-docker-dledger.sh
+  broker:
+    image: apache/rocketmq:4.5.0
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    environment:
+      - NAMESRV_ADDR=namesrv:9876
+    volumes:
+      - ./data/broker/logs:/home/rocketmq/logs
+      - ./data/broker/store:/home/rocketmq/store
+      - ./data/broker/conf/broker.conf:/opt/rocketmq-4.5.0/conf/broker.conf
+    command: sh mqbroker -c /opt/rocketmq-4.5.0/conf/broker.conf
 ```
 
-This script:
-- Removes existing containers
-- Creates a custom network for DLedger
-- Starts a nameserver and three brokers with DLedger configuration
-- Sets up network communication between brokers
+Start the services:
 
-### Run with TLS Encryption
+```bash
+docker compose -f ./docker-compose/docker-compose.yml up -d
+```
 
-To enable secure communication between components:
+> **Tip**: For Dledger Raft clusters, use `play-docker-dledger.sh` to start a 3-node broker cluster with automatic peer discovery.
+
+---
+
+### 2. Deploy to Kubernetes with Helm
+
+1. Install the Helm chart:
+
+```bash
+helm repo add rocketmq https://github.com/apache/rocketmq-k8s-helm
+helm repo update
+```
+
+2. Deploy a basic broker cluster:
+
+```bash
+helm install my-rocketmq rocketmq/rocketmq \
+  --set broker.replicaCount=1 \
+  --set broker.image.tag=4.5.0
+```
+
+3. Access the dashboard (if enabled):
+
+```bash
+# After deployment, access the dashboard at http://<your-cluster-ip>:6765
+```
+
+> **Note**: For production, enable persistence, set resource limits, and configure TLS in `values.yaml`.
+
+---
+
+### 3. Use SSL/TLS for Secure Communication
+
+To enable TLS, use the `play-docker-tls.sh` script:
 
 ```bash
 sh templates/play-docker-tls.sh
 ```
 
 This script:
-- Mounts SSL certificates and properties
-- Configures the nameserver and broker with TLS settings
-- Enables mutual authentication between clients and brokers
+- Starts the nameserver and broker with TLS enabled.
+- Uses client/server certificates from the `templates/ssl/` directory.
+- Requires the `ssl.properties` file to define certificate paths and trust settings.
 
-### Deploy with Kubernetes Helm
+> **Security Note**: Certificates are provided in the `templates/ssl/` folder. For production, use self-signed or CA-signed certificates.
 
-1. Install Helm (if not already available):
-   ```bash
-   curl -fsSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz | tar -xzf -
-   sudo mv linux-amd64/helm /usr/local/bin/
-   ```
+---
 
-2. Deploy RocketMQ using Helm:
-   ```bash
-   helm install rocketmq ./rocketmq-k8s-helm --set broker.replicaCount=3 --set nameserver.replicaCount=1
-   ```
+### 4. Run the RocketMQ Dashboard
 
-3. View the deployed resources:
-   ```bash
-   kubectl get pods -l app=rocketmq
-   kubectl get services -l app=rocketmq
-   ```
-
-### Access the Dashboard
-
-To access the RocketMQ dashboard:
+Start the dashboard with:
 
 ```bash
 sh product/start-dashboard.sh 4.5.0
 ```
 
-This starts the dashboard container on port 6765 (mapped to 8080). Access it via `http://localhost:6765`.
+Access it at `http://localhost:6765`.
 
-### Run Production-Ready Broker Configuration
+---
 
-Use the `start-broker.sh` script to start a broker with custom configuration:
+## Contributing
 
-```bash
-sh product/start-broker.sh ./data/broker 4.5.0 127.0.0.1:9876 broker-a.properties
-```
+We welcome contributions to improve the documentation, add new features, or fix bugs.
 
-This command:
-- Starts a broker with a specific configuration file
-- Maps logs and data directories
-- Sets the nameserver address and broker configuration
+### How to Contribute
 
-> **Note**: Replace `broker-a.properties` with any of the provided configuration files (e.g., `broker-a-s.properties`, `broker-trace.properties`) for different deployment scenarios.
+1. Fork the repository on GitHub.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes with clear, descriptive messages.
+4. Submit a pull request with a detailed description of your changes.
 
-### Test Message Production and Consumption
+### Reporting Issues
 
-After starting the cluster, use the provided scripts to test message flow:
+If you find a bug or have a feature request, please open an issue in the [RocketMQ GitHub repository](https://github.com/apache/rocketmq/issues).
 
-```bash
-sh templates/play-producer.sh
-sh templates/play-consumer.sh
-```
+> **Note**: All contributions are governed by the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
-These scripts use the built-in RocketMQ example to produce and consume messages, verifying the cluster is operational.
+---
+
+## License
+
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact
+
+- **Project Maintainers**: Apache RocketMQ Team
+- **GitHub**: [https://github.com/apache/rocketmq-docker](https://github.com/apache/rocketmq-docker)
+- **RocketMQ Documentation**: [https://rocketmq.apache.org](https://rocketmq.apache.org)
+- **Community Forum**: [https://github.com/apache/rocketmq/discussions](https://github.com/apache/rocketmq/discussions)
+
+For questions or feedback, please reach out to the RocketMQ community via the above links.

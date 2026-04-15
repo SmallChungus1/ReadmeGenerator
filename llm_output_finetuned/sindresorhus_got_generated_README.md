@@ -1,30 +1,67 @@
 # Got
 
-**Human-friendly and powerful HTTP request library for Node.js**
+[![Build Status](https://img.shields.io/github/actions/workflow/status/sindresorhus/got/ci.yml?logo=github&logoColor=white)](https://github.com/sindresorhus/got/actions)
+[![Version](https://img.shields.io/npm/v/got?logo=npm&logoColor=white)](https://www.npmjs.com/package/got)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sindresorhus/got/blob/main/LICENSE)
+[![Sponsored](https://img.shields.io/badge/sponsored-by-sindresorhus-ff69b4.svg)](https://github.com/sindresorhus/got?sponsor=1)
 
-Got is a modern, feature-rich HTTP client for Node.js that provides a clean, intuitive API for making HTTP requests. Inspired by the simplicity of `curl` and `wget`, it offers a robust foundation for handling both simple and complex network operations with built-in support for streaming, retries, pagination, and advanced request customization.
+> A human-friendly and powerful HTTP request library for Node.js. Built with simplicity, performance, and developer experience in mind.
+
+---
 
 ## Description
 
-Got is a comprehensive HTTP client designed to simplify and streamline HTTP communication in Node.js applications. It supports all standard HTTP methods, provides seamless streaming capabilities, and includes intelligent retry logic, automatic pagination, and rich error handling. With a focus on developer experience, Got abstracts away the complexity of low-level HTTP operations while maintaining full control over request configuration and response processing.
+**Got** is a modern, feature-rich HTTP client for Node.js that provides a clean, intuitive API for making HTTP requests. It combines the best of `axios`, `superagent`, and `node-fetch` with native Node.js performance and robust error handling.
+
+Got supports all standard HTTP methods, automatic redirects, streaming, response body parsing, request retries, and advanced configuration. It's designed to be easy to use while offering deep control over request behavior — perfect for both simple scripts and complex applications.
+
+Whether you're fetching data from a REST API, downloading files, or working with streaming responses, Got handles the complexity behind the scenes so you can focus on your application logic.
+
+---
 
 ## Features
 
-- ✅ **Simple & intuitive API** resembling `curl` and `wget`
-- ✅ **Streaming support** for large responses and file downloads
-- ✅ **Automatic retries** with exponential backoff and configurable limits
-- ✅ **Pagination support** with customizable logic and backoff
-- ✅ **Response type flexibility** (text, JSON, buffer, raw)
-- ✅ **Request customization** via hooks, headers, and context
-- ✅ **Advanced features** including H2C support, Unix socket handling, and proxy configuration
-- ✅ **Error handling** with detailed context and structured error objects
-- ✅ **Performance optimizations** including connection pooling and caching
-- ✅ **Full TypeScript support** with comprehensive type definitions
-- ✅ **Extensible architecture** allowing for custom request processing and middleware
+- ✅ **Simple & readable API** — Use `got(url)` or `got(url, options)` like `fetch()`
+- ✅ **Streaming support** — Handle large responses with `got.stream()`
+- ✅ **Automatic redirects** — Follows 301, 302, 303, 307, and 308 redirects
+- ✅ **Request retries** — Automatically retry failed requests with exponential backoff
+- ✅ **Response parsing** — Automatically parse JSON, text, or buffers based on `responseType`
+- ✅ **Progress tracking** — Monitor upload/download progress in real time
+- ✅ **Headers and cookies** — Full control over request headers and cookie handling
+- ✅ **HTTP/2 support** — Uses `http2-wrapper` for efficient HTTP/2 connections
+- ✅ **Compression support** — Automatically decompress gzip, deflate, br, and zstd
+- ✅ **Extensible** — Extend instances with custom handlers, hooks, and middleware
+- ✅ **Pagination** — Easily paginate through large datasets with built-in support
+- ✅ **Error handling** — Clear, structured errors with detailed context
+- ✅ **Performance optimized** — Built on top of native Node.js modules for speed
+
+---
+
+## Table of Contents
+
+- [Prerequisites / Requirements](#prerequisites--requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact / Authors](#contact--authors)
+
+---
+
+## Prerequisites / Requirements
+
+Got requires **Node.js v22 or higher**.
+
+```bash
+node --version
+# => v22.x.x or higher
+```
+
+---
 
 ## Installation
 
-Install Got using npm or yarn:
+Install Got via npm or yarn:
 
 ```bash
 npm install got
@@ -35,6 +72,10 @@ or
 ```bash
 yarn add got
 ```
+
+> Got is built with TypeScript and supports ES modules. It automatically resolves to the correct output format based on your project configuration.
+
+---
 
 ## Usage
 
@@ -50,19 +91,15 @@ console.log(response.body);
 ### GET with JSON Response
 
 ```ts
-import got from 'got';
-
-const {data} = await got('https://api.github.com/users/octocat').json();
-console.log(data.login);
+const {data} = await got('https://jsonplaceholder.typicode.com/posts/1').json();
+console.log(data.title);
 ```
 
-### POST Request with Form Data
+### POST Request with JSON Body
 
 ```ts
-import got from 'got';
-
 const response = await got.post('https://httpbin.org/post', {
-  form: {
+  json: {
     name: 'John Doe',
     age: 30
   }
@@ -74,101 +111,116 @@ console.log(response.body);
 ### Streaming Response
 
 ```ts
-import got from 'got';
-
 const stream = await got.stream('https://httpbin.org/stream/10');
 stream.on('data', chunk => {
-  console.log('Received chunk:', chunk);
+  console.log('Received chunk:', chunk.toString());
 });
 stream.on('end', () => {
-  console.log('Stream completed');
+  console.log('Stream complete');
 });
 ```
 
-### Custom Headers and Context
+### With Custom Headers
 
 ```ts
-import got from 'got';
-
-const instance = got.extend({
+const response = await got('https://httpbin.org/headers', {
   headers: {
     'User-Agent': 'MyApp/1.0',
-    'Authorization': 'Bearer my-token'
-  },
-  context: {
-    userId: '12345'
+    'X-API-Key': 'abc123'
   }
 });
-
-const response = await instance('https://api.example.com/data');
-console.log(response.headers);
 ```
 
-### Pagination with Custom Logic
+### With Retry Logic
 
 ```ts
-import got from 'got';
-
-const iterator = got.paginate('https://api.github.com/repos/sindresorhus/got/commits', {
-  pagination: {
-    paginate({response, currentItems}) {
-      const {searchParams} = response.request.options;
-      return {
-        searchParams: {
-          page: Number(searchParams.get('page') ?? 1) + 1
-        }
-      };
-    },
-    transform: response => response.body,
-    countLimit: 50,
+const response = await got('https://httpbin.org/delay/1', {
+  retry: {
+    limit: 3,
     backoff: 1000
   }
 });
-
-for await (const item of iterator) {
-  console.log(item.commit.message);
-}
 ```
 
-### Rate Limiting and Error Handling
+### Using Custom Handlers
 
 ```ts
-import got from 'got';
-
 const instance = got.extend({
   hooks: {
     beforeRequest: [
       (options) => {
-        options.headers['X-RateLimit-Reset'] = Date.now() + 60000;
+        console.log(`Making request to ${options.url}`);
       }
     ],
     afterResponse: [
       (response) => {
-        if (response.headers['x-ratelimit-remaining'] === '0') {
-          console.log('Rate limit reached!');
-        }
+        console.log(`Received status ${response.statusCode}`);
       }
     ]
   }
 });
+
+const response = await instance('https://httpbin.org/get');
 ```
 
-### Advanced Configuration with Custom Options
+### Pagination Example
 
 ```ts
-import got from 'got';
-
-const response = await got('https://httpbin.org/get', {
-  method: 'GET',
-  timeout: 5000,
-  retry: {
-    limit: 3,
-    backoff: 1000,
-    methods: ['GET', 'POST']
-  },
-  responseType: 'json',
-  resolveBodyOnly: true
+const iterator = got.paginate('https://api.github.com/repos/sindresorhus/got/commits', {
+  pagination: {
+    paginate({response, currentItems}) {
+      const page = Number(response.request.options.searchParams.get('page') ?? 1);
+      return { searchParams: { page: page + 1 } };
+    },
+    transform: response => response.body,
+    countLimit: 50
+  }
 });
 
-console.log(response.body);
+for await (const commit of iterator) {
+  console.log(commit.commit.message);
+}
 ```
+
+---
+
+## Contributing
+
+We welcome contributions from the community! Whether you're fixing a bug, adding a feature, or improving documentation, your help is appreciated.
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a new feature branch (`feature/your-feature`)
+3. Commit your changes with clear, descriptive messages
+4. Push to the branch and open a pull request
+
+### Reporting Issues
+
+Please open an issue on GitHub if you encounter a bug or have a feature request. Include:
+- A clear description of the issue
+- Steps to reproduce
+- Expected vs actual behavior
+- Environment details (Node.js version, OS)
+
+> See the [CONTRIBUTING.md](https://github.com/sindresorhus/got/blob/main/CONTRIBUTING.md) file for detailed guidelines.
+
+---
+
+## License
+
+MIT License — See [LICENSE](https://github.com/sindresorhus/got/blob/main/LICENSE) for details.
+
+---
+
+## Contact / Authors
+
+**Created by:** [Sindre Sorhus](https://sindresorhus.com)
+
+- 📧 Email: [sindresorhus@gmail.com](mailto:sindresorhus@gmail.com)
+- 💬 Twitter: [@sindresorhus](https://twitter.com/sindresorhus)
+- 🚀 GitHub: [github.com/sindresorhus](https://github.com/sindresorhus)
+- 🌐 Website: [sindresorhus.com](https://sindresorhus.com)
+
+Support this project? Consider becoming a sponsor on GitHub:  
+👉 [https://github.com/sindresorhus/got?sponsor=1](https://github.com/sindresorhus/got?sponsor=1)

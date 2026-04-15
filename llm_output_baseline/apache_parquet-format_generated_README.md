@@ -1,127 +1,174 @@
 # Apache Parquet Format
 
+![Apache License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![Build Status](https://github.com/apache/parquet-format/workflows/CI/badge.svg?branch=main)
+![Version](https://img.shields.io/badge/version-2.13.0--SNAPSHOT-blue.svg)
+
+> **Apache Parquet Format** is a columnar storage format designed for efficient data processing and analytics. It enables high-performance reading and writing of large datasets by leveraging columnar storage, compression, and encoding techniques. This repository defines the core schema and specifications for the Parquet file format, serving as the foundation for all Parquet-based tools and libraries.
+
+---
+
 ## Description
 
-Apache Parquet is a **columnar storage format** designed for efficient data processing and analytics. This repository defines the **core schema and data model** for the Parquet file format, providing a standardized way to store and retrieve structured data with high compression and performance. The format supports nested data structures, type annotations, encoding strategies, and metadata for efficient query execution.
+Apache Parquet is a widely adopted open-source columnar storage format that optimizes data storage and retrieval for analytical workloads. The format supports nested data structures, compression, encoding, and metadata annotations for advanced data processing. This project provides the official specification and schema definitions for the Parquet format, ensuring consistency and interoperability across all Parquet implementations.
 
-The specification is defined in a Thrift IDL file (`parquet.thrift`), which generates code for various programming languages. This repository serves as the official format specification and is maintained by the Apache Software Foundation.
+The Parquet format is used by major data platforms including Apache Spark, Apache Hive, Apache Pig, and many others. It enables efficient data compression, fast query performance, and reduced I/O overhead by storing data in columns rather than rows.
+
+This repository contains the **core schema definition** written in Thrift, which is used to generate the metadata and code for Parquet readers and writers. It defines the structure of Parquet files, including:
+- Columnar schema (via `SchemaElement`)
+- Data page and index structures
+- Compression and encoding options
+- Logical types (e.g., timestamps, decimals, dates)
+- Encryption and metadata support
+
+It is **not** a tool for reading/writing Parquet files directly, but rather the foundational specification that all Parquet implementations must adhere to.
+
+---
 
 ## Features
 
-- **Columnar Storage**: Optimized for analytical queries by storing data by column rather than row.
-- **Nested Data Support**: Full support for complex structures like lists, maps, and unions.
-- **Flexible Data Types**: Includes primitive types (INT32, INT64, BOOLEAN), variable-length types (BYTE_ARRAY), and specialized types (DECIMAL, TIMESTAMP, DATE, TIME).
-- **Logical Type Annotations**: Enables rich data semantics (e.g., UTF8, JSON, GEOGRAPHY) through `LogicalType` and `ConvertedType` enums.
-- **Efficient Encoding**: Supports multiple encoding strategies (PLAIN, DELTA_BINARY_PACKED, RLE, BIT_PACKED, BYTE_STREAM_SPLIT) to optimize storage and compression.
-- **Compression Algorithms**: Built-in support for GZIP, SNAPPY, LZ4, ZSTD, and BROTLI.
-- **Metadata-Driven**: Comprehensive metadata including statistics (null counts, min/max values), size estimates, and sort orders for query optimization.
-- **Encryption Support**: Full support for AES-GCM encryption with optional AAD (Additional Authenticated Data).
-- **Schema Evolution**: Designed to support backward compatibility through versioning and metadata annotations.
-- **Cross-Platform Compatibility**: Designed to work with all major data processing frameworks (e.g., Spark, Hive, Pig).
+- ✅ **Columnar storage** with efficient row and column access
+- ✅ **Flexible data types** including primitive, nested, and logical types
+- ✅ **Advanced encoding** (e.g., dictionary, delta, bit-packed) for optimal compression
+- ✅ **Logical types** for specialized data (e.g., timestamps, decimals, dates)
+- ✅ **Compression support** (SNAPPY, GZIP, ZSTD, LZ4, Brotli)
+- ✅ **Metadata-rich schema** with statistics, null counts, and size estimates
+- ✅ **Encryption support** (AES-GCM) with optional key metadata
+- ✅ **Bloom filters** for efficient filtering and query optimization
+- ✅ **Sorting and ordering** support for efficient range queries
+- ✅ **Cross-platform compatibility** with consistent schema and format versioning
+
+---
+
+## Table of Contents
+
+- [Prerequisites / Requirements](#prerequisites--requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact / Authors](#contact--authors)
+
+---
+
+## Prerequisites / Requirements
+
+To understand or work with this project, you should have the following:
+
+- **Thrift Compiler (0.22.0 or later)**: Required to generate code from the `parquet.thrift` schema.
+- **Java 8 or later**: For building and running the Parquet format specification tools.
+- **Git**: To clone and manage the repository.
+- **Basic understanding of columnar storage and data formats**.
+
+> ⚠️ This repository is a specification and not a runnable application. It does not require installation for end users. Developers and contributors use it as a reference for building Parquet readers/writers.
+
+---
 
 ## Installation
 
-This repository is not a software application to be installed in the traditional sense. It defines the **format specification** for Parquet files. To work with Parquet data:
+This project is a specification and does not require installation in the traditional sense. It is maintained as a reference for the Parquet format. However, you can build the generated code using the following steps:
 
-1. **Install a Parquet-compatible data processing framework** such as Apache Spark, Apache Hive, or Pandas with PyArrow.
-2. **Ensure Thrift is available** for generating code from the `.thrift` file (required for development and tooling).
-3. **Clone the repository** to access the official format specification:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/apache/parquet-format.git
+   cd parquet-format
+   ```
 
-```bash
-git clone https://github.com/apache/parquet-format.git
-cd parquet-format
-```
+2. **Install Thrift**:
+   Ensure you have Thrift 0.22.0 or later installed:
+   ```bash
+   # On Ubuntu/Debian
+   sudo apt-get install thrift
 
-> **Note**: The `Makefile` includes a script to generate code from the Thrift schema:
->
-> ```bash
-> make thrift
-> ```
->
-> This generates C++ and Java code in the `generated/` directory.
+   # On macOS with Homebrew
+   brew install thrift
+
+   # On Windows (via Chocolatey)
+   choco install thrift
+   ```
+
+3. **Generate code from Thrift schema**:
+   ```bash
+   make thrift
+   ```
+   This will generate C++ and Java code from `src/main/thrift/parquet.thrift` into the `generated/` directory.
+
+4. **Build the project** (optional, for local development):
+   ```bash
+   mvn clean install
+   ```
+
+> Note: The generated code is used by downstream Parquet implementations (e.g., Spark, Hive), not directly by end users.
+
+---
 
 ## Usage
 
-The Parquet format is used by data systems to store and read structured data. Below are examples of how to work with the specification:
+This project is not used directly by end users. Instead, it serves as the **official specification** that all Parquet tools and engines must follow.
 
-### 1. Generate Code from Thrift Schema
+### How to Use the Specification
 
-To generate code for a specific language (e.g., Java or C++), run:
+1. **Develop a Parquet reader/writer**:
+   - Use the Thrift schema (`parquet.thrift`) to generate code for your language (Java, C++, Python, etc.).
+   - Implement the schema to read/write Parquet files with full support for logical types, compression, and metadata.
 
-```bash
-make thrift
-```
+2. **Validate Parquet files**:
+   - Use tools like `parquet-tools` or `Apache Arrow` to parse and validate Parquet files against the schema defined here.
 
-This command will:
-- Create a `generated/` directory.
-- Generate C++ and Java code from `src/main/thrift/parquet.thrift`.
+3. **Analyze data structure**:
+   - Use the `ColumnMetaData`, `RowGroup`, and `FileMetaData` structures to understand schema, compression, and statistics.
 
-### 2. Understand Data Types and Logical Types
+### Example: Reading a Parquet File
 
-The `parquet.thrift` file defines core types and logical types. For example:
+```java
+// Using generated Java code from parquet.thrift
+ParquetFileReader reader = new ParquetFileReader("data.parquet");
+Schema schema = reader.getSchema();
+List<ColumnChunk> chunks = reader.getChunks();
 
-```thrift
-enum Type {
-  BOOLEAN = 0;
-  INT32 = 1;
-  INT64 = 2;
-  FLOAT = 4;
-  DOUBLE = 5;
-  BYTE_ARRAY = 6;
-  FIXED_LEN_BYTE_ARRAY = 7;
-}
-
-union LogicalType {
-  1: StringType STRING
-  2: MapType MAP
-  3: ListType LIST
-  4: EnumType ENUM
-  5: DecimalType DECIMAL
-  6: DateType DATE
-  7: TimeType TIME
-  8: TimestampType TIMESTAMP
+for (ColumnChunk chunk : chunks) {
+  System.out.println("Column: " + chunk.getMetaData().getPathInSchema());
+  System.out.println("Total uncompressed size: " + chunk.getMetaData().getTotalUncompressedSize());
 }
 ```
 
-This allows frameworks to interpret data with semantic meaning (e.g., a `STRING` field with `UTF8` logical type is interpreted as UTF-8 encoded text).
+> This example assumes you have generated the Java code using the Thrift compiler.
 
-### 3. View File Metadata Structure
+---
 
-A Parquet file contains metadata defined in the `FileMetaData` struct, including:
+## Contributing
 
-- Schema (tree of `SchemaElement`s)
-- Row groups with column chunks
-- Statistics (null counts, min/max values)
-- Sorting orders
-- Encryption details
+Contributions to the Apache Parquet Format are welcome and encouraged. Please follow these guidelines:
 
-This metadata enables efficient filtering, projection, and query planning.
+- **Report issues** via [GitHub Issues](https://github.com/apache/parquet-format/issues)
+- **Submit feature requests** in the same issue tracker
+- **Propose changes** to the schema or format specification in the `proposals/` directory
+- **Follow the Apache Contributor License Agreement (CLA)**
 
-### 4. Build and Release Management
+For detailed contribution guidelines, see the [CONTRIBUTING.md](CONTRIBUTING.md) file (to be created).
 
-The repository includes scripts for managing releases:
+> The Parquet format is governed by the Apache Software Foundation. All contributions are subject to the Apache License 2.0 and the ASF's code of conduct.
 
-- `dev/prepare-release.sh`: Prepares a release version with a specified RC number.
-- `dev/finalize-release`: Finalizes the release by tagging and updating version numbers.
-- `dev/source-release.sh`: Creates a signed tarball for distribution.
+---
 
-Example usage:
+## License
 
-```bash
-# Prepare a release candidate (e.g., 2.7.0-rc0)
-./dev/prepare-release.sh 2.7.0 0
+This project is licensed under the **Apache License, Version 2.0**.
 
-# Finalize the release and update version
-./dev/finalize-release 2.7.0 0 2.8.0
-```
+See the [LICENSE](licenses/Apache-2.0.txt) file for details.
 
-> **Note**: These scripts are intended for Apache project maintainers and require proper access to the repository and build tools.
+---
 
-### 5. Documentation and Compliance
+## Contact / Authors
 
-The project includes:
-- A `doc/` directory with images and documentation.
-- A `pom.xml` for Maven-based builds.
-- Compliance with Apache Software Foundation standards (e.g., license, issue tracking, mailing lists).
+- **Project Maintainers**: Apache Parquet Team
+- **Project Homepage**: [https://parquet.apache.org](https://parquet.apache.org)
+- **Mailing Lists**:
+  - **Dev Mailing List**: [dev@parquet.apache.org](mailto:dev@parquet.apache.org)
+  - **Commits Mailing List**: [commits@parquet.apache.org](mailto:commits@parquet.apache.org)
+- **Issue Tracker**: [GitHub Issues](https://github.com/apache/parquet-format/issues)
+- **Documentation**: [parquet.apache.org/doc](https://parquet.apache.org/doc)
 
-For more details, visit the official documentation at: [https://parquet.apache.org/](https://parquet.apache.org/)
+For questions or feedback, please reach out to the community via the mailing lists or GitHub issues.
+
+> This project is maintained by the Apache Software Foundation. All contributions are governed by the Apache License 2.0 and the ASF's governance model.

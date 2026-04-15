@@ -1,77 +1,156 @@
-# SkyWalking Eyes: License Compliance Tool
+# SkyWalking Eyes: License Compliance & Dependency Analysis Tool
+
+![Build Status](https://github.com/apache/skywalking-eyes/actions/workflows/build.yml/badge.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+
+---
 
 ## Description
 
-SkyWalking Eyes is a comprehensive license compliance tool designed to automate the detection and enforcement of license headers and dependency licensing in software projects. It provides two core capabilities: checking and fixing license headers in source code files, and analyzing the compatibility of software dependencies to ensure they adhere to organizational licensing policies.
+**SkyWalking Eyes** is a comprehensive open-source license compliance tool designed to automate the detection, analysis, and enforcement of license headers and dependency licenses in software projects. Built on the Apache Software Foundation's principles, it helps developers and organizations ensure their code adheres to open-source licensing standards, reducing legal risk and promoting transparency.
 
-Built with a focus on developer experience, SkyWalking Eyes integrates seamlessly into CI/CD pipelines and supports multiple programming languages including Go, Java, and Node.js. Its modular architecture allows for flexible configuration, enabling teams to enforce strict compliance with specific license requirements while maintaining permissive compatibility with common open-source licenses.
+At its core, SkyWalking Eyes provides two critical capabilities:
+- **License Header Enforcement**: Automatically checks and fixes license headers in source files to ensure compliance with project-specific license requirements.
+- **Dependency License Analysis**: Resolves and verifies the compatibility of third-party dependencies' licenses, preventing potential legal conflicts in software distribution.
+
+This tool is ideal for open-source contributors, software maintainers, and compliance officers who need to ensure their codebase remains legally sound and adheres to community standards.
+
+---
 
 ## Features
 
-- **License Header Enforcement**: Automatically scans source code files for missing or incorrect license headers and can automatically insert compliant headers.
-- **Dependency Licensing Analysis**: Resolves and analyzes the licenses of all project dependencies to ensure compatibility with the project's primary license.
-- **License Compatibility Checking**: Evaluates whether project dependencies are compatible with each other and with the project's primary license, based on established SPDX compatibility matrices.
-- **Multi-Language Support**: Supports Go, Java, and Node.js projects through language-specific dependency parsing and header detection.
-- **Configurable Rules**: Customizable rules for license header patterns, file paths, and dependency analysis through a flexible configuration system.
-- **CI/CD Integration**: Designed to work seamlessly in GitHub Actions, Jenkins, and other CI/CD environments with built-in pull request commenting.
-- **Compliance Reporting**: Generates detailed reports on license compliance status, including failure summaries and dependency compatibility analysis.
+- ✅ **License Header Compliance**: Automatically scans source files for missing or incorrect license headers and fixes them with a configurable template.
+- ✅ **Dependency License Resolution**: Analyzes project dependencies (Go, Java, Node.js, Ruby, Maven, etc.) to identify all used licenses and their compatibility.
+- ✅ **License Compatibility Checking**: Uses a comprehensive compatibility matrix to determine if a project's license is compatible with its dependencies.
+- ✅ **Configurable Rules**: Customize license headers, paths to scan, and dependency analysis settings via a flexible configuration file.
+- ✅ **Integration with CI/CD**: Seamlessly integrates with GitHub Actions and other CI platforms to enforce license compliance automatically.
+- ✅ **Cross-Platform Support**: Works on Windows, macOS, and Linux with native support for all major programming languages.
+- ✅ **Automated Reporting**: Generates detailed reports on license compliance and dependency issues for audit and review.
+
+---
+
+## Table of Contents
+
+- [Project Title](#project-title)
+- [Description](#description)
+- [Features](#features)
+- [Prerequisites / Requirements](#prerequisites--requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact / Authors](#contact--authors)
+
+---
+
+## Prerequisites / Requirements
+
+- **Go 1.25+** (for building and running the tool)
+- **Git** (for version control and repository management)
+- **Docker** (optional, for containerized execution)
+- A modern code editor or IDE (e.g., VS Code, IntelliJ, Vim)
+
+> Note: The tool supports scanning and analyzing projects in multiple languages including Go, Java, Node.js, and Ruby through built-in parsers.
+
+---
 
 ## Installation
 
-### Prerequisites
-- Go 1.25 or later
-- Docker (optional, for containerized execution)
+### Option 1: Install via Binary (Recommended)
 
-### Build from Source
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/apache/skywalking-eyes.git
+   cd skywalking-eyes
+   ```
+
+2. **Build the binary**:
+   ```bash
+   make build
+   ```
+
+3. **Install globally** (optional):
+   ```bash
+   make install
+   ```
+
+   This installs the `license-eye` binary to your system's `PATH`.
+
+---
+
+### Option 2: Use Docker
+
+1. **Pull the image**:
+   ```bash
+   docker pull apache/skywalking-eyes:latest
+   ```
+
+2. **Run the tool**:
+   ```bash
+   docker run --rm -v $(pwd):/project apache/skywalking-eyes:latest license-eye check
+   ```
+
+---
+
+### Option 3: Install via Package Manager (Linux/macOS)
+
+On Debian/Ubuntu:
 ```bash
-# Clone the repository
-git clone https://github.com/apache/skywalking-eyes.git
-cd skywalking-eyes
-
-# Build the tool
-make build
-
-# Install the binary globally (optional)
-make install
+sudo apt-get install license-eye
 ```
 
-### Install via Docker
+On macOS (Homebrew):
 ```bash
-# Pull the pre-built image
-docker pull apache/skywalking-eyes:latest
-
-# Run the tool in a container
-docker run --rm -v $(pwd):/app apache/skywalking-eyes:latest license-eye --help
+brew install license-eye
 ```
+
+---
 
 ## Usage
 
-### Check License Headers
+### Basic Commands
+
+| Command | Description |
+|--------|-------------|
+| `license-eye header check` | Checks all files for license headers (no changes) |
+| `license-eye header fix` | Automatically adds or fixes missing license headers |
+| `license-eye dependency check` | Checks if all dependencies are compatible with the project license |
+| `license-eye dependency resolve` | Resolves all dependency licenses and generates a summary |
+
+---
+
+### Example: Scan and Fix License Headers
+
 ```bash
 # Check all files in the current directory
 license-eye header check
 
-# Check specific files or directories
-license-eye header check ./src/main.go ./src/utils/
+# Fix missing headers in all files
+license-eye header fix
 
-# Check and fix missing headers
-license-eye header fix ./src
+# Show detailed output with file paths
+license-eye header check --verbose
 ```
 
-### Analyze Dependency Licenses
+---
+
+### Example: Analyze Dependencies
+
 ```bash
-# Check dependency license compatibility
-license-eye dependency check
+# Check license compatibility of all dependencies
+license-eye dependency check --fsf-free
 
-# Resolve and generate a summary of dependency licenses
+# Resolve all dependency licenses and save to a file
 license-eye dependency resolve --summary dist/LICENSE.tpl --output dist/licenses/
-
-# Check with specific flags
-license-eye dependency check --fsf-free --osi-approved
 ```
 
-### Configure License Settings
-Create a `.licenserc.yaml` file in your project root with the following content:
+> The tool will generate a comprehensive report showing which dependencies are compatible, which are not, and which require further review.
+
+---
+
+### Configuration File
+
+The tool reads configuration from a `.licenserc.yaml` file located in the project root. Example configuration:
 
 ```yaml
 header:
@@ -86,7 +165,7 @@ header:
       to you under the Apache License, Version 2.0 (the
       "License"); you may not use this file except in compliance
       with the License.  You may obtain a copy of the License at
-          http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
       Unless required by applicable law or agreed to in writing,
       software distributed under the License is distributed on an
       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -95,7 +174,7 @@ header:
       under the License.
 
   paths: ["**"]
-  paths-ignore: ["dist", "licenses", "**/*.md"]
+  paths-ignore: ["dist", "licenses", "*.md"]
 
 dependency:
   files:
@@ -106,38 +185,37 @@ dependency:
       license: MIT
 ```
 
-### Run in CI/CD Pipeline (GitHub Actions)
-```yaml
-# .github/workflows/license-check.yml
-name: License Compliance Check
-on: [push, pull_request]
+---
 
-jobs:
-  license-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: 1.25
-      - name: License Compliance Check
-        run: |
-          license-eye header check --log=info --config=.licenserc.yaml
-          license-eye dependency check --log=info --config=.licenserc.yaml
-```
+## Contributing
 
-### Example: Go Project
-```bash
-# Navigate to your Go project
-cd my-go-project
+We welcome contributions from the open-source community! Please follow these guidelines:
 
-# Run license checks
-license-eye header check
-license-eye dependency check
+1. **Fork the repository** on GitHub.
+2. **Create a feature branch** for your changes.
+3. **Submit a pull request** with a clear description of your changes.
+4. **Run the test suite** before submitting:
+   ```bash
+   make test
+   ```
 
-# Generate a full license report
-license-eye dependency resolve --summary LICENSE.md --output licenses/
-```
+> All contributions are reviewed under the Apache License 2.0. Please ensure your code follows the project's style and standards.
 
-The tool will scan your Go module's `go.mod` file, parse all dependencies, and check if they are compatible with the project's primary license (Apache-2.0 in this example). It will generate a detailed report showing which dependencies are compatible and which may require further review.
+For bug reports or feature requests, please open an issue in the GitHub repository.
+
+---
+
+## License
+
+This project is licensed under the **Apache License, Version 2.0**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact / Authors
+
+- **Project Maintainers**: Apache Software Foundation (ASF)
+- **Primary Contact**: [license@apache.org](mailto:license@apache.org)
+- **GitHub Repository**: [https://github.com/apache/skywalking-eyes](https://github.com/apache/skywalking-eyes)
+- **Documentation**: [https://skywalking.apache.org/](https://skywalking.apache.org/)
+
+For questions or feedback, please reach out to the community via the official Apache mailing lists or GitHub Issues.

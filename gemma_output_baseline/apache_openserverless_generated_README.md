@@ -1,33 +1,89 @@
-` for specific instructions.
-*   **Operator (`olaris-op` directory):** The OpenServerless operator manages the lifecycle of serverless functions and resources within the Kubernetes cluster.
-*   **Website (`site` directory):** The documentation and resources for OpenServerless are found in the `site` directory.
-*   **Testing (`testing` directory):**  Contains testing resources and frameworks for the project.
+# Apache OpenServerless (Incubating)
 
-**Basic Workflow:**
+Apache OpenServerless is an effort undergoing incubation at the Apache Software Foundation (ASF). It aims to provide a platform for building and deploying serverless applications on Kubernetes. This project is for developers and operators looking to leverage the benefits of serverless computing with the flexibility and control of Kubernetes.
 
-1.  Deploy the OpenServerless operator to your Kubernetes cluster.
-2.  Define serverless functions using the `ops` CLI.
-3.  Deploy functions to the cluster using the `ops` CLI.
-4.  Monitor function execution and scaling through Kubernetes tools.
+## Description
+
+Apache OpenServerless (incubating) is a cloud-native serverless framework built on Kubernetes. It allows developers to deploy and manage functions and applications without managing the underlying infrastructure. It provides a streamlined experience for building, deploying, and scaling serverless workloads.
+
+## Features
+
+*   Serverless Function Deployment: Deploy functions easily to a Kubernetes cluster.
+*   Kubernetes Native: Built on top of Kubernetes, leveraging its scalability and robustness.
+*   Submodule Structure: Organized with a submodule structure for modularity and maintainability.
+*   Automated Configuration: Tools and scripts for automated configuration and setup.
+*   Development Environment: Includes configurations for VS Code and DevContainers for a streamlined development experience.
+
+## Table of Contents
+
+*   [Prerequisites / Requirements](#prerequisites--requirements)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [Contributing](#contributing)
+*   [License](#license)
+*   [Contact / Authors](#contact--authors)
+
+## Prerequisites / Requirements
+
+*   Git
+*   Kubernetes Cluster (e.g., Minikube, Kind, or a cloud provider's Kubernetes service)
+*   kubectl
+*   Go (for some components, as indicated in workspace settings)
+*   Nix (for some components)
+*   1Password CLI (for secret management)
+
+## Installation
+
+1.  Clone the repository:
+
+    ```bash
+    git clone https://github.com/apache/openserverless.git --recurse-submodules
+    ```
+
+2.  Navigate to the repository directory:
+
+    ```bash
+    cd openserverless
+    ```
+
+3.  Run the `sync-branch.sh` script to ensure submodules are on the correct branches:
+
+    ```bash
+    bash sync-branch.sh
+    ```
+
+4.  Initialize the development environment:
+
+    ```bash
+    bash direnv-init.sh
+    ```
+
+5.  Update the tree:
+
+    ```bash
+    bash update-tree.sh
+    ```
+
+## Usage
+
+The project consists of several submodules, each with its own usage instructions.  The `cli`, `operator`, `site`, `task`, and `runtimes` directories contain the core components. 
+
+For example, to run the task submodule:
+
+```bash
+cd task
+```
+
+Further instructions for each submodule can be found in their respective README files.
 
 ## Contributing
 
-We welcome contributions to Apache OpenServerless!  Please review the [CONTRIBUTING.md](TODO: Add Contributing.md) guidelines for detailed instructions.
+Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file (not present in the provided repository contents, but standard practice) for guidelines on how to contribute to the project, report bugs, or submit feature requests.
 
 ## License
 
-This project is licensed under the [Apache License, Version 2.0](LICENSE).
+Apache OpenServerless is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-## Resources
+## Contact / Authors
 
-*   **Website:** [https://openserverless.apache.org](https://openserverless.apache.org)
-*   **GitHub:** [https://github.com/apache/openserverless](https://github.com/apache/openserverless)
-*   **Documentation:** (Link to documentation when available)
-
-## Disclaimer
-
-This project is currently in incubation and is subject to change.  Use at your own risk.  See [DISCLAIMER](DISCLAIMER) for more information.
-
----
-
-**Note:** This `README.md` file is generated based on the given repository structure and file contents.  It's a starting point and may need further refinement with more detailed information about each component and specific use cases.  Parts like the `CONTRIBUTING.md` link and documentation link need to be added when they are available. I've also added some placeholder value for the implementation of the `secrets` script.
+This project is an effort of the Apache OpenServerless community.  For more information, please visit the [Apache OpenServerless website](https://openserverless.apache.org).

@@ -1,25 +1,73 @@
 # Requests
 
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey.svg)
+![Build Status](https://img.shields.io/github/workflow/status/psf/requests/ci/main)
+![Documentation](https://img.shields.io/badge/documentation-readme-blue)
+
+> **Python HTTP for Humans**
+
+Requests is a simple, elegant, and powerful HTTP library for Python. It simplifies making HTTP requests by abstracting away the complexity of low-level networking, providing a clean and intuitive API that makes it easy to send requests, handle responses, and manage common HTTP operations.
+
+Built with simplicity and reliability in mind, Requests is the go-to library for Python developers who want to interact with web APIs, scrape data, or automate interactions with web services — all without writing boilerplate code.
+
+---
+
 ## Description
 
-**Requests** is a simple, elegant, and powerful HTTP library for Python, built with human beings in mind. It simplifies making HTTP requests, handling responses, and managing common web interactions—making it the go-to choice for Python developers who want to work with HTTP without the complexity of low-level networking code.
+Requests is a Python library that makes it easy to send HTTP/1.1 requests. It provides a user-friendly interface for making GET, POST, PUT, DELETE, and other HTTP methods, with built-in support for:
 
-With Requests, you can easily send GET, POST, PUT, PATCH, and DELETE requests, handle cookies, manage authentication, work with JSON data, and set custom headers—all with clean, readable syntax.
+- Automatic handling of redirects
+- Cookie management
+- Authentication (basic, digest, and more)
+- JSON parsing
+- SSL/TLS verification
+- Content encoding and decoding
+- Request and response hooks
+
+Whether you're building a simple script to fetch data from a public API or integrating with a complex web service, Requests gives you the tools you need — without the complexity.
+
+---
 
 ## Features
 
-- ✅ **Simple and intuitive API** for making HTTP requests (GET, POST, PUT, PATCH, DELETE, etc.)
-- ✅ **Automatic JSON handling** with built-in `.json()` method
-- ✅ **Cookie management** with support for persistent sessions
-- ✅ **Authentication support** (Basic, Digest, and Proxy)
-- ✅ **Built-in support for redirects** and automatic handling of 3xx responses
-- ✅ **Robust error handling** with clear exceptions for common issues
-- ✅ **Support for proxies** and custom headers
-- ✅ **SSL/TLS certificate verification** using the `certifi` bundle
-- ✅ **Unicode and encoding support** with automatic content decoding
-- ✅ **Extensible hooks system** for custom request/response processing
-- ✅ **Session-based requests** for reusing connections and preserving cookies
-- ✅ **Modern Python 3.10+ compatibility** with full support for latest language features
+- ✅ **Simple & Intuitive API** – Send HTTP requests with just a few lines of code.
+- ✅ **Automatic Redirect Handling** – Follows redirects automatically and manages them safely.
+- ✅ **Built-in JSON Support** – Automatically parse JSON responses with `.json()` method.
+- ✅ **Cookie Management** – Handles cookies automatically and stores them in a session.
+- ✅ **Authentication Support** – Supports basic, digest, and proxy authentication.
+- ✅ **SSL/TLS Verification** – Secure connections with optional certificate validation.
+- ✅ **Robust Error Handling** – Clear exceptions for common network issues.
+- ✅ **Extensible with Hooks** – Customize request/response behavior via hooks.
+- ✅ **Cross-Platform Compatibility** – Works on all major operating systems.
+- ✅ **Active Community & Maintenance** – Regular updates and strong community support.
+
+---
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact / Authors](#contact--authors)
+
+---
+
+## Prerequisites
+
+Requests requires Python 3.10 or later. It also depends on the following external packages:
+
+- `urllib3` ≥ 1.26
+- `idna` ≥ 2.5
+- `charset_normalizer` ≥ 2.0
+
+These dependencies are automatically managed via `pip` and included in the project’s `pyproject.toml`.
+
+> ⚠️ **Note**: Python 2.7 and 3.8–3.9 are no longer supported. Requests requires **Python 3.10+**.
+
+---
 
 ## Installation
 
@@ -29,85 +77,154 @@ Install Requests using `pip`:
 pip install requests
 ```
 
-For development or testing environments, install the full development set:
+For development (e.g., contributing or testing):
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -e .
 ```
 
-> **Note**: Requests requires Python 3.10 or later.
+To install with additional features like SOCKS support:
+
+```bash
+pip install "requests[socks]"
+```
+
+To enable chardet-based encoding detection (for Python 3):
+
+```bash
+pip install "requests[use_chardet_on_py3]"
+```
+
+---
 
 ## Usage
 
-### Making a Simple GET Request
+Here’s how to use Requests in your Python scripts:
+
+### 1. Make a GET Request
 
 ```python
 import requests
 
-response = requests.get('https://httpbin.org/get')
-print(response.status_code)
+response = requests.get("https://httpbin.org/json")
 print(response.json())
 ```
 
-### Sending a POST Request with JSON Data
+### 2. Make a POST Request with JSON Data
 
 ```python
 import requests
 
 data = {"name": "Alice", "age": 30}
-response = requests.post('https://httpbin.org/post', json=data)
+response = requests.post("https://httpbin.org/post", json=data)
+print(response.status_code)
 print(response.json())
 ```
 
-### Using Sessions for Persistent Cookies
+### 3. Send a Request with Headers and Authentication
 
 ```python
 import requests
 
-session = requests.Session()
-session.get('https://httpbin.org/cookies/set/sessionid/12345')
-response = session.get('https://httpbin.org/cookies')
-print(response.json())
+headers = {"User-Agent": "MyApp/1.0"}
+auth = ("username", "password")
+
+response = requests.get(
+    "https://httpbin.org/headers",
+    headers=headers,
+    auth=auth
+)
+
+print(response.headers)
 ```
 
-### Handling Authentication
-
-```python
-import requests
-
-response = requests.get('https://httpbin.org/headers', auth=('user', 'pass'))
-print(response.json())
-```
-
-### Setting Custom Headers
-
-```python
-import requests
-
-headers = {'User-Agent': 'MyApp/1.0', 'X-API-Key': 'abc123'}
-response = requests.get('https://httpbin.org/headers', headers=headers)
-print(response.json())
-```
-
-### Error Handling
+### 4. Handle Errors and Status Codes
 
 ```python
 import requests
 
 try:
-    response = requests.get('https://httpbin.org/status/404')
-    response.raise_for_status()
+    response = requests.get("https://httpbin.org/status/404")
+    response.raise_for_status()  # Raises an HTTPError for bad responses
 except requests.exceptions.HTTPError as e:
     print(f"HTTP Error: {e}")
 except requests.exceptions.ConnectionError as e:
     print(f"Connection Error: {e}")
 ```
 
-> 💡 All examples assume you have a valid endpoint to test. For real-world usage, refer to the [official documentation](https://requests.readthedocs.io).
+### 5. Use Sessions for Persistent Connections
+
+```python
+import requests
+
+session = requests.Session()
+session.get("https://httpbin.org/cookies/set/sessionid/12345")
+response = session.get("https://httpbin.org/cookies")
+print(response.json())
+```
+
+> 💡 **Tip**: Sessions automatically manage cookies and reuses connections for better performance.
 
 ---
 
-**License**: Apache-2.0  
-**Homepage**: [https://requests.readthedocs.io](https://requests.readthedocs.io)  
-**Source Code**: [https://github.com/psf/requests](https://github.com/psf/requests)  
-**Maintainers**: Kenneth Reitz, Ian Stapleton Cordasco, Nate Prewitt
+## Contributing
+
+We welcome contributions from the community! Whether you're fixing a bug, adding documentation, or proposing a new feature, your input is valuable.
+
+### How to Contribute
+
+1. **Fork the repository** on [GitHub](https://github.com/psf/requests).
+2. **Create a new branch** for your feature or fix:
+   ```bash
+   git checkout -b feature/new-auth-method
+   ```
+3. **Commit your changes** with clear, descriptive messages.
+4. **Run the tests**:
+   ```bash
+   make test
+   ```
+5. **Submit a pull request** with a detailed description of your changes.
+
+### Reporting Issues
+
+If you find a bug or have a feature request, please open an issue in the [Requests GitHub Issues](https://github.com/psf/requests/issues) repository.
+
+> 📚 For detailed contribution guidelines, see the [Contributors Guide](https://requests.readthedocs.io/en/latest/dev/contributing.html).
+
+---
+
+## License
+
+Requests is licensed under the **Apache License 2.0**.
+
+This means you can:
+
+- Use it freely in commercial or open-source projects
+- Modify and distribute it
+- Use it in any context, including closed-source software
+
+For full details, see the [LICENSE](LICENSE) file.
+
+---
+
+## Contact / Authors
+
+**Primary Author**:  
+Kenneth Reitz  
+📧 me@kennethreitz.org  
+🔗 [GitHub Profile](https://github.com/kennethreitz)
+
+**Maintainers**:  
+- Ian Stapleton Cordasco (`graffatcolmingov@gmail.com`)  
+- Nate Prewitt (`nate.prewitt@gmail.com`)
+
+**Project Home**:  
+🔗 [https://requests.readthedocs.io](https://requests.readthedocs.io)
+
+**GitHub Repository**:  
+🔗 [https://github.com/psf/requests](https://github.com/psf/requests)
+
+**Issue Tracker**:  
+🔗 [https://github.com/psf/requests/issues](https://github.com/psf/requests/issues)
+
+For questions or feedback, feel free to open an issue or reach out directly to the maintainers.

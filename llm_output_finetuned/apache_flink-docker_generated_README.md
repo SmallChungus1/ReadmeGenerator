@@ -1,120 +1,186 @@
 # Apache Flink Docker Images
 
+![Apache License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=for-the-badge)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+A collection of Docker images for **Apache Flink**, providing pre-built, production-ready containers for various Flink versions and Java runtime environments.
+
+---
+
 ## Description
 
-This repository provides pre-built Docker images for **Apache Flink**, enabling easy deployment and management of Flink clusters in containerized environments. The images are available for multiple Flink versions (1.20, 2.0, 2.1, 2.2) and support different Java versions (8, 11, 17, 21) with Scala 2.12.
+This repository contains Docker images for Apache Flink, designed to simplify deployment and operation in containerized environments. Each image is built from a specific Flink version (1.20, 2.0, 2.1, 2.2) and supports different Java versions (8, 11, 17, 21) to meet diverse application requirements.
 
-Each image is built on top of a lightweight Ubuntu base with the appropriate Java runtime and includes Flink binaries, essential dependencies, and security best practices such as running Flink as a non-root user. The images are designed to be used with Docker, Kubernetes, or any container orchestration platform.
+The images are optimized for use in Kubernetes, Docker Swarm, and other container orchestration platforms. They include:
+- Flink binaries with proper security and memory management
+- Configurations to bind Flink services to the container's network interface
+- Support for running Job Managers, Task Managers, History Servers, and standalone jobs
+- Built-in support for jemalloc memory allocator (configurable)
+
+All images are published to **Docker Hub** and **GitHub Container Registry (GHCR)**, with automated CI/CD workflows ensuring consistency and reliability.
+
+---
 
 ## Features
 
-- ✅ **Multiple Flink Versions**: Supports Flink 1.20, 2.0, 2.1, and 2.2.
-- ✅ **Multiple Java Versions**: Available for Java 8, 11, 17, and 21.
-- ✅ **Scala 2.12 Compatibility**: All images are built with Scala 2.12.
-- ✅ **Non-Root Execution**: Flink runs as a dedicated `flink` user to enhance security.
-- ✅ **Network Accessibility**: Configured to bind REST and RPC endpoints to `0.0.0.0` for container network access.
-- ✅ **GPG Verification**: All Flink binaries are verified using GPG signatures to ensure integrity.
-- ✅ **JEMALLOC Support**: Memory allocator (jemalloc) is enabled by default for better memory management.
-- ✅ **Plugin Support**: Built-in plugins can be enabled via environment variables.
-- ✅ **Flexible Configuration**: Supports custom configuration via environment variables and Flink properties files.
+- ✅ **Multiple Flink Versions**: Supports Flink 1.20, 2.0, 2.1, and 2.2
+- ✅ **Multiple Java Versions**: Java 8, 11, 17, and 21 (via `scala_2.12-javaX`)
+- ✅ **Secure by Default**: Runs as non-root user (`flink`) with minimal privileges
+- ✅ **Network-Ready**: REST and RPC endpoints bind to `0.0.0.0` instead of `localhost`
+- ✅ **Flexible Configuration**: Supports environment variables for customizing behavior
+- ✅ **Built-in Plugins**: Enables optional built-in plugins via `ENABLE_BUILT_IN_PLUGINS`
+- ✅ **Memory Optimization**: Default jemalloc memory allocator (can be disabled)
+- ✅ **Cross-Platform**: Available for both `amd64` and `arm64v8` architectures
+
+---
+
+## Table of Contents
+
+- [Prerequisites / Requirements](#prerequisites--requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact / Authors](#contact--authors)
+
+---
+
+## Prerequisites / Requirements
+
+To use these Docker images, you need:
+
+- **Docker** or **Docker Desktop** (version 20.10 or later)
+- **Docker Hub** account (for pulling images)
+- **Basic knowledge of Docker commands** (e.g., `docker run`, `docker logs`)
+
+> ⚠️ **Note**: These images are built for Ubuntu-based systems using `eclipse-temurin` as the base JRE. They are not compatible with Windows or macOS without a Docker-in-Docker setup.
+
+---
 
 ## Installation
 
-To use these Docker images, ensure Docker is installed and running on your system. The images are available on **Docker Hub** (`apache/flink`) and **GitHub Container Registry (GHCR)** (`ghcr.io/apache/flink-docker`).
+The images are pre-built and available via Docker Hub. You can pull them directly using the `docker pull` command.
 
-### Pull Images from Docker Hub
-
-```bash
-# Pull a specific version and Java version
-docker pull apache/flink:1.20.3-scala_2.12-java11
-
-# Pull the latest version (automatically resolves to the latest stable)
-docker pull apache/flink:latest
-```
-
-### Pull Images from GitHub Container Registry (GHCR)
+### Pull a Specific Image
 
 ```bash
-# Pull from GHCR (for development or testing)
-docker pull ghcr.io/apache/flink-docker:1.20.3-scala_2.12-java11
+# Example: Pull Flink 2.2 with Java 17
+docker pull apache/flink:2.2.0-scala_2.12-java17
+
+# Pull Flink 1.20 with Java 8 (latest)
+docker pull apache/flink:1.20-java8
 ```
 
-> 🔍 **Note**: The `latest` tag is managed automatically and points to the most recent stable release. For production, it's recommended to use specific version tags.
+> 📝 **Tip**: The image tags follow a pattern like `version-javaX` or `version-scala_2.12-javaX`. See the [release.metadata](./release.metadata) files for complete tag lists.
+
+---
 
 ## Usage
 
-The images provide a command-line interface to start Flink components. You can run the following commands to start Flink services:
+The images provide a command-line interface to start Flink components. You can run them with the following commands.
 
-### 1. Start Job Manager
+### Start a Job Manager
 
 ```bash
-docker run -d \
-  --name flink-jobmanager \
+docker run -d --name flink-jobmanager \
   -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
-  apache/flink:1.20.3-scala_2.12-java11 \
+  -p 6123:6123 \
+  -p 8081:8081 \
+  apache/flink:2.2.0-scala_2.12-java17 \
   jobmanager
 ```
 
-### 2. Start Task Manager
+> 🔍 The `JOB_MANAGER_RPC_ADDRESS` environment variable sets the address for the JobManager. If not specified, it defaults to the container's hostname.
+
+### Start a Task Manager
 
 ```bash
-docker run -d \
-  --name flink-taskmanager \
+docker run -d --name flink-taskmanager \
   -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
-  -e TASK_MANAGER_NUMBER_OF_TASK_SLOTS=4 \
-  apache/flink:1.20.3-scala_2.12-java11 \
-  taskmanager
-```
-
-### 3. Start Standalone Job (Alternative to Job Manager)
-
-```bash
-docker run -d \
-  --name flink-standalone \
-  apache/flink:1.20.3-scala_2.12-java11 \
-  standalone-job
-```
-
-### 4. Start History Server
-
-```bash
-docker run -d \
-  --name flink-historyserver \
-  apache/flink:1.20.3-scala_2.12-java11 \
-  history-server
-```
-
-### 5. View Help and Available Commands
-
-```bash
-docker run --rm apache/flink:1.20.3-scala_2.12-java11 help
-```
-
-> 📝 **Environment Variables**:
-> - `JOB_MANAGER_RPC_ADDRESS`: Sets the JobManager RPC address (default: container hostname).
-> - `TASK_MANAGER_NUMBER_OF_TASK_SLOTS`: Sets the number of task slots per task manager.
-> - `FLINK_PROPERTIES`: A semicolon-separated list of key=value properties to override Flink configuration.
-> - `ENABLE_BUILT_IN_PLUGINS`: Enables built-in plugins (e.g., `state-backup`, `checkpointing`).
-> - `DISABLE_JEMALLOC`: Set to `true` to disable jemalloc memory allocator.
-
-### 6. Example: Run a Flink Job with Custom Configuration
-
-```bash
-# Start a task manager with 8 slots and custom properties
-docker run -d \
-  --name flink-taskmanager \
-  -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
-  -e TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8 \
-  -e FLINK_PROPERTIES="jobmanager.rpc.address=192.168.1.100;taskmanager.memory.process.size=4g" \
+  -p 6123:6123 \
+  -p 8081:8081 \
   apache/flink:2.2.0-scala_2.12-java17 \
   taskmanager
 ```
 
-> 💡 **Tip**: For production deployments, use a container orchestration platform like Kubernetes or Docker Swarm to manage multiple Flink services.
+> 📌 The Task Manager connects to the Job Manager via the specified RPC address.
+
+### Start a Standalone Job
+
+```bash
+docker run -d --name flink-standalone \
+  apache/flink:2.2.0-scala_2.12-java17 \
+  standalone-job
+```
+
+> 💡 This starts a standalone job manager, useful for testing or small-scale workloads.
+
+### Start the History Server
+
+```bash
+docker run -d --name flink-historyserver \
+  apache/flink:2.2.0-scala_2.12-java17 \
+  historyserver
+```
+
+> 📊 The History Server provides access to job execution logs and metrics.
+
+### Configure Environment Variables
+
+You can customize behavior using environment variables:
+
+| Variable | Purpose |
+|--------|--------|
+| `TASK_MANAGER_NUMBER_OF_TASK_SLOTS` | Sets the number of slots per task manager |
+| `FLINK_PROPERTIES` | Comma-separated key=value pairs to override configuration |
+| `ENABLE_BUILT_IN_PLUGINS` | Enables built-in plugins (e.g., `state-backup`, `kafka`) |
+| `DISABLE_JEMALLOC` | Disables jemalloc memory allocator (set to `true`) |
+
+Example:
+```bash
+docker run -e TASK_MANAGER_NUMBER_OF_TASK_SLOTS=4 \
+  -e FLINK_PROPERTIES="execution.checkpointing.interval=30000" \
+  apache/flink:2.2.0-scala_2.12-java17 \
+  jobmanager
+```
 
 ---
 
-**License**: Apache License 2.0  
-**Maintainers**: The Apache Flink Project <dev@flink.apache.org>  
-**Homepage**: https://flink.apache.org/  
-**Repository**: https://github.com/apache/flink-docker
+## Contributing
+
+We welcome contributions to improve the Docker images, fix bugs, or add new features.
+
+### How to Contribute
+
+1. **Report Issues**: Open an issue on GitHub with a clear description.
+2. **Submit Pull Requests**: For new features or bug fixes, create a PR with tests and documentation.
+3. **Improve Documentation**: Help clarify usage or add examples.
+4. **Suggest New Versions**: Propose support for new Flink or Java versions.
+
+> 📚 For detailed contribution guidelines, see the [CONTRIBUTING.md](CONTRIBUTING.md) file (not included in this repository).
+
+---
+
+## License
+
+This project is licensed under the **Apache License, Version 2.0**.
+
+> See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact / Authors
+
+This project is maintained by the **Apache Flink Project**.
+
+- 📧 Email: `dev@flink.apache.org`
+- 🌐 Website: [https://flink.apache.org](https://flink.apache.org)
+- 💬 Community: [Apache Flink Slack](https://flink.apache.org/community/)
+- 🐞 Issues & Feature Requests: [GitHub Issues](https://github.com/apache/flink-docker/issues)
+
+For questions or feedback, please reach out to the Flink community.
+
+---
+
+> ✅ **Note**: This repository is part of the official Apache Flink infrastructure. All images are built and tested by the Apache Flink team. For the latest updates, refer to the [Apache Flink GitHub](https://github.com/apache/flink) and [Apache Flink Documentation](https://nightlies.apache.org/flink/).

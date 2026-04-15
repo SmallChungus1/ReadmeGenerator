@@ -1,56 +1,46 @@
-# Requests: HTTP for Humans™
+# Requests
 
 [![Build Status](https://github.com/psf/requests/actions/workflows/ci.yml/badge.svg)](https://github.com/psf/requests/actions/workflows/ci.yml)
-[![Code Coverage](https://codecov.io/gh/psf/requests/branch/main/graph/badge.svg)](https://codecov.io/gh/psf/requests/branch/main)
-[![PyPI version](https://badge.fury.io/py/requests.svg)](https://badge.fury.io/py/requests)
-[![License](https://img.shields.io/pypi/license/requests)](https://github.com/psf/requests/blob/main/LICENSE)
-[![Documentation Status](https://readthedocs.org/projects/requests/badge/?version=latest)](https://requests.readthedocs.io/en/latest/)
-[![Donate](https://img.shields.io/badge/Donate-via%20Open%20Collective-4169E1.svg)](https://opencollective.com/requests)
-
-
-Requests is an elegant and simple HTTP library for Python, built for human beings.
-
--------------------
-
-**Behold, the power of Requests**::
-
-```python
->>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
->>> r.status_code
-200
->>> r.headers['content-type']
-'application/json; charset=utf8'
->>> r.encoding
-'utf-8'
->>> r.text
-'{"type":"User"...'
->>> r.json()
-{'private_gists': 419, 'total_private_repos': 77, ...}
-```
-
-See [similar code, sans Requests](https://gist.github.com/973705).
+[![Coverage Status](https://codecov.io/gh/psf/requests/branch/main/graph/badge.svg)](https://codecov.io/gh/psf/requests)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Description
 
-Requests is designed to be the most human-friendly HTTP library for Python.  It simplifies the process of sending HTTP requests and handles complexities like connection pooling, authentication, and more.
+Requests is a simple, yet elegant, HTTP library for Python. It's designed to be human-friendly and easy to use, allowing you to send HTTP requests in a more natural and Pythonic way.  It's built for interacting with web services and APIs.
 
 ## Features
 
-*   **Simple API:**  Intuitive and easy-to-use methods for making HTTP requests.
-*   **Automatic Content Decoding:** Handles character encoding automatically.
-*   **Keep-Alive & Connection Pooling:**  Efficiently reuses TCP connections for performance.
-*   **SSL Verification:**  Securely verifies SSL certificates.
-*   **Authentication:** Supports various authentication methods (Basic, Digest, OAuth, etc.).
-*   **Cookies:**  Seamlessly manages cookies.
-*   **Sessions:** Persists parameters (cookies, authentication) across multiple requests.
-*   **Streaming Downloads:** Efficiently download large files.
-*   **Timeouts:**  Prevents requests from hanging indefinitely.
-*   **Proxy Support:**  Work with proxies for increased security or access control.
-*   **Multipart File Uploads:**  Easy uploading of files.
+*   **Simple API:**  Easy-to-use interface for making HTTP requests.
+*   **Human-Friendly:** Designed with a focus on usability and readability.
+*   **Automatic Content Decoding:**  Automatically decodes content based on the response headers.
+*   **Keep-Alive & Connection Pooling:**  Efficiently reuses connections for improved performance.
+*   **SSL Verification:**  Supports SSL certificate verification for secure connections.
+*   **Proxies:**  Supports various proxy configurations.
+*   **Session Support:**  Provides session objects for managing cookies and persistent settings.
+*   **File Uploads:**  Easy uploading of files through multipart/form-data encoding.
+*   **Authentication:**  Supports basic, digest, and other authentication methods.
+*   **Streaming Downloads:**  Allows downloading large files in a streaming manner.
+
+## Table of Contents
+
+*   [Prerequisites / Requirements](#prerequisites--requirements)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [Contributing](#contributing)
+*   [License](#license)
+*   [Contact / Authors](#contact--authors)
+
+## Prerequisites / Requirements
+
+*   Python 3.10 or higher
+*   `charset_normalizer>=2,<4`
+*   `idna>=2.5,<4`
+*   `urllib3>=1.26,<3`
+*   `certifi>=2023.5.7`
 
 ## Installation
 
-Install the latest version using pip:
+You can install Requests using pip:
 
 ```bash
 pip install requests
@@ -58,61 +48,39 @@ pip install requests
 
 ## Usage
 
-Here's a quick example of making a GET request:
+Here are some basic examples of how to use Requests:
 
 ```python
 import requests
 
+# Make a GET request
 response = requests.get('https://httpbin.org/get')
-
-print(response.status_code)  # Output: 200
-print(response.text)          # Output: JSON data from the server
-```
-
-### Making a POST request with data:
-
-```python
-import requests
-
-payload = {'key1': 'value1', 'key2': 'value2'}
-response = requests.post('https://httpbin.org/post', data=payload)
-
+print(response.status_code)
 print(response.text)
+
+# Make a POST request with data
+data = {'key': 'value'}
+response = requests.post('https://httpbin.org/post', data=data)
+print(response.json())
+
+# Make a request with custom headers
+headers = {'User-Agent': 'My Custom Agent'}
+response = requests.get('https://httpbin.org/headers', headers=headers)
+print(response.json())
 ```
-
-### Using Sessions:
-
-```python
-import requests
-
-s = requests.Session()
-
-s.get('https://httpbin.org/cookies/set/sessioncookie/123456789')
-r = s.get('https://httpbin.org/cookies')
-
-print(r.text)
-```
-
-## Documentation
-
-Comprehensive documentation is available at: [https://requests.readthedocs.io/](https://requests.readthedocs.io/)
 
 ## Contributing
 
-See the [CONTRIBUTING.rst](https://github.com/psf/requests/blob/main/CONTRIBUTING.rst) file for guidelines on how to contribute to Requests.
+We welcome contributions to Requests! Please see the [CONTRIBUTING](docs/dev/contributing.rst) guide for details on how to submit bug reports, feature requests, and pull requests.
 
 ## License
 
-Requests is licensed under the Apache 2.0 License - see the [LICENSE](https://github.com/psf/requests/blob/main/LICENSE) file for details.
+Requests is licensed under the [Apache License 2.0](LICENSE).
 
-## Acknowledgements
+## Contact / Authors
 
-Requests was originally created by [Kenneth Reitz](https://github.com/kennethreitz), and is now maintained by a team of dedicated contributors.  See the [AUTHORS.rst](https://github.com/psf/requests/blob/main/AUTHORS.rst) file for a complete list of contributors.
+*   **Kenneth Reitz:** [me@kennethreitz.org](mailto:me@kennethreitz.org)
+*   **Ian Stapleton Cordasco:** graffatcolmingov@gmail.com
+*   **Nate Prewitt:** nate.prewitt@gmail.com
 
-## Support
-
-For support, please use the following resources:
-
-*   **GitHub Issues:** [https://github.com/psf/requests/issues](https://github.com/psf/requests/issues)
-*   **Stack Overflow:**  Search for existing questions or ask a new one using the `requests` tag.
-*   **Open Collective:** Support the development of Requests through donations:  [https://opencollective.com/requests](https://opencollective.com/requests)
+You can find the project on GitHub: [https://github.com/psf/requests](https://github.com/psf/requests)

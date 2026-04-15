@@ -1,95 +1,93 @@
-```markdown
-# requests-HTML
+# Requests-HTML
 
-[![Travis CI](https://travis-ci.com/psf/requests-html.svg?branch=master)](https://travis-ci.com/psf/requests-html)
-
-**requests-HTML** is a Python library designed to simplify HTML parsing and web scraping. It aims to provide a user-friendly interface with powerful features, making it ideal for both beginners and experienced developers.
+![requests-html logo](ext/requests-html-logo.ai)
 
 ## Description
 
-requests-HTML combines the simplicity of Requests with the parsing capabilities of tools like Beautiful Soup and PyQuery. It offers features like JavaScript rendering, CSS Selectors, XPath Selectors, and automatic handling of redirects, all while maintaining a clean and intuitive API.  It provides both synchronous and asynchronous interfaces.
+Requests-HTML is a Python library for human-friendly HTML parsing. It aims to simplify web scraping and HTML manipulation by providing a more intuitive and Pythonic API compared to traditional libraries like Beautiful Soup or lxml. It builds on top of popular libraries like `requests`, `pyquery`, and `pyppeteer` to offer a powerful and flexible solution for web data extraction.
 
 ## Features
 
-*   **Full JavaScript Support:** Renders JavaScript-heavy pages, enabling parsing of dynamic content.
-*   **CSS Selectors:** Uses jQuery-style CSS Selectors for easy element selection.
-*   **XPath Selectors:** Supports XPath selectors for more advanced element identification.
-*   **Automatic User-Agent:** Mimics a real web browser with a default User-Agent.
-*   **Automatic Redirect Handling:** Handles redirects seamlessly.
-*   **Connection Pooling & Cookie Persistence:**  Efficiently manages connections and cookies.
-*   **Synchronous and Asynchronous APIs:** Provides both synchronous (`HTMLSession`) and asynchronous (`AsyncHTMLSession`) interfaces for different use cases.
-*   **Rendering:** Can render dynamic content with JavaScript execution.
-*   **Pagination Support:** Simple iteration through paginated content.
+*   **Human-Friendly API:** Designed for ease of use and readability.
+*   **HTML Parsing:**  Parses HTML content efficiently.
+*   **JavaScript Rendering:**  Can render JavaScript-heavy websites using `pyppeteer`.
+*   **CSS Selectors:** Supports CSS selectors for element selection.
+*   **XPath Support:** Allows querying elements using XPath expressions.
+*   **Automatic Encoding Detection:** Handles character encoding automatically.
+*   **Asynchronous Support:** Offers asynchronous operations for improved performance.
+*   **Session Management:** Provides a session object for managing cookies and headers.
+
+## Table of Contents
+
+*   [Prerequisites / Requirements](#prerequisites--requirements)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [Contributing](#contributing)
+*   [License](#license)
+*   [Contact / Authors](#contact--authors)
+
+## Prerequisites / Requirements
+
+*   Python 3.6 or higher
+*   `requests`
+*   `pyquery`
+*   `fake-useragent`
+*   `parse`
+*   `beautifulsoup4`
+*   `w3lib`
+*   `pyppeteer` (for JavaScript rendering)
 
 ## Installation
 
-```bash
-pipenv install requests-html
-```
+1.  Clone the repository:
 
-Only **Python 3.6+** is supported.
+    ```bash
+    git clone https://github.com/psf/requests-html
+    cd requests-html
+    ```
+
+2.  Install the package using `pip`:
+
+    ```bash
+    pip install .
+    ```
+
+    Alternatively, install using `pipenv`:
+
+    ```bash
+    pipenv install .
+    ```
 
 ## Usage
-
-Here are some basic examples to illustrate how to use requests-HTML:
 
 ```python
 from requests_html import HTMLSession
 
-# Create a session object
 session = HTMLSession()
+r = session.get('https://www.example.com')
 
-# Make a request to a URL
-r = session.get('https://python.org/')
+# Render JavaScript (if needed)
+# r.html.render()
 
-# Find elements using CSS Selectors
-about = r.html.find('#about', first=True)  # Find the first element with ID 'about'
+# Extract title
+title = r.html.find('title', first=True).text
+print(f"Title: {title}")
 
-# Extract text content
-print(about.text)
-
-# Get all links on the page
+# Find all links
 links = r.html.links
-print(links)
-
-# Search for specific text
-search_result = r.html.search('Python is a {} language')[0]
-print(search_result)
+for link in links:
+    print(link)
 ```
-
-**Asynchronous Usage:**
-
-```python
-from requests_html import AsyncHTMLSession
-import asyncio
-
-async def main():
-    async_session = AsyncHTMLSession()
-    r = await async_session.get('https://python.org/')
-    about = r.html.find('#about', first=True)
-    print(about.text)
-    await async_session.close() #important to close session
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-## API Documentation
-
-The core classes and functions are:
-
-*   **`HTMLSession`**:  Synchronous session for making HTTP requests.
-*   **`AsyncHTMLSession`**: Asynchronous session for making HTTP requests.
-*   **`HTML`**: Represents the parsed HTML content.
-*   **`Element`**: Represents an individual HTML element.
-
-Refer to the [full documentation](https://requests-html.readthedocs.io/en/latest/) for detailed information on all classes and methods.
 
 ## Contributing
 
-Contributions are welcomed!  Please see the [CONTRIBUTING.md](link to contributing doc if they have one) file for guidelines.
+Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to the project.
 
 ## License
 
-requests-HTML is licensed under the [MIT License](LICENSE).
-```
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+## Contact / Authors
+
+*   **Kenneth Reitz:** [me@kennethreitz.org](mailto:me@kennethreitz.org)
+*   **GitHub Repository:** [https://github.com/psf/requests-html](https://github.com/psf/requests-html)
