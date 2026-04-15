@@ -1,25 +1,13 @@
-Tokens: 24436
+Tokens: 16190
 Repo: apache/parquet-format
-Commit: 38818fa0e7efd54b535001a4448030a40619c2a3
-Timestamp: 2026-03-04T19:52:33.741773
+Commit: 96656a543a2165d57cc1c9abefaad7f9aeb563a5
+Timestamp: 2026-04-12T23:33:04.369469
 
 --- Repository Structure ---
 .
 ├── .asf.yaml
-├── .github
-│   ├── ISSUE_TEMPLATE
-│   │   ├── bug_report.yaml
-│   │   ├── config.yaml
-│   │   ├── feature_request.yaml
-│   │   └── usage_question.yaml
-│   ├── dependabot.yml
-│   └── workflows
-│       └── test.yml
 ├── .gitignore
-├── LICENSE
 ├── Makefile
-├── NOTICE
-├── changelog.sh
 ├── dev
 │   ├── finalize-release
 │   ├── prepare-release.sh
@@ -27,7 +15,6 @@ Timestamp: 2026-03-04T19:52:33.741773
 ├── doc
 │   └── images
 ├── licenses
-│   └── LICENSE.slf4j.txt
 ├── logo
 ├── pom.xml
 ├── proposals
@@ -35,368 +22,32 @@ Timestamp: 2026-03-04T19:52:33.741773
     └── main
         ├── resources
         │   └── META-INF
-        │       └── LICENSE
         └── thrift
             └── parquet.thrift
 
 --- Summary Report ---
-Total files scanned: 48
-Files included: 19
-Files skipped by rule: 29
+Total files scanned: 8
+Files included: 8
+Files skipped by rule: 0
 Files skipped by size: 0
-Detected languages count: 7
+Files skipped by budget: 0
+Files with structural extraction: 0
+Files with dependency extraction: 0
+Detected languages count: 5
 Top 15 largest included files:
-  46112 bytes - src/main/thrift/parquet.thrift
-  13193 bytes - src/main/resources/META-INF/LICENSE
-  11359 bytes - LICENSE
-  9853 bytes - pom.xml
-  2192 bytes - changelog.sh
-  2094 bytes - dev/source-release.sh
-  1999 bytes - .github/workflows/test.yml
-  1995 bytes - .github/ISSUE_TEMPLATE/usage_question.yaml
-  1490 bytes - dev/prepare-release.sh
-  1477 bytes - dev/finalize-release
-  1325 bytes - .asf.yaml
-  1215 bytes - licenses/LICENSE.slf4j.txt
-  1202 bytes - .github/ISSUE_TEMPLATE/feature_request.yaml
-  1124 bytes - .github/ISSUE_TEMPLATE/bug_report.yaml
-  1069 bytes - .github/dependabot.yml
+  47432 bytes - src\main\thrift\parquet.thrift
+  10129 bytes - pom.xml
+  2173 bytes - dev\source-release.sh
+  1534 bytes - dev\prepare-release.sh
+  1518 bytes - dev\finalize-release
+  1368 bytes - .asf.yaml
+  1095 bytes - Makefile
+  918 bytes - .gitignore
 -----------------------
 
 ---
-File: changelog.sh
-Size: 2192 bytes
-Lines: 64
----
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-
-GITHUB_REPO=Parquet/parquet-format
-OAUTH_FILE=~/.github_oauth_for_changelog
-if [ -f $OAUTH_FILE ]
-then
-  token=`cat $OAUTH_FILE`
-else
-  echo "Please create an oauth token here: https://github.com/settings/tokens/new"
-  echo "Then paste it bellow (it will be saved in $OAUTH_FILE):" >&2
-  read token >&2
-  echo $token > $OAUTH_FILE
-  chmod og-rwx $OAUTH_FILE
-fi
-TOKEN_HEADER="Authorization: token $token"
-
-curl -f -H "$TOKEN_HEADER" -s "https://api.github.com" > /dev/null
-if [ $? == 0 ]
-then
-  echo "login successful" >&2
-else
-  echo "login failed" >&2
-  curl -H "$TOKEN_HEADER" -s "https://api.github.com"
-  echo "if your OAUTH token needs to be replaced you can delete file $OAUTH_FILE"
-  exit 1
-fi
-
-echo "# Parquet #"
-
-git log | grep -E "Merge pull request|prepare release" | while read l
-do
-  release=`echo $l | grep "\[maven-release-plugin\] prepare release" | cut -d "-" -f 5`
-  PR=`echo $l| grep -E -o "Merge pull request #[^ ]*" | cut -d "#" -f 2`
-  if [ -n "$release" ]
-  then
-    echo
-    echo "### Version $release ###"
-  fi
-  if [ -n "$PR" ]
-  then
-    JSON=`curl -H "$TOKEN_HEADER" -s https://api.github.com/repos/${GITHUB_REPO}/pulls/$PR | tr "\n" " "`
-    DESC_RAW=$(echo $JSON |  grep -Eo '"title":.*?[^\\]",' | cut -d "\"" -f 4- | head -n 1 | sed -e "s/\\\\//g")
-    DESC=$(echo ${DESC_RAW%\",})
-    echo "* ISSUE [$PR](https://github.com/${GITHUB_REPO}/pull/$PR): ${DESC}"
-  fi
-done
-
-
-
----
-File: .asf.yaml
-Size: 1325 bytes
-Lines: 43
----
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-# https://cwiki.apache.org/confluence/display/INFRA/git+-+.asf.yaml+features
-#
-github:
-  description: "Apache Parquet Format"
-  homepage: https://parquet.apache.org/
-  labels:
-    - apache
-    - parquet
-    - parquet-format
-  
-  enabled_merge_buttons:
-    merge: false
-    squash: true
-    rebase: false
-  
-  features:
-    wiki: false
-    issues: true
-    projects: false
-
-notifications:
-  commits:      commits@parquet.apache.org
-  issues:       issues@parquet.apache.org
-  pullrequests: issues@parquet.apache.org
-  jira_options: link
-
-
----
-File: LICENSE
-Size: 11359 bytes
-Lines: 203
----
-
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-   1. Definitions.
-
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
-
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
-
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-
-   END OF TERMS AND CONDITIONS
-
-   APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-   Copyright [yyyy] [name of copyright owner]
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
-
-
----
 File: Makefile
-Size: 1065 bytes
+Size: 1095 bytes
 Lines: 30
 ---
 #
@@ -433,7 +84,7 @@ doc: README.html PageIndex.html LogicalTypes.html
 
 ---
 File: pom.xml
-Size: 9853 bytes
+Size: 10129 bytes
 Lines: 276
 ---
 <?xml version="1.0" encoding="UTF-8"?>
@@ -715,22 +366,58 @@ Lines: 276
 
 
 ---
-File: NOTICE
-Size: 172 bytes
-Lines: 7
+File: .asf.yaml
+Size: 1368 bytes
+Lines: 43
 ---
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# https://cwiki.apache.org/confluence/display/INFRA/git+-+.asf.yaml+features
+#
+github:
+  description: "Apache Parquet Format"
+  homepage: https://parquet.apache.org/
+  labels:
+    - apache
+    - parquet
+    - parquet-format
+  
+  enabled_merge_buttons:
+    merge: false
+    squash: true
+    rebase: false
+  
+  features:
+    wiki: false
+    issues: true
+    projects: false
 
-Apache Parquet Format
-Copyright 2014 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
+notifications:
+  commits:      commits@parquet.apache.org
+  issues:       issues@parquet.apache.org
+  pullrequests: issues@parquet.apache.org
+  jira_options: link
 
 
 ---
 File: .gitignore
-Size: 890 bytes
+Size: 918 bytes
 Lines: 28
 ---
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -764,40 +451,11 @@ dependency-reduced-pom.xml
 
 
 ---
-File: licenses/LICENSE.slf4j.txt
-Size: 1215 bytes
-Lines: 23
+File: dev\finalize-release
+Size: 1518 bytes
+Lines: 41
 ---
-The following is a copy of the SLF4J license:
-
-  Copyright (c) 2004-2013 QOS.ch
-  All rights reserved.
-
-  Permission is hereby granted, free  of charge, to any person obtaining
-  a  copy  of this  software  and  associated  documentation files  (the
-  "Software"), to  deal in  the Software without  restriction, including
-  without limitation  the rights to  use, copy, modify,  merge, publish,
-  distribute,  sublicense, and/or sell  copies of  the Software,  and to
-  permit persons to whom the Software  is furnished to do so, subject to
-  the following conditions:
-
-  The  above  copyright  notice  and  this permission  notice  shall  be
-  included in all copies or substantial portions of the Software.
-
-  THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
-  EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
-  MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
----
-File: .github/dependabot.yml
-Size: 1069 bytes
-Lines: 32
----
+#!/bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -806,9 +464,9 @@ Lines: 32
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-#
+# 
 #   http://www.apache.org/licenses/LICENSE-2.0
-#
+# 
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -817,244 +475,32 @@ Lines: 32
 # under the License.
 #
 
-version: 2
-updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "maven"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-    open-pull-requests-limit: 5
+set -e
+
+if [ -z "$3" ]; then
+    cat <<EOF
+Usage: $0 <release-version> <rc-num> <new-development-version-without-SNAPSHOT-suffix>
+Example: $0 2.7.0 0 2.8.0
+EOF
+  exit 1
+fi
+
+release_version="$1"
+release_tag="apache-parquet-format-$release_version"
+rc_tag="$release_tag-rc$2"
+new_development_version="$3-SNAPSHOT"
+
+git tag -am "Release Apache Parquet Format $release_version" "$release_tag" "$rc_tag"
+mvn --batch-mode release:update-versions -DdevelopmentVersion="$new_development_version"
+git commit -am 'Prepare for next development iteration'
+
+echo
+echo "Verify the release tag and the current development version then push the changes by running: git push --follow-tags"
 
 
 ---
-File: .github/workflows/test.yml
-Size: 1999 bytes
-Lines: 54
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Test
-
-on: [push, pull_request]
-
-jobs:
-  build:
-
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [ '8', '11', '17', '21' ]
-    name: Build Parquet with JDK ${{ matrix.java }}
-
-    steps:
-      - uses: actions/checkout@master
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: temurin
-      - name: before_install
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qq protobuf-compiler
-          sudo apt-get install -qq libboost-dev libboost-test-dev libboost-program-options-dev libevent-dev automake libtool flex bison pkg-config g++ libssl-dev
-          wget -qO- https://archive.apache.org/dist/thrift/0.22.0/thrift-0.22.0.tar.gz | tar zxf -
-          cd thrift-0.22.0/
-          chmod +x ./configure
-          ./configure --disable-libs
-          sudo make install
-      - name: install
-        run: |
-          mvn install --batch-mode -DskipTests=true -Dmaven.javadoc.skip=true -Dsource.skip=true -Djava.version=${{ matrix.java }}
-      - name: verify
-        run: |
-          mvn verify --batch-mode javadoc:javadoc
-
-
----
-File: .github/ISSUE_TEMPLATE/config.yaml
-Size: 814 bytes
-Lines: 18
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-blank_issues_enabled: false
-
-
----
-File: .github/ISSUE_TEMPLATE/usage_question.yaml
-Size: 1995 bytes
-Lines: 52
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Question
-description: Ask a question
-labels: ["Type: question"]
-assignees: []
-body:
-  - type: markdown
-    attributes:
-      value: >
-        While we enable issues as a mechanism for new contributors and passers-by who 
-        are unfamiliar with Apache Software Foundation projects to ask questions and 
-        interact with the project, we encourage users to ask such questions on public 
-        mailing lists:
-        
-        * Development discussions: dev@parquet.apache.org (first subscribe by sending an 
-        e-mail to dev-subscribe@parquet.apache.org).
-        
-        * User discussions: user@parquet.apache.org (first subscribe by sending an e-mail 
-        to user-subscribe@parquet.apache.org).
-        
-        * Mailing list archives: https://parquet.apache.org/community/
-        
-        
-        Do not be surprised by responses to issues raised here directing you to those 
-        mailing lists, or to report a bug or feature request here.
-
-
-        Thank you!
-  - type: textarea
-    id: description
-    attributes:
-      label: >
-        Describe the usage question you have. Please include as many useful details as 
-        possible.
-    validations:
-      required: true
-
-
----
-File: .github/ISSUE_TEMPLATE/bug_report.yaml
-Size: 1124 bytes
-Lines: 29
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Bug Report
-description: File a bug report
-labels: ["Type: bug"]
-assignees: []
-body:
-  - type: textarea
-    id: description
-    attributes:
-      label: Describe the bug, including details regarding any error messages, version, and platform.
-      description: Please include what you expected.
-    validations:
-      required: true
-
-
----
-File: .github/ISSUE_TEMPLATE/feature_request.yaml
-Size: 1202 bytes
-Lines: 32
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Enhancement Request
-description: Request an enhancement to the project
-labels: ["Type: enhancement"]
-assignees: []
-body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to share your feedback on ways Apache Parquet can be improved!
-  - type: textarea
-    id: description
-    attributes:
-      label: Describe the enhancement requested
-    validations:
-      required: true
-
-
----
-File: dev/prepare-release.sh
-Size: 1490 bytes
+File: dev\prepare-release.sh
+Size: 1534 bytes
 Lines: 44
 ---
 #!/bin/bash
@@ -1104,56 +550,8 @@ echo "Finish staging binary artifacts by running: mvn release:perform"
 
 
 ---
-File: dev/finalize-release
-Size: 1477 bytes
-Lines: 41
----
-#!/bin/bash
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-# 
-#   http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-
-set -e
-
-if [ -z "$3" ]; then
-    cat <<EOF
-Usage: $0 <release-version> <rc-num> <new-development-version-without-SNAPSHOT-suffix>
-Example: $0 2.7.0 0 2.8.0
-EOF
-  exit 1
-fi
-
-release_version="$1"
-release_tag="apache-parquet-format-$release_version"
-rc_tag="$release_tag-rc$2"
-new_development_version="$3-SNAPSHOT"
-
-git tag -am "Release Apache Parquet Format $release_version" "$release_tag" "$rc_tag"
-mvn --batch-mode release:update-versions -DdevelopmentVersion="$new_development_version"
-git commit -am 'Prepare for next development iteration'
-
-echo
-echo "Verify the release tag and the current development version then push the changes by running: git push --follow-tags"
-
-
----
-File: dev/source-release.sh
-Size: 2094 bytes
+File: dev\source-release.sh
+Size: 2173 bytes
 Lines: 79
 ---
 #!/bin/bash
@@ -1238,259 +636,8 @@ echo "Commit SHA1: $release_hash"
 
 
 ---
-File: src/main/resources/META-INF/LICENSE
-Size: 13193 bytes
-Lines: 244
----
-
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-   1. Definitions.
-
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
-
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
-
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-
-   END OF TERMS AND CONDITIONS
-
-   APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-   Copyright [yyyy] [name of copyright owner]
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
---------------------------------------------------------------------------------
-
-This product depends on SLF4J and includes SLF4J in this binary artifact. SLF4J
-is a simple logging facade for Java.
-
-Copyright: 2004-2013 QOS.ch.
-Home page: http://www.slf4j.org/
-License: http://slf4j.org/license.html (MIT license)
-
-The following is the SLF4J license (MIT):
-
-  Copyright (c) 2004-2013 QOS.ch
-  All rights reserved.
-
-  Permission is hereby granted, free  of charge, to any person obtaining
-  a  copy  of this  software  and  associated  documentation files  (the
-  "Software"), to  deal in  the Software without  restriction, including
-  without limitation  the rights to  use, copy, modify,  merge, publish,
-  distribute,  sublicense, and/or sell  copies of  the Software,  and to
-  permit persons to whom the Software  is furnished to do so, subject to
-  the following conditions:
-
-  The  above  copyright  notice  and  this permission  notice  shall  be
-  included in all copies or substantial portions of the Software.
-
-  THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
-  EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
-  MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-  OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
-  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
---------------------------------------------------------------------------------
-
-This product depends on Apache Thrift and includes it in this binary artifact.
-
-Copyright: 2006-2010 The Apache Software Foundation.
-Home page: https://thrift.apache.org/
-License: http://www.apache.org/licenses/LICENSE-2.0
-
-
-
----
-File: src/main/thrift/parquet.thrift
-Size: 46112 bytes
+File: src\main\thrift\parquet.thrift
+Size: 47432 bytes
 Lines: 1355
 ---
 /**
@@ -1775,7 +922,7 @@ struct Statistics {
     */
    1: optional binary max;
    2: optional binary min;
-   /** 
+   /**
     * Count of null values in the column.
     *
     * Writers SHOULD always write this field even if it is zero (i.e. no null value)
@@ -2212,7 +1359,7 @@ struct DictionaryPageHeader {
  * The remaining section containing the data is compressed if is_compressed is true
  *
  * Implementation note - this header is not necessarily a strict improvement over
- * `DataPageHeader` (in particular the original header might provide better compression 
+ * `DataPageHeader` (in particular the original header might provide better compression
  * in some scenarios). Page indexes require pages to start and end at row boundaries,
  * regardless of which page header is used.
  **/
@@ -2392,7 +1539,7 @@ struct ColumnMetaData {
   /** total byte size of all uncompressed pages in this column chunk (including the headers) **/
   6: required i64 total_uncompressed_size
 
-  /** total byte size of all compressed, and potentially encrypted, pages 
+  /** total byte size of all compressed, and potentially encrypted, pages
    *  in this column chunk (including the headers) **/
   7: required i64 total_compressed_size
 
@@ -2459,19 +1606,19 @@ struct ColumnChunk {
   /** File where column data is stored.  If not set, assumed to be same file as
     * metadata.  This path is relative to the current file.
     *
-    * As of December 2025, the only known use-case for this field is writing summary 
-    * parquet files (i.e. "_metadata" files).  These files consolidate footers from 
-    * multiple parquet files to allow for efficient reading of footers to avoid file 
+    * As of December 2025, the only known use-case for this field is writing summary
+    * parquet files (i.e. "_metadata" files).  These files consolidate footers from
+    * multiple parquet files to allow for efficient reading of footers to avoid file
     * listing costs and prune out files that do not need to be read based on statistics.
     *
     * These files do not appear to have ever been formally specified in the specification.
     * and are potentially problematic from a correctness perspective [1].
-    * 
+    *
     * [1] https://lists.apache.org/thread/ootf2kmyg3p01b1bvplpvp4ftd1bt72d
     *
-    * There is no other known usage of this field. Specifically, there are no known 
-    * reference implementations that will read externally stored column data if this field is populated 
-    * within a standard parquet file. Making use of the field for this purpose is  
+    * There is no other known usage of this field. Specifically, there are no known
+    * reference implementations that will read externally stored column data if this field is populated
+    * within a standard parquet file. Making use of the field for this purpose is
     * not considered part of the Parquet specification.
     **/
   1: optional string file_path
@@ -2534,10 +1681,10 @@ struct RowGroup {
    * in this row group **/
   5: optional i64 file_offset
 
-  /** Total byte size of all compressed (and potentially encrypted) column data 
+  /** Total byte size of all compressed (and potentially encrypted) column data
    *  in this row group **/
   6: optional i64 total_compressed_size
-  
+
   /** Row group ordinal in the file **/
   7: optional i16 ordinal
 }
@@ -2614,7 +1761,7 @@ union ColumnOrder {
    *     - If the min is +0, the row group may contain -0 values as well.
    *     - If the max is -0, the row group may contain +0 values as well.
    *     - When looking for NaN values, min and max should be ignored.
-   * 
+   *
    *     When writing statistics the following rules should be followed:
    *     - NaNs should not be written to min or max statistics fields.
    *     - If the computed max value is zero (whether negative or positive),
@@ -2707,13 +1854,13 @@ struct ColumnIndex {
   4: required BoundaryOrder boundary_order
 
   /**
-   * A list containing the number of null values for each page 
+   * A list containing the number of null values for each page
    *
    * Writers SHOULD always write this field even if no null values
    * are present or the column is not nullable.
-   * Readers MUST distinguish between null_counts not being present 
+   * Readers MUST distinguish between null_counts not being present
    * and null_count being 0.
-   * If null_counts are not present, readers MUST NOT assume all 
+   * If null_counts are not present, readers MUST NOT assume all
    * null counts are 0.
    */
   5: optional list<i64> null_counts
@@ -2770,12 +1917,12 @@ union EncryptionAlgorithm {
  * Description for file metadata
  */
 struct FileMetaData {
-  /** Version of this file 
-    * 
-    * As of December 2025, there is no agreed upon consensus of what constitutes 
-    * version 2 of the file. For maximum compatibility with readers, writers should 
-    * always populate "1" for version. For maximum compatibility with writers, 
-    * readers should accept "1" and "2" interchangeably.  All other versions are 
+  /** Version of this file
+    *
+    * As of December 2025, there is no agreed upon consensus of what constitutes
+    * version 2 of the file. For maximum compatibility with readers, writers should
+    * always populate "1" for version. For maximum compatibility with writers,
+    * readers should accept "1" and "2" interchangeably.  All other versions are
     * reserved for potential future use-cases.
     */
   1: required i32 version
@@ -2821,30 +1968,30 @@ struct FileMetaData {
    */
   7: optional list<ColumnOrder> column_orders;
 
-  /** 
+  /**
    * Encryption algorithm. This field is set only in encrypted files
    * with plaintext footer. Files with encrypted footer store algorithm id
    * in FileCryptoMetaData structure.
    */
   8: optional EncryptionAlgorithm encryption_algorithm
 
-  /** 
-   * Retrieval metadata of key used for signing the footer. 
-   * Used only in encrypted files with plaintext footer. 
-   */ 
+  /**
+   * Retrieval metadata of key used for signing the footer.
+   * Used only in encrypted files with plaintext footer.
+   */
   9: optional binary footer_signing_key_metadata
 }
 
 /** Crypto metadata for files with encrypted footer **/
 struct FileCryptoMetaData {
-  /** 
+  /**
    * Encryption algorithm. This field is only used for files
    * with encrypted footer. Files with plaintext footer store algorithm id
    * inside footer (FileMetaData structure).
    */
   1: required EncryptionAlgorithm encryption_algorithm
-    
-  /** Retrieval metadata of key used for encryption of footer, 
+
+  /** Retrieval metadata of key used for encryption of footer,
    *  and (possibly) columns **/
   2: optional binary key_metadata
 }

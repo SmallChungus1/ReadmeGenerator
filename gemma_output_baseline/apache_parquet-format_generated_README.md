@@ -1,86 +1,74 @@
+```markdown
 # Apache Parquet Format
 
 ## Description
 
-The Apache Parquet format is a columnar storage format designed for efficient data storage and retrieval. This repository contains the code and specifications related to the Parquet format, including metadata definitions, schema structures, and encoding mechanisms. It's optimized for analytical queries, providing benefits like reduced I/O, better compression, and improved query performance.
+This repository contains the metadata definitions and tooling for the Apache Parquet format. Parquet is a columnar storage format designed for efficient data storage and retrieval, particularly in big data processing systems like Hadoop. This project provides the core specifications for the file format, allowing interoperability between various data processing frameworks.  The Thrift definition within the repository is central to defining Parquet's data structures.
 
 ## Features
 
-*   **Columnar Storage:** Stores data in columns rather than rows, enabling efficient retrieval of specific columns for analytic queries.
-*   **Nested Data Support:**  Handles complex, nested data structures.
-*   **Compression:** Supports various compression codecs (e.g., Snappy, GZIP, LZO, Brotli, ZSTD) to reduce storage space.
-*   **Encoding:** Provides different encoding schemes to optimize data storage and retrieval.
-*   **Schema Evolution:** Supports schema evolution allowing for changes to the data structure without breaking compatibility.
-*   **Metadata:** Comprehensive metadata allows the reader to understand the schema, statistics, and characteristics of the data.
-*   **Type System:** Defines a rich set of data types to represent a wide range of data formats.
-*   **Bloom Filters:** Uses bloom filters to accelerate queries and reduce I/O.
-*   **Encryption:** Supports encryption for securing data.
+*   **Columnar Storage:**  Parquet stores data in a columnar format, optimizing read performance for analytical queries that typically access only a subset of columns.
+*   **Schema Evolution:**  The format supports schema evolution, allowing changes to the data structure without breaking compatibility.
+*   **Compression & Encoding:**  Supports a variety of compression and encoding schemes to reduce storage space and improve query performance.  Supported codecs include Snappy, GZIP, LZO, Brotli, LZ4, and Zstd.
+*   **Data Types:**  Supports a comprehensive set of data types, including primitive types, nested structures, and advanced types like decimals and timestamps.
+*   **Metadata Management:**  Includes rich metadata information for efficient data filtering and retrieval.
+*   **Thrift Definition:**  Provides a Thrift definition (`parquet.thrift`) that defines the Parquet data structures.
 
 ## Installation
 
-This repository contains the core definitions and build configuration. To build and use the Parquet format, you'll typically use a Parquet library specific to your programming language. 
+This project is a core specification and does not require a traditional installation.  However, to work with Parquet files and utilize the definitions, you will need a compatible Parquet library in your chosen programming language (e.g., Java, Python, C++). 
 
-Here's a general outline of building the project if you intend to work with the source code directly (e.g. for contributing):
+To generate code from the Thrift definition:
 
-1.  **Prerequisites:**
-    *   Java Development Kit (JDK) 8 or higher
-    *   Maven
-    *   Git
-    *   Thrift Compiler (`thrift`)
-
-2.  **Clone the Repository:**
+1.  **Install Thrift:** Ensure you have the Thrift compiler installed on your system.  Instructions can be found on the official Thrift website: [https://thrift.apache.org/](https://thrift.apache.org/)
+2.  **Generate Code:**  Use the following command to generate code in your desired language.  For example, to generate Java code:
 
     ```bash
-    git clone https://github.com/apache/parquet-format.git
-    cd parquet-format
+    thrift --gen java -o generated src/main/thrift/parquet.thrift
     ```
-
-3.  **Build the Project:**
-
-    ```bash
-    mvn clean install
-    ```
-
-Building uses Maven to manage dependencies and build the project.
 
 ## Usage
 
-The primary usage of this repository is as a foundation for other projects that implement Parquet readers and writers. 
+The primary use case of this repository is to understand the Parquet format specification and generate code for interacting with Parquet files in different programming languages.
 
-*   **Using Parquet Libraries:**  The common use case is to utilize existing Parquet libraries in your application.  Examples of popular libraries include:
-    *   **Apache Arrow:** Provides a Parquet implementation in C++, Python, Java, and other languages.
-    *   **Parquet4J:** A native Java implementation.
-    *   **Spark/Hive:**  Spark and Hive have built-in Parquet support.
-*   **Schema Definition:** To create Parquet files, you need to define a schema that specifies the data types and structure of your data. This schema is represented using `SchemaElement` structs.
-*   **Writing Parquet Files:** Use a Parquet library to write data to files according to the defined schema and desired encoding/compression settings.
-*   **Reading Parquet Files:** Use a Parquet library to read data from files and access the data according to the schema.
-*  **Changelog:** To generate a change log use the included `changelog.sh` script:
+*   **Review the `parquet.thrift` file:** This file defines the data structures used in the Parquet format.
+*   **Generate code:** Use the Thrift compiler to generate code in your desired language.
+*   **Integrate with a Parquet library:** Use a dedicated Parquet library for reading and writing Parquet files. Popular options include:
+    *   **Java:** [parquet-mr](https://github.com/apache/parquet-mr)
+    *   **Python:** [pyarrow](https://arrow.apache.org/)
+    *   **C++:** [parquet-cpp](https://github.com/apache/parquet-cpp)
 
-    ```bash
-    ./changelog.sh
-    ```
+## Development
 
-## Repository Structure
+The project is managed using Maven.  Here are some common development tasks:
 
-*   `.asf.yaml`: Configuration file for Apache Software Foundation projects.
-*   `.github/`: Contains GitHub configuration files.
-*   `LICENSE`: The Apache License 2.0.
-*   `NOTICE`: Describes copyright and attributions.
-*   `src/main/thrift/parquet.thrift`: Thrift file defining the Parquet data structures.  This is used to generate code in various languages.
-*   `src/main/resources/META-INF/LICENSE`: License information.
-*   `pom.xml`: Maven project object model file, containing build configuration.
-*   `doc/`: Documentation related to the Parquet format.
-*   `dev/`: Scripts for release management and development tasks.
+*   **Building the project:** `mvn clean install`
+*   **Running tests:** `mvn test`
+*   **Preparing a release:** `mvn release:prepare`
+*   **Finalizing a release:** `mvn release:perform`
 
 ## Contributing
 
-Please see the [CONTRIBUTING.md](https://github.com/apache/parquet-format/blob/master/CONTRIBUTING.md) file for guidelines on how to contribute to this project.
+Contributions are welcome! Please review the [NOTICE](NOTICE) and [LICENSE](LICENSE) files for details on licensing and contribution guidelines.
 
 ## License
 
-This project is licensed under the [Apache License, Version 2.0](LICENSE).
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more information.
 
-## Contact
+## Repository Structure
 
-*   **Website:** [https://parquet.apache.org/](https://parquet.apache.org/)
-*   **Mailing Lists:** [https://parquet.apache.org/community/](https://parquet.apache.org/community/)
+*   `.asf.yaml`: Configuration file for Apache projects.
+*   `.github/`: Contains GitHub configuration files, including issue templates and workflows.
+*   `doc/`: Documentation related to the Parquet format.
+*   `licenses/`: Contains licenses for third-party dependencies.
+*   `pom.xml`: Maven project configuration file.
+*   `src/main/thrift/parquet.thrift`: The core Thrift definition file for the Parquet format.
+*   `src/main/resources/META-INF/LICENSE`:  License information.
+*   `dev/`: Scripts for release management.
+*   `changelog.sh`: A script for generating a changelog.
+
+## Further Information
+
+*   **Apache Parquet Website:** [https://parquet.apache.org/](https://parquet.apache.org/)
+*   **Thrift Website:** [https://thrift.apache.org/](https://thrift.apache.org/)
+```

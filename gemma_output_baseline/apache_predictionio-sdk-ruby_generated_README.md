@@ -1,98 +1,116 @@
-```markdown
 # Apache PredictionIO Ruby SDK
 
 [![Build Status](https://travis-ci.org/apache/predictionio-sdk-ruby.svg?branch=master)](https://travis-ci.org/apache/predictionio-sdk-ruby)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Description
 
-Apache PredictionIO is an open-source machine learning server for developers and data scientists to create predictive engines for production environments. This gem provides a convenient Ruby interface to the Apache PredictionIO API, allowing developers to focus on application logic rather than the complexities of direct API interaction. This SDK enables easy integration with PredictionIO engines for event tracking and real-time predictions.
+Apache PredictionIO is an open source machine learning server for developers and data scientists to create predictive engines for production environments. This gem provides convenient access to the Apache PredictionIO API for Ruby programmers so that you can focus on application logic. This SDK facilitates interaction with the Event API and Engine Instances.
 
 ## Features
 
-*   **Event API Integration:** Easily submit events to a PredictionIO instance for model training.
-*   **Engine API Integration:**  Query trained PredictionIO engines for real-time predictions.
-*   **Asynchronous and Synchronous Operations:** Supports both synchronous and asynchronous request/response handling for improved performance and responsiveness.
-*   **HTTP/HTTPS Support:**  Works with both secure and non-secure connections to your PredictionIO server.
-*   **Thread Safety:** Designed for multithreaded environments.
-*   **Error Handling:**  Provides specific exception types for common API errors (e.g., `NotFoundError`, `BadRequestError`, `ServerError`).
+*   **Asynchronous & Synchronous API Access:** Offers both blocking (synchronous) and non-blocking (asynchronous) methods for interacting with the PredictionIO API.
+*   **Event API Client:**  Provides a client for sending events to the PredictionIO Event Server, allowing for training data import.  Supports user and item events, property setting, unsetting, and deletion.
+*   **Engine API Client:**  Enables querying trained Engine Instances to retrieve predictions.
+*   **HTTP Connection Pooling:** Manages a pool of HTTP connections for performance optimization.
+*   **Error Handling:** Includes exception classes for common errors like `NotFoundError`, `BadRequestError`, and `ServerError`.
 
 ## Installation
 
-Add the gem to your `Gemfile`:
+Add the following line to your Gemfile:
 
 ```ruby
 gem 'predictionio'
 ```
 
-Then run `bundle install`.
+Then, execute:
+
+```bash
+bundle install
+```
 
 ## Usage
 
-Here's a basic example of how to use the PredictionIO Ruby SDK:
+### Initializing Clients
+
+**Event Client:**
 
 ```ruby
 require 'predictionio'
 
-# Instantiate the EventClient
-event_client = PredictionIO::EventClient.new(access_key: 1, apiurl: 'http://localhost:7070')
-
-# Create a user event
-response = event_client.create_event('register', 'user', 'foobar')
-
-# Check the response code
-if response.code == '201'
-  puts "User event created successfully!"
-else
-  puts "Error creating user event: #{response.body}"
-end
-
-# Instantiate the EngineClient
-engine_client = PredictionIO::EngineClient.new(apiurl: 'http://localhost:8000')
-
-# Get predictions for a user
-predictions = engine_client.send_query('uid' => 'foobar')
-
-# Print the predictions
-puts "Predictions: #{predictions}"
+access_key = 1
+event_client = PredictionIO::EventClient.new(access_key)
 ```
 
-**Key Classes:**
+**Engine Client:**
 
-*   `PredictionIO::EventClient`: For interacting with the Event API.  Used for sending events to track user behavior and data.
-*   `PredictionIO::EngineClient`: For interacting with the Engine API. Used for making prediction requests.
-*   `PredictionIO::AsyncRequest`: Represents an asynchronous HTTP request.
-*   `PredictionIO::AsyncResponse`:  Represents the response to an asynchronous HTTP request.
+```ruby
+require 'predictionio'
 
-## API Reference
+engine_client = PredictionIO::EngineClient.new
+```
 
-Refer to the source code and comments within the `lib` directory for detailed information on each class and method.  In particular, review the comments in `lib/predictionio/event_client.rb` and `lib/predictionio/engine_client.rb` for specific method signatures, parameter descriptions, and return values.
+### Event API Examples
 
-## Configuration
+**Creating an event:**
 
-The `PredictionIO::EventClient` and `PredictionIO::EngineClient` accept the following configuration options:
+```ruby
+response = event_client.create_event('pageview', 'user', 'user123', { 'page' => 'home' })
+```
 
-*   `access_key`:  Your PredictionIO access key.  Required for the EventClient.
-*   `apiurl`: The URL to your PredictionIO instance (e.g., `http://localhost:7070` for the event server or `http://localhost:8000` for the engine server).
-*   `threads`: The number of concurrent HTTP connections (threads) to use. Defaults to 1.
-*   `thread_timeout`: The timeout (in seconds) for each HTTP connection. Defaults to 60 seconds.
+**Setting user properties:**
 
-## Dependencies
+```ruby
+response = event_client.set_user('user123', { 'age' => 30, 'location' => 'New York' })
+```
 
-*   `json` (>= 1.8)
-*   `activesupport` (~> 4.2)
-*   `rspec` (~> 3.6.0) - For testing (development dependency)
-*   `webmock` (~> 2.3.2) - For stubbing HTTP requests during testing (development dependency)
-* `coveralls` - for automated test coverage reports (development dependency)
+**Recording a user action on an item:**
+
+```ruby
+response = event_client.record_user_action_on_item('view', 'user123', 'item456')
+```
+
+### Engine API Examples
+
+**Sending a query:**
+
+```ruby
+predictions = engine_client.send_query('uid' => 'user123')
+puts predictions # Typically returns a hash with prediction results
+```
+
+### Asynchronous Requests
+
+For higher performance, you can use asynchronous requests.
+
+```ruby
+async_response = event_client.acreate_event('pageview', 'user', 'user123', { 'page' => 'home' })
+
+# Do other work...
+
+begin
+  result = async_response.get
+  puts "Event created successfully!"
+rescue => e
+  puts "Error creating event: #{e.message}"
+end
+```
 
 ## Contributing
 
-We welcome contributions! Please see the [Contribution Guidelines](CONTRIBUTING.md) for details on how to contribute code, documentation, or bug reports.
+See [CONTRIBUTING.md](link to contributing guide - not present in provided files, but good practice to include in a real repo) for information on how to contribute to this project.
 
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE) - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgements
+## Dependencies
 
-This software is developed as part of the Apache PredictionIO project: [http://predictionio.apache.org/](http://predictionio.apache.org/)
+*   activesupport (~> 4.2)
+*   json (>= 1.8)
+*   webmock (~> 2.3.2) - for testing
+
+## Additional Information
+
+*   **PredictionIO Website:** [http://predictionio.apache.org](http://predictionio.apache.org)
+*   **Documentation:**  Official documentation can be found on the PredictionIO website.
+*   **Source Code:** [https://github.com/apache/predictionio-sdk-ruby](https://github.com/apache/predictionio-sdk-ruby)

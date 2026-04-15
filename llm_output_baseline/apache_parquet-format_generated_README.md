@@ -1,306 +1,127 @@
-file based on the provided repository structure and content. The actual content of the files in the repository is not included in this README, only the summary information.
+# Apache Parquet Format
 
-The generated README.md file is designed to be a complete and self-contained document that provides all the necessary information for users to understand and use the repository.
+## Description
 
-The content is organized into logical sections that are easy to navigate and understand.
+Apache Parquet is a **columnar storage format** designed for efficient data processing and analytics. This repository defines the **core schema and data model** for the Parquet file format, providing a standardized way to store and retrieve structured data with high compression and performance. The format supports nested data structures, type annotations, encoding strategies, and metadata for efficient query execution.
 
-The README includes links to relevant resources such as the license, mailing lists, and issue templates.
+The specification is defined in a Thrift IDL file (`parquet.thrift`), which generates code for various programming languages. This repository serves as the official format specification and is maintained by the Apache Software Foundation.
 
-The file is written in a clear and concise style that is accessible to both technical and non-technical readers.
+## Features
 
-The generated README is based on the provided repository structure and content, and is designed to be a comprehensive resource for the Apache Parquet Format specification.
+- **Columnar Storage**: Optimized for analytical queries by storing data by column rather than row.
+- **Nested Data Support**: Full support for complex structures like lists, maps, and unions.
+- **Flexible Data Types**: Includes primitive types (INT32, INT64, BOOLEAN), variable-length types (BYTE_ARRAY), and specialized types (DECIMAL, TIMESTAMP, DATE, TIME).
+- **Logical Type Annotations**: Enables rich data semantics (e.g., UTF8, JSON, GEOGRAPHY) through `LogicalType` and `ConvertedType` enums.
+- **Efficient Encoding**: Supports multiple encoding strategies (PLAIN, DELTA_BINARY_PACKED, RLE, BIT_PACKED, BYTE_STREAM_SPLIT) to optimize storage and compression.
+- **Compression Algorithms**: Built-in support for GZIP, SNAPPY, LZ4, ZSTD, and BROTLI.
+- **Metadata-Driven**: Comprehensive metadata including statistics (null counts, min/max values), size estimates, and sort orders for query optimization.
+- **Encryption Support**: Full support for AES-GCM encryption with optional AAD (Additional Authenticated Data).
+- **Schema Evolution**: Designed to support backward compatibility through versioning and metadata annotations.
+- **Cross-Platform Compatibility**: Designed to work with all major data processing frameworks (e.g., Spark, Hive, Pig).
 
---- 
+## Installation
 
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
+This repository is not a software application to be installed in the traditional sense. It defines the **format specification** for Parquet files. To work with Parquet data:
 
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
+1. **Install a Parquet-compatible data processing framework** such as Apache Spark, Apache Hive, or Pandas with PyArrow.
+2. **Ensure Thrift is available** for generating code from the `.thrift` file (required for development and tooling).
+3. **Clone the repository** to access the official format specification:
 
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
+```bash
+git clone https://github.com/apache/parquet-format.git
+cd parquet-format
+```
 
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
+> **Note**: The `Makefile` includes a script to generate code from the Thrift schema:
+>
+> ```bash
+> make thrift
+> ```
+>
+> This generates C++ and Java code in the `generated/` directory.
 
----
-Note: This is a generated README.md file based on the provided repository structure and content. The actual content of the files in the repository is not included in this README, only the summary information.
+## Usage
 
-The generated README.md file is designed to be a complete and self-contained document that provides all the necessary information for users to understand and use the repository.
+The Parquet format is used by data systems to store and read structured data. Below are examples of how to work with the specification:
 
-The content is organized into logical sections that are easy to navigate and understand.
+### 1. Generate Code from Thrift Schema
 
-The README includes links to relevant resources such as the license, mailing lists, and issue templates.
+To generate code for a specific language (e.g., Java or C++), run:
 
-The file is written in a clear and concise style that is accessible to both technical and non-technical readers.
+```bash
+make thrift
+```
 
-The generated README is based on the provided repository structure and content, and is designed to be a comprehensive resource for the Apache Parquet Format specification.
+This command will:
+- Create a `generated/` directory.
+- Generate C++ and Java code from `src/main/thrift/parquet.thrift`.
 
---- 
+### 2. Understand Data Types and Logical Types
 
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
+The `parquet.thrift` file defines core types and logical types. For example:
 
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
+```thrift
+enum Type {
+  BOOLEAN = 0;
+  INT32 = 1;
+  INT64 = 2;
+  FLOAT = 4;
+  DOUBLE = 5;
+  BYTE_ARRAY = 6;
+  FIXED_LEN_BYTE_ARRAY = 7;
+}
 
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
+union LogicalType {
+  1: StringType STRING
+  2: MapType MAP
+  3: ListType LIST
+  4: EnumType ENUM
+  5: DecimalType DECIMAL
+  6: DateType DATE
+  7: TimeType TIME
+  8: TimestampType TIMESTAMP
+}
+```
 
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
+This allows frameworks to interpret data with semantic meaning (e.g., a `STRING` field with `UTF8` logical type is interpreted as UTF-8 encoded text).
 
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
+### 3. View File Metadata Structure
 
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
+A Parquet file contains metadata defined in the `FileMetaData` struct, including:
 
----
+- Schema (tree of `SchemaElement`s)
+- Row groups with column chunks
+- Statistics (null counts, min/max values)
+- Sorting orders
+- Encryption details
 
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
+This metadata enables efficient filtering, projection, and query planning.
 
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
+### 4. Build and Release Management
 
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
+The repository includes scripts for managing releases:
 
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
+- `dev/prepare-release.sh`: Prepares a release version with a specified RC number.
+- `dev/finalize-release`: Finalizes the release by tagging and updating version numbers.
+- `dev/source-release.sh`: Creates a signed tarball for distribution.
 
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
+Example usage:
 
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
+```bash
+# Prepare a release candidate (e.g., 2.7.0-rc0)
+./dev/prepare-release.sh 2.7.0 0
 
----
+# Finalize the release and update version
+./dev/finalize-release 2.7.0 0 2.8.0
+```
 
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
+> **Note**: These scripts are intended for Apache project maintainers and require proper access to the repository and build tools.
 
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
+### 5. Documentation and Compliance
 
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
+The project includes:
+- A `doc/` directory with images and documentation.
+- A `pom.xml` for Maven-based builds.
+- Compliance with Apache Software Foundation standards (e.g., license, issue tracking, mailing lists).
 
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
---- 
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is structured to be clear and easy to understand, with sections that are logically organized and provide complete information for users.
-
-The content is based on the actual files in the repository, including the Thrift specification, license, and development scripts.
-
-The README is designed to be a comprehensive resource for both developers and users of the Parquet format.
-
-The generated README is not a direct copy of any file in the repository, but rather a synthesized document that provides a complete and accurate overview of the repository.
-
-The file is designed to be a single, comprehensive document that covers all aspects of the repository, making it easy for new users to understand and contribute to the project.
-
----
-
-This README.md file is generated based on the provided repository structure and content. It includes all the relevant information about the Apache Parquet Format specification repository, including its purpose, features, installation, usage, and contribution guidelines.
-
-The file is
+For more details, visit the official documentation at: [https://parquet.apache.org/](https://parquet.apache.org/)

@@ -1,95 +1,90 @@
 # Apache CouchDB Docker Images
 
-This repository provides official Docker images for Apache CouchDB. These images are designed to simplify the deployment and management of CouchDB in containerized environments.
+[![Build Status](https://ci-builds.apache.org/job/CouchDB-Docker/job/main/badge/)]()
+
+This repository provides Docker images for Apache CouchDB. It supports a variety of versions and base images to suit different needs.
 
 ## Description
 
-Apache CouchDB is a powerful, open-source NoSQL database known for its document-oriented storage model, ease of use, and robust replication capabilities. These Docker images provide a pre-configured and easily deployable environment for running CouchDB.
+These images are designed to provide a convenient and reproducible way to run Apache CouchDB in a containerized environment.  They are based on Debian and UBI base images for compatibility and ease of use.  The images are built and maintained by the Apache CouchDB community.
 
 ## Features
 
-* **Multiple Versions:** Images are provided for various CouchDB versions (e.g., 2.3.1, 3.1.2, 3.2.3, 3.3.3, 3.4.1, 3.4.2, 3.4.3, 3.5.0, 3.5.1).
-* **Base Images:**  Based on Debian and RedHat UBI providing a consistent and secure base.
-* **Pre-configured:** Images come with sensible defaults for ease of use.
-* **User Management:** Dedicated `couchdb` user for security.
-* **RunIt Integration:**  Images utilize `runit` for process management.
-* **Nouveau Support:** Dedicated images with CouchDB Nouveau, the newer approach for full-text indexing and querying.
-* **Clouseau Support:** Images that include Clouseau, a full-text search indexer.
-* **Official Images:** Provided and maintained by the Apache CouchDB project.
+*   **Multiple Versions:** Contains images for various CouchDB versions (2.3.1, 3.1.2, 3.2.3, 3.3.3, 3.4.1, 3.4.2, 3.4.3, 3.5.0, 3.5.1), providing flexibility for different application requirements.
+*   **Base Image Options:** Offers images based on Debian and Red Hat's Universal Base Image (UBI).
+*   **Optimized for Docker:** Images are configured specifically for running CouchDB within a Docker container.
+*   **Automated Builds:**  Automated CI builds are provided for continuous integration and testing.
+*   **Clouseau Integration:** Includes images with pre-integrated Clouseau support (e.g., 3.1.2-ubi-clouseau, 3.4.1-nouveau, 3.4.2-nouveau, 3.4.3-nouveau, 3.5.0-nouveau, 3.5.1-nouveau).
+*   **Nouveau Support:** Includes specific images containing Nouveau integration.
 
 ## Installation
 
-1. **Docker:**  Ensure Docker is installed on your system.  Refer to the official Docker documentation for installation instructions: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+To use these images, you need to have Docker installed on your system.  Instructions for installing Docker can be found on the official Docker website: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-2. **Pull the Image:**  Pull the desired CouchDB image from Docker Hub using the `docker pull` command. For example, to pull the 3.4.3 image:
+After installing Docker, you can pull an image using the `docker pull` command. For example:
 
-   ```bash
-   docker pull apache/couchdb:3.4.3
-   ```
-
-   To pull the 3.4.3 Nouveau image:
-
-   ```bash
-   docker pull apache/couchdb:3.4.3-nouveau
-   ```
+```bash
+docker pull apache/couchdb:3.4.3
+```
 
 ## Usage
 
-1. **Run the Container:**
+Once you have pulled an image, you can run it using the `docker run` command. Here's an example:
 
-   Run the CouchDB container using the `docker run` command.  This example maps port 5984 (CouchDB's HTTP interface) to your host machine and sets environment variables for the admin user and password.
+```bash
+docker run -d -p 5984:5984 --name my-couchdb apache/couchdb:3.4.3
+```
 
-   ```bash
-   docker run -d -p 5984:5984 \
-       -e COUCHDB_USER=admin \
-       -e COUCHDB_PASSWORD=password \
-       apache/couchdb:3.4.3
-   ```
-   Replace `3.4.3` with the desired CouchDB version.
+This command will:
 
-2. **Access CouchDB:**
+*   `-d`: Run the container in detached mode (in the background).
+*   `-p 5984:5984`: Map port 5984 on the host machine to port 5984 in the container (CouchDB's default port).
+*   `--name my-couchdb`:  Assign a name to the container.
+*  `apache/couchdb:3.4.3`: Specifies the image to use.
 
-   Open your web browser and navigate to `http://localhost:5984/`. You should see the CouchDB welcome page.  Login using the `admin` user and `password` you set in the `docker run` command.
+To access the CouchDB web interface, open your web browser and navigate to `http://localhost:5984`.
 
-3. **Environment Variables:**
+### Environment Variables
 
-   *   `COUCHDB_USER`:  Username for the CouchDB administrator.
-   *   `COUCHDB_PASSWORD`: Password for the CouchDB administrator.
-   *   `COUCHDB_ERLANG_COOKIE`: (Advanced) Specify a custom Erlang cookie for secure clustering.
-   * `NODENAME`: Specify a node name.
+The following environment variables can be used to configure the CouchDB container:
 
-## Available Tags
+*   `COUCHDB_USER`:  The admin username.
+*   `COUCHDB_PASSWORD`: The admin password.
+*   `COUCHDB_SECRET`:  The secret for HTTP authentication.
+*   `COUCHDB_ERLANG_COOKIE`: Set the Erlang cookie.
+*   `NODENAME`: Set name for CouchDB instance.
 
-The following tags are available (not exhaustive, see Docker Hub for a complete list):
+### Example with Environment Variables:
 
-*   `2.3.1`
-*   `3.1.2`
-*   `3.2.3`
-*   `3.3.3`
-*   `3.4.1`
-*   `3.4.2`
-*   `3.4.3`
-*   `3.5.0`
-*   `3.5.1`
-*   `-nouveau`:  Appended to the version number to indicate the Nouveau image.
-*   `-ubi`: Appended to the version number to indicate a UBI based image.
-*   `-ubi-clouseau`: Appended to the version number to indicate a UBI image with Clouseau included.
-
-## Configuration
-
-The Docker images provide a default configuration. You can customize the configuration by mounting a custom `local.ini` file into the `/opt/couchdb/etc/local.d/` directory within the container. Any settings in `local.ini` will override the default values. For advanced configuration, explore the official CouchDB documentation.
+```bash
+docker run -d -p 5984:5984 --name my-couchdb \
+    -e COUCHDB_USER=admin \
+    -e COUCHDB_PASSWORD=password \
+    apache/couchdb:3.4.3
+```
 
 ## Contributing
 
-Contributions are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file in the repository for information on how to contribute.
+Contributions to this project are welcome!  Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
 
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).
 
-## Resources
+## Repository Structure
 
-*   **Apache CouchDB Website:** [http://couchdb.apache.org/](http://couchdb.apache.org/)
-*   **Docker Hub:** [https://hub.docker.com/r/apache/couchdb](https://hub.docker.com/r/apache/couchdb)
-*   **GitHub Repository:** [https://github.com/apache/couchdb-docker](https://github.com/apache/couchdb-docker)
-```
+The repository is organized as follows:
+
+*   `.asf.yaml`: Apache Software Foundation metadata.
+*   `.github/`: GitHub configuration files.
+*   `.gitignore`: Specifies intentionally untracked files that Docker ignores.
+*   `<version>/`:  Directories for each CouchDB version (e.g., `2.3.1`, `3.1.2`).  Each version directory contains the Dockerfile, configuration files, and entrypoint script for that version.
+*   `LICENSE`: The Apache License 2.0 file.
+*   `build.sh`:  A script for building and publishing the Docker images.
+*   `dev/`: Development related files (Dockerfile, entrypoint, configs).
+*   `dev-cluster/`: Contains files starting a couchDB cluster.
+*   `nouveau-compose`: Contains files for starting a nouveau couchDB cluster.
+
+## Support
+
+For questions, support, or to report issues, please visit the [Apache CouchDB website](https://couchdb.apache.org/) or the [CouchDB mailing lists](https://couchdb.apache.org/community.html).

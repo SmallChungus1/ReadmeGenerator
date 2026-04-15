@@ -1,631 +1,112 @@
-r = requests.get(tarball_url, stream=True)
+# Requests
 
-    # The response body is not downloaded until you access r.content
-    print(r.content)
-    # This will download the response body from the server
-    # and return it as a bytes object
+## Description
 
-    # If you want to save it to a file, do this:
-    with open('data.tar.gz', 'wb') as f:
-        for chunk in r.iter_content(1024):
-            f.write(chunk)
+**Requests** is a simple, elegant, and powerful HTTP library for Python, designed specifically for human beings. It simplifies making HTTP requests with a clean, intuitive API, enabling developers to send GET, POST, PUT, DELETE, and other HTTP methods with minimal code. Built on top of `urllib3`, it provides robust features like automatic SSL verification, connection pooling, and support for cookies, authentication, and redirects.
 
-    # Or save it directly to a file in one line:
-    with requests.get(tarball_url, stream=True) as r:
-        with open('data.tar.gz', 'wb') as f:
-            for chunk in r.iter_content(1024):
-                f.write(chunk)
+Requests is widely adopted across the Python ecosystem and is the go-to choice for any Python project requiring HTTP communication.
 
-.. warning:: This means the response body is not downloaded until you access
-   the :attr:`Response.content <requests.Response.content>` attribute. This can
-   result in memory issues if you're trying to download large files.
+## Features
 
-.. _timeout:
+- ✅ **Simple and Intuitive API** – Send HTTP requests with minimal code using `requests.get()`, `requests.post()`, etc.
+- ✅ **Automatic SSL Verification** – Secure connections with built-in certificate validation.
+- ✅ **Support for Cookies and Authentication** – Handle session cookies and various authentication schemes (Basic, Digest).
+- ✅ **Built-in Error Handling** – Comprehensive exception hierarchy for network errors, timeouts, and invalid responses.
+- ✅ **Support for Headers, Parameters, and Data** – Easily pass headers, query parameters, form data, or JSON payloads.
+- ✅ **Response Parsing** – Automatically decode responses as JSON or text with proper encoding handling.
+- ✅ **Redirect Handling** – Automatically follow redirects with configurable maximum redirects.
+- ✅ **Session Management** – Reuse connections and maintain cookies across multiple requests.
+- ✅ **Proxy Support** – Configure proxies for requests and support SOCKS protocols.
+- ✅ **Custom Headers and Hooks** – Extend functionality with request/response hooks.
+- ✅ **Cross-Platform Compatibility** – Works seamlessly on all major operating systems.
 
-Timeouts
---------
+## Installation
 
-You can tell Requests to stop waiting for a response after a given number of
-seconds with the ``timeout`` parameter. Nearly all production code should use
-this parameter in nearly all requests. Failure to do so can cause your program
-to hang indefinitely::
+Install the latest version of Requests using `pip`:
 
-    >>> requests.get('https://github.com/', timeout=0.001)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    requests.exceptions.Timeout: HTTPConnectionPool(host='github.com', port=80): Request timed out. (timeout=0.001)
+```bash
+pip install requests
+```
 
-.. admonition:: Note
+For development purposes, install the package with additional test dependencies:
 
-    ``timeout`` is not a time limit on the entire response download;
-    rather, an exception is raised if the server has not issued a
-    response for ``timeout`` seconds (more precisely, if no bytes have been
-    received on the underlying socket for ``timeout`` seconds). If no timeout is specified explicitly, requests do
-    not time out.
+```bash
+pip install -r requirements-dev.txt
+```
 
-.. _proxies:
+## Usage
 
-Proxies
--------
+### Making a Simple GET Request
 
-You can use proxies to send requests through an intermediate server. A proxy can
-be used to hide your real IP address, or to route requests through a specific
-network.
+```python
+import requests
 
-Proxies are specified using a dictionary, where the key is the scheme (``http`` or
-``https``) and the value is the proxy URL. The proxy URL must contain a scheme
-(``http://`` or ``https://``) as well.
+response = requests.get('https://httpbin.org/get')
+print(response.status_code)
+print(response.json())
+```
 
-For example, to send a request through an HTTP proxy::
+### Sending a POST Request with JSON Data
 
-    proxies = {
-        'http': 'http://10.10.1.10:3128',
-        'https': 'http://10.10.1.10:1080',
-    }
+```python
+import requests
 
-    r = requests.get('https://github.com', proxies=proxies)
+data = {'name': 'Alice', 'age': 30}
+response = requests.post('https://httpbin.org/post', json=data)
+print(response.json())
+```
 
-Note: The scheme for a proxy URL is now required in Requests 2.x.
+### Using a Session for Reusable Connections
 
-.. warning:: When using proxies, you must ensure that your proxy supports
-   both HTTP and HTTPS. If your proxy doesn't support HTTPS, then you'll get
-   an error when trying to use it for HTTPS requests.
+```python
+import requests
 
-.. _cookies:
+session = requests.Session()
+session.get('https://httpbin.org/headers')
+session.post('https://httpbin.org/post', data={'key': 'value'})
 
-Cookies
--------
+# Cookies are automatically maintained across requests
+```
 
-Requests can be used to send cookies to the server and receive cookies from
-the server. This allows you to maintain state across multiple requests.
+### Handling Authentication
 
-For example, to send a cookie to the server::
+```python
+import requests
 
-    r = requests.get('https://httpbin.org/cookies', cookies={'mycookie': 'value'})
+response = requests.get('https://httpbin.org/headers', auth=('user', 'password'))
+print(response.status_code)
+```
 
-To receive cookies from the server::
+### Custom Headers and Query Parameters
 
-    r = requests.get('https://httpbin.org/cookies')
-    print(r.cookies['mycookie'])
+```python
+import requests
 
-.. warning:: If you're using a Session object, cookies will be persisted across
-   requests. If you're using a regular request object, cookies will only be
-   sent with that request.
+headers = {'User-Agent': 'MyApp/1.0'}
+params = {'page': 1, 'limit': 10}
 
-.. _auth:
+response = requests.get(
+    'https://httpbin.org/get',
+    headers=headers,
+    params=params
+)
+print(response.url)  # Shows the full URL with query parameters
+```
 
-Authentication
---------------
+### Error Handling
 
-Requests supports several forms of authentication, including basic auth,
-digest auth, and OAuth 1. You can find more information in the
-:ref:`authentication <authentication>` section.
+```python
+import requests
 
-.. _headers:
-
-Custom Headers
---------------
-
-If you'd like to add HTTP headers to a request, simply pass in a ``dict`` to the
-``headers`` parameter.
-
-For example, we didn't specify our user-agent in the previous example::
-
-    >>> url = 'https://api.github.com/some/endpoint'
-    >>> headers = {'user-agent': 'my-app/0.0.1'}
-
-    >>> r = requests.get(url, headers=headers)
-
-Note: Custom headers are given less precedence than more specific sources of information. For instance:
-
-* Authorization headers set with `headers=` will be overridden if credentials
-  are specified in ``.netrc``, which in turn will be overridden by the  ``auth=``
-  parameter. Requests will search for the netrc file at `~/.netrc`, `~/_netrc`,
-  or at the path specified by the `NETRC` environment variable.
-  Check details in :ref:`netrc authentication <authentication>`.
-* Authorization headers will be removed if you get redirected off-host.
-* Proxy-Authorization headers will be overridden by proxy credentials provided in the URL.
-* Content-Length headers will be overridden when we can determine the length of the content.
-
-Furthermore, Requests does not change its behavior at all based on which custom headers are specified. The headers are simply passed on into the final request.
-
-Note: All header values must be a ``string``, bytestring, or unicode. While permitted, it's advised to avoid passing unicode header values.
-
-.. _redirects:
-
-Redirection and History
------------------------
-
-By default Requests will perform location redirection for all verbs except
-HEAD.
-
-We can use the ``history`` property of the Response object to track redirection.
-
-The :attr:`Response.history <requests.Response.history>` list contains the
-:class:`Response <requests.Response>` objects that were created in order to
-complete the request. The list is sorted from the oldest to the most recent
-response.
-
-For example, GitHub redirects all HTTP requests to HTTPS::
-
-    >>> r = requests.get('http://github.com/')
-
-    >>> r.url
-    'https://github.com/'
-
-    >>> r.status_code
-    200
-
-    >>> r.history
-    [<Response [301]>]
-
-If you're using GET, OPTIONS, POST, PUT, PATCH or DELETE, you can disable
-redirection handling with the ``allow_redirects`` parameter::
-
-    >>> r = requests.get('http://github.com/', allow_redirects=False)
-
-    >>> r.status_code
-    301
-
-    >>> r.history
-    []
-
-If you're using HEAD, you can enable redirection as well::
-
-    >>> r = requests.head('http://github.com/', allow_redirects=True)
-
-    >>> r.url
-    'https://github.com/'
-
-    >>> r.history
-    [<Response [301]>]
-
-.. _mismatched-urls:
-
-Mismatched URLs
----------------
-
-If you have a URL that doesn't match the expected pattern, Requests will raise
-an exception. This is to prevent requests from being made to the wrong URL.
-
-For example, if you have a URL that ends with a trailing slash, Requests will
-raise an exception if you try to access it without a trailing slash::
-
-    >>> requests.get('https://github.com/')
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "requests/api.py", line 75, in get
-        raise ValueError('URL must end with a slash if it contains a trailing slash')
-    ValueError: URL must end with a slash if it contains a trailing slash
-
-.. _certs:
-
-Certificates
-------------
-
-Requests can be used to send and receive certificates from a server. This is
-useful for setting up secure communication between two systems.
-
-To send a certificate to the server, you can use the ``cert`` parameter::
-
-    r = requests.get('https://kennethreitz.org', cert=('/path/client.cert', '/path/client.key'))
-
-To receive a certificate from the server, you can use the ``verify`` parameter::
-
-    r = requests.get('https://kennethreitz.org', verify='/path/to/certfile')
-
-.. _custom-hooks:
-
-Custom Hooks
-------------
-
-Requests supports custom hooks for various events in the request lifecycle.
-These hooks can be used to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'request': modify_headers})
-
-You can also use a hook to modify the response object::
-
-    def modify_response(response, *args, **kwargs):
-        response.headers['X-My-Header'] = 'value'
-        return response
-
-    r = requests.get('https://httpbin.org/headers', hooks={'response': modify_response})
-
-You can also use a hook to modify the request or response object at various
-points in the request lifecycle.
-
-For example, you can use a hook to modify the headers of a request::
-
-    def modify_headers(request, *args, **kwargs):
-        request.headers['X-My-Header'] = 'value'
-        return request
-
-    r = requests.get('https://httpbin.org/headers', hooks={'
+try:
+    response = requests.get('https://httpbin.org/status/404')
+    response.raise_for_status()
+except requests.exceptions.HTTPError as e:
+    print(f"HTTP Error: {e}")
+except requests.exceptions.ConnectionError as e:
+    print(f"Connection Error: {e}")
+```
+
+> 💡 **Note**: The `requests` library is compatible with Python 3.10 and above. Older versions are no longer supported.
+
+For more detailed documentation, visit the official [Requests Documentation](https://requests.readthedocs.io).

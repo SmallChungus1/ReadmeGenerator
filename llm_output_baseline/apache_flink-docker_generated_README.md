@@ -1,540 +1,105 @@
----
-File: 2.0/scala_2.12-java11-ubuntu/Dockerfile
-Size: 3963 bytes
-Lines: 94
----
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-###
+# Apache Flink Docker Images
 
-FROM eclipse-temurin:11-jre-jammy
+## Description
 
-# Install dependencies
-RUN set -ex; \
-  apt-get update; \
-  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
-  rm -rf /var/lib/apt/lists/*
+This repository provides pre-built Docker images for Apache Flink, enabling easy deployment and runtime execution of Flink applications in containerized environments. The images are designed to be lightweight, secure, and compatible with various Flink versions and Java runtime versions.
 
-# Grab gosu for easy step-down from root
-ENV GOSU_VERSION 1.11
-RUN set -ex; \
-  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
-  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
-  export GNUPGHOME="$(mktemp -d)"; \
-  for server in hkps://keys.openpgp.org $(shuf -e \
-                          keyserver.ubuntu.com \
-                          hkp://keyserver.ubuntu.com:80 \
-                          pgp.mit.edu) ; do \
-      gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
-  done && \
-  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
-  gpgconf --kill all; \
-  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
-  chmod +x /usr/local/bin/gosu; \
-  gosu nobody true
+The project includes Dockerfiles for Flink versions 1.20, 2.0, and 2.1, each with support for multiple Java versions (Java 8, 11, 17, and 21). Each image is built on top of a secure, minimal base image (e.g., Eclipse Temurin) and includes essential dependencies, Flink binaries, and configuration adjustments to ensure proper network binding within containerized environments.
 
-# Configure Flink version
-ENV FLINK_TGZ_URL=https://dlcdn.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz \
-    FLINK_ASC_URL=https://downloads.apache.org/flink/flink-2.0.1/flink-2.0.1-bin-scala_2.12.tgz.asc \
-    GPG_KEY=E60A9680590FF0FF13B9DE01224C2311410823C4 \
-    CHECK_GPG=true
+## Features
 
-# Prepare environment
-ENV FLINK_HOME=/opt/flink
-ENV PATH=$FLINK_HOME/bin:$PATH
-RUN groupadd --system --gid=9999 flink && \
-    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
-WORKDIR $FLINK_HOME
+- **Multiple Flink Versions**: Support for Flink 1.20, 2.0, and 2.1.
+- **Multiple Java Versions**: Available for Java 8, 11, 17, and 21.
+- **Secure Container Setup**: Uses `gosu` for dropping privileges to a non-root `flink` user.
+- **Network Configuration**: Automatically configures REST/RPC endpoints to bind to `0.0.0.0` instead of `localhost` for container network compatibility.
+- **Flexible Configuration**: Supports custom configuration via environment variables such as `TASK_MANAGER_NUMBER_OF_TASK_SLOTS`, `FLINK_PROPERTIES`, and `DISABLE_JEMALLOC`.
+- **Built-in Plugin Support**: Enables optional built-in plugins via the `ENABLE_BUILT_IN_PLUGINS` environment variable.
+- **Standardized Entry Points**: Provides clear command-line interfaces for starting JobManager, TaskManager, HistoryServer, or standalone jobs.
+- **Cross-Platform Support**: Builds for both `amd64` and `arm64v8` architectures.
 
-# Install Flink
-RUN set -ex; \
-  wget -nv -O flink.tgz "$FLINK_TGZ_URL"; \
-  \
-  if [ "$CHECK_GPG" = "true" ]; then \
-    wget -nv -O flink.tgz.asc "$FLINK_ASC_URL"; \
-    export GNUPGHOME="$(mktemp -d)"; \
-    for server in hkps://keys.openpgp.org $(shuf -e \
-                            keyserver.ubuntu.com \
-                            hkp://keyserver.ubuntu.com:80 \
-                            pgp.mit.edu) ; do \
-        gpg --batch --keyserver "$server" --recv-keys "$GPG_KEY" && break || : ; \
-    done && \
-    gpg --batch --verify flink.tgz.asc flink.tgz; \
-    gpgconf --kill all; \
-    rm -rf "$GNUPGHOME" flink.tgz.asc; \
-  fi; \
-  \
-  tar -xf flink.tgz --strip-components=1; \
-  rm flink.tgz; \
-  \
-  chown -R flink:flink .; \
-  \
-  # Replace default REST/RPC endpoint bind address to use the container's network interface \
-  CONF_FILE="${FLINK_HOME}/conf/config.yaml"; \
-  /bin/bash "$FLINK_HOME/bin/config-parser-utils.sh" "${FLINK_HOME}/conf" "${FLINK_HOME}/bin" "${FLINK_HOME}/lib" \
-    "-repKV" "rest.address,localhost,0.0.0.0" \
-    "-repKV" "rest.bind-address,localhost,0.0.0.0" \
-    "-repKV" "jobmanager.bind-host,localhost,0.0.0.0" \
-    "-repKV" "taskmanager.bind-host,localhost,0.0.0.0" \
-    "-rmKV" "taskmanager.host=localhost";
+## Installation
 
-# Configure container
-COPY docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
-EXPOSE 6123 8081
-CMD ["help"]
+To use the Flink Docker images, ensure Docker is installed and running on your system. The images are available on Docker Hub at `apache/flink`.
 
+### Prerequisites
 
----
-File: 2.0/scala_2.12-java11-ubuntu/release.metadata
-Size: 135 bytes
-Lines: 2
----
-Tags: 2.0.1-scala_2.12-java11, 2.0-scala_2.12-java11, scala_2.12-java11, 2.0.1-java11, 2.0-java11, java11
-Architectures: amd64,arm64v8
+- Docker installed and running
+- `docker login` to Docker Hub (required for publishing)
 
+### Build and Run
 
----
-File: 2.0/scala_2.12-java11-ubuntu/docker-entrypoint.sh
-Size: 5980 bytes
-Lines: 190
----
-#!/usr/bin/env bash
+1. **Clone the Repository** (optional, for development):
+   ```bash
+   git clone https://github.com/apache/flink-docker.git
+   cd flink-docker
+   ```
 
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-###
+2. **Build a Specific Image**:
+   ```bash
+   docker build -t flink:1.20.3-scala_2.12-java11 -f 1.20/scala_2.12-java11-ubuntu/Dockerfile .
+   ```
 
-COMMAND_STANDALONE="standalone-job"
-COMMAND_HISTORY_SERVER="history-server"
+3. **Run the Image**:
+   ```bash
+   docker run -d --name flink-jobmanager \
+     -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
+     -e TASK_MANAGER_NUMBER_OF_TASK_SLOTS=4 \
+     flink:1.20.3-scala_2.12-java11
+   ```
 
-# If unspecified, the hostname of the container is taken as the JobManager address
-JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
-CONF_FILE_DIR="${FLINK_HOME}/conf"
+## Usage
 
-drop_privs_cmd() {
-    if [ $(id -u) != 0 ]; then
-        # Don't need to drop privs if EUID != 0
-        return
-    elif [ -x /sbin/su-exec ]; then
-        # Alpine
-        echo su-exec flink
-    else
-        # Others
-        echo gosu flink
-    fi
-}
+The Flink Docker images provide a command-line interface for starting various Flink components. The available commands are:
 
-copy_plugins_if_required() {
-  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
-    return 0
-  fi
+- `jobmanager`: Starts the Flink JobManager
+- `taskmanager`: Starts a Flink TaskManager
+- `standalone-job`: Starts a standalone job (equivalent to JobManager)
+- `historyserver`: Starts the Flink HistoryServer
 
-  echo "Enabling required built-in plugins"
-  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
-    echo "Linking ${target_plugin} to plugin directory"
-    plugin_name=${target_plugin%.jar}
+### Example: Starting a Flink JobManager
 
-    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
-    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
-      echo "Plugin ${target_plugin} does not exist. Exiting."
-      exit 1
-    else
-      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
-      echo "Successfully enabled ${target_plugin}"
-    fi
-  done
-}
+```bash
+docker run -d --name flink-jobmanager \
+  -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
+  -e TASK_MANAGER_NUMBER_OF_TASK_SLOTS=4 \
+  apache/flink:1.20.3-scala_2.12-java11 \
+  jobmanager
+```
 
-set_config_options() {
-    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
-    local config_dir="$FLINK_HOME/conf"
-    local bin_dir="$FLINK_HOME/bin"
-    local lib_dir="$FLINK_HOME/lib"
+### Example: Starting a TaskManager
 
-    local config_params=()
+```bash
+docker run -d --name flink-taskmanager \
+  -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
+  -e TASK_MANAGER_NUMBER_OF_TASK_SLOTS=4 \
+  apache/flink:1.20.3-scala_2.12-java11 \
+  taskmanager
+```
 
-    while [ $# -gt 0 ]; do
-        local key="$1"
-        local value="$2"
+### Example: Starting a Standalone Job
 
-        config_params+=("-D${key}=${value}")
+```bash
+docker run -d --name flink-standalone \
+  -e JOB_MANAGER_RPC_ADDRESS=0.0.0.0 \
+  apache/flink:1.20.3-scala_2.12-java11 \
+  standalone-job
+```
 
-        shift 2
-    done
+### Environment Variables
 
-    if [ "${#config_params[@]}" -gt 0 ]; then
-        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
-    fi
-}
+| Variable | Description |
+|---------|-------------|
+| `JOB_MANAGER_RPC_ADDRESS` | Sets the RPC address for the JobManager (default: container hostname) |
+| `TASK_MANAGER_NUMBER_OF_TASK_SLOTS` | Sets the number of task slots for TaskManagers |
+| `FLINK_PROPERTIES` | Comma-separated key=value pairs for custom Flink configuration |
+| `DISABLE_JEMALLOC` | Set to `true` to disable jemalloc memory allocator |
+| `ENABLE_BUILT_IN_PLUGINS` | Comma-separated list of built-in plugins to enable (e.g., `statebackend-rocksdb`) |
 
-prepare_configuration() {
-    local config_options=()
+### Accessing Flink Services
 
-    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
-    config_options+=("blob.server.port" "6124")
-    config_options+=("query.server.port" "6125")
-
-    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
-        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
-    fi
-
-    if [ ${#config_options[@]} -ne 0 ]; then
-        set_config_options "${config_options[@]}"
-    fi
-
-    if [ -n "${FLINK_PROPERTIES}" ]; then
-        process_flink_properties "${FLINK_PROPERTIES}"
-    fi
-}
-
-process_flink_properties() {
-    local flink_properties_content=$1
-    local config_options=()
-
-    local OLD_IFS="$IFS"
-    IFS=$'\n'
-    for prop in $flink_properties_content; do
-        prop=$(echo $prop | tr -d '[:space:]')
-
-        if [ -z "$prop" ]; then
-            continue
-        fi
-
-        IFS=':' read -r key value <<< "$prop"
-
-        value=$(echo $value | envsubst)
-
-        config_options+=("$key" "$value")
-    done
-    IFS="$OLD_IFS"
-
-    if [ ${#config_options[@]} -ne 0 ]; then
-        set_config_options "${config_options[@]}"
-    fi
-}
-
-maybe_enable_jemalloc() {
-    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
-        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
-        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
-        if [ -f "$JEMALLOC_PATH" ]; then
-            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
-        elif [ -f "$JEMALLOC_FALLBACK" ]; then
-            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
-        else
-            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
-                MSG_PATH=$JEMALLOC_PATH
-            else
-                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
-            fi
-            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
-        fi
-    fi
-}
-
-maybe_enable_jemalloc
-
-copy_plugins_if_required
-
-prepare_configuration
-
-args=("$@")
-if [ "$1" = "help" ]; then
-    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
-    printf "    Or $(basename "$0") help\n\n"
-    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
-    exit 0
-elif [ "$1" = "jobmanager" ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting Job Manager"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
-elif [ "$1" = ${COMMAND_STANDALONE} ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting Job Manager"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
-elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting History Server"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
-elif [ "$1" = "taskmanager" ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting Task Manager"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
-fi
-
-args=("${args[@]}")
-
-# Running command in pass-through mode
-exec $(drop_privs_cmd) "${args[@]}"
-
-
----
-File: 2.0/scala_2.12-java11-ubuntu/docker-entrypoint.sh
-Size: 5980 bytes
-Lines: 190
----
-#!/usr/bin/env bash
-
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-###
-
-COMMAND_STANDALONE="standalone-job"
-COMMAND_HISTORY_SERVER="history-server"
-
-# If unspecified, the hostname of the container is taken as the JobManager address
-JOB_MANAGER_RPC_ADDRESS=${JOB_MANAGER_RPC_ADDRESS:-$(hostname -f)}
-CONF_FILE_DIR="${FLINK_HOME}/conf"
-
-drop_privs_cmd() {
-    if [ $(id -u) != 0 ]; then
-        # Don't need to drop privs if EUID != 0
-        return
-    elif [ -x /sbin/su-exec ]; then
-        # Alpine
-        echo su-exec flink
-    else
-        # Others
-        echo gosu flink
-    fi
-}
-
-copy_plugins_if_required() {
-  if [ -z "$ENABLE_BUILT_IN_PLUGINS" ]; then
-    return 0
-  fi
-
-  echo "Enabling required built-in plugins"
-  for target_plugin in $(echo "$ENABLE_BUILT_IN_PLUGINS" | tr ';' ' '); do
-    echo "Linking ${target_plugin} to plugin directory"
-    plugin_name=${target_plugin%.jar}
-
-    mkdir -p "${FLINK_HOME}/plugins/${plugin_name}"
-    if [ ! -e "${FLINK_HOME}/opt/${target_plugin}" ]; then
-      echo "Plugin ${target_plugin} does not exist. Exiting."
-      exit 1
-    else
-      ln -fs "${FLINK_HOME}/opt/${target_plugin}" "${FLINK_HOME}/plugins/${plugin_name}"
-      echo "Successfully enabled ${target_plugin}"
-    fi
-  done
-}
-
-set_config_options() {
-    local config_parser_script="$FLINK_HOME/bin/config-parser-utils.sh"
-    local config_dir="$FLINK_HOME/conf"
-    local bin_dir="$FLINK_HOME/bin"
-    local lib_dir="$FLINK_HOME/lib"
-
-    local config_params=()
-
-    while [ $# -gt 0 ]; do
-        local key="$1"
-        local value="$2"
-
-        config_params+=("-D${key}=${value}")
-
-        shift 2
-    done
-
-    if [ "${#config_params[@]}" -gt 0 ]; then
-        "${config_parser_script}" "${config_dir}" "${bin_dir}" "${lib_dir}" "${config_params[@]}"
-    fi
-}
-
-prepare_configuration() {
-    local config_options=()
-
-    config_options+=("jobmanager.rpc.address" "${JOB_MANAGER_RPC_ADDRESS}")
-    config_options+=("blob.server.port" "6124")
-    config_options+=("query.server.port" "6125")
-
-    if [ -n "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}" ]; then
-        config_options+=("taskmanager.numberOfTaskSlots" "${TASK_MANAGER_NUMBER_OF_TASK_SLOTS}")
-    fi
-
-    if [ ${#config_options[@]} -ne 0 ]; then
-        set_config_options "${config_options[@]}"
-    fi
-
-    if [ -n "${FLINK_PROPERTIES}" ]; then
-        process_flink_properties "${FLINK_PROPERTIES}"
-    fi
-}
-
-process_flink_properties() {
-    local flink_properties_content=$1
-    local config_options=()
-
-    local OLD_IFS="$IFS"
-    IFS=$'\n'
-    for prop in $flink_properties_content; do
-        prop=$(echo $prop | tr -d '[:space:]')
-
-        if [ -z "$prop" ]; then
-            continue
-        fi
-
-        IFS=':' read -r key value <<< "$prop"
-
-        value=$(echo $value | envsubst)
-
-        config_options+=("$key" "$value")
-    done
-    IFS="$OLD_IFS"
-
-    if [ ${#config_options[@]} -ne 0 ]; then
-        set_config_options "${config_options[@]}"
-    fi
-}
-
-maybe_enable_jemalloc() {
-    if [ "${DISABLE_JEMALLOC:-false}" == "false" ]; then
-        JEMALLOC_PATH="/usr/lib/$(uname -m)-linux-gnu/libjemalloc.so"
-        JEMALLOC_FALLBACK="/usr/lib/x86_64-linux-gnu/libjemalloc.so"
-        if [ -f "$JEMALLOC_PATH" ]; then
-            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_PATH
-        elif [ -f "$JEMALLOC_FALLBACK" ]; then
-            export LD_PRELOAD=$LD_PRELOAD:$JEMALLOC_FALLBACK
-        else
-            if [ "$JEMALLOC_PATH" = "$JEMALLOC_FALLBACK" ]; then
-                MSG_PATH=$JEMALLOC_PATH
-            else
-                MSG_PATH="$JEMALLOC_PATH and $JEMALLOC_FALLBACK"
-            fi
-            echo "WARNING: attempted to load jemalloc from $MSG_PATH but the library couldn't be found. glibc will be used instead."
-        fi
-    fi
-}
-
-maybe_enable_jemalloc
-
-copy_plugins_if_required
-
-prepare_configuration
-
-args=("$@")
-if [ "$1" = "help" ]; then
-    printf "Usage: $(basename "$0") (jobmanager|${COMMAND_STANDALONE}|taskmanager|${COMMAND_HISTORY_SERVER})\n"
-    printf "    Or $(basename "$0") help\n\n"
-    printf "By default, Flink image adopts jemalloc as default memory allocator. This behavior can be disabled by setting the 'DISABLE_JEMALLOC' environment variable to 'true'.\n"
-    exit 0
-elif [ "$1" = "jobmanager" ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting Job Manager"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/jobmanager.sh" start-foreground "${args[@]}"
-elif [ "$1" = ${COMMAND_STANDALONE} ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting Job Manager"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/standalone-job.sh" start-foreground "${args[@]}"
-elif [ "$1" = ${COMMAND_HISTORY_SERVER} ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting History Server"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/historyserver.sh" start-foreground "${args[@]}"
-elif [ "$1" = "taskmanager" ]; then
-    args=("${args[@]:1}")
-
-    echo "Starting Task Manager"
-
-    exec $(drop_privs_cmd) "$FLINK_HOME/bin/taskmanager.sh" start-foreground "${args[@]}"
-fi
-
-args=("${args[@]}")
-
-# Running command in pass-through mode
-exec $(drop_privs_cmd) "${args[@]}"
-
-
----
-File: 2.0/scala_2.12-java11-ubuntu/Dockerfile
-Size: 3963 bytes
-Lines: 94
----
-#  Licensed to the Apache Software Foundation (ASF) under one
-#  or more contributor license agreements.  See the NOTICE file
-#  distributed with this work for additional information
-#  regarding copyright ownership.  The ASF licenses this file
-#  to you under the Apache License, Version 2.0 (the
-#  "License"); you may not use this file except in compliance
-#  with the License.  You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-# limitations under the License.
-###
-
-FROM eclipse-temurin:11-jre-jammy
-
-# Install dependencies
-RUN set -ex; \
-  apt-get update; \
-  apt-get -y install gpg libsnappy1v5 gettext-base libjemalloc-dev; \
-  rm -rf /var/lib/apt/lists/*
-
-# Grab gosu for easy step-down from root
-ENV GOSU_VERSION 1.11
-RUN set -ex; \
-  wget -nv -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)"; \
-  wget -nv -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc"; \
-  export GNUPGHOME="$(mktemp -d)"; \
-  for server in hkps://keys.openpgp.org $(shuf -e \
-                          keyserver.ubuntu.com \
-                          hkp://keyserver.ubuntu
+- **REST API**: Available on port `8081`
+- **JobManager RPC**: Available on port `6123`
+- **Blob Server**: Available on port `6124`
+- **Query Server**: Available on port `6125`
+
+> **Note**: The images are designed to run in non-root containers. Running as root is discouraged and will trigger a warning message.

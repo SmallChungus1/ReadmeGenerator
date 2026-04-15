@@ -1,420 +1,49 @@
-Tokens: 7811
+Tokens: 2378
 Repo: apache/cordova-plugin-splashscreen
 Commit: 586b988371fc57919288caacf7e1486ac44d19ca
-Timestamp: 2026-03-04T19:52:35.352043
+Timestamp: 2026-04-12T23:33:06.887689
 
 --- Repository Structure ---
 .
 ├── .asf.yaml
 ├── .eslintrc.yml
-├── .github
-│   ├── ISSUE_TEMPLATE
-│   └── workflows
-│       ├── chrome.yml
-│       └── lint.yml
 ├── .gitignore
 ├── .npmignore
-├── LICENSE
-├── NOTICE
 ├── package-lock.json
 ├── package.json
 ├── plugin.xml
 ├── src
 │   └── browser
 │       └── SplashScreenProxy.js
-├── tests
-│   ├── package.json
-│   ├── plugin.xml
-│   └── tests.js
 ├── types
 │   └── index.d.ts
 └── www
     └── splashscreen.js
 
 --- Summary Report ---
-Total files scanned: 25
-Files included: 16
-Files skipped by rule: 8
+Total files scanned: 10
+Files included: 9
+Files skipped by rule: 0
 Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 1
+Files with dependency extraction: 0
 Detected languages count: 7
 Top 15 largest included files:
-  11357 bytes - LICENSE
-  6185 bytes - src/browser/SplashScreenProxy.js
-  2447 bytes - .github/workflows/chrome.yml
-  2240 bytes - tests/tests.js
-  1631 bytes - plugin.xml
-  1469 bytes - .github/workflows/lint.yml
-  1248 bytes - package.json
-  1114 bytes - tests/plugin.xml
-  1076 bytes - www/splashscreen.js
-  1004 bytes - .asf.yaml
-  929 bytes - .eslintrc.yml
-  619 bytes - types/index.d.ts
-  272 bytes - tests/package.json
-  164 bytes - .gitignore
-  163 bytes - NOTICE
+  6353 bytes - src\browser\SplashScreenProxy.js
+  1671 bytes - plugin.xml
+  1302 bytes - package.json
+  1109 bytes - www\splashscreen.js
+  1026 bytes - .asf.yaml
+  952 bytes - .eslintrc.yml
+  635 bytes - types\index.d.ts
+  179 bytes - .gitignore
+  11 bytes - .npmignore
 -----------------------
 
 ---
-File: .npmignore
-Size: 9 bytes
-Lines: 2
----
-.*
-tests
-
-
----
-File: .asf.yaml
-Size: 1004 bytes
-Lines: 22
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-# 
-#   http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-notifications:
-  commits:              commits@cordova.apache.org
-  issues:               issues@cordova.apache.org
-  pullrequests_status:  issues@cordova.apache.org
-  pullrequests_comment: issues@cordova.apache.org
-
-
----
-File: .eslintrc.yml
-Size: 929 bytes
-Lines: 23
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-# 
-#   http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-root: true
-extends: '@cordova/eslint-config/browser'
-
-overrides:
-  - files: [tests/**/*.js]
-    extends: '@cordova/eslint-config/node-tests'
-
-
----
-File: LICENSE
-Size: 11357 bytes
-Lines: 202
----
-
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-   1. Definitions.
-
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
-
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
-
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-
-   END OF TERMS AND CONDITIONS
-
-   APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-   Copyright [yyyy] [name of copyright owner]
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
----
-File: plugin.xml
-Size: 1631 bytes
-Lines: 40
----
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements.  See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership.  The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied.  See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-        id="cordova-plugin-splashscreen"
-        version="7.0.0-dev">
-    <name>Splashscreen</name>
-    <description>Cordova Splashscreen Plugin</description>
-    <license>Apache 2.0</license>
-    <keywords>cordova,splashscreen</keywords>
-    <repo>https://github.com/apache/cordova-plugin-splashscreen.git</repo>
-    <issue>https://github.com/apache/cordova-plugin-splashscreen/issues</issue>
-    <!-- browser -->
-    <platform name="browser">
-        <js-module src="src/browser/SplashScreenProxy.js" name="SplashScreenProxy">
-            <runs />
-        </js-module>
-
-        <js-module src="www/splashscreen.js" name="SplashScreen">
-            <clobbers target="navigator.splashscreen" />
-        </js-module>
-    </platform>
-</plugin>
-
-
----
-File: NOTICE
-Size: 163 bytes
-Lines: 5
----
-Apache Cordova
-Copyright 2012 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
----
-File: .gitignore
-Size: 164 bytes
-Lines: 15
----
-#If ignorance is bliss, then somebody knock the smile off my face
-
-*.csproj.user
-*.suo
-*.cache
-Thumbs.db
-*.DS_Store
-
-*.bak
-*.cache
-*.log
-*.swp
-*.user
-
-node_modules
-
-
----
 File: package.json
-Size: 1248 bytes
+Size: 1302 bytes
 Lines: 54
 ---
 {
@@ -474,32 +103,99 @@ Lines: 54
 
 
 ---
-File: types/index.d.ts
-Size: 619 bytes
-Lines: 17
+File: .asf.yaml
+Size: 1026 bytes
+Lines: 22
 ---
-// Type definitions for Apache Cordova Splashscreen plugin
-// Project: https://github.com/apache/cordova-plugin-splashscreen
-// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-// 
-// Copyright (c) Microsoft Open Technologies Inc
-// Licensed under the MIT license.
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
-interface Navigator {
-    /** This plugin displays and hides a splash screen during application launch. */
-    splashscreen: {
-        /** Dismiss the splash screen. */
-        hide(): void;
-        /** Displays the splash screen. */
-        show(): void;
-    }
-}
+notifications:
+  commits:              commits@cordova.apache.org
+  issues:               issues@cordova.apache.org
+  pullrequests_status:  issues@cordova.apache.org
+  pullrequests_comment: issues@cordova.apache.org
+
 
 ---
-File: tests/plugin.xml
-Size: 1114 bytes
-Lines: 29
+File: .eslintrc.yml
+Size: 952 bytes
+Lines: 23
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+root: true
+extends: '@cordova/eslint-config/browser'
+
+overrides:
+  - files: [tests/**/*.js]
+    extends: '@cordova/eslint-config/node-tests'
+
+
+---
+File: .gitignore
+Size: 179 bytes
+Lines: 15
+---
+#If ignorance is bliss, then somebody knock the smile off my face
+
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+*.DS_Store
+
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+node_modules
+
+
+---
+File: .npmignore
+Size: 11 bytes
+Lines: 2
+---
+.*
+tests
+
+
+---
+File: plugin.xml
+Size: 1671 bytes
+Lines: 40
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
@@ -522,108 +218,53 @@ Lines: 29
 -->
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    id="cordova-plugin-splashscreen-tests"
-    version="7.0.0-dev">
-    <name>Cordova Splashscreen Plugin Tests</name>
+        id="cordova-plugin-splashscreen"
+        version="7.0.0-dev">
+    <name>Splashscreen</name>
+    <description>Cordova Splashscreen Plugin</description>
     <license>Apache 2.0</license>
+    <keywords>cordova,splashscreen</keywords>
+    <repo>https://github.com/apache/cordova-plugin-splashscreen.git</repo>
+    <issue>https://github.com/apache/cordova-plugin-splashscreen/issues</issue>
+    <!-- browser -->
+    <platform name="browser">
+        <js-module src="src/browser/SplashScreenProxy.js" name="SplashScreenProxy">
+            <runs />
+        </js-module>
 
-    <js-module src="tests.js" name="tests">
-    </js-module>
+        <js-module src="www/splashscreen.js" name="SplashScreen">
+            <clobbers target="navigator.splashscreen" />
+        </js-module>
+    </platform>
 </plugin>
 
 
 ---
-File: tests/tests.js
-Size: 2240 bytes
-Lines: 61
+File: types\index.d.ts
+Size: 635 bytes
+Lines: 17
 ---
-/*
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
-*/
+// Type definitions for Apache Cordova Splashscreen plugin
+// Project: https://github.com/apache/cordova-plugin-splashscreen
+// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// 
+// Copyright (c) Microsoft Open Technologies Inc
+// Licensed under the MIT license.
 
-exports.defineAutoTests = function () {
-    describe('Splashscreen (cordova)', function () {
-        it('splashscreen.spec.1 should exist', function () {
-            expect(navigator.splashscreen).toBeDefined();
-        });
-
-        it('splashscreen.spec.2 show method should exist', function () {
-            expect(navigator.splashscreen.show).toBeDefined();
-            expect(typeof navigator.splashscreen.show).toBe('function');
-        });
-
-        it('splashscreen.spec.3 hide method should exist', function () {
-            expect(navigator.splashscreen.hide).toBeDefined();
-            expect(typeof navigator.splashscreen.hide).toBe('function');
-        });
-    });
-};
-
-exports.defineManualTests = function (contentEl, createActionButton) {
-    function showFor (duration) {
-        navigator.splashscreen.show();
-        window.setTimeout(function () {
-            navigator.splashscreen.hide();
-        }, 1000 * duration);
+interface Navigator {
+    /** This plugin displays and hides a splash screen during application launch. */
+    splashscreen: {
+        /** Dismiss the splash screen. */
+        hide(): void;
+        /** Displays the splash screen. */
+        show(): void;
     }
-
-    contentEl.innerHTML = '<h1>Splashscreen Tests</h1>' +
-        '<div id="show1"></div>' +
-        'Expected result: Will show the Cordova splashscreen for 1 second' +
-        '</p> <div id="show5"></div>' +
-        'Expected result: Will show the Cordova splashscreen for 5 seconds';
-
-    createActionButton('Show for 1 second', function () {
-        showFor(1);
-    }, 'show1');
-
-    createActionButton('Show for 5 seconds', function () {
-        showFor(5);
-    }, 'show5');
-};
-
-
----
-File: tests/package.json
-Size: 272 bytes
-Lines: 14
----
-{
-  "name": "cordova-plugin-splashscreen-tests",
-  "version": "7.0.0-dev",
-  "description": "",
-  "cordova": {
-    "id": "cordova-plugin-splashscreen-tests",
-    "platforms": []
-  },
-  "keywords": [
-    "ecosystem:cordova"
-  ],
-  "author": "",
-  "license": "Apache 2.0"
 }
 
-
 ---
-File: www/splashscreen.js
-Size: 1076 bytes
+File: www\splashscreen.js
+Size: 1109 bytes
 Lines: 33
 ---
 /*
@@ -662,175 +303,10 @@ module.exports = splashscreen;
 
 
 ---
-File: .github/workflows/lint.yml
-Size: 1469 bytes
-Lines: 56
+File: src\browser\SplashScreenProxy.js
+Size: 6353 bytes
+Lines: 168 [structural]
 ---
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Lint Test
-
-on:
-  push:
-    paths:
-      - '**.js'
-      - '.eslint*'
-      - '.github/workflow/lint.yml'
-  pull_request:
-    paths:
-      - '**.js'
-      - '.eslint*'
-      - '.github/workflow/lint.yml'
-
-jobs:
-  test:
-    name: Lint Test
-    runs-on: ubuntu-latest
-    env:
-      node-version: 16
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.node-version }}
-
-      - name: Run Environment Information
-        run: |
-          node --version
-          npm --version
-
-      - name: Run npm install
-        run: |
-          npm ci
-
-      - name: Run lint test
-        run: |
-          npm run lint
-
-
----
-File: .github/workflows/chrome.yml
-Size: 2447 bytes
-Lines: 73
----
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-name: Chrome Testsuite
-
-on:
-  push:
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - '.eslint*'
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-      - '.eslint*'
-
-jobs:
-  test:
-    name: Chrome Latest Test
-    runs-on: ubuntu-latest
-
-    # hoist configurations to top that are expected to be updated
-    env:
-      # Storing a copy of the repo
-      repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-
-      node-version: 16
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.node-version }}
-
-      - name: Run install xvfb
-        run: sudo apt-get install xvfb
-
-      - name: Run Environment Information
-        run: |
-          node --version
-          npm --version
-
-      - name: Run npm install
-        run: |
-          npm i -g cordova@latest
-          npm ci
-
-      - name: Run paramedic install
-        if: ${{ endswith(env.repo, '/cordova-paramedic')　!= true }}
-        run: npm i -g github:apache/cordova-paramedic
-
-      - name: Run paramedic tests
-        env:
-          test_config: 'browser.config.json'
-          # Generally, this should automatically work for cordova-paramedic & plugins. If the path is unique, this can be manually changed.
-          test_plugin_path: ${{ endswith(env.repo, '/cordova-paramedic') && './spec/testable-plugin/' || './' }}
-          paramedic: ${{ endswith(env.repo, '/cordova-paramedic') && 'node main.js' || 'cordova-paramedic' }}
-        run: xvfb-run --auto-servernum ${{ env.paramedic }} --config ./pr/local/${{ env.test_config }} --plugin ${{ env.test_plugin_path }}
-
-
----
-File: src/browser/SplashScreenProxy.js
-Size: 6185 bytes
-Lines: 168
----
-/*
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
-*/
-
-// Default parameter values including image size can be changed in `config.xml`
 var splashImageWidth = 170;
 var splashImageHeight = 200;
 var position = { x: 0, y: 0, width: splashImageWidth, height: splashImageHeight };
@@ -843,138 +319,11 @@ var showSplashScreen = true; // show splashcreen by default
 var cordova = require('cordova');
 var configHelper = cordova.require('cordova/confighelper');
 var autoHideSplashScreen = true;
-
 function updateImageLocation () {
-    position.width = Math.min(splashImageWidth, window.innerWidth);
-    position.height = position.width * (splashImageHeight / splashImageWidth);
-
-    localSplash.style.width = window.innerWidth + 'px';
-    localSplash.style.height = window.innerHeight + 'px';
-    localSplash.style.top = '0px';
-    localSplash.style.left = '0px';
-
-    localSplashImage.style.top = '50%';
-    localSplashImage.style.left = '50%';
-    localSplashImage.style.height = position.height + 'px';
-    localSplashImage.style.width = position.width + 'px';
-    localSplashImage.style.marginTop = (-position.height / 2) + 'px';
-    localSplashImage.style.marginLeft = (-position.width / 2) + 'px';
-}
-
 function onResize () {
-    updateImageLocation();
-}
-
 var SplashScreen = {
-    setBGColor: function (cssBGColor) {
-        bgColor = cssBGColor;
-        if (localSplash) {
-            localSplash.style.backgroundColor = bgColor;
-        }
-    },
-    show: function () {
-        if (!localSplash) {
-            window.addEventListener('resize', onResize, false);
-            localSplash = document.createElement('div');
-            localSplash.style.backgroundColor = bgColor;
-            localSplash.style.position = 'absolute';
-            localSplash.style['z-index'] = '99999';
-
-            localSplashImage = document.createElement('img');
-            localSplashImage.src = imageSrc;
-            localSplashImage.style.position = 'absolute';
-
-            updateImageLocation();
-
-            localSplash.appendChild(localSplashImage);
-            document.body.appendChild(localSplash);
-
-            // deviceready fires earlier than the plugin init on cold-start
-            if (SplashScreen.shouldHideImmediately) {
-                SplashScreen.shouldHideImmediately = false;
-                window.setTimeout(function () {
-                    SplashScreen.hide();
-                }, 1000);
-            }
-        }
-    },
-    hide: function () {
-        if (localSplash) {
             var innerLocalSplash = localSplash;
-            localSplash = null;
-            window.removeEventListener('resize', onResize, false);
-
-            innerLocalSplash.style.opacity = '0';
-            innerLocalSplash.style['-webkit-transition'] = 'opacity 1s ease-in-out';
-            innerLocalSplash.style['-moz-transition'] = 'opacity 1s ease-in-out';
-            innerLocalSplash.style['-ms-transition'] = 'opacity 1s ease-in-out';
-            innerLocalSplash.style['-o-transition'] = 'opacity 1s ease-in-out';
-
-            window.setTimeout(function () {
-                document.body.removeChild(innerLocalSplash);
-                innerLocalSplash = null;
-            }, 1000);
-        } else {
-            SplashScreen.shouldHideImmediately = true;
-        }
-    }
-};
-
-/**
- * Reads preferences via ConfigHelper and substitutes default parameters.
- */
 function readPreferencesFromCfg (cfg) {
-    try {
         var value = cfg.getPreferenceValue('ShowSplashScreen');
-        if (typeof value !== 'undefined') {
-            showSplashScreen = value === 'true';
-        }
-
-        splashScreenDelay = cfg.getPreferenceValue('SplashScreenDelay') || splashScreenDelay;
-        splashScreenDelay = parseInt(splashScreenDelay, 10);
-
-        imageSrc = cfg.getPreferenceValue('SplashScreen') || imageSrc;
-        bgColor = cfg.getPreferenceValue('SplashScreenBackgroundColor') || bgColor;
-        splashImageWidth = cfg.getPreferenceValue('SplashScreenWidth') || splashImageWidth;
-        splashImageHeight = cfg.getPreferenceValue('SplashScreenHeight') || splashImageHeight;
-        autoHideSplashScreen = cfg.getPreferenceValue('AutoHideSplashScreen') || autoHideSplashScreen;
-        autoHideSplashScreen = (autoHideSplashScreen === true || autoHideSplashScreen.toLowerCase() === 'true');
-    } catch (e) {
         var msg = '[Browser][SplashScreen] Error occurred on loading preferences from config.xml: ' + JSON.stringify(e);
-        console.error(msg);
-    }
-}
-
-/**
- * Shows and hides splashscreen if it is enabled, with a delay according the current preferences.
- */
 function showAndHide () {
-    if (showSplashScreen) {
-        SplashScreen.show();
-
-        window.setTimeout(function () {
-            SplashScreen.hide();
-        }, splashScreenDelay);
-    }
-}
-
-/**
- * Tries to read config.xml and override default properties and then shows and hides splashscreen if it is enabled.
- */
-(function initAndShow () {
-    configHelper.readConfig(function (config) {
-        readPreferencesFromCfg(config);
-        if (autoHideSplashScreen) {
-            showAndHide();
-        } else {
-            SplashScreen.show();
-        }
-    }, function (err) {
-        console.error(err);
-    });
-})();
-
-module.exports = SplashScreen;
-
-require('cordova/exec/proxy').add('SplashScreen', SplashScreen);
-

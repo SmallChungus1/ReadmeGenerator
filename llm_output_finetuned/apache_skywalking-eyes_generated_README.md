@@ -1,339 +1,155 @@
-The license granted by this License is perpetual (for the duration of the applicable copyright in the Program). Notwithstanding the above, the Licensor reserves the right to release the Program under different license terms or to stop distributing the Program at any time; provided, however that any such election will not serve to withdraw this License (or any other license that has been, or is required to be, granted under the terms of this License), and this License will continue in full force and effect unless terminated as stated above.
+# Apache SkyWalking Eyes
 
-8. If any part of this License is found to be in conflict with the law, that part shall be interpreted in its broadest meaning consistent with the law, and no other parts of the License shall be affected.
+## Description
 
-9. No warranty is expressed or implied. The Program is provided "as is," without warranty of any kind, either express or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. In no event shall the copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the use or inability to use the Program (including but not limited to loss of data or data being rendered inaccurate or losses sustained by you or third parties or a failure of the Program to operate with any other program).
+Apache SkyWalking Eyes is a comprehensive open-source license management tool designed to automate the detection, verification, and enforcement of license compliance in software projects. It provides two core capabilities: **license header checking** and **dependency license analysis**. The tool ensures that all source files contain the required license headers and that the licenses of all project dependencies are compatible with the project's primary license, helping to prevent legal risks associated with copyleft or restrictive licenses.
 
-10. The license granted by this License is perpetual (for the duration of the applicable copyright in the Program). Notwithstanding the above, the Licensor reserves the right to release the Program under different license terms or to stop distributing the Program at any time; provided, however that any such election will not serve to withdraw this License (or any other license that has been, or is required to be, granted under the terms of this License), and this License will continue in full force and effect unless terminated as stated above.
+Built as a command-line interface (CLI) tool, SkyWalking Eyes integrates seamlessly into development workflows, CI/CD pipelines, and pull request reviews. It supports multiple programming languages and offers both a standalone command-line experience and integration with GitHub Actions for automated license compliance checks.
 
-11. For United States Government users, the Program is provided with RESTRICTED RIGHTS. If you are a unit or agency of the United States Government or are acquiring the Program for any such unit or agency, the following apply:
+## Features
 
-If the unit or agency is the Department of Defense ("DOD"), the Program and its documentation are classified as "commercial computer software" and "commercial computer software documentation" respectively and, pursuant to DFAR Section 227.7202, the Government is acquiring the Program and its documentation in accordance with the terms of this License. If the unit or agency is other than DOD, the Program and its documentation are classified as "commercial computer software" and "commercial computer software documentation" respectively and, pursuant to FAR Section 12.212, the Government is acquiring the Program and its documentation in accordance with the terms of this License.
+- ✅ **License Header Verification**: Checks that all source files contain the correct license header as defined in the configuration.
+- ✅ **License Header Fixing**: Automatically inserts or updates missing license headers in source files.
+- ✅ **Dependency License Analysis**: Resolves and checks the compatibility of all project dependencies' licenses against the project's primary license.
+- ✅ **License Compatibility Matrix**: Built-in compatibility rules for over 100 open-source licenses, including permissive (e.g., MIT, Apache-2.0) and copyleft (e.g., GPL, LGPL) licenses.
+- ✅ **Flexible Configuration**: Customizable via a `.licenserc.yaml` file to define license headers, paths to check, and license compatibility rules.
+- ✅ **Multi-Language Support**: Supports Go, Java, JavaScript/Node.js, and other common languages through language-specific dependency parsers.
+- ✅ **CI/CD Integration**: Works with GitHub Actions to automatically check license compliance on pull requests.
+- ✅ **Cross-Platform**: Available for Windows, macOS, and Linux via native binaries or Docker containers.
+- ✅ **Comprehensive Reporting**: Generates detailed reports on license compliance, including failures and compatibility issues.
 
-12. For other jurisdictions, the Program may be subject to local laws or regulations that conflict with the above terms. In such cases, the terms of this License will be interpreted to conform with the laws of the jurisdiction in which the user is located. This interpretation will not affect the rights granted under this License, but may affect the rights of the users.
+## Installation
 
-13. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
+### Option 1: Install via Docker (Recommended)
 
-14. The license granted by this License is perpetual (for the duration of the applicable copyright in the Program). Notwithstanding the above, the Licensor reserves the right to release the Program under different license terms or to stop distributing the Program at any time; provided, however that any such election will not serve to withdraw this License (or any other license that has been, or is required to be, granted under the terms of this License), and this License will continue in full force and effect unless terminated as stated above.
+```bash
+# Pull the latest image
+docker pull apache/skywalking-eyes:latest
 
-15. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
+# Run the container
+docker run --rm -v $(pwd):/github/workspace apache/skywalking-eyes:latest
+```
 
-16. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
+### Option 2: Build from Source
 
-17. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
+1. Clone the repository:
+```bash
+git clone https://github.com/apache/skywalking-eyes.git
+cd skywalking-eyes
+```
 
-18. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-19. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-20. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-21. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-22. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-23. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-24. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-25. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-26. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-27. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-28. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-29. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-30. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-31. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-32. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-33. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-34. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-35. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-36. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-37. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-38. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-39. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-40. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-41. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-42. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-43. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-44. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-45. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-46. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-47. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-48. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-49. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-50. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-51. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-52. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-53. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-54. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-55. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-56. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-57. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-58. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-59. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-60. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-61. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-62. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-63. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-64. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-65. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-66. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-67. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-68. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-69. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-70. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-71. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-72. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-73. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-74. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-75. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-76. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-77. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-78. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-79. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-80. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-81. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-82. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-83. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-84. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-85. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-86. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-87. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-88. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-89. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-90. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-91. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-92. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-93. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-94. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-95. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-96. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-97. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-98. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-99. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-100. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-101. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-102. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-103. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-104. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-105. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-106. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-107. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-108. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-109. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-110. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-111. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-112. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-113. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-114. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-115. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-116. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-117. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-118. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-119. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-120. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-121. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-122. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-123. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-124. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-125. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-126. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-127. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-128. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-129. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-130. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-131. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-132. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-133. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-134. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-135. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-136. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-137. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-138. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-139. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-140. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-141. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-142. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-143. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-144. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-145. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-146. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-147. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-148. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-149. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-150. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-151. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-152. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-153. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-154. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-155. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-156. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-157. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-158. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-159. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-160. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-161. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-162. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-163. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-164. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-165. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-166. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-167. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-168. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-169. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-170. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-171. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-172. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-173. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-174. This License is governed by the laws of the State of California, U.S.A., excluding choice of law rules.
-
-1
+2. Build the binary:
+```bash
+make build
+```
+
+3. Install the binary:
+```bash
+sudo make install
+```
+
+### Option 3: Install via Binary (Direct Download)
+
+1. Download the binary for your platform:
+```bash
+# For Linux
+wget https://github.com/apache/skywalking-eyes/releases/download/v1.0.0/skywalking-eyes-linux-amd64.tar.gz
+tar -xzf skywalking-eyes-linux-amd64.tar.gz
+```
+
+2. Move to a system path:
+```bash
+sudo mv skywalking-eyes /usr/local/bin/
+```
+
+## Usage
+
+### 1. Basic License Header Check
+
+Verify that all files have the required license header:
+
+```bash
+license-eye header check
+```
+
+### 2. Fix Missing License Headers
+
+Automatically insert license headers into missing files:
+
+```bash
+license-eye header fix
+```
+
+### 3. Check Dependency License Compatibility
+
+Verify that all project dependencies are compatible with the project's license:
+
+```bash
+license-eye dependency check
+```
+
+### 4. Resolve Dependencies and Generate License Summary
+
+Resolve all dependencies and generate a summary of licenses in a `LICENSE` file:
+
+```bash
+license-eye dependency resolve --summary dist/LICENSE.tpl --output dist/licenses/
+```
+
+### 5. GitHub Actions Integration
+
+Add to your `.github/workflows/license.yml`:
+
+```yaml
+name: License Eye
+on: [pull_request]
+
+jobs:
+  license-eye:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.25
+      - name: Run license-eye
+        run: |
+          make -C $GITHUB_ACTION_PATH install
+          license-eye -v info -c .licenserc.yaml header check
+          license-eye -v info -c .licenserc.yaml dependency check
+```
+
+### 6. Example Configuration (`licenserc.yaml`)
+
+```yaml
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Apache Software Foundation
+    content: |
+      Licensed to the Apache Software Foundation (ASF) under one
+      or more contributor license agreements.  See the NOTICE file
+      distributed with this work for additional information
+      regarding copyright ownership.  The ASF licenses this file
+      to you under the Apache License, Version 2.0 (the
+      "License"); you may not use this file except in compliance
+      with the License.  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+      Unless required by applicable law or agreed to in writing,
+      software distributed under the License is distributed on an
+      "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+      KIND, either express or implied.  See the License for the
+      specific language governing permissions and limitations
+      under the License.
+  paths: ["**"]
+  paths-ignore: ["dist", "**/*.md", "**/testdata/**"]
+
+dependency:
+  files:
+    - go.mod
+  licenses:
+    - name: github.com/chzyer/logex
+      version: v1.1.10
+      license: MIT
+```
+
+> **Note**: The tool uses a standard Apache-2.0 license by default, which is permissive and compatible with many other open-source licenses. You can customize this in the configuration file.

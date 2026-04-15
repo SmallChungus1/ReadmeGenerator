@@ -1,525 +1,188 @@
-Size: 411 bytes
-Lines: 16
----
-# RocketMQ SSL Certificate and Private Key
-
-The following files contain the client and server certificates and private keys for RocketMQ's TLS/SSL support.
-
-## Files
-- `ca.crt` - Certificate Authority (CA) certificate
-- `ca.srl` - Certificate Authority (CA) serial number
-- `ca_rsa_private.pem` - CA private key (RSA)
-- `server.crt` - Server certificate
-- `server_rsa_private.pem` - Server private key (RSA)
-- `client.crt` - Client certificate
-- `client_rsa_private.pem` - Client private key (RSA)
-- `ssl.properties` - Configuration file for SSL/TLS settings
-
-## Usage
-To use SSL/TLS in RocketMQ, you need to:
-1. Place the certificate and key files in the `/home/rocketmq/ssl` directory
-2. Update the `ssl.properties` file to point to the correct paths
-3. Set the `JAVA_OPT` environment variable to enable TLS
-4. Restart the RocketMQ services
-
-## Security Note
-The private keys are encrypted and should be kept secure. Never share these files or expose them in public repositories.
-
-## Verification
-You can verify the certificates using OpenSSL:
-```bash
-openssl x509 -in ca.crt -text -noout
-openssl x509 -in server.crt -text -noout
-```
-
----
-
-File: templates/README.md
-Size: 2225 bytes
-Lines: 52
----
 # Apache RocketMQ Docker
 
-This repository provides Docker images and scripts for running Apache RocketMQ with various configurations.
+## Description
 
-## Overview
+Apache RocketMQ Docker provides a comprehensive set of tools and configurations for deploying and managing Apache RocketMQ, a distributed messaging and event bus system. This repository includes Docker images for RocketMQ components (nameserver, broker, proxy), Kubernetes Helm charts, and scripts to facilitate quick setup and testing in various environments, including Docker Compose and Kubernetes.
 
-Apache RocketMQ is a distributed messaging and event bus platform designed to handle high-throughput, low-latency messaging scenarios. This repository offers pre-built Docker images and configuration scripts to simplify the setup and deployment of RocketMQ in development, testing, and production environments.
+The project supports multiple base images (Alpine, Ubuntu, CentOS) and offers both standard and secure (TLS) configurations. It includes pre-defined templates for common deployment scenarios such as asynchronous and synchronous replication, standalone brokers, and distributed clusters with DLedger support. The repository also provides a dashboard for monitoring and managing RocketMQ instances.
 
 ## Features
 
-- **Multiple Base Images**: Supports Alpine, Ubuntu, and CentOS for containerization
-- **Multiple RocketMQ Versions**: Compatible with various RocketMQ release versions
-- **Complete Stack**: Includes nameserver, broker, and proxy components
-- **Docker Compose Support**: Easy-to-use docker-compose configuration files
-- **Kubernetes Support**: Helm charts for Kubernetes deployment
-- **SSL/TLS Support**: Built-in support for secure messaging
-- **Dledger Support**: Support for distributed consensus (Raft)
-- **Dashboard**: Integrated web dashboard for monitoring
+- **Multi-Platform Support**: Docker images built for Alpine, Ubuntu, and CentOS base images.
+- **Secure Communication**: TLS/SSL support with certificate generation and configuration.
+- **Docker Compose Templates**: Pre-configured `docker-compose.yml` files for common setups.
+- **Kubernetes Helm Charts**: Full Kubernetes deployment support with configurable resources and networking.
+- **Distributed Clusters**: Support for DLedger-based distributed brokers with automatic failover.
+- **Dashboard Integration**: A standalone RocketMQ dashboard for monitoring and management.
+- **Customizable Configurations**: Pre-defined configuration files for various deployment topologies.
+- **Automated Image Building**: Scripts to build and push RocketMQ images to Docker registries.
+- **Version Management**: Tools to stage and update templates with specific RocketMQ versions.
 
 ## Installation
 
 ### Prerequisites
-- Docker or Docker Compose installed
-- Java 8 or 11 installed (required by RocketMQ)
 
-### Using Docker Images
+- Docker installed and running
+- Docker Compose installed (version 2.0 or later)
+- `git` for cloning the repository
+- Java 8 or 11 (required for RocketMQ runtime)
 
-1. **Pull the latest image**:
+### Clone and Prepare the Repository
+
 ```bash
-docker pull apache/rocketmq:latest
+git clone https://github.com/apache/rocketmq-docker.git
+cd rocketmq-docker
 ```
 
-2. **Run a basic RocketMQ instance**:
+### Build Docker Images
+
+Build RocketMQ images for specific base images (Alpine, Ubuntu, or CentOS):
+
 ```bash
-docker run -d -p 9876:9876 --name rmqnamesrv apache/rocketmq:latest sh mqnamesrv
+# Build for Alpine
+sh image-build/build-image.sh 4.5.0 alpine
+
+# Build for Ubuntu
+sh image-build/build-image.sh 4.5.0 ubuntu
+
+# Build for CentOS
+sh image-build/build-image.sh 4.5.0 centos
 ```
 
-3. **Run a broker**:
+> **Note**: Replace `4.5.0` with the desired RocketMQ version. The version must follow the format `X.X.X`.
+
+### Build Dashboard Image (Optional)
+
+To build the RocketMQ Dashboard image:
+
 ```bash
-docker run -d -p 10911:10911 --name rmqbroker -e "NAMESRV_ADDR=namesrv:9876" apache/rocketmq:latest sh mqbroker -c /opt/rocketmq/conf/broker.conf
+sh image-build/build-image-dashboard.sh 4.5.0 centos
 ```
 
-### Using Docker Compose
+## Usage
 
-1. **Create a directory** for your RocketMQ configuration:
+### Run a Basic RocketMQ Cluster with Docker Compose
+
+1. Create a directory for your project:
+   ```bash
+   mkdir rocketmq-demo && cd rocketmq-demo
+   ```
+
+2. Copy the `docker-compose.yml` file from the templates:
+   ```bash
+   cp ../templates/docker-compose/rmq4-docker-compose.yml .
+   ```
+
+3. Edit the `docker-compose.yml` file to specify your RocketMQ version:
+   ```yaml
+   version: '2'
+   services:
+     namesrv:
+       image: apache/rocketmq:4.5.0
+       ports:
+         - 9876:9876
+       volumes:
+         - ./data/namesrv/logs:/home/rocketmq/logs
+       command: sh mqnamesrv
+
+     broker:
+       image: apache/rocketmq:4.5.0
+       ports:
+         - 10909:10909
+         - 10911:10911
+         - 10912:10912
+       environment:
+         - NAMESRV_ADDR=namesrv:9876
+       volumes:
+         - ./data/broker/logs:/home/rocketmq/logs
+         - ./data/broker/store:/home/rocketmq/store
+         - ./data/broker/conf/broker.conf:/opt/rocketmq-4.5.0/conf/broker.conf
+       command: sh mqbroker -c /opt/rocketmq-4.5.0/conf/broker.conf
+   ```
+
+4. Start the services:
+   ```bash
+   docker compose up -d
+   ```
+
+### Run a Cluster with DLedger (Distributed Replication)
+
+Use the `play-docker-dledger.sh` script to start a distributed broker cluster:
+
 ```bash
-mkdir rocketmq && cd rocketmq
+sh templates/play-docker-dledger.sh
 ```
 
-2. **Copy the docker-compose.yml file** from this repository:
+This script:
+- Removes existing containers
+- Creates a custom network for DLedger
+- Starts a nameserver and three brokers with DLedger configuration
+- Sets up network communication between brokers
+
+### Run with TLS Encryption
+
+To enable secure communication between components:
+
 ```bash
-cp templates/docker-compose/rmq4-docker-compose.yml .
+sh templates/play-docker-tls.sh
 ```
 
-3. **Start the services**:
+This script:
+- Mounts SSL certificates and properties
+- Configures the nameserver and broker with TLS settings
+- Enables mutual authentication between clients and brokers
+
+### Deploy with Kubernetes Helm
+
+1. Install Helm (if not already available):
+   ```bash
+   curl -fsSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz | tar -xzf -
+   sudo mv linux-amd64/helm /usr/local/bin/
+   ```
+
+2. Deploy RocketMQ using Helm:
+   ```bash
+   helm install rocketmq ./rocketmq-k8s-helm --set broker.replicaCount=3 --set nameserver.replicaCount=1
+   ```
+
+3. View the deployed resources:
+   ```bash
+   kubectl get pods -l app=rocketmq
+   kubectl get services -l app=rocketmq
+   ```
+
+### Access the Dashboard
+
+To access the RocketMQ dashboard:
+
 ```bash
-docker-compose up -d
+sh product/start-dashboard.sh 4.5.0
 ```
 
-### Using Kubernetes
+This starts the dashboard container on port 6765 (mapped to 8080). Access it via `http://localhost:6765`.
 
-1. **Install the Helm chart**:
+### Run Production-Ready Broker Configuration
+
+Use the `start-broker.sh` script to start a broker with custom configuration:
+
 ```bash
-helm repo add rocketmq https://github.com/apache/rocketmq-k8s-helm
-helm repo update
-helm install my-rocketmq rocketmq/rocketmq
+sh product/start-broker.sh ./data/broker 4.5.0 127.0.0.1:9876 broker-a.properties
 ```
 
-2. **Access the services**:
-- Nameserver: `http://<service-ip>:9876`
-- Broker: `http://<service-ip>:10911`
+This command:
+- Starts a broker with a specific configuration file
+- Maps logs and data directories
+- Sets the nameserver address and broker configuration
 
-## Usage Examples
+> **Note**: Replace `broker-a.properties` with any of the provided configuration files (e.g., `broker-a-s.properties`, `broker-trace.properties`) for different deployment scenarios.
 
-### Setting Up a Cluster
+### Test Message Production and Consumption
 
-To create a multi-node cluster with replication:
-1. Use the `2m-2s-sync` configuration in the `product/conf` directory
-2. Start the nameserver and two brokers with different IDs
-3. Configure the brokers to form a master-slave relationship
+After starting the cluster, use the provided scripts to test message flow:
 
-### Using SSL/TLS
-
-1. Place the SSL certificate and key files in the `/home/rocketmq/ssl` directory
-2. Update the `ssl.properties` file to point to the correct paths
-3. Set the `JAVA_OPT` environment variable to enable TLS
-4. Restart the services
-
-### Using the Dashboard
-
-1. Pull the dashboard image:
 ```bash
-docker pull apache/rocketmq-dashboard:latest
+sh templates/play-producer.sh
+sh templates/play-consumer.sh
 ```
 
-2. Run the dashboard:
-```bash
-docker run -d -p 6765:8080 --name rocketmq-dashboard apache/rocketmq-dashboard:latest
-```
-
-## Configuration
-
-RocketMQ configurations are defined in the `product/conf` directory, with various pre-defined configurations such as:
-- `2m-2s-sync`: Two master-slave brokers with synchronous replication
-- `2m-noslave`: Two master brokers with no slave
-- `2m-2s-async`: Two master-slave brokers with asynchronous replication
-- `broker.conf`: Basic broker configuration
-
-## Troubleshooting
-
-- **Connectivity Issues**: Ensure all services are running and ports are accessible
-- **Configuration Errors**: Verify configuration files are correctly formatted
-- **SSL/TLS Errors**: Check certificate paths and permissions
-- **Resource Limits**: Ensure sufficient memory and CPU resources are allocated
-
-## License
-
-This project is licensed under the Apache License, Version 2.0. See the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
-
----
-
-File: .github/ISSUE_TEMPLATE
-Size: 380 bytes
-Lines: 14
----
-## Bug Report
-
-Please provide:
-- A clear and concise description of the issue
-- Steps to reproduce the problem
-- Expected behavior
-- Actual behavior
-- Environment information (OS, Docker version, etc.)
-
-## Feature Request
-
-Please provide:
-- A clear and concise description of the feature
-- Why this feature is needed
-- How it would be implemented
-- Any relevant existing features or alternatives
-
-## General Questions
-
-Please provide:
-- Your question
-- Any relevant context
-- Environment information
----
----
-File: templates/data/broker1/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode01
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n1
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker0/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode00
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n0
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker/conf/broker1.conf
-Size: 200 bytes
-Lines: 9
----
-brokerClusterName = DefaultCluster
-brokerName = broker-abc1
-brokerId = 1
-deleteWhen = 04
-fileReservedTime = 48
-brokerRole = ASYNC_MASTER
-flushDiskType = ASYNC_FLUSH
-brokerIP1 = m30
-listenPort = 10921
-
-
----
-File: templates/data/broker/conf/broker.conf
-Size: 188 bytes
-Lines: 8
----
-brokerClusterName = DefaultCluster
-brokerName = broker-abc
-brokerId = 0
-deleteWhen = 04
-fileReservedTime = 48
-brokerRole = ASYNC_MASTER
-flushDiskType = ASYNC_FLUSH
-brokerIP1 = 30.25.90.30
-
-
----
-File: templates/data/broker2/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode02
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n2
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker0/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode00
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n0
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker1/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode01
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n1
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker2/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode02
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n2
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker0/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode00
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n0
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker1/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode01
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
-## must be unique
-dLegerSelfId=n1
-sendMessageThreadPoolNums=16
-
-
----
-File: templates/data/broker2/conf/dledger/broker.conf
-Size: 1162 bytes
-Lines: 27
----
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
-brokerClusterName = RaftCluster
-brokerName=RaftNode02
-listenPort=30911
-#namesrvAddr=127.0.0.1:9876
-storePathRootDir=/tmp/rmqstore/node00
-storePathCommitLog=/tmp/rmqstore/node00/commitlog
-enableDLegerCommitLog=true
-dLegerGroup=RaftNode00
-dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:409
+These scripts use the built-in RocketMQ example to produce and consume messages, verifying the cluster is operational.

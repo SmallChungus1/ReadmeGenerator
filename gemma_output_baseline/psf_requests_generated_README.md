@@ -1,37 +1,56 @@
-file generated from the provided repository structure and contents. I've included sections for Description, Features, Installation, Usage, and other relevant information, aiming for clarity and completeness.  I've added headers and formatting to make it easily readable.  The length is quite extensive due to the comprehensive nature of the provided data.
+# Requests: HTTP for Humans™
 
-```markdown
-# Requests
+[![Build Status](https://github.com/psf/requests/actions/workflows/ci.yml/badge.svg)](https://github.com/psf/requests/actions/workflows/ci.yml)
+[![Code Coverage](https://codecov.io/gh/psf/requests/branch/main/graph/badge.svg)](https://codecov.io/gh/psf/requests/branch/main)
+[![PyPI version](https://badge.fury.io/py/requests.svg)](https://badge.fury.io/py/requests)
+[![License](https://img.shields.io/pypi/license/requests)](https://github.com/psf/requests/blob/main/LICENSE)
+[![Documentation Status](https://readthedocs.org/projects/requests/badge/?version=latest)](https://requests.readthedocs.io/en/latest/)
+[![Donate](https://img.shields.io/badge/Donate-via%20Open%20Collective-4169E1.svg)](https://opencollective.com/requests)
 
-![PyPI Version](https://img.shields.io/pypi/v/requests)
-![License](https://img.shields.io/pypi/l/requests)
-![Python Versions](https://img.shields.io/pypi/pyversions/requests)
-![Downloads](https://static.pepy.tech/badge/requests/month)
+
+Requests is an elegant and simple HTTP library for Python, built for human beings.
+
+-------------------
+
+**Behold, the power of Requests**::
+
+```python
+>>> r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
+>>> r.status_code
+200
+>>> r.headers['content-type']
+'application/json; charset=utf8'
+>>> r.encoding
+'utf-8'
+>>> r.text
+'{"type":"User"...'
+>>> r.json()
+{'private_gists': 419, 'total_private_repos': 77, ...}
+```
+
+See [similar code, sans Requests](https://gist.github.com/973705).
 
 ## Description
 
-Requests is an elegant and simple HTTP library for Python, built for human beings. It simplifies the process of sending HTTP requests and handling responses, making it one of the most popular and user-friendly libraries for interacting with web services in Python.
+Requests is designed to be the most human-friendly HTTP library for Python.  It simplifies the process of sending HTTP requests and handles complexities like connection pooling, authentication, and more.
 
 ## Features
 
-*   **Simple API:**  Easy-to-use functions for making various HTTP requests (GET, POST, PUT, DELETE, HEAD, OPTIONS).
-*   **Automatic Content Decoding:** Automatically decodes the server's response content, handling common character encodings.
-*   **Keep-Alive & Connection Pooling:**  Efficiently reuses HTTP connections for improved performance.
-*   **International Domains and URLs:** Supports Unicode domains and URLs.
-*   **Sessions:**  Persists parameters like cookies and authentication across multiple requests.
-*   **Authentication:** Supports various authentication methods including Basic, Digest, OAuth1, and OAuth2.
-*   **Cookies:**  Handles cookies automatically and provides a `RequestsCookieJar` for management.
-*   **SSL Verification:** Verifies SSL certificates for secure connections.
-*   **Streaming Downloads:**  Allows downloading large files in chunks, minimizing memory usage.
-*   **Timeouts:** Sets request timeouts to prevent indefinite blocking.
-*   **Proxy Support:**  Supports HTTP and SOCKS proxies.
-*   **File Uploads:**  Simple interface for uploading files through multipart/form-data.
-*   **Raw Response Access:** Provides access to the underlying socket response for advanced use cases.
-*   **Prepared Requests:** Allows modifying requests before sending them, useful for advanced scenarios.
+*   **Simple API:**  Intuitive and easy-to-use methods for making HTTP requests.
+*   **Automatic Content Decoding:** Handles character encoding automatically.
+*   **Keep-Alive & Connection Pooling:**  Efficiently reuses TCP connections for performance.
+*   **SSL Verification:**  Securely verifies SSL certificates.
+*   **Authentication:** Supports various authentication methods (Basic, Digest, OAuth, etc.).
+*   **Cookies:**  Seamlessly manages cookies.
+*   **Sessions:** Persists parameters (cookies, authentication) across multiple requests.
+*   **Streaming Downloads:** Efficiently download large files.
+*   **Timeouts:**  Prevents requests from hanging indefinitely.
+*   **Proxy Support:**  Work with proxies for increased security or access control.
+*   **Multipart File Uploads:**  Easy uploading of files.
 
 ## Installation
 
-You can install Requests using pip:
+Install the latest version using pip:
 
 ```bash
 pip install requests
@@ -39,7 +58,7 @@ pip install requests
 
 ## Usage
 
-Here's a basic example of making a GET request:
+Here's a quick example of making a GET request:
 
 ```python
 import requests
@@ -47,10 +66,10 @@ import requests
 response = requests.get('https://httpbin.org/get')
 
 print(response.status_code)  # Output: 200
-print(response.text)  # Output: JSON data from the API
+print(response.text)          # Output: JSON data from the server
 ```
 
-**Sending Data (POST Request):**
+### Making a POST request with data:
 
 ```python
 import requests
@@ -61,144 +80,39 @@ response = requests.post('https://httpbin.org/post', data=payload)
 print(response.text)
 ```
 
-**Setting Headers:**
+### Using Sessions:
 
 ```python
 import requests
 
-headers = {'User-Agent': 'My-App/1.0'}
-response = requests.get('https://httpbin.org/headers', headers=headers)
+s = requests.Session()
 
-print(response.text)
+s.get('https://httpbin.org/cookies/set/sessioncookie/123456789')
+r = s.get('https://httpbin.org/cookies')
+
+print(r.text)
 ```
 
-**Handling Authentication (Basic Auth):**
+## Documentation
 
-```python
-import requests
-from requests.auth import HTTPBasicAuth
-
-response = requests.get('https://httpbin.org/basic-auth/user/pass', auth=HTTPBasicAuth('user', 'pass'))
-
-print(response.text)
-```
-
-**Using Sessions:**
-
-```python
-import requests
-
-session = requests.Session()
-session.headers.update({'X-Custom-Header': 'value'})
-
-response1 = session.get('https://httpbin.org/get')
-response2 = session.post('https://httpbin.org/post', data={'key': 'value'})
-
-print(response1.text)
-print(response2.text)
-```
-
-**Streaming Response Content:**
-
-```python
-import requests
-
-response = requests.get('https://httpbin.org/stream/10', stream=True)
-for chunk in response.iter_content(chunk_size=1024):
-    if chunk:
-        print(chunk.decode('utf-8')) # or process the chunk as needed
-```
-
-## Advanced Usage
-
-### SSL Certificate Verification
-
-Requests verifies SSL certificates by default. This can be disabled (not recommended for production) using:
-
-```python
-response = requests.get('https://example.com', verify=False)
-```
-
-You can also specify a custom CA bundle:
-
-```python
-response = requests.get('https://example.com', verify='/path/to/your/certfile')
-```
-
-### Timeouts
-
-Set request timeouts to prevent indefinite blocking:
-
-```python
-response = requests.get('https://example.com', timeout=5)  # Timeout after 5 seconds
-```
-
-### Proxies
-
-Configure proxies for your requests:
-
-```python
-proxies = {
-    'http': 'http://10.10.1.10:3128',
-    'https': 'http://10.10.1.10:1080',
-}
-response = requests.get('https://example.com', proxies=proxies)
-```
-
-### File Uploads
-
-```python
-import requests
-
-files = {'file': open('report.xls', 'rb')}
-response = requests.post('https://httpbin.org/post', files=files)
-print(response.text)
-```
-
-### Prepared Requests
-
-Useful when you need fine-grained control over the request before sending it.
-
-```python
-from requests import Request, Session
-
-s = Session()
-
-req = Request('POST', 'https://httpbin.org/post', data={'key': 'value'})
-prepped = req.prepare()
-
-# Modify the prepared request (e.g., headers)
-prepped.headers['X-Custom-Header'] = 'modified'
-
-resp = s.send(prepped)
-print(resp.text)
-```
+Comprehensive documentation is available at: [https://requests.readthedocs.io/](https://requests.readthedocs.io/)
 
 ## Contributing
 
-Contributions are welcome! Please see the [CONTRIBUTING.md](docs/dev/contributing.rst) file for details on how to contribute.
+See the [CONTRIBUTING.rst](https://github.com/psf/requests/blob/main/CONTRIBUTING.rst) file for guidelines on how to contribute to Requests.
 
 ## License
 
-Requests is licensed under the [Apache License 2.0](LICENSE).
+Requests is licensed under the Apache 2.0 License - see the [LICENSE](https://github.com/psf/requests/blob/main/LICENSE) file for details.
 
-## Resources
+## Acknowledgements
 
-*   **Documentation:** [https://requests.readthedocs.io/](https://requests.readthedocs.io/)
-*   **GitHub:** [https://github.com/psf/requests](https://github.com/psf/requests)
+Requests was originally created by [Kenneth Reitz](https://github.com/kennethreitz), and is now maintained by a team of dedicated contributors.  See the [AUTHORS.rst](https://github.com/psf/requests/blob/main/AUTHORS.rst) file for a complete list of contributors.
 
-```
+## Support
 
-Key improvements and explanations:
+For support, please use the following resources:
 
-*   **Shields Badges:** Added badges for version, license, and Python support.
-*   **Comprehensive Usage Examples:**  Expanded usage examples to cover common scenarios.
-*   **Advanced Usage Section:** Included details for SSL verification, timeouts, proxies, file uploads, and prepared requests.
-*   **Contribution and License:** Added clear sections for contributing and licensing.
-*   **Resources:** Added links to the official documentation and GitHub repository.
-*   **Formatting:** Used Markdown formatting for readability.
-*   **Clearer Descriptions:** Improved the clarity and conciseness of descriptions.
-*   **Based on the Provided Files:**  Entirely constructed from the data in the GitHub repo, so it is complete and reflects the actual features and documentation of the project.
-*   **Includes warnings/notes:** It includes the notes from the `docs/user/advanced.rst` which were very important.
-
-This README should give users a solid understanding of the Requests library and how to use it effectively.  It is fairly long because it's based directly on the provided documentation.  You could shorten it if you focus on only the most common use-cases, but this covers everything. Remember to adjust any file paths in the examples to match your local environment.
+*   **GitHub Issues:** [https://github.com/psf/requests/issues](https://github.com/psf/requests/issues)
+*   **Stack Overflow:**  Search for existing questions or ask a new one using the `requests` tag.
+*   **Open Collective:** Support the development of Requests through donations:  [https://opencollective.com/requests](https://opencollective.com/requests)

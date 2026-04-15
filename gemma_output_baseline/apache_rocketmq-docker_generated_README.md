@@ -1,101 +1,100 @@
-# RocketMQ Docker Project - README
+# Apache RocketMQ Docker Images - README
 
 ## Description
 
-This repository provides Docker images and related resources for running Apache RocketMQ. It supports various base images (Alpine, CentOS, Ubuntu) and configurations. The repository aims to simplify the deployment and management of RocketMQ in containerized environments, with  support for Kubernetes deployments via Helm charts.  This repo provides several deployment options, including standalone, and clustered setups for development, testing, and production purposes.
+This repository provides Docker images and associated configurations for Apache RocketMQ. It aims to simplify the deployment and management of RocketMQ in containerized environments. The images are available for various base images (Alpine, CentOS, Ubuntu) and configurations. This repository also includes Helm charts for Kubernetes deployment.
 
 ## Features
 
-*   **Multiple Base Images:** Offers Docker images based on Alpine Linux, CentOS, and Ubuntu, allowing you to choose the most suitable one based on your requirements (image size, compatibility, etc.).
-*   **Helm Charts:** Includes Kubernetes Helm charts for easy deployment and management of RocketMQ in a Kubernetes cluster. This includes deployments for Namesrv, Broker and Controller.
-*   **Docker Compose:**  Provides `docker-compose.yml` files for quick local development and testing.
-*   **Dledger Support:** Includes configuration and examples showcasing the use of Dledger for distributed consensus and higher availability of message storage.
-*   **TLS Support:** Configurations and scripts are provided to enable TLS/SSL for secure communication between RocketMQ components.
-*   **Customizable Configurations:**  Offers example configuration files that can be customized to tailor RocketMQ behavior to specific needs.
-*   **Automated Image builds:** GitHub Actions and makefiles automate Docker image building and publishing.
-*   **Play Scripts:**  Includes scripts (`play-docker.sh`, `play-docker-dledger.sh`, etc.) to assist with local testing.
+*   **Multiple Base Images:** Provides images built on Alpine Linux, CentOS, and Ubuntu, catering to different size and dependency requirements.
+*   **Pre-configured Images:**  Offers pre-configured images for Namesrv, Broker and Dashboard, simplifying deployment.
+*   **Configuration Flexibility:** Includes a variety of configuration examples in the `product/conf` directory for different deployment scenarios (e.g., 2M-2S sync, 2M-2S async, no-slave).
+*   **Docker Compose:** Contains `docker-compose.yml` files for quick local development and testing.
+*   **Kubernetes Helm Charts:** Integrates with Kubernetes using Helm charts for easy deployment and scaling in production environments.
+*   **Dledger Support:** Configurations included for running RocketMQ with Dledger.
+*   **TLS Support:** SSL configurations present in the `templates/ssl` directory
+*    **Build Scripts:** Provides build scripts for generating images customized for your needs.
 
 ## Installation
 
-1.  **Prerequisites:**
-    *   Docker
-    *   Docker Compose (for `docker-compose.yml` based deployments)
-    *   kubectl (for Kubernetes deployments)
-    *   Helm (for Kubernetes deployments)
+1.  **Docker:** Ensure you have Docker installed on your system.  See [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/) for installation instructions.
 
-2.  **Clone the Repository:**
+2.  **Kubectl (for Kubernetes deployments):** If you plan to deploy with Kubernetes, install `kubectl`. See [https://kubernetes.io/docs/tasks/tools/install-kubectl/](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
-    ```bash
-    git clone https://github.com/apache/rocketmq-docker.git
-    cd rocketmq-docker
-    ```
+3.  **Helm (for Kubernetes deployments):** To use the Helm charts, ensure you have Helm installed. See [https://helm.sh/docs/intro/install/](https://helm.sh/docs/intro/install/).
 
 ## Usage
 
-### 1. Docker Compose (Local Development)
+### 1. Using Pre-built Docker Images
 
-1.  Navigate to the `templates` directory:
+The project provides pre-built docker images in Docker Hub via the `apache/rocketmq` repository.
+
+*   **Namesrv:** `apache/rocketmq:<version>` (e.g., `apache/rocketmq:5.1.0`)
+*   **Broker:** `apache/rocketmq:<version>` (e.g., `apache/rocketmq:5.1.0`)
+*   **Dashboard:** `apache/rocketmq-dashboard:<version>` (e.g., `apache/rocketmq-dashboard:0.1.2`)
+
+To run a RocketMQ cluster, you can use the provided `docker-compose.yml`files (e.g., `rmq4-docker-compose.yml` or `rmq5-docker-compose.yml`) :
+
+```bash
+docker-compose -f docker-compose/rmq4-docker-compose.yml up -d
+```
+
+### 2. Building Docker Images Locally
+
+If you want to build the images yourself (e.g., to customize them), you can use the provided build scripts:
+
+```bash
+# Build Alpine image
+bash image-build/build-image.sh <version> alpine
+
+# Build Ubuntu image
+bash image-build/build-image.sh <version> ubuntu
+```
+
+Replace `<version>` with the desired RocketMQ version.
+
+To build the dashboard image:
+
+```bash
+bash image-build/build-image-dashboard.sh <version> centos
+```
+
+### 3. Kubernetes Deployment with Helm
+
+1.  **Add the Helm repository:**
 
     ```bash
-    cd templates
-    ```
-
-2.  Run the docker-compose file.  There are two available: `rmq4-docker-compose.yml` and `rmq5-docker-compose.yml`. The `rmq5` file uses RocketMQ 5.x. Choose one based on your needs:
-
-    ```bash
-    docker-compose -f rmq4-docker-compose.yml up -d
-    ```
-
-3.   Access the services:
-
-    *   Nameserver: `http://localhost:9876`
-    *   Broker: `http://localhost:10909`, `http://localhost:10911`, `http://localhost:10912`
-    *   Proxy: `http://localhost:8080`
-
-### 2.  Kubernetes Deployment (using Helm)
-
-1.  Add the Helm repository (if needed):
-
-    ```bash
-    helm repo add apache https://apache.github.io/rocketmq-k8s-helm/
+    helm repo add rocketmq https://apache.github.io/rocketmq-helm/
     helm repo update
     ```
 
-2.  Install RocketMQ using Helm:
+2.  **Install the chart:**
 
     ```bash
-    helm install rocketmq apache/rocketmq
+    helm install my-rocketmq rocketmq/rocketmq
     ```
 
-3.  Customize the deployment using the `values.yaml` file within the `rocketmq-k8s-helm` directory.  Adjust settings like replica counts, resource limits, and image tags as needed.
+3.  **Customize the deployment:**
 
-4.  Check the deployment status:
+    You can customize the deployment using values.yaml:
 
     ```bash
-    kubectl get all -n default
+    helm install my-rocketmq rocketmq/rocketmq -f my-values.yaml
     ```
 
-### 3. Docker Image Build
+## Configuration
 
-1.  Navigate to the `image-build` directory:
+The `product/conf` directory contains various configuration files for different deployment scenarios.  You can customize these files and mount them as volumes when running the Docker containers.  Key configuration files include:
 
-    ```bash
-    cd image-build
-    ```
-2.  To build an image for a specific version and base image, run the `build-image.sh`:
-     ```bash
-     ./build-image.sh <version> <base_image>
-     ```
-     Replace `<version>` with the desired RocketMQ version and `<base_image>` with either `alpine`, `ubuntu`, or `centos`.
-
-### 4. Running play scripts
-
-The `templates` folder contains several play scripts to demonstrate basic working configurations. For example, `play-docker-dledger.sh` creates a three-node RocketMQ cluster using Dledger consensus.
+*   `broker.conf`: General Broker configuration.
+*   `2m-2s-sync/broker-a.properties`: Configuration for a Broker in a 2 Master 2 Slave synchronous replication setup.
+*   `2m-2s-async/broker-a.properties`: Configuration for a Broker in a 2 Master 2 Slave asynchronous replication setup.
+*   `2m-noslave/broker-a.properties` Broker configuration with no slave
 
 ## Other Information
 
-*   **Configuration Files:** The `product/conf` directory contains example configuration files for RocketMQ brokers and nameservers.  Adjust these files as needed for your specific environment.
-*   **GitHub Actions:**  This repository utilizes GitHub Actions (defined in `.github/workflows/docker-publish.yml`) to automate Docker image building and publishing.
-*   **License:**  This project is licensed under the Apache 2.0 License. See `LICENSE` for details.
-*   **Documentation:**  Refer to the official Apache RocketMQ documentation for detailed information on configuring and using RocketMQ: [https://rocketmq.apache.org/](https://rocketmq.apache.org/)
-*   **Contributing:** Contributions are welcome! Please see `CONTRIBUTING.md` for guidelines.
+*   **License:** Apache License 2.0 (See `LICENSE` file).
+*   **Contributing:** Contributions are welcome!  Please see the `CONTRIBUTING.md` file for details.
+*   **GitHub Actions:** This repository uses GitHub Actions to automatically build and publish docker images.  The workflow is defined in `.github/workflows/docker-publish.yml`.
+*   **Issue Template:** Use the issue template provided in `.github/ISSUE_TEMPLATE` when reporting bugs or requesting features.
+*   **Known Issues :** Check the [issue tracker](https://github.com/apache/rocketmq-docker/issues).

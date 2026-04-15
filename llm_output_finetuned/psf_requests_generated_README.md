@@ -1,456 +1,113 @@
-with requests.get(tarball_url, stream=True) as r:
-        r.raise_for_status()
-        with open('file.tar.gz', 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
+# Requests
 
-Note: ``stream`` is required for raw response reading.
+## Description
 
-This is useful for large downloads, as it allows the request to be made
-without loading the entire response body into memory. This means that the
-request is not subject to memory pressure, and it is possible to make
-requests for very large files (e.g. a 1GB download).
+**Requests** is a simple, elegant, and powerful HTTP library for Python, built with human beings in mind. It simplifies making HTTP requests, handling responses, and managing common web interactions—making it the go-to choice for Python developers who want to work with HTTP without the complexity of low-level networking code.
 
-For more information on the :attr:`Response.content <requests.Response.content>`
-attribute, see the :ref:`Response Content <response-content>` section.
+With Requests, you can easily send GET, POST, PUT, PATCH, and DELETE requests, handle cookies, manage authentication, work with JSON data, and set custom headers—all with clean, readable syntax.
 
-.. _proxy-support:
+## Features
 
-Proxy Support
--------------
+- ✅ **Simple and intuitive API** for making HTTP requests (GET, POST, PUT, PATCH, DELETE, etc.)
+- ✅ **Automatic JSON handling** with built-in `.json()` method
+- ✅ **Cookie management** with support for persistent sessions
+- ✅ **Authentication support** (Basic, Digest, and Proxy)
+- ✅ **Built-in support for redirects** and automatic handling of 3xx responses
+- ✅ **Robust error handling** with clear exceptions for common issues
+- ✅ **Support for proxies** and custom headers
+- ✅ **SSL/TLS certificate verification** using the `certifi` bundle
+- ✅ **Unicode and encoding support** with automatic content decoding
+- ✅ **Extensible hooks system** for custom request/response processing
+- ✅ **Session-based requests** for reusing connections and preserving cookies
+- ✅ **Modern Python 3.10+ compatibility** with full support for latest language features
 
-Requests supports proxy configuration through the ``proxies`` parameter. The
-parameter can be a dictionary of protocol-specific proxy URLs. For example,
-to use a proxy for HTTP requests, you can pass:
+## Installation
 
-    proxies = {
-        'http': 'http://10.10.1.10:3128',
-        'https': 'http://10.10.1.10:1080'
-    }
+Install Requests using `pip`:
 
-Requests will use the appropriate proxy based on the request's URL.
+```bash
+pip install requests
+```
 
-If you use the ``proxies`` parameter with a Session object, the proxy settings
-will be shared across all requests made from that Session.
+For development or testing environments, install the full development set:
 
-You can also use environment variables to configure proxies. The following
-environment variables are supported:
+```bash
+pip install -r requirements-dev.txt
+```
 
-* ``http_proxy``
-* ``https_proxy``
-* ``ftp_proxy``
+> **Note**: Requests requires Python 3.10 or later.
 
-For example, to use a proxy for all HTTP and HTTPS requests, you can set the
-``http_proxy`` environment variable to the proxy URL.
+## Usage
 
-You can also specify a proxy for specific requests by passing the
-``proxies`` parameter directly to the request method.
+### Making a Simple GET Request
 
-You can also use environment variables to configure proxies. The following
-environment variables are supported:
+```python
+import requests
 
-* ``http_proxy``
-* ``https_proxy``
-* ``ftp_proxy``
+response = requests.get('https://httpbin.org/get')
+print(response.status_code)
+print(response.json())
+```
 
-For example, to use a proxy for all HTTP and HTTPS requests, you can set the
-``http_proxy`` environment variable to the proxy URL.
+### Sending a POST Request with JSON Data
 
-Requests will only use the proxy if the request is not going to a local
-address. Requests will also skip the proxy if the request is going to a
-domain that is in the ``no_proxy`` environment variable.
+```python
+import requests
 
-You can also use environment variables to configure proxies. The following
-environment variables are supported:
+data = {"name": "Alice", "age": 30}
+response = requests.post('https://httpbin.org/post', json=data)
+print(response.json())
+```
 
-* ``http_proxy``
-* ``https_proxy``
-* ``ftp_proxy``
+### Using Sessions for Persistent Cookies
 
-For example, to use a proxy for all HTTP and HTTPS requests, you can set the
-``http_proxy`` environment variable to the proxy URL.
+```python
+import requests
 
-Requests will only use the proxy if the request is not going to a local
-address. Requests will also skip the proxy if the request is going to a
-domain that is in the ``no_proxy`` environment variable.
+session = requests.Session()
+session.get('https://httpbin.org/cookies/set/sessionid/12345')
+response = session.get('https://httpbin.org/cookies')
+print(response.json())
+```
 
-.. _timeout:
+### Handling Authentication
 
-Timeouts
---------
+```python
+import requests
 
-You can tell Requests to stop waiting for a response after a given number of
-seconds with the ``timeout`` parameter. Nearly all production code should use
-this parameter in nearly all requests. Failure to do so can cause your program
-to hang indefinitely::
+response = requests.get('https://httpbin.org/headers', auth=('user', 'pass'))
+print(response.json())
+```
 
-    >>> requests.get('https://github.com/', timeout=0.001)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-    requests.exceptions.Timeout: HTTPConnectionPool(host='github.com', port=80): Request timed out. (timeout=0.001)
+### Setting Custom Headers
 
-.. note:: ``timeout`` is not a time limit on the entire response download;
-          rather, an exception is raised if the server has not issued a
-          response for ``timeout`` seconds (more precisely, if no bytes have been
-          received on the underlying socket for ``timeout`` seconds). If no timeout is specified explicitly, requests do
-          not time out.
+```python
+import requests
 
-.. _request-hooks:
+headers = {'User-Agent': 'MyApp/1.0', 'X-API-Key': 'abc123'}
+response = requests.get('https://httpbin.org/headers', headers=headers)
+print(response.json())
+```
 
-Request Hooks
---------------
+### Error Handling
 
-You can pass a list of functions to the ``hooks`` parameter to execute at
-various stages of the request lifecycle. For example, you can use hooks to
-log requests or to modify headers before they are sent::
+```python
+import requests
 
-    hooks = {
-        'response': [my_hook]
-    }
-
-    requests.get('https://httpbin.org/headers', hooks=hooks)
-
-The ``hooks`` parameter is a dictionary of functions that are called at specific
-points in the request lifecycle. The keys are the names of the events, and the
-values are lists of functions that are called when the event occurs.
-
-The following events are supported:
-
-* ``response``: called after the response has been received from the server
-* ``redirect``: called after a redirect has been performed
-
-For more information on request hooks, see the :ref:`Request Hooks <request-hooks>` section.
-
-.. _request-hooks:
-
-Request Hooks
---------------
-
-You can pass a list of functions to the ``hooks`` parameter to execute at
-various stages of the request lifecycle. For example, you can use hooks to
-log requests or to modify headers before they are sent::
-
-    hooks = {
-        'response': [my_hook]
-    }
-
-    requests.get('https://httpbin.org/headers', hooks=hooks)
-
-The ``hooks`` parameter is a dictionary of functions that are called at specific
-points in the request lifecycle. The keys are the names of the events, and the
-values are lists of functions that are called when the event occurs.
-
-The following events are supported:
-
-* ``response``: called after the response has been received from the server
-* ``redirect``: called after a redirect has been performed
-
-For more information on request hooks, see the :ref:`Request Hooks <request-hooks>` section.
-
-.. _cookies:
-
-Cookies
--------
-
-Requests supports cookies through the :class:`RequestsCookieJar` class.
-Cookies are automatically sent with requests and are automatically
-persisted across requests. You can also manually add or remove cookies from
-the session.
-
-To manually add cookies to a session, use the
-:ref:`Cookie utility functions <api-cookies>` to manipulate
-:attr:`Session.cookies <requests.Session.cookies>`.
-
-To manually remove cookies from a session, use the
-:ref:`Cookie utility functions <api-cookies>` to manipulate
-:attr:`Session.cookies <requests.Session.cookies>`.
-
-The following methods are available:
-
-* :meth:`RequestsCookieJar.set()`
-* :meth:`RequestsCookieJar.get()`
-* :meth:`RequestsCookieJar.delete()`
-
-You can also use the :meth:`RequestsCookieJar.extract()` method to extract
-cookies from a response.
-
-For more information on cookies, see the :ref:`Cookies <cookies>` section.
-
-.. _chaining-requests:
-
-Chaining Requests
------------------
-
-You can chain requests together using the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together, you can use the :meth:`Session.get() <requests.Session.get>` method.
-For example, you can chain requests together to get a list of user IDs from a
-user list, then get the user details for each user ID.
-
-To chain requests together
+try:
+    response = requests.get('https://httpbin.org/status/404')
+    response.raise_for_status()
+except requests.exceptions.HTTPError as e:
+    print(f"HTTP Error: {e}")
+except requests.exceptions.ConnectionError as e:
+    print(f"Connection Error: {e}")
+```
+
+> 💡 All examples assume you have a valid endpoint to test. For real-world usage, refer to the [official documentation](https://requests.readthedocs.io).
+
+---
+
+**License**: Apache-2.0  
+**Homepage**: [https://requests.readthedocs.io](https://requests.readthedocs.io)  
+**Source Code**: [https://github.com/psf/requests](https://github.com/psf/requests)  
+**Maintainers**: Kenneth Reitz, Ian Stapleton Cordasco, Nate Prewitt

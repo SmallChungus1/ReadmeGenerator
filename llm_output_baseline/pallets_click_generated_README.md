@@ -1,231 +1,173 @@
----
-File: pyproject.toml
-Size: 1172 bytes
-Lines: 34
----
-[project]
-name = "click"
-version = "8.3.dev0"
-description = "A Python library for building command-line interfaces"
-readme = "README.rst"
-authors = [
-  { name = "Armin Ronacher", email = "armin.ronacher@armin.ronacher.cz" },
-]
-license = { text = "BSD-3-Clause" }
-requires-python = ">=3.10"
-classifiers = [
-  "Development Status :: 5 - Production/Stable",
-  "Environment :: Console",
-  "Intended Audience :: Developers",
-  "Intended Audience :: System Administrators",
-  "License :: OSI Approved :: BSD License",
-  "Natural Language :: English",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
-  "Topic :: Software Development :: Libraries :: Python Modules",
-  "Topic :: Software Development :: User Interfaces",
-  "Topic :: Terminals",
-]
+# Click
 
-[project.optional-dependencies]
-dev = [
-  "ruff",
-  "tox",
-  "tox-uv",
-]
-docs = [
-  "myst-parser",
-  "pallets-sphinx-themes",
-  "sphinx",
-  "sphinx-tabs",
-  "sphinxcontrib-log-cabinet",
-]
-docs-auto = [
-  "sphinx-autobuild",
-]
-gha-update = [
-  "gha-update",
-]
-pre-commit = [
-  "pre-commit",
-  "pre-commit-uv",
-]
-tests = [
-  "pytest",
-]
-typing = [
-  "mypy",
-  "pyright",
-  "pytest",
-]
+## Description
 
-[project.urls]
-Homepage = "https://click.palletsprojects.com/"
-Documentation = "https://click.palletsprojects.com/"
-Source = "https://github.com/pallets/click"
+Click is a composable command line interface toolkit for Python. It provides a clean, intuitive, and powerful way to build robust command-line applications. With Click, developers can define commands, arguments, options, and subcommands with ease, while leveraging built-in features like automatic help generation, argument validation, shell completion, and interactive user prompts.
 
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+Click is designed to be both simple and extensible, making it ideal for building CLI tools that range from simple scripts to complex, multi-layered applications. It supports cross-platform compatibility, including Windows, and integrates seamlessly with Python's ecosystem.
 
----
-File: tests/test_options.py
-Size: 78054 bytes
-Lines: 122
----
-import pytest
-from click import Option, Context, Parameter, Invalid, BadOptionError, BadParameterError
-from click.testing import CliRunner
-from click.exceptions import BadOptionError as ClickBadOptionError, BadParameterError as ClickBadParameterError
-import sys
-import textwrap
+## Features
 
-from click.core import (
-    Command, Option, Argument, Parameter, BadOptionError, BadParameterError
-)
+- **Composable CLI Design**: Build complex command-line interfaces using nested commands, groups, and subcommands.
+- **Automatic Help Generation**: Generates detailed help text for commands and options.
+- **Flexible Argument Types**: Supports custom types (e.g., file paths, dates, integers, UUIDs) and validation logic.
+- **Interactive User Prompts**: Built-in functions for prompts, confirmation, progress bars, and editing.
+- **Shell Completion**: Automatic shell completion for commands and arguments (Bash, Zsh, Fish).
+- **Cross-Platform Support**: Works on Windows, macOS, and Linux with proper console handling.
+- **Error Handling**: Comprehensive exception handling with user-friendly error messages.
+- **Testing Support**: Built-in testing utilities for unit and integration testing of CLI applications.
+- **Type Safety**: Full support for type hints and static analysis (e.g., mypy, pyright).
+- **Extensible Decorators**: Custom decorators for options, arguments, and context management.
 
-def test_option_with_default():
-    def f():
-        pass
-    opt = Option(('-x', '--x'), default=10)
-    assert opt.default == 10
+## Installation
 
-def test_option_with_default_value():
-    opt = Option(('-x', '--x'), default='10')
-    assert opt.default == '10'
+To install Click, use pip:
 
-def test_option_with_default_none():
-    opt = Option(('-x', '--x'), default=None)
-    assert opt.default is None
+```bash
+pip install click
+```
 
-def test_option_with_default_none_and_required():
-    opt = Option(('-x', '--x'), default=None, required=True)
-    assert opt.default is None
+For development purposes, including tests and pre-commit hooks:
 
-def test_option_with_default_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True)
-    assert opt.default == '10'
+```bash
+pip install -e .
+```
 
-def test_option_with_default_and_required_and_value():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10')
-    assert opt.default == '10'
+## Usage
 
-def test_option_with_default_and_required_and_value_and_type():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str)
-    assert opt.default == '10'
+### Basic Command Structure
 
-def test_option_with_default_and_required_and_value_and_type_and_help():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help')
-    assert opt.default == '10'
+Here's a minimal example of a Click CLI:
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR')
-    assert opt.default == '10'
+```python
+import click
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2)
-    assert opt.default == '10'
+@click.command()
+@click.option("--name", help="Your name")
+def hello(name):
+    click.echo(f"Hello, {name}!")
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'])
-    assert opt.default == '10'
+if __name__ == "__main__":
+    hello()
+```
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True)
-    assert opt.default == '10'
+Run with:
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True)
-    assert opt.default == '10'
+```bash
+python hello.py --name Alice
+```
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10')
-    assert opt.default == '10'
+Output:
+```
+Hello, Alice!
+```
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True)
-    assert opt.default == '10'
+### Advanced Example: Complex CLI with Subcommands
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True)
-    assert opt.default == '10'
+The `examples/complex/` directory demonstrates a full-featured CLI with a custom context and subcommands:
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True)
-    assert opt.default == '10'
+```python
+# examples/complex/complex/cli.py
+import click
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+CONTEXT_SETTINGS = dict(auto_envvar_prefix="COMPLEX")
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+class Environment:
+    def __init__(self):
+        self.verbose = False
+        self.home = os.getcwd()
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+    def log(self, msg, *args):
+        if args:
+            msg %= args
+        click.echo(msg, file=sys.stderr)
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+    def vlog(self, msg, *args):
+        if self.verbose:
+            self.log(msg, *args)
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+pass_environment = click.make_pass_decorator(Environment, ensure=True)
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+@click.command(cls=ComplexCLI, context_settings=CONTEXT_SETTINGS)
+@click.option("--home", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="Changes the folder to operate on.")
+@click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode.")
+@pass_environment
+def cli(ctx, verbose, home):
+    ctx.verbose = verbose
+    if home is not None:
+        ctx.home = home
+```
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+This CLI supports subcommands like `init` and `status`:
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+```bash
+python -m complex.cli --verbose --home /path/to/repo
+```
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+### Interactive Features
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+Use built-in termui functions for interactive behavior:
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+```python
+import click
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+@click.command()
+@click.option("--confirm", is_flag=True, help="Confirm action.")
+def delete(confirm):
+    if confirm:
+        click.confirm("Are you sure you want to delete?", abort=True)
+        click.echo("Deleted successfully.")
+    else:
+        click.echo("Action cancelled.")
+```
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+### Custom Types and Validation
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+Define custom types for input validation:
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+```python
+import click
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+class URL(click.ParamType):
+    name = "url"
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=2, choices=['a', 'b'], multiple=True, is_flag=True, default='10', required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True, required=True)
-    assert opt.default == '10'
+    def convert(self, value, param, ctx):
+        if not isinstance(value, tuple):
+            value = urlparse.urlparse(value)
+            if value.scheme not in ("http", "https"):
+                self.fail(
+                    f"invalid URL scheme ({value.scheme}). Only HTTP URLs are allowed",
+                    param,
+                    ctx,
+                )
+        return value
 
-def test_option_with_default_and_required_and_value_and_type_and_help_and_metavar_and_nargs_and_choices_and_multiple_and_is_flag_and_default_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required_and_required():
-    opt = Option(('-x', '--x'), default='10', required=True, value='10', type=str, help='help', metavar='METAVAR', nargs=
+@click.command()
+@click.option("--url", help="A URL", type=URL())
+def cli(url):
+    click.echo(f"URL: {url!r}")
+```
+
+Run with:
+
+```bash
+python cli.py --url https://example.com
+```
+
+This example validates that only HTTP/HTTPS URLs are accepted.
+
+### Shell Completion
+
+Enable shell completion for commands and arguments:
+
+```python
+@cli.command(help="A command to print environment variables")
+@click.argument("envvar", shell_complete=get_env_vars)
+def show_env(envvar):
+    click.echo(f"Environment variable: {envvar}")
+    click.echo(f"Value: {os.environ[envvar]}")
+```
+
+The `examples/completion/` directory provides a complete example of shell completion with environment variable and user list suggestions.
+
+> **Note**: For more detailed examples, see the `examples/` directory in the repository.

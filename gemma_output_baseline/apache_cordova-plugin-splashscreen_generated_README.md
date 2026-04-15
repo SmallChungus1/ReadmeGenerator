@@ -1,20 +1,24 @@
-```markdown
-# Cordova Splashscreen Plugin
+# Cordova Plugin Splashscreen
 
-This plugin displays and hides a splash screen during application launch.
+[![Build Status](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/chrome.yml/badge.svg)](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/chrome.yml)
+[![Build Status](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/lint.yml/badge.svg)](https://github.com/apache/cordova-plugin-splashscreen/actions/workflows/lint.yml)
 
 ## Description
 
-The Cordova Splashscreen plugin provides a simple way to display an image (or a solid background color) while your app is loading. This provides a better user experience by giving visual feedback that the application is starting.  It supports configuring the display duration and background color. The plugin is designed to work across multiple mobile platforms, with specific implementations for each platform. This repository specifically focuses on the browser implementation.
+This plugin displays and hides a splash screen while your application is loading. It provides a way to show a branded image or simply a background color during startup, enhancing the user experience.  This version is a development build, indicated by the version number `7.0.0-dev`.
 
 ## Features
 
-*   **Display a splash screen:** Shows a configured image or background color while the app loads.
-*   **Configurable duration:** Control how long the splash screen is displayed.
-*   **Customizable background color:**  Set the background color of the splash screen.
-*   **Browser Support:**  Provides a browser implementation for testing and use in web environments.
-*   **Auto Hide:** Optionally, the splash screen can be configured to automatically hide after a specified delay.
-*   **Responsive sizing:**  Adjusts the splash screen image size to fit the screen.
+*   **Display a splash screen:** Shows an image or background color while the application loads.
+*   **Hide the splash screen:** Removes the splash screen after a specified delay or on-demand.
+*   **Configuration Options:**
+    *   `ShowSplashScreen`: Boolean, defaults to `true`. Controls whether the splash screen is displayed.
+    *   `SplashScreenDelay`: Integer, defaults to 3000 (milliseconds).  Specifies how long the splash screen is displayed.
+    *   `SplashScreen`: String, defaults to `/img/logo.png`. The path to the splash screen image.
+    *   `SplashScreenBackgroundColor`: String, defaults to `#464646`. The background color of the splash screen.
+    *   `SplashScreenWidth`: Integer, defaults to 170. Specifies the desired width of the splash image.
+    *   `SplashScreenHeight`: Integer, defaults to 200. Specifies the desired height of the splash image.
+    *   `AutoHideSplashScreen`: Boolean, defaults to `true`.  Specifies to display and automatically hide the splash screen.
 
 ## Installation
 
@@ -24,49 +28,52 @@ To install the plugin, use the Cordova CLI:
 cordova plugin add cordova-plugin-splashscreen
 ```
 
-After installing the plugin, you'll also need to configure it in your `config.xml` file to specify the splash screen image, background color, delay, and other parameters. Example:
+## Usage
+
+### JavaScript
+
+You can control the splash screen using the `navigator.splashscreen` object.
+
+*   **Show the splash screen:**
+
+    ```javascript
+    navigator.splashscreen.show();
+    ```
+
+*   **Hide the splash screen:**
+
+    ```javascript
+    navigator.splashscreen.hide();
+    ```
+
+### Configuration (config.xml)
+
+You can configure the splash screen's appearance and behavior within your `config.xml` file.  Here's an example:
 
 ```xml
-<preference name="SplashScreen" value="resource-mdpi-port-land-hdpi" />
-<preference name="SplashScreenDelay" value="3000" />
+<preference name="ShowSplashScreen" value="true" />
+<preference name="SplashScreenDelay" value="6000" />
+<preference name="SplashScreen" value="splash.png" />
 <preference name="SplashScreenBackgroundColor" value="#FFFFFF" />
+<preference name="SplashScreenWidth" value="640" />
+<preference name="SplashScreenHeight" value="480" />
 <preference name="AutoHideSplashScreen" value="true" />
 ```
 
-*   `SplashScreen`: The name of the image resource to use as the splash screen.
-*   `SplashScreenDelay`: The duration (in milliseconds) to display the splash screen. Defaults to 3000ms.
-*   `SplashScreenBackgroundColor`: The background color of the splash screen (e.g., `#FFFFFF` for white).
-*   `AutoHideSplashScreen`: Whether or not the splashscreen should automatically hide after the delay (true/false).
+## Repository Details
 
-## Usage
-
-In your JavaScript code, you can use the `navigator.splashscreen` object to control the splash screen:
-
-```javascript
-// Show the splash screen
-navigator.splashscreen.show();
-
-// Hide the splash screen
-navigator.splashscreen.hide();
-```
-
-## Browser Implementation Details
-
-This repository contains the browser-specific implementation of the Splashscreen plugin, located in `src/browser/SplashScreenProxy.js`.  This implementation emulates the native splash screen functionality using HTML elements and CSS styling.  The `splashscreen.js` file within the `www` directory provides the JavaScript interface accessible via `navigator.splashscreen`.
-
-## Testing
-
-The `tests` directory contains unit tests for the browser implementation. You can run the tests using `npm test` within the `tests` directory after installing the project dependencies (`npm ci`).
+*   **Repository URL:** [https://github.com/apache/cordova-plugin-splashscreen](https://github.com/apache/cordova-plugin-splashscreen)
+*   **Commit Hash:** 586b988371fc57919288caacf7e1486ac44d19ca
+*   **Timestamp:** 2026-03-04T19:52:35.352043
 
 ## Contributing
 
-Contributions are welcome!  Please follow the [Apache Cordova Contributing Guidelines](https://cordova.apache.org/contribute/).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to this plugin.
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+This plugin is licensed under the [Apache License 2.0](LICENSE).
 
 ## Acknowledgements
 
-This plugin is part of the Apache Cordova ecosystem and maintained by the Apache Software Foundation.
-```
+This project is maintained by the Apache Software Foundation and the Cordova community.  Special thanks to the contributors who have helped improve this plugin.

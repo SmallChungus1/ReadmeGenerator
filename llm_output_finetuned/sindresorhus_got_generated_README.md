@@ -1,320 +1,174 @@
----
-File: test/gzip.ts
-Size: 21000 bytes
-Lines: 845
----
-import {Buffer} from 'node:buffer';
-import {promisify} from 'node:util';
-import zlib from 'node:zlib';
-import test from 'ava';
-import getStream from 'get-stream';
-import {pEvent} from 'p-event';
-import got, {HTTPError, ReadError} from '../source/index.js';
-import withServer from './helpers/with-server.js';
+# Got
 
-const gzipResponse = (body: string): Buffer => {
-	const compressed = Buffer.from(body, 'utf8');
-	return Buffer.from(compressed.toString('base64'), 'base64');
-};
+**Human-friendly and powerful HTTP request library for Node.js**
 
-const gzipDecompress = (body: string): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+Got is a modern, feature-rich HTTP client for Node.js that provides a clean, intuitive API for making HTTP requests. Inspired by the simplicity of `curl` and `wget`, it offers a robust foundation for handling both simple and complex network operations with built-in support for streaming, retries, pagination, and advanced request customization.
 
-const gzipDecompressError = (body: string): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+## Description
 
-const gzipDecompressErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+Got is a comprehensive HTTP client designed to simplify and streamline HTTP communication in Node.js applications. It supports all standard HTTP methods, provides seamless streaming capabilities, and includes intelligent retry logic, automatic pagination, and rich error handling. With a focus on developer experience, Got abstracts away the complexity of low-level HTTP operations while maintaining full control over request configuration and response processing.
 
-const gzipDecompressWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+## Features
 
-const gzipDecompressWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+- ✅ **Simple & intuitive API** resembling `curl` and `wget`
+- ✅ **Streaming support** for large responses and file downloads
+- ✅ **Automatic retries** with exponential backoff and configurable limits
+- ✅ **Pagination support** with customizable logic and backoff
+- ✅ **Response type flexibility** (text, JSON, buffer, raw)
+- ✅ **Request customization** via hooks, headers, and context
+- ✅ **Advanced features** including H2C support, Unix socket handling, and proxy configuration
+- ✅ **Error handling** with detailed context and structured error objects
+- ✅ **Performance optimizations** including connection pooling and caching
+- ✅ **Full TypeScript support** with comprehensive type definitions
+- ✅ **Extensible architecture** allowing for custom request processing and middleware
 
-const gzipDecompressWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+## Installation
 
-const gzipDecompressWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+Install Got using npm or yarn:
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```bash
+npm install got
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+or
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```bash
+yarn add got
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+## Usage
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### Basic GET Request
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const response = await got('https://api.github.com/users/octocat');
+console.log(response.body);
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### GET with JSON Response
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const {data} = await got('https://api.github.com/users/octocat').json();
+console.log(data.login);
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### POST Request with Form Data
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const response = await got.post('https://httpbin.org/post', {
+  form: {
+    name: 'John Doe',
+    age: 30
+  }
+});
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+console.log(response.body);
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### Streaming Response
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const stream = await got.stream('https://httpbin.org/stream/10');
+stream.on('data', chunk => {
+  console.log('Received chunk:', chunk);
+});
+stream.on('end', () => {
+  console.log('Stream completed');
+});
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### Custom Headers and Context
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const instance = got.extend({
+  headers: {
+    'User-Agent': 'MyApp/1.0',
+    'Authorization': 'Bearer my-token'
+  },
+  context: {
+    userId: '12345'
+  }
+});
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const response = await instance('https://api.example.com/data');
+console.log(response.headers);
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### Pagination with Custom Logic
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const iterator = got.paginate('https://api.github.com/repos/sindresorhus/got/commits', {
+  pagination: {
+    paginate({response, currentItems}) {
+      const {searchParams} = response.request.options;
+      return {
+        searchParams: {
+          page: Number(searchParams.get('page') ?? 1) + 1
+        }
+      };
+    },
+    transform: response => response.body,
+    countLimit: 50,
+    backoff: 1000
+  }
+});
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+for await (const item of iterator) {
+  console.log(item.commit.message);
+}
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### Rate Limiting and Error Handling
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const instance = got.extend({
+  hooks: {
+    beforeRequest: [
+      (options) => {
+        options.headers['X-RateLimit-Reset'] = Date.now() + 60000;
+      }
+    ],
+    afterResponse: [
+      (response) => {
+        if (response.headers['x-ratelimit-remaining'] === '0') {
+          console.log('Rate limit reached!');
+        }
+      }
+    ]
+  }
+});
+```
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+### Advanced Configuration with Custom Options
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+```ts
+import got from 'got';
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
+const response = await got('https://httpbin.org/get', {
+  method: 'GET',
+  timeout: 5000,
+  retry: {
+    limit: 3,
+    backoff: 1000,
+    methods: ['GET', 'POST']
+  },
+  responseType: 'json',
+  resolveBodyOnly: true
+});
 
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffset = (body: string, offset: number): string => {
-	const compressed = Buffer.from(body, 'base64');
-	return compressed.toString('utf8');
-};
-
-const gzipDecompressWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetErrorWithOffsetError
+console.log(response.body);
+```
