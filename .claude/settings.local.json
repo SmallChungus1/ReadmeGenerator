@@ -12,7 +12,10 @@
       "Bash(python -c ':*)",
       "Bash(grep -n \"\\\\\\\\\\\\\\\\s\" e:/personalProj/ReadmeGenerator/repo_ingest.py)",
       "Bash(python -W error::SyntaxWarning -c \"import ast; ast.parse\\(open\\('e:/personalProj/ReadmeGenerator/repo_ingest.py'\\).read\\(\\)\\)\")",
-      "Bash(python -)"
+      "Bash(python -)",
+      "Bash(ctags --output-format=json --help)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 *)"
     ]
   }
 }

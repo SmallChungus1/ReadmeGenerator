@@ -1,0 +1,2633 @@
+Tokens: 25703
+Repo: pallets/click
+Commit: 04ef3a6f473deb2499721a8d11f92a7d2c0912f2
+Timestamp: 2026-04-19T14:38:18.814743
+
+--- Repository Structure ---
+.
+├── .devcontainer
+│   ├── devcontainer.json
+│   └── on-create-command.sh
+├── .editorconfig
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .readthedocs.yaml
+├── docs
+│   ├── _static
+│   └── conf.py
+├── examples
+│   ├── aliases
+│   │   ├── aliases.ini
+│   │   ├── aliases.py
+│   │   └── pyproject.toml
+│   ├── colors
+│   │   ├── colors.py
+│   │   └── pyproject.toml
+│   ├── completion
+│   │   ├── completion.py
+│   │   └── pyproject.toml
+│   ├── complex
+│   │   ├── complex
+│   │   │   ├── __init__.py
+│   │   │   ├── cli.py
+│   │   │   └── commands
+│   │   │       ├── __init__.py
+│   │   │       ├── cmd_init.py
+│   │   │       └── cmd_status.py
+│   │   └── pyproject.toml
+│   ├── imagepipe
+│   │   ├── .gitignore
+│   │   ├── imagepipe.py
+│   │   └── pyproject.toml
+│   ├── inout
+│   │   ├── inout.py
+│   │   └── pyproject.toml
+│   ├── naval
+│   │   ├── naval.py
+│   │   └── pyproject.toml
+│   ├── repo
+│   │   ├── pyproject.toml
+│   │   └── repo.py
+│   ├── termui
+│   │   ├── pyproject.toml
+│   │   └── termui.py
+│   └── validation
+│       ├── pyproject.toml
+│       └── validation.py
+├── pyproject.toml
+├── src
+│   └── click
+│       ├── __init__.py
+│       ├── _compat.py
+│       ├── _termui_impl.py
+│       ├── _textwrap.py
+│       ├── _utils.py
+│       ├── _winconsole.py
+│       ├── core.py
+│       ├── decorators.py
+│       ├── exceptions.py
+│       ├── formatting.py
+│       ├── globals.py
+│       ├── parser.py
+│       ├── py.typed
+│       ├── shell_completion.py
+│       ├── termui.py
+│       ├── testing.py
+│       ├── types.py
+│       └── utils.py
+└── uv.lock
+
+--- Summary Report ---
+Total files scanned: 53
+Files included: 43
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 9
+Files with structural extraction: 17
+Files with dependency extraction: 1
+Detected languages count: 9
+Top 15 largest included files:
+  256153 bytes - uv.lock
+  39927 bytes - src/click/types.py
+  31037 bytes - src/click/termui.py
+  27093 bytes - src/click/_termui_impl.py
+  20994 bytes - src/click/shell_completion.py
+  20257 bytes - src/click/utils.py
+  19010 bytes - src/click/parser.py
+  18978 bytes - src/click/testing.py
+  18693 bytes - src/click/_compat.py
+  18461 bytes - src/click/decorators.py
+  9954 bytes - src/click/exceptions.py
+  9730 bytes - src/click/formatting.py
+  8465 bytes - src/click/_winconsole.py
+  8257 bytes - examples/imagepipe/imagepipe.py
+  4987 bytes - pyproject.toml
+-----------------------
+
+---
+File: pyproject.toml
+Size: 4987 bytes
+Lines: 222
+---
+[project]
+name = "click"
+version = "8.3.2"
+description = "Composable command line interface toolkit"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
+maintainers = [{name = "Pallets", email = "contact@palletsprojects.com"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "colorama; platform_system == 'Windows'",
+]
+
+[project.urls]
+Donate = "https://palletsprojects.com/donate"
+Documentation = "https://click.palletsprojects.com/"
+Changes = "https://click.palletsprojects.com/page/changes/"
+Source = "https://github.com/pallets/click/"
+Chat = "https://discord.gg/pallets"
+
+[dependency-groups]
+dev = [
+    "ruff",
+    "tox",
+    "tox-uv",
+]
+docs = [
+    "myst-parser",
+    "pallets-sphinx-themes",
+    "sphinx",
+    "sphinx-tabs",
+    "sphinxcontrib-log-cabinet",
+]
+docs-auto = [
+    "sphinx-autobuild",
+]
+gha-update = [
+    "gha-update ; python_full_version >= '3.12'",
+]
+pre-commit = [
+    "pre-commit",
+    "pre-commit-uv",
+]
+tests = [
+    "pytest",
+]
+typing = [
+    "mypy",
+    "pyright",
+    "pytest",
+]
+
+[build-system]
+requires = ["flit_core>=3.11,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "click"
+
+[tool.flit.sdist]
+include = [
+    "docs/",
+    "tests/",
+    "CHANGES.rst",
+    "uv.lock"
+]
+exclude = [
+    "docs/_build/",
+]
+
+[tool.uv]
+default-groups = ["dev", "pre-commit", "tests", "typing"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "error",
+]
+markers = [
+    "stress: high-iteration stress tests for race conditions (deselect with '-m \"not stress\"')",
+]
+addopts = "-m 'not stress'"
+
+[tool.coverage.run]
+branch = true
+source = ["click", "tests"]
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.report]
+exclude_also = [
+    "if t.TYPE_CHECKING",
+    "raise NotImplementedError",
+    ": \\.{3}",
+]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src", "tests/typing"]
+show_error_codes = true
+pretty = true
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "colorama.*",
+]
+ignore_missing_imports = true
+
+[tool.pyright]
+pythonVersion = "3.10"
+include = ["src", "tests/typing"]
+typeCheckingMode = "basic"
+
+[tool.ruff]
+extend-exclude = ["examples/"]
+src = ["src"]
+fix = true
+show-fixes = true
+output-format = "full"
+
+[tool.ruff.lint]
+select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle error
+    "F",  # pyflakes
+    "I",  # isort
+    "UP",  # pyupgrade
+    "W",  # pycodestyle warning
+]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+order-by-type = false
+
+[tool.tox]
+env_list = [
+    "py3.14", "py3.13", "py3.12", "py3.11", "py3.10",
+    "py3.14t",
+    "pypy3.11",
+    "stress-py3.14", "stress-py3.14t",
+    "style",
+    "typing",
+    "docs",
+]
+
+[tool.tox.env_run_base]
+description = "pytest on latest dependency versions"
+runner = "uv-venv-lock-runner"
+package = "wheel"
+wheel_build_env = ".pkg"
+constrain_package_deps = true
+use_frozen_constraints = true
+dependency_groups = ["tests"]
+commands = [[
+    "pytest", "-v", "--tb=short", "--basetemp={env_tmp_dir}",
+    {replace = "posargs", default = [], extend = true},
+]]
+
+[tool.tox.env.stress]
+description = "stress tests for stream lifecycle race conditions"
+commands = [[
+    "pytest", "-v", "--tb=short", "-x", "-m", "stress",
+    "--basetemp={env_tmp_dir}",
+    "--override-ini=addopts=",
+    "tests/test_stream_lifecycle.py",
+    {replace = "posargs", default = [], extend = true},
+]]
+
+[tool.tox.env.style]
+description = "run all pre-commit hooks on all files"
+dependency_groups = ["pre-commit"]
+skip_install = true
+commands = [["pre-commit", "run", "--all-files"]]
+
+[tool.tox.env.typing]
+description = "run static type checkers"
+dependency_groups = ["typing"]
+commands = [
+    ["mypy"],
+    ["pyright", "--ignoreexternal", "--verifytypes", "click"],
+]
+
+[tool.tox.env.docs]
+description = "build docs"
+dependency_groups = ["docs"]
+commands = [["sphinx-build", "-E", "-W", "-b", "dirhtml", "docs", "docs/_build/dirhtml"]]
+
+[tool.tox.env.docs-auto]
+description = "continuously rebuild docs and start a local server"
+dependency_groups = ["docs", "docs-auto"]
+commands = [["sphinx-autobuild", "-W", "-b", "dirhtml", "--watch", "src", "docs", "docs/_build/dirhtml"]]
+
+[tool.tox.env.update-actions]
+description = "update GitHub Actions pins"
+labels = ["update"]
+dependency_groups = ["gha-update"]
+skip_install = true
+commands = [["gha-update"]]
+
+[tool.tox.env.update-pre_commit]
+description = "update pre-commit pins"
+labels = ["update"]
+dependency_groups = ["pre-commit"]
+skip_install = true
+commands = [["pre-commit", "autoupdate", "--freeze", "-j4"]]
+
+[tool.tox.env.update-requirements]
+description = "update uv lock"
+labels = ["update"]
+dependency_groups = []
+no_default_groups = true
+skip_install = true
+commands = [["uv", "lock", {replace = "posargs", default = ["-U"], extend = true}]]
+
+
+---
+File: examples/aliases/pyproject.toml
+Size: 321 bytes
+Lines: 18
+---
+[project]
+name = "click-example-aliases"
+version = "1.0.0"
+description = "Click aliases example"
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.1",
+]
+
+[project.scripts]
+aliases = "aliases:cli"
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "aliases"
+
+
+---
+File: .editorconfig
+Size: 233 bytes
+Lines: 13
+---
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+charset = utf-8
+max_line_length = 88
+
+[*.{css,html,js,json,jsx,scss,ts,tsx,yaml,yml}]
+indent_size = 2
+
+
+---
+File: .gitignore
+Size: 74 bytes
+Lines: 8
+---
+.idea/
+.vscode/
+__pycache__/
+dist/
+.coverage*
+htmlcov/
+.tox/
+docs/_build/
+
+
+---
+File: .pre-commit-config.yaml
+Size: 629 bytes
+Lines: 18
+---
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: c60c980e561ed3e73101667fe8365c609d19a438  # frozen: v0.15.9
+    hooks:
+      - id: ruff
+      - id: ruff-format
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0397b68f6f88c024f1d2b355a9818779f6336d16  # frozen: 0.11.3
+    hooks:
+      - id: uv-lock
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: fix-byte-order-marker
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+
+
+---
+File: .readthedocs.yaml
+Size: 504 bytes
+Lines: 17
+---
+version: 2
+# Do not specify sphinx key here to be in full control of build steps.
+# https://docs.readthedocs.com/platform/stable/build-customization.html#extend-or-override-the-build-process
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: '3.13'
+  jobs:
+    install:
+      - echo "Installing dependencies"
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    build:
+      html:
+        - uv run --group docs sphinx-build -W -b dirhtml docs $READTHEDOCS_OUTPUT/html
+
+
+---
+File: examples/complex/complex/cli.py
+Size: 1608 bytes
+Lines: 60
+---
+import os
+import sys
+
+import click
+
+
+CONTEXT_SETTINGS = dict(auto_envvar_prefix="COMPLEX")
+
+
+class Environment:
+    def __init__(self):
+        self.verbose = False
+        self.home = os.getcwd()
+
+    def log(self, msg, *args):
+        """Logs a message to stderr."""
+        if args:
+            msg %= args
+        click.echo(msg, file=sys.stderr)
+
+    def vlog(self, msg, *args):
+        """Logs a message to stderr only if verbose is enabled."""
+        if self.verbose:
+            self.log(msg, *args)
+
+
+pass_environment = click.make_pass_decorator(Environment, ensure=True)
+cmd_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "commands"))
+
+
+class ComplexCLI(click.Group):
+    def list_commands(self, ctx):
+        rv = []
+        for filename in os.listdir(cmd_folder):
+            if filename.endswith(".py") and filename.startswith("cmd_"):
+                rv.append(filename[4:-3])
+        rv.sort()
+        return rv
+
+    def get_command(self, ctx, name):
+        try:
+            mod = __import__(f"complex.commands.cmd_{name}", None, None, ["cli"])
+        except ImportError:
+            return
+        return mod.cli
+
+
+@click.command(cls=ComplexCLI, context_settings=CONTEXT_SETTINGS)
+@click.option(
+    "--home",
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    help="Changes the folder to operate on.",
+)
+@click.option("-v", "--verbose", is_flag=True, help="Enables verbose mode.")
+@pass_environment
+def cli(ctx, verbose, home):
+    """A complex command line interface."""
+    ctx.verbose = verbose
+    if home is not None:
+        ctx.home = home
+
+
+---
+File: uv.lock
+Size: 256153 bytes
+Lines: 1621 [deps]
+---
+### Required Packages
+alabaster==1.0.0, anyio==4.13.0, babel==2.18.0, cachetools==7.0.5, certifi==2026.2.25, cfgv==3.5.0, charset-normalizer==3.4.7, click==8.3.2, colorama==0.4.6, distlib==0.4.0
+docutils==0.21.2, docutils==0.22.4, exceptiongroup==1.3.1, filelock==3.25.2, gha-update==0.2.0, h11==0.16.0, httpcore==1.0.9, httpx==0.28.1, identify==2.6.18, idna==3.11
+imagesize==2.0.0, iniconfig==2.3.0, jinja2==3.1.6, librt==0.8.1, markdown-it-py==3.0.0, markdown-it-py==4.0.0, markupsafe==3.0.3, mdit-py-plugins==0.5.0, mdurl==0.1.2, mypy==1.20.0
+mypy-extensions==1.1.0, myst-parser==4.0.1, myst-parser==5.0.0, nodeenv==1.10.0, packaging==26.0, pallets-sphinx-themes==2.5.0, pathspec==1.0.4, platformdirs==4.9.4, pluggy==1.6.0, pre-commit==4.5.1
+pre-commit-uv==4.2.1, pygments==2.20.0, pyproject-api==1.10.0, pyright==1.1.408, pytest==9.0.2, python-discovery==1.2.1, pyyaml==6.0.3, requests==2.33.1, roman-numerals==4.1.0, ruff==0.15.9
+snowballstemmer==3.0.1, sphinx==8.1.3, sphinx==9.0.4, sphinx==9.1.0, sphinx-autobuild==2024.10.3, sphinx-autobuild==2025.8.25, sphinx-notfound-page==1.1.0, sphinx-tabs==3.5.0, sphinxcontrib-applehelp==2.0.0, sphinxcontrib-devhelp==2.0.0
+sphinxcontrib-htmlhelp==2.1.0, sphinxcontrib-jsmath==1.0.1, sphinxcontrib-log-cabinet==1.0.1, sphinxcontrib-qthelp==2.0.0, sphinxcontrib-serializinghtml==2.0.0, starlette==1.0.0, tomli==2.4.1, tomli-w==1.2.0, tox==4.52.0, tox-uv==1.34.0
+tox-uv-bare==1.34.0, typing-extensions==4.15.0, urllib3==2.6.3, uv==0.11.3, uvicorn==0.43.0, virtualenv==21.2.0, watchfiles==1.1.1, websockets==16.0
+
+---
+File: .devcontainer/devcontainer.json
+Size: 434 bytes
+Lines: 17
+---
+{
+  "name": "pallets/click",
+  "image": "mcr.microsoft.com/devcontainers/python:3",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.terminal.launchArgs": [
+          "-X",
+          "dev"
+        ]
+      }
+    }
+  },
+  "onCreateCommand": ".devcontainer/on-create-command.sh"
+}
+
+
+---
+File: .devcontainer/on-create-command.sh
+Size: 165 bytes
+Lines: 7
+---
+#!/bin/bash
+set -e
+python3 -m venv --upgrade-deps .venv
+. .venv/bin/activate
+pip install -r requirements/dev.txt
+pip install -e .
+pre-commit install --install-hooks
+
+
+---
+File: src/click/__init__.py
+Size: 4473 bytes
+Lines: 123 [structural]
+---
+"""Click is a simple Python module inspired by the stdlib optparse to make writing command line scripts fun. Unlike other modules, it's based around a simple API t..."""
+
+from __future__ import annotations
+from .core import Argument as Argument
+from .core import Command as Command
+from .core import CommandCollection as CommandCollection
+from .core import Context as Context
+from .core import Group as Group
+from .core import Option as Option
+from .core import Parameter as Parameter
+from .decorators import argument as argument
+from .decorators import command as command
+from .decorators import confirmation_option as confirmation_option
+from .decorators import group as group
+from .decorators import help_option as help_option
+from .decorators import make_pass_decorator as make_pass_decorator
+from .decorators import option as option
+from .decorators import pass_context as pass_context
+from .decorators import pass_obj as pass_obj
+from .decorators import password_option as password_option
+from .decorators import version_option as version_option
+from .exceptions import Abort as Abort
+from .exceptions import BadArgumentUsage as BadArgumentUsage
+from .exceptions import BadOptionUsage as BadOptionUsage
+from .exceptions import BadParameter as BadParameter
+from .exceptions import ClickException as ClickException
+from .exceptions import FileError as FileError
+from .exceptions import MissingParameter as MissingParameter
+from .exceptions import NoSuchOption as NoSuchOption
+from .exceptions import UsageError as UsageError
+from .formatting import HelpFormatter as HelpFormatter
+from .formatting import wrap_text as wrap_text
+from .globals import get_current_context as get_current_context
+from .termui import clear as clear
+from .termui import confirm as confirm
+from .termui import echo_via_pager as echo_via_pager
+from .termui import edit as edit
+from .termui import getchar as getchar
+from .termui import launch as launch
+from .termui import pause as pause
+from .termui import progressbar as progressbar
+from .termui import prompt as prompt
+from .termui import secho as secho
+from .termui import style as style
+from .termui import unstyle as unstyle
+from .types import BOOL as BOOL
+from .types import Choice as Choice
+from .types import DateTime as DateTime
+from .types import File as File
+from .types import FLOAT as FLOAT
+from .types import FloatRange as FloatRange
+from .types import INT as INT
+from .types import IntRange as IntRange
+from .types import ParamType as ParamType
+from .types import Path as Path
+from .types import STRING as STRING
+from .types import Tuple as Tuple
+from .types import UNPROCESSED as UNPROCESSED
+from .types import UUID as UUID
+from .utils import echo as echo
+from .utils import format_filename as format_filename
+from .utils import get_app_dir as get_app_dir
+from .utils import get_binary_stream as get_binary_stream
+from .utils import get_text_stream as get_text_stream
+from .utils import open_file as open_file
+
+def __getattr__(name: str) -> object:
+    ...
+
+
+---
+File: src/click/_compat.py
+Size: 18693 bytes
+Lines: 622 [structural]
+---
+from __future__ import annotations
+import codecs
+import collections.abc as cabc
+import io
+import os
+import re
+import sys
+import typing as t
+from types import TracebackType
+from weakref import WeakKeyDictionary
+
+def _make_text_stream(stream: t.BinaryIO, encoding: str | None, errors: str | None, force_readable: bool=False, force_writable: bool=False) -> t.TextIO:
+    ...
+
+def is_ascii_encoding(encoding: str) -> bool:
+    """Checks if a given encoding is ascii."""
+
+def get_best_encoding(stream: t.IO[t.Any]) -> str:
+    """Returns the default stream encoding if not found."""
+
+class _NonClosingTextIOWrapper(io.TextIOWrapper):
+    def __init__(self, stream: t.BinaryIO, encoding: str | None, errors: str | None, force_readable: bool=False, force_writable: bool=False, **extra: t.Any) -> None: ...
+    def __del__(self) -> None: ...
+    def isatty(self) -> bool: ...
+
+class _FixupStream:
+    """The new io interface needs more from streams than streams     traditionally implement.  As such, this fix-up code is necessary in     some circumstances.      T..."""
+    def __init__(self, stream: t.BinaryIO, force_readable: bool=False, force_writable: bool=False): ...
+    def __getattr__(self, name: str) -> t.Any: ...
+    def read1(self, size: int) -> bytes: ...
+    def readable(self) -> bool: ...
+    def writable(self) -> bool: ...
+    def seekable(self) -> bool: ...
+
+def _is_binary_reader(stream: t.IO[t.Any], default: bool=False) -> bool:
+    ...
+
+def _is_binary_writer(stream: t.IO[t.Any], default: bool=False) -> bool:
+    ...
+
+def _find_binary_reader(stream: t.IO[t.Any]) -> t.BinaryIO | None:
+    ...
+
+def _find_binary_writer(stream: t.IO[t.Any]) -> t.BinaryIO | None:
+    ...
+
+def _stream_is_misconfigured(stream: t.TextIO) -> bool:
+    """A stream is misconfigured if its encoding is ASCII."""
+
+def _is_compat_stream_attr(stream: t.TextIO, attr: str, value: str | None) -> bool:
+    """A stream attribute is compatible if it is equal to the     desired value or the desired value is unset and the attribute     has a value."""
+
+def _is_compatible_text_stream(stream: t.TextIO, encoding: str | None, errors: str | None) -> bool:
+    """Check if a stream's encoding and errors attributes are     compatible with the desired values."""
+
+def _force_correct_text_stream(text_stream: t.IO[t.Any], encoding: str | None, errors: str | None, is_binary: t.Callable[[t.IO[t.Any], bool], bool], find_binary: t.Callable[[t.IO[t.Any]], t.BinaryIO | None], force_readable: bool=False, force_writable: bool=False) -> t.TextIO:
+    ...
+
+def _force_correct_text_reader(text_reader: t.IO[t.Any], encoding: str | None, errors: str | None, force_readable: bool=False) -> t.TextIO:
+    ...
+
+def _force_correct_text_writer(text_writer: t.IO[t.Any], encoding: str | None, errors: str | None, force_writable: bool=False) -> t.TextIO:
+    ...
+
+def get_binary_stdin() -> t.BinaryIO:
+    ...
+
+def get_binary_stdout() -> t.BinaryIO:
+    ...
+
+def get_binary_stderr() -> t.BinaryIO:
+    ...
+
+def get_text_stdin(encoding: str | None=None, errors: str | None=None) -> t.TextIO:
+    ...
+
+def get_text_stdout(encoding: str | None=None, errors: str | None=None) -> t.TextIO:
+    ...
+
+def get_text_stderr(encoding: str | None=None, errors: str | None=None) -> t.TextIO:
+    ...
+
+def _wrap_io_open(file: str | os.PathLike[str] | int, mode: str, encoding: str | None, errors: str | None) -> t.IO[t.Any]:
+    """Handles not passing ``encoding`` and ``errors`` in binary mode."""
+
+def open_stream(filename: str | os.PathLike[str], mode: str='r', encoding: str | None=None, errors: str | None='strict', atomic: bool=False) -> tuple[t.IO[t.Any], bool]:
+    ...
+
+class _AtomicFile:
+    def __init__(self, f: t.IO[t.Any], tmp_filename: str, real_filename: str) -> None: ...
+    @property
+    def name(self) -> str: ...
+    def close(self, delete: bool=False) -> None: ...
+    def __getattr__(self, name: str) -> t.Any: ...
+    def __enter__(self) -> _AtomicFile: ...
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, tb: TracebackType | None) -> None: ...
+    def __repr__(self) -> str: ...
+
+def strip_ansi(value: str) -> str:
+    ...
+
+def _is_jupyter_kernel_output(stream: t.IO[t.Any]) -> bool:
+    ...
+
+def should_strip_ansi(stream: t.IO[t.Any] | None=None, color: bool | None=None) -> bool:
+    ...
+
+def term_len(x: str) -> int:
+    ...
+
+def isatty(stream: t.IO[t.Any]) -> bool:
+    ...
+
+def _make_cached_stream_func(src_func: t.Callable[[], t.TextIO | None], wrapper_func: t.Callable[[], t.TextIO]) -> t.Callable[[], t.TextIO | None]:
+    ...
+
+
+---
+File: src/click/_termui_impl.py
+Size: 27093 bytes
+Lines: 852 [structural]
+---
+"""This module contains implementations for the termui module. To keep the import time of Click down, some infrequently used functionality is placed in this module..."""
+
+from __future__ import annotations
+import collections.abc as cabc
+import contextlib
+import math
+import os
+import shlex
+import sys
+import time
+import typing as t
+from gettext import gettext as _
+from io import StringIO
+from pathlib import Path
+from types import TracebackType
+from ._compat import _default_text_stdout
+from ._compat import CYGWIN
+from ._compat import get_best_encoding
+from ._compat import isatty
+from ._compat import open_stream
+from ._compat import strip_ansi
+from ._compat import term_len
+from ._compat import WIN
+from .exceptions import ClickException
+from .utils import echo
+
+class ProgressBar(t.Generic[V]):
+    def __init__(self, iterable: cabc.Iterable[V] | None, length: int | None=None, fill_char: str='#', empty_char: str=' ', bar_template: str='%(bar)s', info_sep: str='  ', hidden: bool=False, show_eta: bool=True, show_percent: bool | None=None, show_pos: bool=False, item_show_func: t.Callable[[V | None], str | None] | None=None, label: str | None=None, file: t.TextIO | None=None, color: bool | None=None, update_min_steps: int=1, width: int=30) -> None: ...
+    def __enter__(self) -> ProgressBar[V]: ...
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, tb: TracebackType | None) -> None: ...
+    def __iter__(self) -> cabc.Iterator[V]: ...
+    def __next__(self) -> V: ...
+    def render_finish(self) -> None: ...
+    @property
+    def pct(self) -> float: ...
+    @property
+    def time_per_iteration(self) -> float: ...
+    @property
+    def eta(self) -> float: ...
+    def format_eta(self) -> str: ...
+    def format_pos(self) -> str: ...
+    def format_pct(self) -> str: ...
+    def format_bar(self) -> str: ...
+    def format_progress_line(self) -> str: ...
+    def render_progress(self) -> None: ...
+    def make_step(self, n_steps: int) -> None: ...
+    def update(self, n_steps: int, current_item: V | None=None) -> None: ...
+        """Update the progress bar by advancing a specified number of         steps, and optionally set the ``current_item`` for this new         position.          :param..."""
+    def finish(self) -> None: ...
+    def generator(self) -> cabc.Iterator[V]: ...
+        """Return a generator which yields the items added to the bar         during construction, and updates the progress bar *after* the         yielded block returns."""
+
+def pager(generator: cabc.Iterable[str], color: bool | None=None) -> None:
+    """Decide what method to use for paging through text."""
+
+def _pipepager(generator: cabc.Iterable[str], cmd_parts: list[str], color: bool | None) -> bool:
+    """Page through text by feeding it to another program. Invoking a     pager through this might support colors.      Returns `True` if the command was found, `False..."""
+
+def _tempfilepager(generator: cabc.Iterable[str], cmd_parts: list[str], color: bool | None) -> bool:
+    """Page through text by invoking a program on a temporary file.      Returns `True` if the command was found, `False` otherwise and thus another     pager should b..."""
+
+def _nullpager(stream: t.TextIO, generator: cabc.Iterable[str], color: bool | None) -> None:
+    """Simply print unformatted text.  This is the ultimate fallback."""
+
+class Editor:
+    def __init__(self, editor: str | None=None, env: cabc.Mapping[str, str] | None=None, require_save: bool=True, extension: str='.txt') -> None: ...
+    def get_editor(self) -> str: ...
+    def edit_files(self, filenames: cabc.Iterable[str]) -> None: ...
+    @t.overload
+    def edit(self, text: bytes | bytearray) -> bytes | None: ...
+    @t.overload
+    def edit(self, text: str | None) -> str | None: ...
+    def edit(self, text: str | bytes | bytearray | None) -> str | bytes | None: ...
+
+def open_url(url: str, wait: bool=False, locate: bool=False) -> int:
+    ...
+
+def _translate_ch_to_exc(ch: str) -> None:
+    ...
+
+
+---
+File: src/click/_textwrap.py
+Size: 1400 bytes
+Lines: 51
+---
+from __future__ import annotations
+
+import collections.abc as cabc
+import textwrap
+from contextlib import contextmanager
+
+
+class TextWrapper(textwrap.TextWrapper):
+    def _handle_long_word(
+        self,
+        reversed_chunks: list[str],
+        cur_line: list[str],
+        cur_len: int,
+        width: int,
+    ) -> None:
+        space_left = max(width - cur_len, 1)
+
+        if self.break_long_words:
+            last = reversed_chunks[-1]
+            cut = last[:space_left]
+            res = last[space_left:]
+            cur_line.append(cut)
+            reversed_chunks[-1] = res
+        elif not cur_line:
+            cur_line.append(reversed_chunks.pop())
+
+    @contextmanager
+    def extra_indent(self, indent: str) -> cabc.Iterator[None]:
+        old_initial_indent = self.initial_indent
+        old_subsequent_indent = self.subsequent_indent
+        self.initial_indent += indent
+        self.subsequent_indent += indent
+
+        try:
+            yield
+        finally:
+            self.initial_indent = old_initial_indent
+            self.subsequent_indent = old_subsequent_indent
+
+    def indent_only(self, text: str) -> str:
+        rv = []
+
+        for idx, line in enumerate(text.splitlines()):
+            indent = self.initial_indent
+
+            if idx > 0:
+                indent = self.subsequent_indent
+
+            rv.append(f"{indent}{line}")
+
+        return "\n".join(rv)
+
+
+---
+File: src/click/_utils.py
+Size: 943 bytes
+Lines: 36
+---
+from __future__ import annotations
+
+import enum
+import typing as t
+
+
+class Sentinel(enum.Enum):
+    """Enum used to define sentinel values.
+
+    .. seealso::
+
+        `PEP 661 - Sentinel Values <https://peps.python.org/pep-0661/>`_.
+    """
+
+    UNSET = object()
+    FLAG_NEEDS_VALUE = object()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}.{self.name}"
+
+
+UNSET = Sentinel.UNSET
+"""Sentinel used to indicate that a value is not set."""
+
+FLAG_NEEDS_VALUE = Sentinel.FLAG_NEEDS_VALUE
+"""Sentinel used to indicate an option was passed as a flag without a
+value but is not a flag option.
+
+``Option.consume_value`` uses this to prompt or use the ``flag_value``.
+"""
+
+T_UNSET = t.Literal[UNSET]  # type: ignore[valid-type]
+"""Type hint for the :data:`UNSET` sentinel value."""
+
+T_FLAG_NEEDS_VALUE = t.Literal[FLAG_NEEDS_VALUE]  # type: ignore[valid-type]
+"""Type hint for the :data:`FLAG_NEEDS_VALUE` sentinel value."""
+
+
+---
+File: src/click/_winconsole.py
+Size: 8465 bytes
+Lines: 296 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import io
+import sys
+import time
+import typing as t
+from ctypes import Array
+from ctypes import byref
+from ctypes import c_char
+from ctypes import c_char_p
+from ctypes import c_int
+from ctypes import c_ssize_t
+from ctypes import c_ulong
+from ctypes import c_void_p
+from ctypes import POINTER
+from ctypes import py_object
+from ctypes import Structure
+from ctypes.wintypes import DWORD
+from ctypes.wintypes import HANDLE
+from ctypes.wintypes import LPCWSTR
+from ctypes.wintypes import LPWSTR
+from ._compat import _NonClosingTextIOWrapper
+import msvcrt
+from ctypes import windll
+from ctypes import WINFUNCTYPE
+
+class _WindowsConsoleRawIOBase(io.RawIOBase):
+    def __init__(self, handle: int | None) -> None: ...
+    def isatty(self) -> t.Literal[True]: ...
+
+class _WindowsConsoleReader(_WindowsConsoleRawIOBase):
+    def readable(self) -> t.Literal[True]: ...
+    def readinto(self, b: Buffer) -> int: ...
+
+class _WindowsConsoleWriter(_WindowsConsoleRawIOBase):
+    def writable(self) -> t.Literal[True]: ...
+    @staticmethod
+    def _get_error_message(errno: int) -> str: ...
+    def write(self, b: Buffer) -> int: ...
+
+class ConsoleStream:
+    def __init__(self, text_stream: t.TextIO, byte_stream: t.BinaryIO) -> None: ...
+    @property
+    def name(self) -> str: ...
+    def write(self, x: t.AnyStr) -> int: ...
+    def writelines(self, lines: cabc.Iterable[t.AnyStr]) -> None: ...
+    def __getattr__(self, name: str) -> t.Any: ...
+    def isatty(self) -> bool: ...
+    def __repr__(self) -> str: ...
+
+def _get_text_stdin(buffer_stream: t.BinaryIO) -> t.TextIO:
+    ...
+
+def _get_text_stdout(buffer_stream: t.BinaryIO) -> t.TextIO:
+    ...
+
+def _get_text_stderr(buffer_stream: t.BinaryIO) -> t.TextIO:
+    ...
+
+def _is_console(f: t.TextIO) -> bool:
+    ...
+
+def _get_windows_console_stream(f: t.TextIO, encoding: str | None, errors: str | None) -> t.TextIO | None:
+    ...
+
+
+---
+File: src/click/decorators.py
+Size: 18461 bytes
+Lines: 551 [structural]
+---
+from __future__ import annotations
+import inspect
+import typing as t
+from functools import update_wrapper
+from gettext import gettext as _
+from .core import Argument
+from .core import Command
+from .core import Context
+from .core import Group
+from .core import Option
+from .core import Parameter
+from .globals import get_current_context
+from .utils import echo
+
+def pass_context(f: t.Callable[te.Concatenate[Context, P], R]) -> t.Callable[P, R]:
+    """Marks a callback as wanting to receive the current context     object as first argument."""
+
+def pass_obj(f: t.Callable[te.Concatenate[T, P], R]) -> t.Callable[P, R]:
+    """Similar to :func:`pass_context`, but only pass the object on the     context onwards (:attr:`Context.obj`).  This is useful if that object     represents the st..."""
+
+def make_pass_decorator(object_type: type[T], ensure: bool=False) -> t.Callable[[t.Callable[te.Concatenate[T, P], R]], t.Callable[P, R]]:
+    """Given an object type this creates a decorator that will work     similar to :func:`pass_obj` but instead of passing the object of the     current context, it wi..."""
+
+def pass_meta_key(key: str, *, doc_description: str | None=None) -> t.Callable[[t.Callable[te.Concatenate[T, P], R]], t.Callable[P, R]]:
+    """Create a decorator that passes a key from     :attr:`click.Context.meta` as the first argument to the decorated     function.      :param key: Key in ``Context...."""
+
+@t.overload
+def command(name: _AnyCallable) -> Command:
+    ...
+
+@t.overload
+def command(name: str | None, cls: type[CmdType], **attrs: t.Any) -> t.Callable[[_AnyCallable], CmdType]:
+    ...
+
+@t.overload
+def command(name: None=None, *, cls: type[CmdType], **attrs: t.Any) -> t.Callable[[_AnyCallable], CmdType]:
+    ...
+
+@t.overload
+def command(name: str | None=..., cls: None=None, **attrs: t.Any) -> t.Callable[[_AnyCallable], Command]:
+    ...
+
+def command(name: str | _AnyCallable | None=None, cls: type[CmdType] | None=None, **attrs: t.Any) -> Command | t.Callable[[_AnyCallable], Command | CmdType]:
+    """Creates a new :class:`Command` and uses the decorated function as     callback.  This will also automatically attach all decorated     :func:`option`\s and :fun..."""
+
+@t.overload
+def group(name: _AnyCallable) -> Group:
+    ...
+
+@t.overload
+def group(name: str | None, cls: type[GrpType], **attrs: t.Any) -> t.Callable[[_AnyCallable], GrpType]:
+    ...
+
+@t.overload
+def group(name: None=None, *, cls: type[GrpType], **attrs: t.Any) -> t.Callable[[_AnyCallable], GrpType]:
+    ...
+
+@t.overload
+def group(name: str | None=..., cls: None=None, **attrs: t.Any) -> t.Callable[[_AnyCallable], Group]:
+    ...
+
+def group(name: str | _AnyCallable | None=None, cls: type[GrpType] | None=None, **attrs: t.Any) -> Group | t.Callable[[_AnyCallable], Group | GrpType]:
+    """Creates a new :class:`Group` with a function as callback.  This     works otherwise the same as :func:`command` just that the `cls`     parameter is set to :cla..."""
+
+def _param_memo(f: t.Callable[..., t.Any], param: Parameter) -> None:
+    ...
+
+def argument(*param_decls: str, cls: type[Argument] | None=None, **attrs: t.Any) -> t.Callable[[FC], FC]:
+    """Attaches an argument to the command.  All positional arguments are     passed as parameter declarations to :class:`Argument`; all keyword     arguments are forw..."""
+
+def option(*param_decls: str, cls: type[Option] | None=None, **attrs: t.Any) -> t.Callable[[FC], FC]:
+    """Attaches an option to the command.  All positional arguments are     passed as parameter declarations to :class:`Option`; all keyword     arguments are forwarde..."""
+
+def confirmation_option(*param_decls: str, **kwargs: t.Any) -> t.Callable[[FC], FC]:
+    """Add a ``--yes`` option which shows a prompt before continuing if     not passed. If the prompt is declined, the program will exit.      :param param_decls: One ..."""
+
+def password_option(*param_decls: str, **kwargs: t.Any) -> t.Callable[[FC], FC]:
+    """Add a ``--password`` option which prompts for a password, hiding     input and asking to enter the value again for confirmation.      :param param_decls: One or..."""
+
+def version_option(version: str | None=None, *param_decls: str, package_name: str | None=None, prog_name: str | None=None, message: str | None=None, **kwargs: t.Any) -> t.Callable[[FC], FC]:
+    """Add a ``--version`` option which immediately prints the version     number and exits the program.      If ``version`` is not provided, Click will try to detect ..."""
+
+def help_option(*param_decls: str, **kwargs: t.Any) -> t.Callable[[FC], FC]:
+    """Pre-configured ``--help`` option which immediately prints the help page     and exits the program.      :param param_decls: One or more option names. Defaults t..."""
+
+
+---
+File: src/click/exceptions.py
+Size: 9954 bytes
+Lines: 308 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import typing as t
+from gettext import gettext as _
+from gettext import ngettext
+from ._compat import get_text_stderr
+from .globals import resolve_color_default
+from .utils import echo
+from .utils import format_filename
+
+def _join_param_hints(param_hint: cabc.Sequence[str] | str | None) -> str | None:
+    ...
+
+class ClickException(Exception):
+    """An exception that Click can handle and show to the user."""
+    exit_code = ...
+    def __init__(self, message: str) -> None: ...
+    def format_message(self) -> str: ...
+    def __str__(self) -> str: ...
+    def show(self, file: t.IO[t.Any] | None=None) -> None: ...
+
+class UsageError(ClickException):
+    """An internal exception that signals a usage error.  This typically     aborts any further handling.      :param message: the error message to display.     :param..."""
+    exit_code = ...
+    def __init__(self, message: str, ctx: Context | None=None) -> None: ...
+    def show(self, file: t.IO[t.Any] | None=None) -> None: ...
+
+class BadParameter(UsageError):
+    """An exception that formats out a standardized error message for a     bad parameter.  This is useful when thrown from a callback or type as     Click will attach..."""
+    def __init__(self, message: str, ctx: Context | None=None, param: Parameter | None=None, param_hint: cabc.Sequence[str] | str | None=None) -> None: ...
+    def format_message(self) -> str: ...
+
+class MissingParameter(BadParameter):
+    """Raised if click required an option or argument but it was not     provided when invoking the script.      .. versionadded:: 4.0      :param param_type: a string..."""
+    def __init__(self, message: str | None=None, ctx: Context | None=None, param: Parameter | None=None, param_hint: cabc.Sequence[str] | str | None=None, param_type: str | None=None) -> None: ...
+    def format_message(self) -> str: ...
+    def __str__(self) -> str: ...
+
+class NoSuchOption(UsageError):
+    """Raised if click attempted to handle an option that does not     exist.      .. versionadded:: 4.0"""
+    def __init__(self, option_name: str, message: str | None=None, possibilities: cabc.Sequence[str] | None=None, ctx: Context | None=None) -> None: ...
+    def format_message(self) -> str: ...
+
+class BadOptionUsage(UsageError):
+    """Raised if an option is generally supplied but the use of the option     was incorrect.  This is for instance raised if the number of arguments     for an option..."""
+    def __init__(self, option_name: str, message: str, ctx: Context | None=None) -> None: ...
+
+class BadArgumentUsage(UsageError):
+    """Raised if an argument is generally supplied but the use of the argument     was incorrect.  This is for instance raised if the number of values     for an argum..."""
+
+class NoArgsIsHelpError(UsageError):
+    def __init__(self, ctx: Context) -> None: ...
+    def show(self, file: t.IO[t.Any] | None=None) -> None: ...
+
+class FileError(ClickException):
+    """Raised if a file cannot be opened."""
+    def __init__(self, filename: str, hint: str | None=None) -> None: ...
+    def format_message(self) -> str: ...
+
+class Abort(RuntimeError):
+    """An internal signalling exception that signals Click to abort."""
+
+class Exit(RuntimeError):
+    """An exception that indicates that the application should exit with some     status code.      :param code: the status code to exit with."""
+    __slots__ = ...
+    def __init__(self, code: int=0) -> None: ...
+
+
+---
+File: src/click/formatting.py
+Size: 9730 bytes
+Lines: 301 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+from contextlib import contextmanager
+from gettext import gettext as _
+from ._compat import term_len
+from .parser import _split_opt
+
+def measure_table(rows: cabc.Iterable[tuple[str, str]]) -> tuple[int, ...]:
+    ...
+
+def iter_rows(rows: cabc.Iterable[tuple[str, str]], col_count: int) -> cabc.Iterator[tuple[str, ...]]:
+    ...
+
+def wrap_text(text: str, width: int=78, initial_indent: str='', subsequent_indent: str='', preserve_paragraphs: bool=False) -> str:
+    """A helper function that intelligently wraps text.  By default, it     assumes that it operates on a single paragraph of text but if the     `preserve_paragraphs`..."""
+
+class HelpFormatter:
+    """This class helps with formatting text-based help pages.  It's     usually just needed for very special internal cases, but it's also     exposed so that develop..."""
+    def __init__(self, indent_increment: int=2, width: int | None=None, max_width: int | None=None) -> None: ...
+    def write(self, string: str) -> None: ...
+        """Writes a unicode string into the internal buffer."""
+    def indent(self) -> None: ...
+        """Increases the indentation."""
+    def dedent(self) -> None: ...
+        """Decreases the indentation."""
+    def write_usage(self, prog: str, args: str='', prefix: str | None=None) -> None: ...
+        """Writes a usage line into the buffer.          :param prog: the program name.         :param args: whitespace separated list of arguments.         :param prefix:..."""
+    def write_heading(self, heading: str) -> None: ...
+        """Writes a heading into the buffer."""
+    def write_paragraph(self) -> None: ...
+        """Writes a paragraph into the buffer."""
+    def write_text(self, text: str) -> None: ...
+        """Writes re-indented text into the buffer.  This rewraps and         preserves paragraphs."""
+    def write_dl(self, rows: cabc.Sequence[tuple[str, str]], col_max: int=30, col_spacing: int=2) -> None: ...
+        """Writes a definition list into the buffer.  This is how options         and commands are usually formatted.          :param rows: a list of two item tuples for t..."""
+    @contextmanager
+    def section(self, name: str) -> cabc.Iterator[None]: ...
+        """Helpful context manager that writes a paragraph, a heading,         and the indents.          :param name: the section name that is written as heading."""
+    @contextmanager
+    def indentation(self) -> cabc.Iterator[None]: ...
+        """A context manager that increases the indentation."""
+    def getvalue(self) -> str: ...
+        """Returns the buffer contents."""
+
+def join_options(options: cabc.Sequence[str]) -> tuple[str, bool]:
+    """Given a list of option strings this joins them in the most appropriate     way and returns them in the form ``(formatted_string,     any_prefix_is_slash)`` wher..."""
+
+
+---
+File: src/click/globals.py
+Size: 1923 bytes
+Lines: 67
+---
+from __future__ import annotations
+
+import typing as t
+from threading import local
+
+if t.TYPE_CHECKING:
+    from .core import Context
+
+_local = local()
+
+
+@t.overload
+def get_current_context(silent: t.Literal[False] = False) -> Context: ...
+
+
+@t.overload
+def get_current_context(silent: bool = ...) -> Context | None: ...
+
+
+def get_current_context(silent: bool = False) -> Context | None:
+    """Returns the current click context.  This can be used as a way to
+    access the current context object from anywhere.  This is a more implicit
+    alternative to the :func:`pass_context` decorator.  This function is
+    primarily useful for helpers such as :func:`echo` which might be
+    interested in changing its behavior based on the current context.
+
+    To push the current context, :meth:`Context.scope` can be used.
+
+    .. versionadded:: 5.0
+
+    :param silent: if set to `True` the return value is `None` if no context
+                   is available.  The default behavior is to raise a
+                   :exc:`RuntimeError`.
+    """
+    try:
+        return t.cast("Context", _local.stack[-1])
+    except (AttributeError, IndexError) as e:
+        if not silent:
+            raise RuntimeError("There is no active click context.") from e
+
+    return None
+
+
+def push_context(ctx: Context) -> None:
+    """Pushes a new context to the current stack."""
+    _local.__dict__.setdefault("stack", []).append(ctx)
+
+
+def pop_context() -> None:
+    """Removes the top level from the stack."""
+    _local.stack.pop()
+
+
+def resolve_color_default(color: bool | None = None) -> bool | None:
+    """Internal helper to get the default value of the color flag.  If a
+    value is passed it's returned unchanged, otherwise it's looked up from
+    the current context.
+    """
+    if color is not None:
+        return color
+
+    ctx = get_current_context(silent=True)
+
+    if ctx is not None:
+        return ctx.color
+
+    return None
+
+
+---
+File: src/click/parser.py
+Size: 19010 bytes
+Lines: 532 [structural]
+---
+"""This module started out as largely a copy paste from the stdlib's optparse module with the features removed that we do not need from optparse because we impleme..."""
+
+from __future__ import annotations
+import collections.abc as cabc
+import typing as t
+from collections import deque
+from gettext import gettext as _
+from gettext import ngettext
+from ._utils import FLAG_NEEDS_VALUE
+from ._utils import UNSET
+from .exceptions import BadArgumentUsage
+from .exceptions import BadOptionUsage
+from .exceptions import NoSuchOption
+from .exceptions import UsageError
+
+def _unpack_args(args: cabc.Sequence[str], nargs_spec: cabc.Sequence[int]) -> tuple[cabc.Sequence[str | cabc.Sequence[str | None] | None], list[str]]:
+    """Given an iterable of arguments and an iterable of nargs specifications,     it returns a tuple with all the unpacked arguments at the first index     and all re..."""
+
+def _split_opt(opt: str) -> tuple[str, str]:
+    ...
+
+def _normalize_opt(opt: str, ctx: Context | None) -> str:
+    ...
+
+class _Option:
+    def __init__(self, obj: CoreOption, opts: cabc.Sequence[str], dest: str | None, action: str | None=None, nargs: int=1, const: t.Any | None=None): ...
+    @property
+    def takes_value(self) -> bool: ...
+    def process(self, value: t.Any, state: _ParsingState) -> None: ...
+
+class _Argument:
+    def __init__(self, obj: CoreArgument, dest: str | None, nargs: int=1): ...
+    def process(self, value: str | cabc.Sequence[str | None] | None | T_UNSET, state: _ParsingState) -> None: ...
+
+class _ParsingState:
+    def __init__(self, rargs: list[str]) -> None: ...
+
+class _OptionParser:
+    """The option parser is an internal class that is ultimately used to     parse options and arguments.  It's modelled after optparse and brings     a similar but va..."""
+    def __init__(self, ctx: Context | None=None) -> None: ...
+    def add_option(self, obj: CoreOption, opts: cabc.Sequence[str], dest: str | None, action: str | None=None, nargs: int=1, const: t.Any | None=None) -> None: ...
+        """Adds a new option named `dest` to the parser.  The destination         is not inferred (unlike with optparse) and needs to be explicitly         provided.  Acti..."""
+    def add_argument(self, obj: CoreArgument, dest: str | None, nargs: int=1) -> None: ...
+        """Adds a positional argument named `dest` to the parser.          The `obj` can be used to identify the option in the order list         that is returned from the..."""
+    def parse_args(self, args: list[str]) -> tuple[dict[str, t.Any], list[str], list[CoreParameter]]: ...
+        """Parses positional arguments and returns ``(values, args, order)``         for the parsed options and arguments as well as the leftover         arguments if ther..."""
+    def _process_args_for_args(self, state: _ParsingState) -> None: ...
+    def _process_args_for_options(self, state: _ParsingState) -> None: ...
+    def _match_long_opt(self, opt: str, explicit_value: str | None, state: _ParsingState) -> None: ...
+    def _match_short_opt(self, arg: str, state: _ParsingState) -> None: ...
+    def _get_value_from_state(self, option_name: str, option: _Option, state: _ParsingState) -> str | cabc.Sequence[str] | T_FLAG_NEEDS_VALUE: ...
+    def _process_opts(self, arg: str, state: _ParsingState) -> None: ...
+
+def __getattr__(name: str) -> object:
+    ...
+
+
+---
+File: src/click/py.typed
+Size: 0 bytes
+Lines: 0
+---
+
+
+---
+File: src/click/shell_completion.py
+Size: 20994 bytes
+Lines: 667 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import os
+import re
+import typing as t
+from gettext import gettext as _
+from .core import Argument
+from .core import Command
+from .core import Context
+from .core import Group
+from .core import Option
+from .core import Parameter
+from .core import ParameterSource
+from .utils import echo
+
+def shell_complete(cli: Command, ctx_args: cabc.MutableMapping[str, t.Any], prog_name: str, complete_var: str, instruction: str) -> int:
+    """Perform shell completion for the given CLI program.      :param cli: Command being called.     :param ctx_args: Extra arguments to pass to         ``cli.make_co..."""
+
+class CompletionItem:
+    """Represents a completion value and metadata about the value. The     default metadata is ``type`` to indicate special shell handling,     and ``help`` if a shell..."""
+    __slots__ = ...
+    def __init__(self, value: t.Any, type: str='plain', help: str | None=None, **kwargs: t.Any) -> None: ...
+    def __getattr__(self, name: str) -> t.Any: ...
+
+class ShellComplete:
+    """Base class for providing shell completion support. A subclass for     a given shell will override attributes and methods to implement the     completion instruc..."""
+    name: t.ClassVar[str]
+    source_template: t.ClassVar[str]
+    def __init__(self, cli: Command, ctx_args: cabc.MutableMapping[str, t.Any], prog_name: str, complete_var: str) -> None: ...
+    @property
+    def func_name(self) -> str: ...
+        """The name of the shell function defined by the completion         script."""
+    def source_vars(self) -> dict[str, t.Any]: ...
+        """Vars for formatting :attr:`source_template`.          By default this provides ``complete_func``, ``complete_var``,         and ``prog_name``."""
+    def source(self) -> str: ...
+        """Produce the shell script that defines the completion         function. By default this ``%``-style formats         :attr:`source_template` with the dict returne..."""
+    def get_completion_args(self) -> tuple[list[str], str]: ...
+        """Use the env vars defined by the shell script to return a         tuple of ``args, incomplete``. This must be implemented by         subclasses."""
+    def get_completions(self, args: list[str], incomplete: str) -> list[CompletionItem]: ...
+        """Determine the context and last complete command or parameter         from the complete args. Call that object's ``shell_complete``         method to get the com..."""
+    def format_completion(self, item: CompletionItem) -> str: ...
+        """Format a completion item into the form recognized by the         shell script. This must be implemented by subclasses.          :param item: Completion item to ..."""
+    def complete(self) -> str: ...
+        """Produce the completion data to send back to the shell.          By default this calls :meth:`get_completion_args`, gets the         completions, then calls :met..."""
+
+class BashComplete(ShellComplete):
+    """Shell completion for Bash."""
+    name = ...
+    source_template = ...
+    @staticmethod
+    def _check_version() -> None: ...
+    def source(self) -> str: ...
+    def get_completion_args(self) -> tuple[list[str], str]: ...
+    def format_completion(self, item: CompletionItem) -> str: ...
+
+class ZshComplete(ShellComplete):
+    """Shell completion for Zsh."""
+    name = ...
+    source_template = ...
+    def get_completion_args(self) -> tuple[list[str], str]: ...
+    def format_completion(self, item: CompletionItem) -> str: ...
+
+class FishComplete(ShellComplete):
+    """Shell completion for Fish."""
+    name = ...
+    source_template = ...
+    def get_completion_args(self) -> tuple[list[str], str]: ...
+    def format_completion(self, item: CompletionItem) -> str: ...
+
+def add_completion_class(cls: ShellCompleteType, name: str | None=None) -> ShellCompleteType:
+    """Register a :class:`ShellComplete` subclass under the given name.     The name will be provided by the completion instruction environment     variable during com..."""
+
+def get_completion_class(shell: str) -> type[ShellComplete] | None:
+    """Look up a registered :class:`ShellComplete` subclass by the name     provided by the completion instruction environment variable. If the     name isn't register..."""
+
+def split_arg_string(string: str) -> list[str]:
+    """Split an argument string as with :func:`shlex.split`, but don't     fail if the string is incomplete. Ignores a missing closing quote or     incomplete escape s..."""
+
+def _is_incomplete_argument(ctx: Context, param: Parameter) -> bool:
+    """Determine if the given parameter is an argument that can still     accept values.      :param ctx: Invocation context for the command represented by the        ..."""
+
+def _start_of_option(ctx: Context, value: str) -> bool:
+    """Check if the value looks like the start of an option."""
+
+def _is_incomplete_option(ctx: Context, args: list[str], param: Parameter) -> bool:
+    """Determine if the given parameter is an option that needs a value.      :param args: List of complete args before the incomplete value.     :param param: Option ..."""
+
+def _resolve_context(cli: Command, ctx_args: cabc.MutableMapping[str, t.Any], prog_name: str, args: list[str]) -> Context:
+    """Produce the context hierarchy starting with the command and     traversing the complete arguments. This only follows the commands,     it doesn't trigger input ..."""
+
+def _resolve_incomplete(ctx: Context, args: list[str], incomplete: str) -> tuple[Command | Parameter, str]:
+    """Find the Click object that will handle the completion of the     incomplete value. Return the object and the incomplete value.      :param ctx: Invocation conte..."""
+
+
+---
+File: src/click/termui.py
+Size: 31037 bytes
+Lines: 883 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import inspect
+import io
+import itertools
+import sys
+import typing as t
+from contextlib import AbstractContextManager
+from gettext import gettext as _
+from ._compat import isatty
+from ._compat import strip_ansi
+from .exceptions import Abort
+from .exceptions import UsageError
+from .globals import resolve_color_default
+from .types import Choice
+from .types import convert_type
+from .types import ParamType
+from .utils import echo
+from .utils import LazyFile
+
+def hidden_prompt_func(prompt: str) -> str:
+    ...
+
+def _build_prompt(text: str, suffix: str, show_default: bool=False, default: t.Any | None=None, show_choices: bool=True, type: ParamType | None=None) -> str:
+    ...
+
+def _format_default(default: t.Any) -> t.Any:
+    ...
+
+def prompt(text: str, default: t.Any | None=None, hide_input: bool=False, confirmation_prompt: bool | str=False, type: ParamType | t.Any | None=None, value_proc: t.Callable[[str], t.Any] | None=None, prompt_suffix: str=': ', show_default: bool=True, err: bool=False, show_choices: bool=True) -> t.Any:
+    """Prompts a user for input.  This is a convenience function that can     be used to prompt a user for input later.      If the user aborts the input by sending an..."""
+
+def confirm(text: str, default: bool | None=False, abort: bool=False, prompt_suffix: str=': ', show_default: bool=True, err: bool=False) -> bool:
+    """Prompts for confirmation (yes/no question).      If the user aborts the input by sending a interrupt signal this     function will catch it and raise a :exc:`Ab..."""
+
+def echo_via_pager(text_or_generator: cabc.Iterable[str] | t.Callable[[], cabc.Iterable[str]] | str, color: bool | None=None) -> None:
+    """This function takes a text and shows it via an environment specific     pager on stdout.      .. versionchanged:: 3.0        Added the `color` flag.      :param..."""
+
+@t.overload
+def progressbar(*, length: int, label: str | None=None, hidden: bool=False, show_eta: bool=True, show_percent: bool | None=None, show_pos: bool=False, fill_char: str='#', empty_char: str='-', bar_template: str='%(label)s  [%(bar)s]  %(info)s', info_sep: str='  ', width: int=36, file: t.TextIO | None=None, color: bool | None=None, update_min_steps: int=1) -> ProgressBar[int]:
+    ...
+
+@t.overload
+def progressbar(iterable: cabc.Iterable[V] | None=None, length: int | None=None, label: str | None=None, hidden: bool=False, show_eta: bool=True, show_percent: bool | None=None, show_pos: bool=False, item_show_func: t.Callable[[V | None], str | None] | None=None, fill_char: str='#', empty_char: str='-', bar_template: str='%(label)s  [%(bar)s]  %(info)s', info_sep: str='  ', width: int=36, file: t.TextIO | None=None, color: bool | None=None, update_min_steps: int=1) -> ProgressBar[V]:
+    ...
+
+def progressbar(iterable: cabc.Iterable[V] | None=None, length: int | None=None, label: str | None=None, hidden: bool=False, show_eta: bool=True, show_percent: bool | None=None, show_pos: bool=False, item_show_func: t.Callable[[V | None], str | None] | None=None, fill_char: str='#', empty_char: str='-', bar_template: str='%(label)s  [%(bar)s]  %(info)s', info_sep: str='  ', width: int=36, file: t.TextIO | None=None, color: bool | None=None, update_min_steps: int=1) -> ProgressBar[V]:
+    """This function creates an iterable context manager that can be used     to iterate over something while showing a progress bar.  It will     either iterate over ..."""
+
+def clear() -> None:
+    """Clears the terminal screen.  This will have the effect of clearing     the whole visible space of the terminal and moving the cursor to the     top left.  This ..."""
+
+def _interpret_color(color: int | tuple[int, int, int] | str, offset: int=0) -> str:
+    ...
+
+def style(text: t.Any, fg: int | tuple[int, int, int] | str | None=None, bg: int | tuple[int, int, int] | str | None=None, bold: bool | None=None, dim: bool | None=None, underline: bool | None=None, overline: bool | None=None, italic: bool | None=None, blink: bool | None=None, reverse: bool | None=None, strikethrough: bool | None=None, reset: bool=True) -> str:
+    """Styles a text with ANSI styles and returns the new string.  By     default the styling is self contained which means that at the end     of the string a reset c..."""
+
+def unstyle(text: str) -> str:
+    """Removes ANSI styling information from a string.  Usually it's not     necessary to use this function as Click's echo function will     automatically remove styl..."""
+
+def secho(message: t.Any | None=None, file: t.IO[t.AnyStr] | None=None, nl: bool=True, err: bool=False, color: bool | None=None, **styles: t.Any) -> None:
+    """This function combines :func:`echo` and :func:`style` into one     call.  As such the following two calls are the same::          click.secho('Hello World!', fg..."""
+
+@t.overload
+def edit(text: bytes | bytearray, editor: str | None=None, env: cabc.Mapping[str, str] | None=None, require_save: bool=False, extension: str='.txt') -> bytes | None:
+    ...
+
+@t.overload
+def edit(text: str, editor: str | None=None, env: cabc.Mapping[str, str] | None=None, require_save: bool=True, extension: str='.txt') -> str | None:
+    ...
+
+@t.overload
+def edit(text: None=None, editor: str | None=None, env: cabc.Mapping[str, str] | None=None, require_save: bool=True, extension: str='.txt', filename: str | cabc.Iterable[str] | None=None) -> None:
+    ...
+
+def edit(text: str | bytes | bytearray | None=None, editor: str | None=None, env: cabc.Mapping[str, str] | None=None, require_save: bool=True, extension: str='.txt', filename: str | cabc.Iterable[str] | None=None) -> str | bytes | bytearray | None:
+    """Edits the given text in the defined editor.  If an editor is given     (should be the full path to the executable but the regular operating     system search pa..."""
+
+def launch(url: str, wait: bool=False, locate: bool=False) -> int:
+    """This function launches the given URL (or filename) in the default     viewer application for this file type.  If this is an executable, it     might launch the ..."""
+
+def getchar(echo: bool=False) -> str:
+    """Fetches a single character from the terminal and returns it.  This     will always return a unicode character and under certain rare     circumstances this migh..."""
+
+def raw_terminal() -> AbstractContextManager[int]:
+    ...
+
+def pause(info: str | None=None, err: bool=False) -> None:
+    """This command stops execution and waits for the user to press any     key to continue.  This is similar to the Windows batch "pause"     command.  If the program..."""
+
+
+---
+File: src/click/testing.py
+Size: 18978 bytes
+Lines: 574 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import contextlib
+import io
+import os
+import shlex
+import sys
+import tempfile
+import typing as t
+from types import TracebackType
+from . import _compat
+from . import formatting
+from . import termui
+from . import utils
+from ._compat import _find_binary_reader
+
+class EchoingStdin:
+    def __init__(self, input: t.BinaryIO, output: t.BinaryIO) -> None: ...
+    def __getattr__(self, x: str) -> t.Any: ...
+    def _echo(self, rv: bytes) -> bytes: ...
+    def read(self, n: int=-1) -> bytes: ...
+    def read1(self, n: int=-1) -> bytes: ...
+    def readline(self, n: int=-1) -> bytes: ...
+    def readlines(self) -> list[bytes]: ...
+    def __iter__(self) -> cabc.Iterator[bytes]: ...
+    def __repr__(self) -> str: ...
+
+@contextlib.contextmanager
+def _pause_echo(stream: EchoingStdin | None) -> cabc.Iterator[None]:
+    ...
+
+class BytesIOCopy(io.BytesIO):
+    """Patch ``io.BytesIO`` to let the written stream be copied to another.      .. versionadded:: 8.2"""
+    def __init__(self, copy_to: io.BytesIO) -> None: ...
+    def flush(self) -> None: ...
+    def write(self, b: ReadableBuffer) -> int: ...
+
+class StreamMixer:
+    """Mixes `<stdout>` and `<stderr>` streams.      The result is available in the ``output`` attribute.      .. versionadded:: 8.2"""
+    def __init__(self) -> None: ...
+
+class _NamedTextIOWrapper(io.TextIOWrapper):
+    def __init__(self, buffer: t.BinaryIO, name: str, mode: str, **kwargs: t.Any) -> None: ...
+    def close(self) -> None: ...
+        """The buffer this object contains belongs to some other object, so         prevent the default __del__ implementation from closing that buffer.          .. versio..."""
+    @property
+    def name(self) -> str: ...
+    @property
+    def mode(self) -> str: ...
+
+def make_input_stream(input: str | bytes | t.IO[t.Any] | None, charset: str) -> t.BinaryIO:
+    ...
+
+class Result:
+    """Holds the captured result of an invoked CLI script.      :param runner: The runner that created the result     :param stdout_bytes: The standard output as bytes..."""
+    def __init__(self, runner: CliRunner, stdout_bytes: bytes, stderr_bytes: bytes, output_bytes: bytes, return_value: t.Any, exit_code: int, exception: BaseException | None, exc_info: tuple[type[BaseException], BaseException, TracebackType] | None=None): ...
+    @property
+    def output(self) -> str: ...
+        """The terminal output as unicode string, as the user would see it.          .. versionchanged:: 8.2             No longer a proxy for ``self.stdout``. Now has its..."""
+    @property
+    def stdout(self) -> str: ...
+        """The standard output as unicode string."""
+    @property
+    def stderr(self) -> str: ...
+        """The standard error as unicode string.          .. versionchanged:: 8.2             No longer raise an exception, always returns the `<stderr>` string."""
+    def __repr__(self) -> str: ...
+
+class CliRunner:
+    """The CLI runner provides functionality to invoke a Click command line     script for unittesting purposes in a isolated environment.  This only     works in sing..."""
+    def __init__(self, charset: str='utf-8', env: cabc.Mapping[str, str | None] | None=None, echo_stdin: bool=False, catch_exceptions: bool=True) -> None: ...
+    def get_default_prog_name(self, cli: Command) -> str: ...
+        """Given a command object it will return the default program name         for it.  The default is the `name` attribute or ``"root"`` if not         set."""
+    def make_env(self, overrides: cabc.Mapping[str, str | None] | None=None) -> cabc.Mapping[str, str | None]: ...
+        """Returns the environment overrides for invoking a script."""
+    @contextlib.contextmanager
+    def isolation(self, input: str | bytes | t.IO[t.Any] | None=None, env: cabc.Mapping[str, str | None] | None=None, color: bool=False) -> cabc.Iterator[tuple[io.BytesIO, io.BytesIO, io.BytesIO]]: ...
+        """A context manager that sets up the isolation for invoking of a         command line tool.  This sets up `<stdin>` with the given input data         and `os.envi..."""
+    def invoke(self, cli: Command, args: str | cabc.Sequence[str] | None=None, input: str | bytes | t.IO[t.Any] | None=None, env: cabc.Mapping[str, str | None] | None=None, catch_exceptions: bool | None=None, color: bool=False, **extra: t.Any) -> Result: ...
+        """Invokes a command in an isolated environment.  The arguments are         forwarded directly to the command line script, the `extra` keyword         arguments ar..."""
+    @contextlib.contextmanager
+    def isolated_filesystem(self, temp_dir: str | os.PathLike[str] | None=None) -> cabc.Iterator[str]: ...
+        """A context manager that creates a temporary directory and         changes the current working directory to it. This isolates tests         that affect the conten..."""
+
+
+---
+File: src/click/types.py
+Size: 39927 bytes
+Lines: 1209 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import enum
+import os
+import stat
+import sys
+import typing as t
+from datetime import datetime
+from gettext import gettext as _
+from gettext import ngettext
+from ._compat import _get_argv_encoding
+from ._compat import open_stream
+from .exceptions import BadParameter
+from .utils import format_filename
+from .utils import LazyFile
+from .utils import safecall
+
+class ParamType:
+    """Represents the type of a parameter. Validates and converts values     from the command line or Python into the correct type.      To implement a custom type, su..."""
+    is_composite: t.ClassVar[bool]
+    arity: t.ClassVar[int]
+    name: str
+    envvar_list_splitter: t.ClassVar[str | None]
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+        """Gather information that could be useful for a tool generating         user-facing documentation.          Use :meth:`click.Context.to_info_dict` to traverse the..."""
+    def __call__(self, value: t.Any, param: Parameter | None=None, ctx: Context | None=None) -> t.Any: ...
+    def get_metavar(self, param: Parameter, ctx: Context) -> str | None: ...
+        """Returns the metavar default for this param if it provides one."""
+    def get_missing_message(self, param: Parameter, ctx: Context | None) -> str | None: ...
+        """Optionally might return extra information about a missing         parameter.          .. versionadded:: 2.0"""
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+        """Convert the value to the correct type. This is not called if         the value is ``None`` (the missing value).          This must accept string values from the..."""
+    def split_envvar_value(self, rv: str) -> cabc.Sequence[str]: ...
+        """Given a value from an environment variable this splits it up         into small chunks depending on the defined envvar list splitter.          If the splitter i..."""
+    def fail(self, message: str, param: Parameter | None=None, ctx: Context | None=None) -> t.NoReturn: ...
+        """Helper method to fail with an invalid value message."""
+    def shell_complete(self, ctx: Context, param: Parameter, incomplete: str) -> list[CompletionItem]: ...
+        """Return a list of         :class:`~click.shell_completion.CompletionItem` objects for the         incomplete value. Most types do not provide completions, but   ..."""
+
+class CompositeParamType(ParamType):
+    is_composite = ...
+    @property
+    def arity(self) -> int: ...
+
+class FuncParamType(ParamType):
+    def __init__(self, func: t.Callable[[t.Any], t.Any]) -> None: ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+
+class UnprocessedParamType(ParamType):
+    name = ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+    def __repr__(self) -> str: ...
+
+class StringParamType(ParamType):
+    name = ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+    def __repr__(self) -> str: ...
+
+class Choice(ParamType, t.Generic[ParamTypeValue]):
+    """The choice type allows a value to be checked against a fixed set     of supported values.      You may pass any iterable value which will be converted to a tupl..."""
+    name = ...
+    def __init__(self, choices: cabc.Iterable[ParamTypeValue], case_sensitive: bool=True) -> None: ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    def _normalized_mapping(self, ctx: Context | None=None) -> cabc.Mapping[ParamTypeValue, str]: ...
+        """Returns mapping where keys are the original choices and the values are         the normalized values that are accepted via the command line.          This is a ..."""
+    def normalize_choice(self, choice: ParamTypeValue, ctx: Context | None) -> str: ...
+        """Normalize a choice value, used to map a passed string to a choice.         Each choice must have a unique normalized value.          By default uses :meth:`Cont..."""
+    def get_metavar(self, param: Parameter, ctx: Context) -> str | None: ...
+    def get_missing_message(self, param: Parameter, ctx: Context | None) -> str: ...
+        """Message shown when no choice is passed.          .. versionchanged:: 8.2.0 Added ``ctx`` argument."""
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> ParamTypeValue: ...
+        """For a given value from the parser, normalize it and find its         matching normalized value in the list of choices. Then return the         matched "original..."""
+    def get_invalid_choice_message(self, value: t.Any, ctx: Context | None) -> str: ...
+        """Get the error message when the given choice is invalid.          :param value: The invalid value.          .. versionadded:: 8.2"""
+    def __repr__(self) -> str: ...
+    def shell_complete(self, ctx: Context, param: Parameter, incomplete: str) -> list[CompletionItem]: ...
+        """Complete choices that start with the incomplete value.          :param ctx: Invocation context for this command.         :param param: The parameter that is req..."""
+
+class DateTime(ParamType):
+    """The DateTime type converts date strings into `datetime` objects.      The format strings which are checked are configurable, but default to some     common (non..."""
+    name = ...
+    def __init__(self, formats: cabc.Sequence[str] | None=None): ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    def get_metavar(self, param: Parameter, ctx: Context) -> str | None: ...
+    def _try_to_convert_date(self, value: t.Any, format: str) -> datetime | None: ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+    def __repr__(self) -> str: ...
+
+class _NumberParamTypeBase(ParamType):
+    _number_class: t.ClassVar[type[t.Any]]
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+
+class _NumberRangeBase(_NumberParamTypeBase):
+    def __init__(self, min: float | None=None, max: float | None=None, min_open: bool=False, max_open: bool=False, clamp: bool=False) -> None: ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+    def _clamp(self, bound: float, dir: t.Literal[1, -1], open: bool) -> float: ...
+        """Find the valid value to clamp to bound in the given         direction.          :param bound: The boundary value.         :param dir: 1 or -1 indicating the dir..."""
+    def _describe_range(self) -> str: ...
+        """Describe the range for use in help text."""
+    def __repr__(self) -> str: ...
+
+class IntParamType(_NumberParamTypeBase):
+    name = ...
+    _number_class = ...
+    def __repr__(self) -> str: ...
+
+class IntRange(_NumberRangeBase, IntParamType):
+    """Restrict an :data:`click.INT` value to a range of accepted     values. See :ref:`ranges`.      If ``min`` or ``max`` are not passed, any value is accepted in th..."""
+    name = ...
+    def _clamp(self, bound: int, dir: t.Literal[1, -1], open: bool) -> int: ...
+
+class FloatParamType(_NumberParamTypeBase):
+    name = ...
+    _number_class = ...
+    def __repr__(self) -> str: ...
+
+class FloatRange(_NumberRangeBase, FloatParamType):
+    """Restrict a :data:`click.FLOAT` value to a range of accepted     values. See :ref:`ranges`.      If ``min`` or ``max`` are not passed, any value is accepted in t..."""
+    name = ...
+    def __init__(self, min: float | None=None, max: float | None=None, min_open: bool=False, max_open: bool=False, clamp: bool=False) -> None: ...
+    def _clamp(self, bound: float, dir: t.Literal[1, -1], open: bool) -> float: ...
+
+class BoolParamType(ParamType):
+    name = ...
+    bool_states: dict[str, bool]
+    @staticmethod
+    def str_to_bool(value: str | bool) -> bool | None: ...
+        """Convert a string to a boolean value.          If the value is already a boolean, it is returned as-is. If the value is a         string, it is stripped of white..."""
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> bool: ...
+    def __repr__(self) -> str: ...
+
+class UUIDParameterType(ParamType):
+    name = ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+    def __repr__(self) -> str: ...
+
+class File(ParamType):
+    """Declares a parameter to be a file for reading or writing.  The file     is automatically closed once the context tears down (after the command     finished work..."""
+    name = ...
+    envvar_list_splitter: t.ClassVar[str]
+    def __init__(self, mode: str='r', encoding: str | None=None, errors: str | None='strict', lazy: bool | None=None, atomic: bool=False) -> None: ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    def resolve_lazy_flag(self, value: str | os.PathLike[str]) -> bool: ...
+    def convert(self, value: str | os.PathLike[str] | t.IO[t.Any], param: Parameter | None, ctx: Context | None) -> t.IO[t.Any]: ...
+    def shell_complete(self, ctx: Context, param: Parameter, incomplete: str) -> list[CompletionItem]: ...
+        """Return a special completion marker that tells the completion         system to use the shell to provide file path completions.          :param ctx: Invocation c..."""
+
+def _is_file_like(value: t.Any) -> te.TypeGuard[t.IO[t.Any]]:
+    ...
+
+class Path(ParamType):
+    """The ``Path`` type is similar to the :class:`File` type, but     returns the filename instead of an open file. Various checks can be     enabled to validate the ..."""
+    envvar_list_splitter: t.ClassVar[str]
+    def __init__(self, exists: bool=False, file_okay: bool=True, dir_okay: bool=True, writable: bool=False, readable: bool=True, resolve_path: bool=False, allow_dash: bool=False, path_type: type[t.Any] | None=None, executable: bool=False): ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    def coerce_path_result(self, value: str | os.PathLike[str]) -> str | bytes | os.PathLike[str]: ...
+    def convert(self, value: str | os.PathLike[str], param: Parameter | None, ctx: Context | None) -> str | bytes | os.PathLike[str]: ...
+    def shell_complete(self, ctx: Context, param: Parameter, incomplete: str) -> list[CompletionItem]: ...
+        """Return a special completion marker that tells the completion         system to use the shell to provide path completions for only         directories or any pat..."""
+
+class Tuple(CompositeParamType):
+    """The default behavior of Click is to apply a type on a value directly.     This works well in most cases, except for when `nargs` is set to a fixed     count and..."""
+    def __init__(self, types: cabc.Sequence[type[t.Any] | ParamType]) -> None: ...
+    def to_info_dict(self) -> dict[str, t.Any]: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def arity(self) -> int: ...
+    def convert(self, value: t.Any, param: Parameter | None, ctx: Context | None) -> t.Any: ...
+
+def convert_type(ty: t.Any | None, default: t.Any | None=None) -> ParamType:
+    """Find the most appropriate :class:`ParamType` for the given Python     type. If the type isn't provided, it can be inferred from a default     value."""
+
+class OptionHelpExtra(t.TypedDict):
+    envvars: tuple[str, ...]
+    default: str
+    range: str
+    required: str
+
+
+---
+File: src/click/utils.py
+Size: 20257 bytes
+Lines: 627 [structural]
+---
+from __future__ import annotations
+import collections.abc as cabc
+import os
+import re
+import sys
+import typing as t
+from functools import update_wrapper
+from types import ModuleType
+from types import TracebackType
+from ._compat import _default_text_stderr
+from ._compat import _default_text_stdout
+from ._compat import _find_binary_writer
+from ._compat import auto_wrap_for_ansi
+from ._compat import binary_streams
+from ._compat import open_stream
+from ._compat import should_strip_ansi
+from ._compat import strip_ansi
+from ._compat import text_streams
+from ._compat import WIN
+from .globals import resolve_color_default
+
+def _posixify(name: str) -> str:
+    ...
+
+def safecall(func: t.Callable[P, R]) -> t.Callable[P, R | None]:
+    """Wraps a function so that it swallows exceptions."""
+
+def make_str(value: t.Any) -> str:
+    """Converts a value into a valid string."""
+
+def make_default_short_help(help: str, max_length: int=45) -> str:
+    """Returns a condensed version of help string."""
+
+class LazyFile:
+    """A lazy file works like a regular file but it does not fully open     the file but it does perform some basic checks early to see if the     filename parameter d..."""
+    def __init__(self, filename: str | os.PathLike[str], mode: str='r', encoding: str | None=None, errors: str | None='strict', atomic: bool=False): ...
+    def __getattr__(self, name: str) -> t.Any: ...
+    def __repr__(self) -> str: ...
+    def open(self) -> t.IO[t.Any]: ...
+        """Opens the file if it's not yet open.  This call might fail with         a :exc:`FileError`.  Not handling this error will produce an error         that Click sh..."""
+    def close(self) -> None: ...
+        """Closes the underlying file, no matter what."""
+    def close_intelligently(self) -> None: ...
+        """This function only closes the file if it was opened by the lazy         file wrapper.  For instance this will never close stdin."""
+    def __enter__(self) -> LazyFile: ...
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, tb: TracebackType | None) -> None: ...
+    def __iter__(self) -> cabc.Iterator[t.AnyStr]: ...
+
+class KeepOpenFile:
+    def __init__(self, file: t.IO[t.Any]) -> None: ...
+    def __getattr__(self, name: str) -> t.Any: ...
+    def __enter__(self) -> KeepOpenFile: ...
+    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, tb: TracebackType | None) -> None: ...
+    def __repr__(self) -> str: ...
+    def __iter__(self) -> cabc.Iterator[t.AnyStr]: ...
+
+def echo(message: t.Any | None=None, file: t.IO[t.Any] | None=None, nl: bool=True, err: bool=False, color: bool | None=None) -> None:
+    """Print a message and newline to stdout or a file. This should be     used instead of :func:`print` because it provides better support     for different data, fil..."""
+
+def get_binary_stream(name: t.Literal['stdin', 'stdout', 'stderr']) -> t.BinaryIO:
+    """Returns a system stream for byte processing.      :param name: the name of the stream to open.  Valid names are ``'stdin'``,                  ``'stdout'`` and `..."""
+
+def get_text_stream(name: t.Literal['stdin', 'stdout', 'stderr'], encoding: str | None=None, errors: str | None='strict') -> t.TextIO:
+    """Returns a system stream for text processing.  This usually returns     a wrapped stream around a binary stream returned from     :func:`get_binary_stream` but i..."""
+
+def open_file(filename: str | os.PathLike[str], mode: str='r', encoding: str | None=None, errors: str | None='strict', lazy: bool=False, atomic: bool=False) -> t.IO[t.Any]:
+    """Open a file, with extra behavior to handle ``'-'`` to indicate     a standard stream, lazy open on write, and atomic write. Similar to     the behavior of the :..."""
+
+def format_filename(filename: str | bytes | os.PathLike[str] | os.PathLike[bytes], shorten: bool=False) -> str:
+    """Format a filename as a string for display. Ensures the filename can be     displayed by replacing any invalid bytes or surrogate escapes in the name     with th..."""
+
+def get_app_dir(app_name: str, roaming: bool=True, force_posix: bool=False) -> str:
+    """Returns the config folder for the application.  The default behavior     is to return whatever is most appropriate for the operating system.      To give you an..."""
+
+class PacifyFlushWrapper:
+    """This wrapper is used to catch and suppress BrokenPipeErrors resulting     from ``.flush()`` being called on broken pipe during the shutdown/final-GC     of the ..."""
+    def __init__(self, wrapped: t.IO[t.Any]) -> None: ...
+    def flush(self) -> None: ...
+    def __getattr__(self, attr: str) -> t.Any: ...
+
+def _detect_program_name(path: str | None=None, _main: ModuleType | None=None) -> str:
+    """Determine the command used to run the program, for use in help     text. If a file or entry point was executed, the file name is     returned. If ``python -m`` ..."""
+
+def _expand_args(args: cabc.Iterable[str], *, user: bool=True, env: bool=True, glob_recursive: bool=True) -> list[str]:
+    """Simulate Unix shell expansion with Python functions.      See :func:`glob.glob`, :func:`os.path.expanduser`, and     :func:`os.path.expandvars`.      This is in..."""
+
+
+---
+File: docs/conf.py
+Size: 1930 bytes
+Lines: 57
+---
+from pallets_sphinx_themes import get_version
+from pallets_sphinx_themes import ProjectLink
+
+# Project --------------------------------------------------------------
+
+project = "Click"
+copyright = "2014 Pallets"
+author = "Pallets"
+release, version = get_version("Click")
+
+# General --------------------------------------------------------------
+
+master_doc = "index"
+default_role = "code"
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
+    "sphinx_tabs.tabs",
+    "sphinxcontrib.log_cabinet",
+    "pallets_sphinx_themes",
+    "myst_parser",
+]
+autodoc_member_order = "bysource"
+autodoc_typehints = "description"
+autodoc_preserve_defaults = True
+extlinks = {
+    "issue": ("https://github.com/pallets/click/issues/%s", "#%s"),
+    "pr": ("https://github.com/pallets/click/pull/%s", "#%s"),
+}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+}
+
+# HTML -----------------------------------------------------------------
+
+html_theme = "click"
+html_theme_options = {"index_sidebar_logo": False}
+html_context = {
+    "project_links": [
+        ProjectLink("Donate", "https://palletsprojects.com/donate"),
+        ProjectLink("PyPI Releases", "https://pypi.org/project/click/"),
+        ProjectLink("Source Code", "https://github.com/pallets/click/"),
+        ProjectLink("Issue Tracker", "https://github.com/pallets/click/issues/"),
+        ProjectLink("Chat", "https://discord.gg/pallets"),
+    ]
+}
+html_sidebars = {
+    "index": ["project.html", "localtoc.html", "searchbox.html", "ethicalads.html"],
+    "**": ["localtoc.html", "relations.html", "searchbox.html", "ethicalads.html"],
+}
+singlehtml_sidebars = {"index": ["project.html", "localtoc.html", "ethicalads.html"]}
+html_static_path = ["_static"]
+html_favicon = "_static/click-icon.svg"
+html_logo = "_static/click-logo.svg"
+html_title = f"Click Documentation ({version})"
+html_show_sourcelink = False
+
+
+---
+File: examples/imagepipe/.gitignore
+Size: 12 bytes
+Lines: 1
+---
+processed-*
+
+
+---
+File: examples/aliases/aliases.ini
+Size: 20 bytes
+Lines: 2
+---
+[aliases]
+ci=commit
+
+
+---
+File: examples/aliases/aliases.py
+Size: 4061 bytes
+Lines: 143 [structural]
+---
+import configparser
+import os
+import click
+
+class Config:
+    """The config in this example only holds aliases."""
+    def __init__(self): ...
+    def add_alias(self, alias, cmd): ...
+    def read_config(self, filename): ...
+    def write_config(self, filename): ...
+
+class AliasedGroup(click.Group):
+    """This subclass of a group supports looking up aliases in a config     file and with a bit of magic."""
+    def get_command(self, ctx, cmd_name): ...
+    def resolve_command(self, ctx, args): ...
+
+def read_config(ctx, param, value):
+    """Callback that is used whenever --config is passed.  We use this to     always load the correct config.  This means that the config is loaded     even if the gro..."""
+
+@click.command(cls=AliasedGroup)
+@click.option('--config', type=click.Path(exists=True, dir_okay=False), callback=read_config, expose_value=False, help='The config file to use instead of the default.')
+def cli():
+    """An example application that supports aliases."""
+
+@cli.command()
+def push():
+    """Pushes changes."""
+
+@cli.command()
+def pull():
+    """Pulls changes."""
+
+@cli.command()
+def clone():
+    """Clones a repository."""
+
+@cli.command()
+def commit():
+    """Commits pending changes."""
+
+@cli.command()
+@pass_config
+def status(config):
+    """Shows the status."""
+
+@cli.command()
+@pass_config
+@click.argument('alias_', metavar='ALIAS', type=click.STRING)
+@click.argument('cmd', type=click.STRING)
+@click.option('--config_file', type=click.Path(exists=True, dir_okay=False), default='aliases.ini')
+def alias(config, alias_, cmd, config_file):
+    """Adds an alias to the specified configuration file."""
+
+
+---
+File: examples/colors/colors.py
+Size: 926 bytes
+Lines: 39
+---
+import click
+
+
+all_colors = (
+    "black",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+    "bright_black",
+    "bright_red",
+    "bright_green",
+    "bright_yellow",
+    "bright_blue",
+    "bright_magenta",
+    "bright_cyan",
+    "bright_white",
+)
+
+
+@click.command()
+def cli():
+    """This script prints some colors. It will also automatically remove
+    all ANSI styles if data is piped into a file.
+
+    Give it a try!
+    """
+    for color in all_colors:
+        click.echo(click.style(f"I am colored {color}", fg=color))
+    for color in all_colors:
+        click.echo(click.style(f"I am colored {color} and bold", fg=color, bold=True))
+    for color in all_colors:
+        click.echo(click.style(f"I am reverse colored {color}", fg=color, reverse=True))
+
+    click.echo(click.style("I am blinking", blink=True))
+    click.echo(click.style("I am underlined", underline=True))
+
+
+---
+File: examples/completion/completion.py
+Size: 1388 bytes
+Lines: 56
+---
+import os
+
+import click
+from click.shell_completion import CompletionItem
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option("--dir", type=click.Path(file_okay=False))
+def ls(dir):
+    click.echo("\n".join(os.listdir(dir)))
+
+
+def get_env_vars(ctx, param, incomplete):
+    # Returning a list of values is a shortcut to returning a list of
+    # CompletionItem(value).
+    return [k for k in os.environ if incomplete in k]
+
+
+@cli.command(help="A command to print environment variables")
+@click.argument("envvar", shell_complete=get_env_vars)
+def show_env(envvar):
+    click.echo(f"Environment variable: {envvar}")
+    click.echo(f"Value: {os.environ[envvar]}")
+
+
+@cli.group(help="A group that holds a subcommand")
+def group():
+    pass
+
+
+def list_users(ctx, param, incomplete):
+    # You can generate completions with help strings by returning a list
+    # of CompletionItem. You can match on whatever you want, including
+    # the help.
+    items = [("bob", "butcher"), ("alice", "baker"), ("jerry", "candlestick maker")]
+    out = []
+
+    for value, help in items:
+        if incomplete in value or incomplete in help:
+            out.append(CompletionItem(value, help=help))
+
+    return out
+
+
+@group.command(help="Choose a user")
+@click.argument("user", shell_complete=list_users)
+def select_user(user):
+    click.echo(f"Chosen user is {user}")
+
+
+cli.add_command(group)
+
+
+---
+File: examples/imagepipe/imagepipe.py
+Size: 8257 bytes
+Lines: 288 [structural]
+---
+from functools import update_wrapper
+from PIL import Image
+from PIL import ImageEnhance
+from PIL import ImageFilter
+import click
+
+@click.group(chain=True)
+def cli():
+    """This script processes a bunch of images through pillow in a unix     pipe.  One commands feeds into the next.      Example:               imagepipe open -i exa..."""
+
+@cli.result_callback()
+def process_commands(processors):
+    """This result callback is invoked with an iterable of all the chained     subcommands.  As in this example each subcommand returns a function     we can chain the..."""
+
+def processor(f):
+    """Helper decorator to rewrite a function so that it returns another     function from it."""
+
+def generator(f):
+    """Similar to the :func:`processor` but passes through old values     unchanged and does not pass through the values as parameter."""
+
+def copy_filename(new, old):
+    ...
+
+@cli.command('open')
+@click.option('-i', '--image', 'images', type=click.Path(), multiple=True, help='The image file to open.')
+@generator
+def open_cmd(images):
+    """Loads one or multiple images for processing.  The input parameter     can be specified multiple times to load more than one image."""
+
+@cli.command('save')
+@click.option('--filename', default='processed-{:04}.png', type=click.Path(), help='The format for the filename.', show_default=True)
+@processor
+def save_cmd(images, filename):
+    """Saves all processed images to a series of files."""
+
+@cli.command('display')
+@processor
+def display_cmd(images):
+    """Opens all images in an image viewer."""
+
+@cli.command('resize')
+@click.option('-w', '--width', type=int, help='The new width of the image.')
+@click.option('-h', '--height', type=int, help='The new height of the image.')
+@processor
+def resize_cmd(images, width, height):
+    """Resizes an image by fitting it into the box without changing     the aspect ratio."""
+
+@cli.command('crop')
+@click.option('-b', '--border', type=int, help='Crop the image from all sides by this amount.')
+@processor
+def crop_cmd(images, border):
+    """Crops an image from all edges."""
+
+def convert_rotation(ctx, param, value):
+    ...
+
+def convert_flip(ctx, param, value):
+    ...
+
+@cli.command('transpose')
+@click.option('-r', '--rotate', callback=convert_rotation, help='Rotates the image (in degrees)')
+@click.option('-f', '--flip', callback=convert_flip, help='Flips the image  [LR / TB]')
+@processor
+def transpose_cmd(images, rotate, flip):
+    """Transposes an image by either rotating or flipping it."""
+
+@cli.command('blur')
+@click.option('-r', '--radius', default=2, show_default=True, help='The blur radius.')
+@processor
+def blur_cmd(images, radius):
+    """Applies gaussian blur."""
+
+@cli.command('smoothen')
+@click.option('-i', '--iterations', default=1, show_default=True, help='How many iterations of the smoothen filter to run.')
+@processor
+def smoothen_cmd(images, iterations):
+    """Applies a smoothening filter."""
+
+@cli.command('emboss')
+@processor
+def emboss_cmd(images):
+    """Embosses an image."""
+
+@cli.command('sharpen')
+@click.option('-f', '--factor', default=2.0, help='Sharpens the image.', show_default=True)
+@processor
+def sharpen_cmd(images, factor):
+    """Sharpens an image."""
+
+@cli.command('paste')
+@click.option('-l', '--left', default=0, help='Offset from left.')
+@click.option('-r', '--right', default=0, help='Offset from right.')
+@processor
+def paste_cmd(images, left, right):
+    """Pastes the second image on the first image and leaves the rest     unchanged."""
+
+
+---
+File: examples/inout/inout.py
+Size: 722 bytes
+Lines: 30
+---
+import click
+
+
+@click.command()
+@click.argument("input", type=click.File("rb"), nargs=-1)
+@click.argument("output", type=click.File("wb"))
+def cli(input, output):
+    """This script works similar to the Unix `cat` command but it writes
+    into a specific file (which could be the standard output as denoted by
+    the ``-`` sign).
+
+    \b
+    Copy stdin to stdout:
+        inout - -
+
+    \b
+    Copy foo.txt and bar.txt to stdout:
+        inout foo.txt bar.txt -
+
+    \b
+    Write stdin into the file foo.txt
+        inout - foo.txt
+    """
+    for f in input:
+        while True:
+            chunk = f.read(1024)
+            if not chunk:
+                break
+            output.write(chunk)
+            output.flush()
+
+
+---
+File: examples/naval/naval.py
+Size: 1697 bytes
+Lines: 72
+---
+import click
+
+
+@click.group()
+@click.version_option()
+def cli():
+    """Naval Fate.
+
+    This is the docopt example adopted to Click but with some actual
+    commands implemented and not just the empty parsing which really
+    is not all that interesting.
+    """
+
+
+@cli.group()
+def ship():
+    """Manages ships."""
+
+
+@ship.command("new")
+@click.argument("name")
+def ship_new(name):
+    """Creates a new ship."""
+    click.echo(f"Created ship {name}")
+
+
+@ship.command("move")
+@click.argument("ship")
+@click.argument("x", type=float)
+@click.argument("y", type=float)
+@click.option("--speed", metavar="KN", default=10, help="Speed in knots.")
+def ship_move(ship, x, y, speed):
+    """Moves SHIP to the new location X,Y."""
+    click.echo(f"Moving ship {ship} to {x},{y} with speed {speed}")
+
+
+@ship.command("shoot")
+@click.argument("ship")
+@click.argument("x", type=float)
+@click.argument("y", type=float)
+def ship_shoot(ship, x, y):
+    """Makes SHIP fire to X,Y."""
+    click.echo(f"Ship {ship} fires to {x},{y}")
+
+
+@cli.group("mine")
+def mine():
+    """Manages mines."""
+
+
+@mine.command("set")
+@click.argument("x", type=float)
+@click.argument("y", type=float)
+@click.option(
+    "ty",
+    "--moored",
+    flag_value="moored",
+    default=True,
+    help="Moored (anchored) mine. Default.",
+)
+@click.option("ty", "--drifting", flag_value="drifting", help="Drifting mine.")
+def mine_set(x, y, ty):
+    """Sets a mine at a specific coordinate."""
+    click.echo(f"Set {ty} mine at {x},{y}")
+
+
+@mine.command("remove")
+@click.argument("x", type=float)
+@click.argument("y", type=float)
+def mine_remove(x, y):
+    """Removes a mine at a specific coordinate."""
+    click.echo(f"Removed mine at {x},{y}")
+
+
+---
+File: examples/repo/repo.py
+Size: 4717 bytes
+Lines: 166 [structural]
+---
+import os
+import posixpath
+import sys
+import click
+
+class Repo:
+    def __init__(self, home): ...
+    def set_config(self, key, value): ...
+    def __repr__(self): ...
+
+@click.group()
+@click.option('--repo-home', envvar='REPO_HOME', default='.repo', metavar='PATH', help='Changes the repository folder location.')
+@click.option('--config', nargs=2, multiple=True, metavar='KEY VALUE', help='Overrides a config key/value pair.')
+@click.option('--verbose', '-v', is_flag=True, help='Enables verbose mode.')
+@click.version_option('1.0')
+@click.pass_context
+def cli(ctx, repo_home, config, verbose):
+    """Repo is a command line tool that showcases how to build complex     command line interfaces with Click.      This tool is supposed to look like a distributed ve..."""
+
+@cli.command()
+@click.argument('src')
+@click.argument('dest', required=False)
+@click.option('--shallow/--deep', default=False, help='Makes a checkout shallow or deep.  Deep by default.')
+@click.option('--rev', '-r', default='HEAD', help='Clone a specific revision instead of HEAD.')
+@pass_repo
+def clone(repo, src, dest, shallow, rev):
+    """Clones a repository.      This will clone the repository at SRC into the folder DEST.  If DEST     is not provided this will automatically use the last path com..."""
+
+@cli.command()
+@click.confirmation_option()
+@pass_repo
+def delete(repo):
+    """Deletes a repository.      This will throw away the current repository."""
+
+@cli.command()
+@click.option('--username', prompt=True, help="The developer's shown username.")
+@click.option('--email', prompt='E-Mail', help="The developer's email address")
+@click.password_option(help='The login password.')
+@pass_repo
+def setuser(repo, username, email, password):
+    """Sets the user credentials.      This will override the current user config."""
+
+@cli.command()
+@click.option('--message', '-m', multiple=True, help='The commit message.  If provided multiple times each argument gets converted into a new line.')
+@click.argument('files', nargs=-1, type=click.Path())
+@pass_repo
+def commit(repo, files, message):
+    """Commits outstanding changes.      Commit changes to the given files into the repository.  You will need to     "repo push" to push up your changes to other repo..."""
+
+@cli.command(short_help='Copies files.')
+@click.option('--force', is_flag=True, help='forcibly copy over an existing managed file')
+@click.argument('src', nargs=-1, type=click.Path())
+@click.argument('dst', type=click.Path())
+@pass_repo
+def copy(repo, src, dst, force):
+    """Copies one or multiple files to a new location.  This copies all     files from SRC to DST."""
+
+
+---
+File: examples/termui/termui.py
+Size: 4150 bytes
+Lines: 169 [structural]
+---
+import math
+import random
+import time
+import click
+
+@click.group()
+def cli():
+    """This script showcases different terminal UI helpers in Click."""
+
+@cli.command()
+def colordemo():
+    """Demonstrates ANSI color support."""
+
+@cli.command()
+def pager():
+    """Demonstrates using the pager."""
+
+@cli.command()
+@click.option('--count', default=8000, type=click.IntRange(1, 100000), help='The number of items to process.')
+def progress(count):
+    """Demonstrates the progress bar."""
+
+@cli.command()
+@click.argument('url')
+def open(url):
+    """Opens a file or URL In the default application."""
+
+@cli.command()
+@click.argument('url')
+def locate(url):
+    """Opens a file or URL In the default application."""
+
+@cli.command()
+def edit():
+    """Opens an editor with some text in it."""
+
+@cli.command()
+def clear():
+    """Clears the entire screen."""
+
+@cli.command()
+def pause():
+    """Waits for the user to press a button."""
+
+@cli.command()
+def menu():
+    """Shows a simple menu."""
+
+
+---
+File: examples/validation/validation.py
+Size: 1407 bytes
+Lines: 48
+---
+from urllib import parse as urlparse
+
+import click
+
+
+def validate_count(ctx, param, value):
+    if value < 0 or value % 2 != 0:
+        raise click.BadParameter("Should be a positive, even integer.")
+    return value
+
+
+class URL(click.ParamType):
+    name = "url"
+
+    def convert(self, value, param, ctx):
+        if not isinstance(value, tuple):
+            value = urlparse.urlparse(value)
+            if value.scheme not in ("http", "https"):
+                self.fail(
+                    f"invalid URL scheme ({value.scheme}). Only HTTP URLs are allowed",
+                    param,
+                    ctx,
+                )
+        return value
+
+
+@click.command()
+@click.option(
+    "--count", default=2, callback=validate_count, help="A positive even number."
+)
+@click.option("--foo", help="A mysterious parameter.")
+@click.option("--url", help="A URL", type=URL())
+@click.version_option()
+def cli(count, foo, url):
+    """Validation.
+
+    This example validates parameters in different ways.  It does it
+    through callbacks, through a custom type as well as by validating
+    manually in the function.
+    """
+    if foo is not None and foo != "wat":
+        raise click.BadParameter(
+            'If a value is provided it needs to be the value "wat".',
+            param_hint=["--foo"],
+        )
+    click.echo(f"count: {count}")
+    click.echo(f"foo: {foo}")
+    click.echo(f"url: {url!r}")
+
+
+---
+File: examples/complex/complex/__init__.py
+Size: 0 bytes
+Lines: 0
+---
+
+
+---
+File: examples/complex/complex/commands/__init__.py
+Size: 0 bytes
+Lines: 0
+---
+
+
+---
+File: examples/complex/complex/commands/cmd_init.py
+Size: 385 bytes
+Lines: 13
+---
+from complex.cli import pass_environment
+
+import click
+
+
+@click.command("init", short_help="Initializes a repo.")
+@click.argument("path", required=False, type=click.Path(resolve_path=True))
+@pass_environment
+def cli(ctx, path):
+    """Initializes a repository."""
+    if path is None:
+        path = ctx.home
+    ctx.log(f"Initialized the repository in {click.format_filename(path)}")
+
+
+---
+File: examples/complex/complex/commands/cmd_status.py
+Size: 286 bytes
+Lines: 11
+---
+from complex.cli import pass_environment
+
+import click
+
+
+@click.command("status", short_help="Shows file changes.")
+@pass_environment
+def cli(ctx):
+    """Shows file changes in the current working directory."""
+    ctx.log("Changed files: none")
+    ctx.vlog("bla bla bla, debug info")
+

@@ -50,6 +50,31 @@ _init_tree_sitter()
 
 
 # ---------------------------------------------------------------------------
+# Optional: universal-ctags (--output-format=json support required)
+# ---------------------------------------------------------------------------
+_CTAGS_BIN: str | None = None
+_CTAGS_CHECKED: bool = False
+
+def _check_ctags() -> str | None:
+    """Return path to universal-ctags binary with JSON support, or None. Result cached."""
+    global _CTAGS_BIN, _CTAGS_CHECKED
+    if _CTAGS_CHECKED:
+        return _CTAGS_BIN
+    _CTAGS_CHECKED = True
+    path = shutil.which("ctags")
+    if not path:
+        return None
+    try:
+        result = subprocess.run([path, "--version"], capture_output=True, text=True, timeout=5)
+        if "universal ctags" not in (result.stdout + result.stderr).lower():
+            return None   # macOS BSD / Exuberant ctags — no JSON support
+    except Exception:
+        return None
+    _CTAGS_BIN = path
+    return _CTAGS_BIN
+
+
+# ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
@@ -165,6 +190,15 @@ STRUCTURAL_EXTENSIONS = frozenset({
     ".java", ".go", ".rs", ".kt",
 })
 
+# Extensions where ctags fallback applies (languages not covered by existing extractors)
+CTAGS_EXTENSIONS = frozenset({
+    ".c", ".h", ".cpp", ".cc", ".cxx", ".hh", ".hpp", ".hxx",
+    ".rb", ".php", ".swift", ".scala", ".lua",
+    ".sh", ".bash", ".cs", ".pl", ".pm",
+    ".ex", ".exs", ".erl", ".hs", ".ml", ".mli",
+    ".r", ".R", ".m", ".d", ".nim",
+})
+
 # Files with more lines than this threshold get structural extraction
 AST_THRESHOLD_LINES = 80
 
@@ -255,6 +289,10 @@ def is_ignored(path: str, root_dir: str) -> bool:
     # Exclude legal / project-management boilerplate (LICENSE, CHANGELOG, etc.)
     stem = os.path.splitext(filename)[0].lower()
     if stem in BOILERPLATE_STEMS:
+        return True
+
+    # .pyi stub files are consumed via sibling lookup during .py processing; never standalone.
+    if os.path.splitext(filename)[1].lower() == ".pyi":
         return True
 
     # .txt files are only useful as requirements* inputs; everything else
@@ -607,23 +645,124 @@ def _ts_extract_declarations(source_bytes: bytes, parser) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# Structural extraction: .pyi stub files
+# ---------------------------------------------------------------------------
+
+def _extract_pyi_structure(full_path: str) -> str | None:
+    """Use sibling .pyi stub as skeleton for a .py file. Returns None if not found."""
+    pyi_path = os.path.splitext(full_path)[0] + ".pyi"
+    if not os.path.isfile(pyi_path):
+        return None
+    try:
+        with open(pyi_path, "r", encoding="utf-8", errors="ignore") as fh:
+            content = fh.read().strip()
+        return content if content else None
+    except Exception:
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Structural extraction: universal-ctags fallback
+# ---------------------------------------------------------------------------
+
+def _format_ctags_output(json_lines: str, filename: str) -> str | None:
+    """Parse ctags JSON-per-line output into a grouped readable skeleton."""
+    from collections import defaultdict
+    KIND_ORDER = [
+        "class", "interface", "struct", "enum", "trait",
+        "function", "method", "procedure", "subroutine",
+        "field", "member", "variable", "constant", "macro",
+        "module", "namespace", "package", "type", "typedef",
+    ]
+    groups: dict[str, list[str]] = defaultdict(list)
+    for line in json_lines.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            tag = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        name = tag.get("name", "")
+        kind = tag.get("kind", "unknown").lower()
+        scope = tag.get("scope", "")
+        pattern = tag.get("pattern", "")
+        if pattern.startswith("/^") and pattern.endswith("$/"):
+            pattern = pattern[2:-2].strip()
+        elif pattern.startswith("/^"):
+            pattern = pattern[2:].rstrip("/").strip()
+        display = pattern if pattern else (f"  {scope}.{name}" if scope else name)
+        groups[kind].append(display)
+    if not groups:
+        return None
+    lines = [f"# {os.path.basename(filename)} (ctags skeleton)"]
+    for kind in KIND_ORDER:
+        if kind in groups:
+            lines.append(f"\n## {kind.capitalize()}s")
+            lines.extend(groups[kind])
+    for kind, entries in groups.items():
+        if kind not in KIND_ORDER:
+            lines.append(f"\n## {kind.capitalize()}s")
+            lines.extend(entries)
+    return "\n".join(lines) if len(lines) > 1 else None
+
+
+def _extract_ctags_structure(content: str, filename: str) -> str | None:
+    """Shell out to universal-ctags to extract a symbol skeleton. Returns None if unavailable."""
+    ctags_bin = _check_ctags()
+    if not ctags_bin:
+        return None
+    ext = os.path.splitext(filename)[1].lower()
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=ext, delete=False, encoding="utf-8") as tmp:
+            tmp.write(content)
+            tmp_path = tmp.name
+        result = subprocess.run(
+            [ctags_bin, "--output-format=json", "--fields=+nKz", "--extras=-F", "-f", "-", tmp_path],
+            capture_output=True, text=True, timeout=15,
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    except Exception:
+        return None
+    finally:
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
+    if result.returncode != 0 or not result.stdout.strip():
+        return None
+    return _format_ctags_output(result.stdout, filename)
+
+
+# ---------------------------------------------------------------------------
 # Main extraction dispatcher
 # ---------------------------------------------------------------------------
 
-def extract_structure(content: str, filename: str) -> tuple[str, bool]:
+def extract_structure(content: str, filename: str, full_path: str = "") -> tuple[str, bool]:
     """
     Return (possibly_condensed_content, was_structurally_extracted).
 
     Strategy (in order of preference):
+      0. .pyi sibling stub (for .py files, when full_path provided)
       1. tree-sitter (if parser available for this extension)
       2. Python built-in ast (for .py)
       3. Regex skeleton (for js/ts/java/go/rs/kt)
-      4. Raw content (fallback)
+      4. ctags (for languages in CTAGS_EXTENSIONS)
+      5. Raw content (fallback)
     """
     ext = os.path.splitext(filename)[1].lower()
 
-    if ext not in STRUCTURAL_EXTENSIONS:
+    if ext not in STRUCTURAL_EXTENSIONS and ext not in CTAGS_EXTENSIONS:
         return content, False
+
+    # --- .pyi stub path ---
+    if ext == ".py" and full_path:
+        result = _extract_pyi_structure(full_path)
+        if result is not None:
+            return result, True
 
     # --- tree-sitter path ---
     if ext in _TS_PARSERS:
@@ -643,6 +782,12 @@ def extract_structure(content: str, filename: str) -> tuple[str, bool]:
     # --- Regex path ---
     if ext in _EXT_TO_REGEX:
         return _extract_regex_structure(content, _EXT_TO_REGEX[ext]), True
+
+    # --- ctags path (languages outside existing extractor coverage) ---
+    if ext in CTAGS_EXTENSIONS:
+        result = _extract_ctags_structure(content, filename)
+        if result:
+            return result, True
 
     return content, False
 
@@ -1027,11 +1172,17 @@ def run_ingest(args):
                 # --- Structural extraction (source files) ---
                 elif (
                     not args.no_ast
-                    and num_lines > AST_THRESHOLD_LINES
-                    and os.path.splitext(filename)[1].lower() in STRUCTURAL_EXTENSIONS
+                    and (num_lines > AST_THRESHOLD_LINES or (
+                        os.path.splitext(filename)[1].lower() == ".py"
+                        and os.path.isfile(os.path.splitext(full_path)[0] + ".pyi")
+                    ))
+                    and (
+                        os.path.splitext(filename)[1].lower() in STRUCTURAL_EXTENSIONS
+                        or os.path.splitext(filename)[1].lower() in CTAGS_EXTENSIONS
+                    )
                     and filename not in PRIORITY_MANIFESTS
                 ):
-                    content, was_extracted = extract_structure(raw_content, filename)
+                    content, was_extracted = extract_structure(raw_content, filename, full_path)
                     if was_extracted:
                         stats["extracted_structural"] += 1
                     else:
