@@ -1,150 +1,88 @@
 # Cordova Splashscreen Plugin
 
-![Apache License 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
-![Build Status](https://github.com/apache/cordova-plugin-splashscreen/workflows/CI/badge.svg?branch=main)
-![Version](https://img.shields.io/npm/v/cordova-plugin-splashscreen.svg?style=flat)
-
-A Cordova plugin that provides a splash screen interface for web applications, enabling developers to display a visual indicator during app launch and hide it when the main content is ready.
-
----
-
 ## Description
 
-The **Cordova Splashscreen Plugin** is a lightweight, cross-platform plugin designed to display and hide a splash screen during the initial launch phase of a Cordova-based mobile or web application. It works seamlessly in the browser platform, providing a consistent user experience by showing a branded image (typically a logo) while the app loads, and automatically hiding it once the main content is ready.
+This plugin provides a splash screen interface for Cordova applications. It allows developers to display and hide a splash screen during app launch, improving user experience by showing a visual indicator while the app initializes.
 
-This plugin is part of the Apache Cordova ecosystem and is maintained by the Apache Software Foundation. It is ideal for developers building hybrid apps using Cordova, especially those targeting the browser platform or needing a splash screen for user experience consistency.
-
----
+The plugin is designed to work with the Cordova browser platform and exposes a `navigator.splashscreen` API for controlling the splash screen lifecycle.
 
 ## Features
 
-- ✅ Displays a splash screen during app launch using a configurable image.
-- ✅ Hides the splash screen programmatically or automatically after a delay.
-- ✅ Fully compatible with the browser platform via Cordova.
-- ✅ Supports configuration through `config.xml` preferences.
-- ✅ Provides a clean, standardized API via `navigator.splashscreen`.
-- ✅ Built with TypeScript support for type safety and better developer experience.
-
----
-
-## Table of Contents
-
-- [Prerequisites / Requirements](#prerequisites--requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact / Authors](#contact--authors)
-
----
+- Displays a splash screen during app launch
+- Hides the splash screen when the app is ready
+- Configurable via `config.xml` preferences
+- Works with the Cordova browser platform
+- Exposes `navigator.splashscreen.show()` and `navigator.splashscreen.hide()` methods
 
 ## Prerequisites / Requirements
 
-Before using this plugin, ensure the following are installed and available:
-
-- **Cordova CLI** (version 10.0.0 or higher)
-- **Node.js** (v14.0.0 or higher)
-- A Cordova project configured for the **browser platform** (e.g., `cordova create my-app com.example.myapp MyApp`)
-- Access to a local or remote `config.xml` file for preference configuration
-
-> ⚠️ This plugin is specifically designed for the **browser platform** and is not intended for native Android, iOS, or Windows platforms.
-
----
+- Cordova CLI version 2.0.0 or later
+- Cordova platform: `browser`
+- Cordova dependencies:
+  - For Cordova Android: `>=3.6.0` (with specific version constraints based on Cordova version)
+  - For Cordova Windows: `>=4.4.0`
+  - For Cordova iOS: `<6.0.0` (prior to version 6.0.0)
+  - For Cordova version 8.0.0+: requires Cordova version >100 (likely a placeholder or version constraint)
 
 ## Installation
 
-To install the Cordova Splashscreen Plugin in your project:
+Install the plugin using the Cordova CLI:
 
 ```bash
-# Navigate to your Cordova project root
-cd my-cordova-app
-
-# Install the plugin via Cordova CLI
-cordova plugin add cordova-plugin-splashscreen
+cordova plugin add https://github.com/apache/cordova-plugin-splashscreen.git
 ```
 
-> ✅ The plugin will automatically register the `navigator.splashscreen` API and integrate with your project's `www` and `src` directories.
-
-### Optional: Install from Source
-
-If you need to build or modify the plugin:
+Or via npm:
 
 ```bash
-git clone https://github.com/apache/cordova-plugin-splashscreen.git
-cd cordova-plugin-splashscreen
-npm install
+npm install cordova-plugin-splashscreen
 ```
 
----
+Then add the browser platform:
+
+```bash
+cordova platform add browser
+```
 
 ## Usage
 
-After installation, you can use the splashscreen API directly in your JavaScript code.
-
-### Display the Splash Screen
+The plugin exposes a `navigator.splashscreen` object with two methods:
 
 ```javascript
-// Show splash screen (default behavior)
+// Show the splash screen
 navigator.splashscreen.show();
 
-// Show splash screen with a custom image (if supported)
-navigator.splashscreen.show({ image: '/img/logo.png' });
-```
-
-### Hide the Splash Screen
-
-```javascript
 // Hide the splash screen
 navigator.splashscreen.hide();
 ```
 
-### Auto-Hide (Optional Configuration)
+The splash screen is automatically shown by default during app launch and will hide after a configured delay (3000ms) unless explicitly hidden.
 
-The plugin supports auto-hiding after a delay (default: 3000ms). This behavior can be configured in your `config.xml`:
+To customize behavior, configure preferences in `config.xml`:
 
 ```xml
-<platform name="browser">
-    <preference name="ShowSplashScreen" value="true" />
-    <preference name="SplashScreenDelay" value="3000" />
-</platform>
+<preference name="ShowSplashScreen" value="true" />
+<preference name="SplashScreenDelay" value="3000" />
 ```
-
-> 💡 The `ShowSplashScreen` preference controls whether the splash screen is displayed at all.  
-> The `SplashScreenDelay` preference sets the time (in milliseconds) before the splash screen automatically hides.
-
----
 
 ## Contributing
 
-We welcome contributions to improve the plugin's functionality, documentation, and maintainability.
+Contributions are welcome. Please follow the Apache Software Foundation contribution guidelines.
 
-### How to Contribute
+- Fork the repository on GitHub
+- Create a feature branch
+- Commit your changes with clear, descriptive messages
+- Push to the branch and open a pull request
 
-1. Fork the repository on GitHub.
-2. Create a new feature branch (`feature/your-feature-name`).
-3. Commit your changes with clear, descriptive messages.
-4. Push to the branch and open a pull request.
-
-### Reporting Issues
-
-If you encounter bugs or have feature requests, please open an issue at:  
-👉 [https://github.com/apache/cordova-plugin-splashscreen/issues](https://github.com/apache/cordova-plugin-splashscreen/issues)
-
-> All contributions are governed under the [Apache License 2.0](LICENSE).
-
----
+For issues or feature requests, please open an issue on the GitHub repository.
 
 ## License
 
-This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.
-
----
+Apache License, Version 2.0
 
 ## Contact / Authors
 
-- **Maintained by**: Apache Software Foundation (ASF)
-- **Project Home**: [https://github.com/apache/cordova-plugin-splashscreen](https://github.com/apache/cordova-plugin-splashscreen)
-- **Issue Tracker**: [https://github.com/apache/cordova-plugin-splashscreen/issues](https://github.com/apache/cordova-plugin-splashscreen/issues)
-- **Email**: `issues@cordova.apache.org` (for bug reports and pull request feedback)
-
-For questions or support, please open an issue or reach out via the project's issue tracker.
+Apache Software Foundation  
+Project maintainers: Apache Cordova Team  
+Issue tracker: https://github.com/apache/cordova-plugin-splashscreen/issues  
+Repository: https://github.com/apache/cordova-plugin-splashscreen

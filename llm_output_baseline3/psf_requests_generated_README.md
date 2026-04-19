@@ -1,200 +1,89 @@
-# requests: Python HTTP for Humans
-
-[![Build Status](https://github.com/psf/requests/actions/workflows/ci.yml/badge.svg)](https://github.com/psf/requests/actions)
-[![Version](https://img.shields.io/pypi/v/requests.svg)](https://pypi.org/project/requests/)
-[![License](https://img.shields.io/pypi/l/requests.svg)](https://github.com/psf/requests/blob/main/LICENSE)
-[![Python Version](https://img.shields.io/pypi/pyversions/requests.svg)](https://github.com/psf/requests)
-
----
+# requests
 
 ## Description
-
-**requests** is a simple, yet powerful HTTP library for Python, designed with human beings in mind. It provides a clean, intuitive interface for making HTTP requests, handling responses, managing authentication, and working with cookies, headers, and sessions—all without the complexity of lower-level networking code.
-
-Originally developed by Kenneth Reitz, requests has become one of the most widely used and trusted HTTP clients in the Python ecosystem. It abstracts away the intricacies of TCP/IP, DNS, and TLS, allowing developers to focus on their application logic rather than the underlying network infrastructure.
-
-Whether you're building a web scraper, consuming APIs, or integrating with third-party services, **requests** offers a robust, reliable, and easy-to-use foundation for all your HTTP needs.
-
----
+`requests` is a Python HTTP library designed for human beings. It provides simple, intuitive methods for making HTTP requests and handling responses, with built-in support for authentication, cookies, and redirects.
 
 ## Features
-
-- ✅ **Simple and readable syntax** for making GET, POST, PUT, PATCH, DELETE, and OPTIONS requests.
-- ✅ **Automatic handling of redirects** and connection errors with built-in retry logic.
-- ✅ **Support for authentication** (Basic, Digest, and custom) via built-in classes.
-- ✅ **Cookie management** with automatic handling of cookies from responses and requests.
-- ✅ **Session objects** that maintain connection pooling, cookies, and authentication state across multiple requests.
-- ✅ **Built-in support for JSON** parsing and serialization.
-- ✅ **Robust error handling** with clear, descriptive exceptions.
-- ✅ **Flexible headers and request customization**.
-- ✅ **Support for multipart form uploads**.
-- ✅ **SSL/TLS with certificate verification** (via `certifi`).
-- ✅ **Extensible via hooks** for custom request/response processing.
-- ✅ **Cross-platform compatibility** (Windows, macOS, Linux).
-
----
-
-## Table of Contents
-
-- [Prerequisites / Requirements](#prerequisites--requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact / Authors](#contact--authors)
-
----
+- Simple and readable API for making HTTP requests (GET, POST, PUT, DELETE, etc.)
+- Built-in support for cookies, authentication, and redirects
+- Automatic handling of content encoding and character set decoding
+- Support for streaming large responses
+- Comprehensive error handling with specific exceptions for different failure modes
+- Integration with urllib3 for underlying HTTP transport
+- Support for custom headers, request bodies, and query parameters
+- Session objects for reusing connections and maintaining state
 
 ## Prerequisites / Requirements
-
-- **Python 3.10 or later** (required due to modern Python features and security updates)
-- **urllib3 ≥ 1.26, < 3** (for HTTP/1.1 and connection pooling)
-- **idna ≥ 2.5, < 4** (for IDNA2008 encoding)
-- **certifi ≥ 2023.5.7** (for trusted CA certificates)
-
-> ⚠️ **Note**: The project does not support Python versions below 3.10. If you encounter compatibility issues, please upgrade your Python installation.
-
----
+- Python 3.10 or later
+- `urllib3` >= 1.26, < 3
+- `idna` >= 2.5, < 4
+- `charset_normalizer` >= 2, < 4
+- `certifi` >= 2023.5.7
 
 ## Installation
-
-To install the latest stable version of `requests`, use pip:
+Install the requests library using pip:
 
 ```bash
 pip install requests
 ```
 
-For development purposes (e.g., contributing or testing), install with development dependencies:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-To install from source (recommended for developers):
-
-```bash
-git clone https://github.com/psf/requests.git
-cd requests
-pip install .
-```
-
-> 💡 The project is available on [PyPI](https://pypi.org/project/requests/) and can be installed directly via pip without needing to clone the repository.
-
----
-
 ## Usage
-
-### Basic GET Request
+Make HTTP requests using the high-level API:
 
 ```python
 import requests
 
+# GET request
 response = requests.get('https://httpbin.org/get')
+
+# POST request with JSON data
+response = requests.post('https://httpbin.org/post', json={'key': 'value'})
+
+# Custom headers and parameters
+response = requests.get(
+    'https://httpbin.org/headers',
+    headers={'User-Agent': 'MyApp/1.0'},
+    params={'page': 1, 'count': 10}
+)
+
+# Handle response
 print(response.status_code)
+print(response.text)
 print(response.json())
+
+# Check if request was successful
+if response.ok:
+    print("Request succeeded")
 ```
 
-### POST Request with JSON Data
-
-```python
-import requests
-
-data = {"name": "Alice", "age": 30}
-response = requests.post('https://httpbin.org/post', json=data)
-print(response.status_code)
-print(response.json())
-```
-
-### Using a Session (for persistent connections and cookies)
+For more advanced usage, use a `Session` object to maintain connection state:
 
 ```python
 import requests
 
 session = requests.Session()
-session.get('https://httpbin.org/cookies/set/sessionid/12345')
-response = session.get('https://httpbin.org/cookies')
-print(response.json())
+session.get('https://httpbin.org/get')
+session.post('https://httpbin.org/post', data={'key': 'value'})
 ```
-
-### Handling Errors
-
-```python
-import requests
-
-try:
-    response = requests.get('https://httpbin.org/status/404')
-    response.raise_for_status()
-except requests.exceptions.HTTPError as e:
-    print(f"HTTP Error: {e}")
-except requests.exceptions.ConnectionError as e:
-    print(f"Connection Error: {e}")
-```
-
-### Custom Headers and Auth
-
-```python
-headers = {'User-Agent': 'MyApp/1.0'}
-auth = ('username', 'password')
-
-response = requests.get('https://httpbin.org/headers', headers=headers, auth=auth)
-print(response.json())
-```
-
-> 📚 For full documentation, visit the [official documentation](https://requests.readthedocs.io).
-
----
 
 ## Contributing
+Contributions are welcome. Please follow the project's contribution guidelines:
 
-We welcome contributions from the community! Whether you're fixing a bug, adding a feature, or improving documentation, your input is valuable.
+1. Fork the repository on GitHub
+2. Create a new feature branch
+3. Commit your changes with clear, descriptive messages
+4. Push to the branch and open a pull request
 
-### How to Contribute
-
-1. **Fork the repository** on GitHub.
-2. **Create a new branch** for your feature or bug fix.
-3. **Make your changes** and ensure they follow the code style and formatting guidelines.
-4. **Run tests** to verify your changes don’t break existing functionality:
-   ```bash
-   make test
-   ```
-5. **Submit a pull request** with a clear description of what you've done.
-
-### Code Style & Formatting
-
-- The project uses **Ruff** for linting and formatting.
-- All code must follow PEP 8 standards.
-- Use `ruff format` to auto-format code before committing.
-
-### Reporting Issues
-
-If you find a bug or have a feature request, please open an issue on the [GitHub Issues page](https://github.com/psf/requests/issues).
-
----
+The project uses pre-commit hooks and Ruff for code formatting and linting. Ensure your changes pass all checks before submitting.
 
 ## License
-
-This project is licensed under the **Apache License, Version 2.0**.
-
-See the [LICENSE](LICENSE) file for details.
-
----
+Apache-2.0
 
 ## Contact / Authors
+- Kenneth Reitz (original author)
+- Ian Stapleton Cordasco (maintainer)
+- Nate Prewitt (maintainer)
 
-**Primary Author**:  
-Kenneth Reitz — [me@kennethreitz.org](mailto:me@kennethreitz.org)
-
-**Maintainers**:  
-- Ian Stapleton Cordasco — [graffatcolmingov@gmail.com](mailto:graffatcolmingov@gmail.com)  
-- Nate Prewitt — [nate.prewitt@gmail.com](mailto:nate.prewitt@gmail.com)
-
-For questions, suggestions, or support, please reach out to the maintainers or join the community on GitHub.
-
-🔗 **Official Resources**:
-- [Documentation](https://requests.readthedocs.io)
-- [GitHub Repository](https://github.com/psf/requests)
-- [PyPI Package](https://pypi.org/project/requests/)
-- [Issue Tracker](https://github.com/psf/requests/issues)
-
-💬 **Community**:  
-Join discussions on GitHub, or follow the project on social media for updates and announcements.
+Project homepage: https://requests.readthedocs.io  
+Source code: https://github.com/psf/requests  
+Issue tracker: https://github.com/psf/requests/issues

@@ -1,211 +1,110 @@
 # Apache OpenServerless (Incubating)
 
-![Apache License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![GitHub](https://img.shields.io/badge/github-openserverless-blue.svg)
-![Cloud](https://img.shields.io/badge/cloud-kubernetes-blue.svg)
-![Serverless](https://img.shields.io/badge/serverless-true-green.svg)
-
-Apache OpenServerless is an open-source, cloud-native platform designed to simplify the development, deployment, and management of serverless applications on Kubernetes. It provides a unified, developer-friendly ecosystem that integrates modern tooling, automation, and observability to accelerate serverless innovation.
-
-> **Incubation Status**: This project is currently in incubation at the Apache Software Foundation (ASF). It is undergoing review to ensure its infrastructure, governance, and community processes meet the standards of other successful ASF projects.
-
----
-
 ## Description
+Apache OpenServerless is an open-source project under incubation at the Apache Software Foundation. It aims to provide a cloud-native, serverless computing platform built on Kubernetes, enabling developers to build, deploy, and manage serverless applications with ease.
 
-Apache OpenServerless is a modular, extensible platform for building and managing serverless applications on Kubernetes. It combines a CLI, Kubernetes operator, runtime support, and developer tooling into a cohesive experience that enables rapid development, seamless deployment, and observability.
-
-The project is structured as a collection of independent submodules, each focused on a specific component:
-- **CLI**: Command-line interface for managing OpenServerless resources.
-- **Operator**: Kubernetes operator for automating serverless workload lifecycle management.
-- **Runtimes**: Support for various serverless runtimes (e.g., AWS Lambda, OpenFunction).
-- **VSCode Extension**: Integrated development environment support.
-- **Testing & DevTools**: Automated testing and developer workflows.
-
-This modular architecture allows contributors to work on individual components while maintaining a shared vision for a unified serverless platform.
-
----
+The project uses a modular architecture with submodules for core components such as the CLI, operator, runtimes, and development tools. It includes automation scripts for setting up development environments and managing dependencies.
 
 ## Features
-
-- ✅ **Modular Architecture**: Independent, composable components for flexible development.
-- ✅ **Kubernetes Native**: Fully integrated with Kubernetes for deployment and orchestration.
-- ✅ **Developer Tooling**: Built-in CLI, `task` automation, and `direnv` for environment management.
-- ✅ **Automated Setup**: Cloud-init scripts automate environment provisioning (K3s, SSH, tools).
-- ✅ **Secure Secrets Management**: Integration with 1Password via `secrets` alias.
-- ✅ **VSCode & DevContainer Support**: Native integration with Visual Studio Code for development.
-- ✅ **Automated Branch Syncing**: Ensures submodules stay in sync with upstream repositories.
-- ✅ **Observability & Debugging**: Built-in `klo`, `kex`, and `kwa` aliases for Kubernetes debugging.
-
----
-
-## Table of Contents
-
-- [Prerequisites / Requirements](#prerequisites--requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact / Authors](#contact--authors)
-
----
+- Modular architecture with submodules for CLI, operator, runtimes, and development tools
+- Development environment setup via cloud-init and cloud-init scripts
+- Pre-configured bash aliases for common Kubernetes and Git operations
+- Integration with `task`, `direnv`, and `nix` for development workflows
+- Automated submodule synchronization via `sync-branch.sh`
+- Support for managing secrets via `op` CLI with `.env.dist` templates
+- Cloud-init configuration for K3s, SSH access, and environment setup
+- VS Code development workspaces for different components
 
 ## Prerequisites / Requirements
-
-To use Apache OpenServerless, you will need:
-
-- **Linux/macOS** (recommended)
-- **Git** (v2.20+)
-- **Node.js** (v16+ recommended)
-- **Go** (v1.18+ for CLI and runtime components)
-- **kubectl** (Kubernetes CLI)
-- **Task** (for automated workflows)
-- **1Password CLI** (for secret management)
-- **Nix** (for environment configuration)
-- **Docker or Kubernetes** (for runtime execution)
-
-> Note: The project uses a modular structure with submodules. All submodules are managed via Git and are hosted separately.
-
----
+- Git
+- Bash (version 4.0 or later)
+- `kubectl` (for Kubernetes operations)
+- `task` CLI (for task management)
+- `op` CLI (for secret management, optional)
+- A Linux-based system (Ubuntu is used in cloud-init)
+- Internet access for downloading tools and dependencies
 
 ## Installation
+### Setup Development Environment
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/apache/openserverless.git
+   cd openserverless
+   ```
 
-### Step 1: Clone the Repository
+2. Set up the development environment using cloud-init:
+   ```bash
+   bash cloud-init.yaml
+   ```
 
+3. Install required tools:
+   ```bash
+   # Install K3s
+   curl -sfL https://get.k3s.io | sh -
+
+   # Install task and go
+   sudo snap install task --classic
+   sudo snap install go --classic
+   go install github.com/apache/skywalking-eyes/cmd/license-eye@latest
+
+   # Install direnv and nix
+   curl -sL https://nixos.org/nix/install | sh
+   source .profile
+   curl -sL https://direnv.net/install.sh | sudo bash
+   ```
+
+4. Source the bash aliases:
+   ```bash
+   source .bash_aliases
+   ```
+
+### Update Submodules
+To synchronize submodule branches:
 ```bash
-git clone https://github.com/apache/openserverless.git
-cd openserverless
+bash sync-branch.sh
 ```
-
-### Step 2: Initialize Submodules
-
-```bash
-git submodule update --init --recursive
-```
-
-> This will fetch all submodules including:
-> - `cli`
-> - `operator`
-> - `runtimes`
-> - `vscode`
-> - `testing`
-> - `task`
-
-### Step 3: Set Up Your Environment
-
-Run the cloud-init script to provision your local environment:
-
-```bash
-bash cloud-init.yaml
-```
-
-This script:
-- Installs K3s (lightweight Kubernetes)
-- Sets up `direnv`, `nix`, and `task`
-- Configures your `~/.bashrc` with aliases and environment variables
-- Clones the OpenServerless repository and runs `sync-branch.sh`
-
-> ⚠️ **Note**: The script will prompt for your 1Password password during secret setup.
-
-### Step 4: Configure VSCode (Optional)
-
-Open the project in VSCode using one of the provided `.code-workspace` files:
-
-```bash
-code openserverless.code-workspace
-```
-
-This workspace includes:
-- Custom color themes
-- Go environment configuration
-- Project folder structure
-
----
 
 ## Usage
+### Common Aliases
+- `k`: `kubectl -n $KNS`
+- `kg`: `kubectl -n $KNS get`
+- `kaf`: `kubectl -n $KNS apply -f`
+- `klo <name>`: View logs of a pod
+- `kex <name> [command]`: Execute a command in a pod
+- `kns <namespace>`: Switch to a namespace
+- `t`: Run `task`
+- `lenv`: Load environment variables from `.env`
 
-### CLI Aliases (Available after sourcing `.bash_aliases`)
-
-```bash
-# Kubernetes commands
-k            # kubectl -n $KNS
-kg           # kubectl -n $KNS get
-kgy          # kubectl -n $KNS get -o yaml
-kaf          # kubectl -n $KNS apply -f
-klo <name>   # kubectl logs for a pod
-kex <name>   # exec into a pod
-kns <name>   # switch to a namespace
-
-# Git commands
-ga           # git add
-gst          # git status
-glog         # git log --pretty=oneline
-gsnap <msg>  # git commit -a -m <msg> and push
-
-# Serverless tasks
-t            # task command
-tt           # task -d ..
-ttt          # task -d ../..
-```
-
-### Managing Secrets with 1Password
-
+### Managing Secrets
+To generate environment variables from 1Password:
 ```bash
 secrets
 ```
+This script reads `.env.dist` and generates `.env` and `.env.src` files using the `op` CLI.
 
-This command:
-1. Reads `.env.dist` file
-2. Uses 1Password CLI to fetch secrets
-3. Generates `.env` and `.env.src` files
-4. Sources the environment variables into your shell
-
-> Ensure you have the 1Password CLI installed: https://developer.1password.com/docs/cli/get-started/
-
-### Viewing Code in VSCode
-
-Use the `code` command to open the project in VSCode:
-
+### Viewing Changes
+To view differences in a file:
 ```bash
-code openserverless.code-workspace
+get-diff.sh <file-path>
 ```
-
-Or open specific components:
-
-```bash
-code openserverless-cli.code-workspace
-code openserverless-operator.code-workspace
-```
-
----
 
 ## Contributing
+Contributions are welcome. Please follow the Apache Software Foundation's contribution guidelines.
 
-We welcome contributions to Apache OpenServerless! Please follow these guidelines:
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes with descriptive messages
+4. Push to the branch and open a pull request
 
-- **Report Bugs**: Open an issue in the [GitHub Issues](https://github.com/apache/openserverless/issues) page.
-- **Submit Feature Requests**: Create a new issue with detailed context.
-- **Submit Pull Requests**: Ensure your changes follow the project's code style and are tested.
-- **Follow the ASF Process**: All contributions must comply with the Apache Software Foundation's contribution guidelines.
-
-> 🔗 See the full contributing guide in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
-
----
+The project uses a strict pull request review process:
+- At least one approving review is required
+- All PRs must have required status checks passed
+- Required conversation resolution is enforced
 
 ## License
-
-Apache OpenServerless is licensed under the **Apache License, Version 2.0**.
-
-> See the [LICENSE](LICENSE) file for details.
-
----
+Apache License 2.0
 
 ## Contact / Authors
-
-- **Project Lead**: Apache OpenServerless Incubation Team
-- **Community**: [Apache OpenServerless Community](https://openserverless.apache.org)
-- **GitHub**: https://github.com/apache/openserverless
-- **Website**: https://openserverless.apache.org
-- **Discord**: Join the Apache OpenServerless community on Discord (link available on the website)
-
-For questions or feedback, please open an issue or contact the project team directly via the Apache Incubator PMC.
+Project maintained by the Apache OpenServerless Incubation Team.  
+For questions or feedback, contact the Apache Incubator PMC or open an issue in the repository.  
+Project homepage: https://openserverless.apache.org
