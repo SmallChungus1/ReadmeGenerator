@@ -1,0 +1,4488 @@
+Tokens: 31366
+Repo: apache/spark-connect-go
+Commit: 0e3d565b63e6af9383555e41e5073a17c20eeabf
+Timestamp: 2026-04-12T23:32:24.465245
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .gitignore
+├── .gitmodules
+├── .golangci.yml
+├── Makefile
+├── buf.gen.yaml
+├── buf.work.yaml
+├── cmd
+│   ├── spark-connect-example-raw-grpc-client
+│   │   └── main.go
+│   └── spark-connect-example-spark-session
+│       └── main.go
+├── dev
+│   ├── .rat-excludes
+│   ├── check-license
+│   ├── gen.py
+│   ├── release.py
+│   └── requirements.txt
+├── go.mod
+├── go.sum
+├── internal
+├── java
+│   ├── .gitignore
+│   ├── build.sbt
+│   ├── project
+│   │   └── build.properties
+│   ├── run.sh
+│   └── src
+│       └── main
+│           └── scala
+│               └── org
+│                   └── apache
+│                       └── spark
+│                           └── golang
+│                               └── Runner.scala
+├── merge_connect_go_pr.py
+├── spark
+│   ├── client
+│   │   ├── base
+│   │   │   └── base.go
+│   │   ├── channel
+│   │   │   ├── channel.go
+│   │   │   ├── channel_test.go
+│   │   │   └── compat.go
+│   │   ├── client.go
+│   │   ├── client_test.go
+│   │   ├── conf.go
+│   │   ├── options
+│   │   │   └── options.go
+│   │   ├── retry.go
+│   │   ├── retry_test.go
+│   │   └── testutils
+│   │       └── utils.go
+│   ├── mocks
+│   │   ├── mock_executor.go
+│   │   └── mocks.go
+│   ├── sparkerrors
+│   │   ├── errors.go
+│   │   └── errors_test.go
+│   ├── sql
+│   │   ├── column
+│   │   │   ├── column.go
+│   │   │   ├── column_test.go
+│   │   │   ├── expressions.go
+│   │   │   └── expressions_test.go
+│   │   ├── dataframe.go
+│   │   ├── dataframe_test.go
+│   │   ├── dataframenafunctions.go
+│   │   ├── dataframereader.go
+│   │   ├── dataframereader_test.go
+│   │   ├── dataframestatfunctions.go
+│   │   ├── dataframewriter.go
+│   │   ├── dataframewriter_test.go
+│   │   ├── executeplanclient.go
+│   │   ├── functions
+│   │   │   ├── buiitins.go
+│   │   │   └── generated.go
+│   │   ├── group.go
+│   │   ├── group_test.go
+│   │   ├── mocks_test.go
+│   │   ├── plan.go
+│   │   ├── plan_test.go
+│   │   ├── sparksession.go
+│   │   ├── sparksession_integration_test.go
+│   │   ├── sparksession_test.go
+│   │   ├── types
+│   │   │   ├── arrow.go
+│   │   │   ├── arrow_test.go
+│   │   │   ├── builtin.go
+│   │   │   ├── builtin_test.go
+│   │   │   ├── conversion.go
+│   │   │   ├── conversion_test.go
+│   │   │   ├── datatype.go
+│   │   │   ├── datatype_test.go
+│   │   │   ├── row.go
+│   │   │   ├── row_json_test.go
+│   │   │   ├── row_test.go
+│   │   │   ├── structtype.go
+│   │   │   └── structtype_test.go
+│   │   └── utils
+│   │       ├── check.go
+│   │       ├── check_test.go
+│   │       ├── consts.go
+│   │       └── consts_test.go
+│   └── version.go
+└── sparksrc
+
+--- Summary Report ---
+Total files scanned: 78
+Files included: 77
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 43
+Files with dependency extraction: 3
+Detected languages count: 12
+Top 15 largest included files:
+  57519 bytes - spark\sql\dataframe.go
+  26824 bytes - merge_connect_go_pr.py
+  17181 bytes - spark\client\retry.go
+  16353 bytes - spark\client\client.go
+  14088 bytes - spark\sql\types\arrow_test.go
+  11042 bytes - dev\release.py
+  10764 bytes - spark\sql\types\arrow.go
+  10190 bytes - spark\sql\column\column_test.go
+  9949 bytes - spark\sql\types\builtin.go
+  9895 bytes - spark\client\retry_test.go
+  9744 bytes - spark\sql\column\expressions.go
+  9389 bytes - go.sum
+  9017 bytes - spark\sql\sparksession.go
+  8774 bytes - spark\sql\types\conversion_test.go
+  7398 bytes - spark\client\channel\channel.go
+-----------------------
+
+---
+File: Makefile
+Size: 4616 bytes
+Lines: 123
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FIRST_GOPATH              := $(firstword $(subst :, ,$(GOPATH)))
+PKGS                      := $(shell go list ./... | grep -v /tests | grep -v /xcpb | grep -v /gpb | grep -v /generated)
+GOFILES_NOVENDOR          := $(shell find . -name vendor -prune -o -type f -name '*.go' -not -name '*.pb.go' -print)
+GOFILES_BUILD             := $(shell find . -type f -name '*.go' -not -name '*_test.go')
+PROTOFILES                := $(shell find . -name vendor -prune -o -type f -name '*.proto' -print)
+
+ALLGOFILES				  			:= $(shell find . -type f -name '*.go' -not -name '*.pb.go')
+DATE                      := $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" '+%FT%T%z' 2>/dev/null || date -u '+%FT%T%z')
+
+BUILDFLAGS_NOPIE		  :=
+BUILDFLAGS                ?= $(BUILDFLAGS_NOPIE) -buildmode=pie
+TESTFLAGS                 ?=
+PWD                       := $(shell pwd)
+PREFIX                    ?= $(GOPATH)
+BINDIR                    ?= $(PREFIX)/bin
+GO                        := go
+GOOS                      ?= $(shell go version | cut -d' ' -f4 | cut -d'/' -f1)
+GOARCH                    ?= $(shell go version | cut -d' ' -f4 | cut -d'/' -f2)
+TAGS                      ?= netgo
+SHELL = bash
+GOFUMPT_SPLIT_LONG_LINES  := on
+
+## Build tools
+BUF                       := $(GO) run github.com/bufbuild/buf/cmd/buf@v1.26.1
+
+BINARIES				  := cmd/spark-connect-example-spark-session/spark-connect-example-spark-session cmd/spark-connect-example-raw-grpc-client/spark-connect-example-raw-grpc-client
+
+# Define the location of SPARK_HOME because we need that to depend on the build paths
+MAKEFILE_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
+PROTO_SRC = $(shell find internal/generated -type f -name *.proto )
+
+
+OK := $(shell tput setaf 6; echo ' [OK]'; tput sgr0;)
+
+all: build
+
+build: $(BUILD_OUTPUT) $(BINARIES)
+
+cmd/spark-connect-example-raw-grpc-client/spark-connect-example-raw-grpc-client: $(GOFILES_BUILD)
+	@echo ">> BUILD, output = $@"
+	@cd $(dir $@) && $(GO) build -o $(notdir $@) $(BUILDFLAGS)
+	@printf '%s\n' '$(OK)'
+
+cmd/spark-connect-example-spark-session/spark-connect-example-spark-session: $(GOFILES_BUILD)
+	@echo ">> BUILD, output = $@"
+	@cd $(dir $@) && $(GO) build -o $(notdir $@) $(BUILDFLAGS)
+	@printf '%s\n' '$(OK)'
+
+internal/generated.out:
+	@echo -n ">> BUILD, output = $@"
+	$(BUF) generate --debug -vvv
+	@touch internal/generated.out
+	@printf '%s\n' '$(OK)'
+
+gen: internal/generated.out
+
+$(GOFILES_BUILD):
+
+$(BUILD_OUTPUT): $(GOFILES_BUILD)
+	@echo -n ">> BUILD, output = $@"
+	@$(GO) build -o $@ $(BUILDFLAGS)
+	@printf '%s\n' '$(OK)'
+
+lint: $(BUILD_OUTPUT)
+	@golangci-lint run
+
+fmt:
+	@echo -n ">> glongci-lint: fix"
+	env GOFUMPT_SPLIT_LONG_LINES=$(GOFUMPT_SPLIT_LONG_LINES) golangci-lint run --fix
+
+test: $(BUILD_OUTPUT)
+	@echo ">> TEST, \"verbose\""
+	@$(foreach pkg, $(PKGS),\
+	    @echo -n "     ";\
+		$(GO) test -v -run '(Test|Example)' $(BUILDFLAGS) $(TESTFLAGS) $(pkg) || exit 1)
+
+coverage: $(BUILD_OUTPUT)
+	@echo ">> TEST, \"coverage\""
+	@$(GO) test -cover -coverprofile=coverage.out -covermode=atomic -coverpkg=./spark/...,./internal/tests/... ./spark/... ./internal/tests/...
+	@$(GO) tool cover -html=coverage.out -o coverage.html
+
+integration: $(BUILD_OUTPUT)
+	@echo ">> TEST, \"integration\""
+	@$(GO) test ./internal/tests/...
+
+check:
+	@echo -n ">> CHECK"
+	./dev/check-license
+	@echo -n ">> glongci-lint: "
+	env GOFUMPT_SPLIT_LONG_LINES=$(GOFUMPT_SPLIT_LONG_LINES) golangci-lint run
+
+clean:
+	@echo -n ">> CLEAN"
+	@$(GO) clean -i ./...
+	@rm -f ./coverage-all.html
+	@rm -f ./coverage-all.out
+	@rm -f ./coverage.out
+	@find . -type f -name "coverage.out" -delete
+	@printf '%s\n' '$(OK)'
+
+cleangen:
+	@rm -rf ./internal/generated
+	@rm  -f ./internal/generated.out
+
+cleanall: clean cleangen
+
+---
+File: go.mod
+Size: 2287 bytes
+Lines: 55 [deps]
+---
+### Required Packages
+github.com/apache/arrow-go/v18==v18.4.0, github.com/go-errors/errors==v1.5.1, github.com/google/uuid==v1.6.0, github.com/stretchr/testify==v1.10.0, google.golang.org/genproto/googleapis/rpc==v0.0.0-20250707201910-8d1bb00bc6a7, google.golang.org/grpc==v1.75.0, google.golang.org/protobuf==v1.36.7, cloud.google.com/go/compute/metadata==v0.7.0, github.com/kr/pretty==v0.3.0, golang.org/x/exp==v0.0.0-20250408133849-7e4ce0ab07d0
+golang.org/x/net==v0.41.0, golang.org/x/sync==v0.15.0, gopkg.in/check.v1==v1.0.0-20201130134442-10cb98267c6c, github.com/davecgh/go-spew==v1.1.2-0.20180830191138-d8f796af33cc, github.com/goccy/go-json==v0.10.5, github.com/google/flatbuffers==v25.2.10+incompatible, github.com/klauspost/compress==v1.18.0, github.com/klauspost/cpuid/v2==v2.2.11, github.com/pierrec/lz4/v4==v4.1.22, github.com/pmezard/go-difflib==v1.0.1-0.20181226105442-5d4384ee4fb2
+github.com/zeebo/xxh3==v1.0.2, golang.org/x/mod==v0.25.0, golang.org/x/oauth2==v0.30.0, golang.org/x/sys==v0.33.0, golang.org/x/text==v0.26.0, golang.org/x/tools==v0.34.0, golang.org/x/xerrors==v0.0.0-20240903120638-7835f813f4da, gopkg.in/yaml.v3==v3.0.1
+
+---
+File: go.sum
+Size: 9389 bytes
+Lines: 104 [deps]
+---
+### Required Packages
+cloud.google.com/go/compute/metadata==v0.7.0, github.com/andybalholm/brotli==v1.2.0, github.com/apache/arrow-go/v18==v18.4.0, github.com/apache/thrift==v0.22.0, github.com/davecgh/go-spew==v1.1.2-0.20180830191138-d8f796af33cc, github.com/go-errors/errors==v1.5.1, github.com/go-logr/logr==v1.4.3, github.com/go-logr/stdr==v1.2.2, github.com/goccy/go-json==v0.10.5, github.com/golang/protobuf==v1.5.4
+github.com/golang/snappy==v1.0.0, github.com/google/flatbuffers==v25.2.10+incompatible, github.com/google/go-cmp==v0.7.0, github.com/google/uuid==v1.6.0, github.com/klauspost/asmfmt==v1.3.2, github.com/klauspost/compress==v1.18.0, github.com/klauspost/cpuid/v2==v2.2.11, github.com/kr/pretty==v0.3.0, github.com/kr/text==v0.2.0, github.com/minio/asm2plan9s==v0.0.0-20200509001527-cdd76441f9d8
+github.com/minio/c2goasm==v0.0.0-20190812172519-36a3d3bbc4f3, github.com/pierrec/lz4/v4==v4.1.22, github.com/pmezard/go-difflib==v1.0.1-0.20181226105442-5d4384ee4fb2, github.com/rogpeppe/go-internal==v1.6.1, github.com/stretchr/testify==v1.10.0, github.com/zeebo/assert==v1.3.0, github.com/zeebo/xxh3==v1.0.2, go.opentelemetry.io/auto/sdk==v1.1.0, go.opentelemetry.io/otel==v1.37.0, go.opentelemetry.io/otel/metric==v1.37.0
+go.opentelemetry.io/otel/sdk==v1.37.0, go.opentelemetry.io/otel/sdk/metric==v1.37.0, go.opentelemetry.io/otel/trace==v1.37.0, golang.org/x/exp==v0.0.0-20250408133849-7e4ce0ab07d0, golang.org/x/mod==v0.25.0, golang.org/x/net==v0.41.0, golang.org/x/oauth2==v0.30.0, golang.org/x/sync==v0.15.0, golang.org/x/sys==v0.33.0, golang.org/x/text==v0.26.0
+golang.org/x/tools==v0.34.0, golang.org/x/xerrors==v0.0.0-20240903120638-7835f813f4da, gonum.org/v1/gonum==v0.16.0, google.golang.org/genproto/googleapis/rpc==v0.0.0-20250707201910-8d1bb00bc6a7, google.golang.org/grpc==v1.75.0, google.golang.org/protobuf==v1.36.7, gopkg.in/check.v1==v1.0.0-20201130134442-10cb98267c6c, gopkg.in/yaml.v3==v3.0.1
+
+---
+File: java\build.sbt
+Size: 1353 bytes
+Lines: 30
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+ThisBuild / version := "0.1.0-SNAPSHOT"
+
+ThisBuild / scalaVersion := "2.13.16"
+
+lazy val root = (project in file("."))
+  .settings(
+    name := "SparkConnectGoRunner"
+  )
+
+libraryDependencies += "org.apache.spark" %% "spark-sql-api" % "4.0.0"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "4.0.0"
+libraryDependencies += "org.apache.spark" %% "spark-core" % "4.0.0"
+libraryDependencies += "org.apache.spark" %% "spark-connect-common" % "4.0.0"
+libraryDependencies += "org.apache.spark" %% "spark-connect" % "4.0.0"
+
+---
+File: dev\requirements.txt
+Size: 53 bytes
+Lines: 3 [deps]
+---
+### Required Packages
+requests>=2.28.0, PyGithub>=1.58.0, gitpython>=3.1.30
+
+---
+File: .asf.yaml
+Size: 1309 bytes
+Lines: 35
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# https://cwiki.apache.org/confluence/display/INFRA/git+-+.asf.yaml+features
+---
+github:
+  description: "Apache Spark Connect Client for Golang"
+  homepage: https://spark.apache.org/
+  enabled_merge_buttons:
+    merge: false
+    squash: true
+    rebase: true
+  features:
+    # Enable the "Issues" tab
+    issues: true
+    # Enable the "Projects" tab
+    projects: true
+
+notifications:
+  pullrequests: reviews@spark.apache.org
+  issues: reviews@spark.apache.org
+  commits: commits@spark.apache.org
+
+
+
+---
+File: .gitignore
+Size: 1142 bytes
+Lines: 37
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# All generated files
+internal/generated.out
+
+# Ignore Coverage Files
+coverage*
+cov.report
+
+# Ignore IDE files
+.idea/
+
+# Ignore binaries
+cmd/spark-connect-example-raw-grpc-client/spark-connect-example-raw-grpc-client
+cmd/spark-connect-example-spark-session/spark-connect-example-spark-session
+
+target
+lib
+
+deps
+
+.DS_Store
+
+---
+File: .gitmodules
+Size: 129 bytes
+Lines: 5
+---
+[submodule "spark"]
+	path = sparksrc
+	url = https://github.com/apache/spark.git
+[submodule "sparksrc"]
+	branch = branch-4.0
+
+
+---
+File: .golangci.yml
+Size: 1183 bytes
+Lines: 38
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+version: "2"
+linters:
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofumpt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+
+
+---
+File: buf.gen.yaml
+Size: 937 bytes
+Lines: 23
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+version: v1
+plugins:
+  - plugin: buf.build/protocolbuffers/go:v1.30.0
+    out: .
+  - plugin: buf.build/grpc/go:v1.3.0
+    out: .
+
+
+
+---
+File: buf.work.yaml
+Size: 878 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+version: v1
+directories:
+  - sparksrc/sql/connect/common/src/main/protobuf
+
+
+---
+File: java\run.sh
+Size: 1677 bytes
+Lines: 50
+---
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+set -e
+
+SCALA_VERSION=2.13
+SPARK_VERSION=4.0.0
+
+if [ -z "$SPARK_HOME" ]; then
+  echo "SPARK_HOME must be set to run this script."
+  exit 1
+fi
+
+BINARY_PATH=$1
+
+if [ -z "$BINARY_PATH" ]; then
+  echo "Usage: $0 <path-to-binary>"
+  exit 1
+fi
+
+# Check if the binary exists.
+if [ ! -f "$BINARY_PATH" ]; then
+  echo "Binary not found: $BINARY_PATH, make sure the path is valid."
+  exit 1
+fi
+
+# Get the absolute path of the binary.
+BINARY_PATH=$(realpath $BINARY_PATH)
+BINARY_NAME=$(basename $BINARY_PATH)
+
+# Call the spark-submit script.
+$SPARK_HOME/bin/spark-submit \
+  --files $BINARY_PATH \
+  --conf spark.golang.binary=$BINARY_NAME \
+  --class org.apache.spark.golang.Runner \
+  --packages org.apache.spark:spark-connect_$SCALA_VERSION:$SPARK_VERSION \
+  target/scala-$SCALA_VERSION/sparkconnectgorunner_$SCALA_VERSION-0.1.0-SNAPSHOT.jar
+
+---
+File: cmd\spark-connect-example-raw-grpc-client\main.go
+Size: 1955 bytes
+Lines: 63
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package main
+
+import (
+	"context"
+	"flag"
+	"log"
+	"time"
+
+	proto "github.com/apache/spark-connect-go/internal/generated"
+	"github.com/google/uuid"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+var remote = flag.String("remote", "localhost:15002", "the remote address of Spark Connect server to connect to")
+
+func main() {
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+
+	conn, err := grpc.NewClient(*remote, opts...)
+	if err != nil {
+		log.Fatalf("Failed: %s", err)
+	}
+	defer conn.Close()
+
+	client := proto.NewSparkConnectServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	configRequest := proto.ConfigRequest{
+		SessionId: uuid.NewString(),
+		Operation: &proto.ConfigRequest_Operation{
+			OpType: &proto.ConfigRequest_Operation_GetAll{
+				GetAll: &proto.ConfigRequest_GetAll{},
+			},
+		},
+	}
+	configResponse, err := client.Config(ctx, &configRequest)
+	if err != nil {
+		log.Fatalf("Failed: %s", err)
+	}
+
+	log.Printf("configResponse: %v", configResponse)
+}
+
+
+---
+File: cmd\spark-connect-example-spark-session\main.go
+Size: 5857 bytes
+Lines: 206 [structural]
+---
+package main
+import (
+	"context"
+	"flag"
+	"fmt"
+	"log"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/apache/spark-connect-go/spark/sql/functions"
+	"github.com/apache/spark-connect-go/spark/sql"
+	"github.com/apache/spark-connect-go/spark/sql/utils"
+var (
+		"the remote address of Spark Connect server to connect to")
+		"the root directory to save the files generated by this example program")
+func main() {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+
+---
+File: merge_connect_go_pr.py
+Size: 26824 bytes
+Lines: 675 [structural]
+---
+import json
+import os
+import re
+import subprocess
+import sys
+import traceback
+import requests
+from urllib.request import urlopen
+from urllib.request import Request
+from urllib.error import HTTPError
+    import jira.client
+def get_json(url):
+def get_pull_request(pr_num):
+def fail(msg):
+def run_cmd(cmd):
+def continue_maybe(prompt):
+def clean_up():
+def merge_pr(pr_num, target_ref, title, body, pr_repo_desc):
+def cherry_pick(pr_num, merge_hash, default_branch):
+def fix_version_from_branch(branch, versions):
+def resolve_jira_issue(merge_branches, comment, default_jira_id=""):
+    def get_version_json(version_str):
+def choose_jira_assignee(issue, asf_jira):
+def resolve_jira_issues(title, merge_branches, comment):
+def standardize_jira_ref(text):
+def get_current_ref():
+def initialize_jira():
+def main():
+    import doctest
+
+---
+File: java\.gitignore
+Size: 15 bytes
+Lines: 2
+---
+project
+target
+
+---
+File: dev\.rat-excludes
+Size: 223 bytes
+Lines: 19
+---
+.gitignore
+.gitmodules
+.gitattributes
+.project
+coverage*
+LICENSE
+NOTICE
+TAGS
+RELEASE
+.*md
+.rat-excludes
+sparksrc
+target
+generated.out
+go.sum
+deps
+cov.report
+build.properties
+spark-connect-go.code-workspace
+
+---
+File: dev\check-license
+Size: 2647 bytes
+Lines: 86
+---
+#!/usr/bin/env bash
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+acquire_rat_jar () {
+
+  URL="${DEFAULT_ARTIFACT_REPOSITORY:-https://repo1.maven.org/maven2/}org/apache/rat/apache-rat/${RAT_VERSION}/apache-rat-${RAT_VERSION}.jar"
+
+  JAR="$rat_jar"
+
+  # Download rat launch jar if it hasn't been downloaded yet
+  if [ ! -f "$JAR" ]; then
+    # Download
+    printf "Attempting to fetch rat\n"
+    JAR_DL="${JAR}.part"
+    if [ $(command -v curl) ]; then
+      curl -L --silent "${URL}" > "$JAR_DL" && mv "$JAR_DL" "$JAR"
+    elif [ $(command -v wget) ]; then
+      wget --quiet ${URL} -O "$JAR_DL" && mv "$JAR_DL" "$JAR"
+    else
+      printf "You do not have curl or wget installed, please install rat manually.\n"
+      exit -1
+    fi
+  fi
+
+  unzip -tq "$JAR" &> /dev/null
+  if [ $? -ne 0 ]; then 
+    # We failed to download
+    rm "$JAR"
+    printf "Our attempt to download rat locally to ${JAR} failed. Please install rat manually.\n"
+    exit -1
+  fi
+}
+
+# Go to the Spark project root directory
+FWDIR="$(cd "`dirname "$0"`"/..; pwd)"
+cd "$FWDIR"
+
+if test -x "$JAVA_HOME/bin/java"; then
+    declare java_cmd="$JAVA_HOME/bin/java"
+else
+    declare java_cmd=java
+fi
+
+export RAT_VERSION=0.15
+export rat_jar="$FWDIR"/lib/apache-rat-${RAT_VERSION}.jar
+mkdir -p "$FWDIR"/lib
+
+[[ -f "$rat_jar" ]] || acquire_rat_jar || {
+    echo "Download failed. Obtain the rat jar manually and place it at $rat_jar"
+    exit 1
+}
+
+mkdir -p target
+$java_cmd -jar "$rat_jar" -E "$FWDIR"/dev/.rat-excludes -d "$FWDIR" > target/rat-results.txt
+
+if [ $? -ne 0 ]; then
+   echo "RAT exited abnormally"
+   exit 1
+fi
+
+ERRORS="$(cat target/rat-results.txt | grep -e "??")"
+
+if test ! -z "$ERRORS"; then 
+    echo "Could not find Apache license headers in the following files:"
+    echo "$ERRORS"
+    exit 1
+else 
+    echo -e "RAT checks passed."
+fi
+
+
+---
+File: dev\gen.py
+Size: 6380 bytes
+Lines: 160 [structural]
+---
+import pyspark.sql.connect.functions as F
+import inspect
+import typing
+import types
+def normalize(input: str) -> str:
+
+---
+File: dev\release.py
+Size: 11042 bytes
+Lines: 312 [structural]
+---
+import argparse
+import os
+import subprocess
+import sys
+import tempfile
+import requests
+from pathlib import Path
+from typing import List, Dict, Any
+import git
+from github import Github
+def run_command(cmd: List[str], cwd: str = None, check: bool = True) -> subprocess.CompletedProcess:
+def get_commits_between_tags(repo_path: str, previous_tag: str, commit_sha: str) -> List[Dict[str, str]]:
+def create_release_notes(commits: List[Dict[str, str]]) -> str:
+def verify_gpg_key(gpg_user: str) -> bool:
+def sign_file(file_path: str, gpg_user: str) -> str:
+def verify_signature(file_path: str, signature_path: str) -> bool:
+def download_file(url: str, local_path: str):
+def upload_release_asset(release, file_path: str):
+def main():
+
+---
+File: spark\version.go
+Size: 872 bytes
+Lines: 20
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package spark
+
+func Version() string {
+	return "4.0.0"
+}
+
+
+---
+File: java\project\build.properties
+Size: 20 bytes
+Lines: 1
+---
+sbt.version=1.10.7
+
+
+---
+File: spark\client\client.go
+Size: 16353 bytes
+Lines: 466 [structural]
+---
+package client
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"github.com/apache/spark-connect-go/spark/sql/utils"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"github.com/apache/spark-connect-go/spark/client/base"
+	"github.com/apache/spark-connect-go/spark/mocks"
+	"github.com/apache/spark-connect-go/spark/client/options"
+	"github.com/google/uuid"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+type sparkConnectClientImpl struct {
+}
+func (s *sparkConnectClientImpl) newExecutePlanRequest(plan *proto.Plan) *proto.ExecutePlanRequest {
+		},
+					},
+				},
+			},
+		},
+func (s *sparkConnectClientImpl) ExecuteCommand(ctx context.Context, plan *proto.Plan) (arrow.Table, *types.StructType, map[string]any, error) {
+	}
+	}
+	}
+}
+func (s *sparkConnectClientImpl) ExecutePlan(ctx context.Context, plan *proto.Plan) (base.ExecuteResponseStream, error) {
+			"failed to call ExecutePlan in session %s: %w", s.sessionId, err), sparkerrors.ExecutionError)
+	}
+}
+func (s *sparkConnectClientImpl) newAnalyzePlanStub() proto.AnalyzePlanRequest {
+		},
+	}
+func (s *sparkConnectClientImpl) AnalyzePlan(ctx context.Context, plan *proto.Plan) (*proto.AnalyzePlanResponse, error) {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) Explain(ctx context.Context, plan *proto.Plan,
+	var mode proto.AnalyzePlanRequest_Explain_ExplainMode
+	}
+		},
+	}
+}
+func (s *sparkConnectClientImpl) Persist(ctx context.Context, plan *proto.Plan, storageLevel utils.StorageLevel) error {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) Unpersist(ctx context.Context, plan *proto.Plan) error {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) GetStorageLevel(ctx context.Context, plan *proto.Plan) (*utils.StorageLevel, error) {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) SparkVersion(ctx context.Context) (string, error) {
+	}
+	}
+}
+func (s *sparkConnectClientImpl) DDLParse(ctx context.Context, sql string) (*types.StructType, error) {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) SameSemantics(ctx context.Context, plan1 *proto.Plan, plan2 *proto.Plan) (bool, error) {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) SemanticHash(ctx context.Context, plan *proto.Plan) (int32, error) {
+		},
+	}
+}
+func (s *sparkConnectClientImpl) Config(ctx context.Context,
+		},
+	}
+	}
+}
+func NewSparkExecutor(conn *grpc.ClientConn, md metadata.MD, sessionId string, opts options.SparkClientOptions) base.SparkConnectClient {
+	var client base.SparkConnectRPCClient
+	} else {
+	}
+	}
+func NewSparkExecutorFromClient(client base.SparkConnectRPCClient, md metadata.MD, sessionId string) base.SparkConnectClient {
+	}
+type ExecutePlanClient struct {
+}
+func (c *ExecutePlanClient) Properties() map[string]any {
+}
+func (c *ExecutePlanClient) ToTable() (*types.StructType, arrow.Table, error) {
+	var recordBatches []arrow.Record
+	var arrowSchema *arrow.Schema
+		}
+		}
+			}, sparkerrors.InvalidServerSideSessionError)
+			}
+			}
+			}
+		}
+	}
+	} else {
+	}
+func NewExecuteResponseStream(
+	}
+func NewTestConnectClientFromResponses(sessionId string, r ...*mocks.MockResponse) base.SparkConnectClient {
+	}
+func NewTestConnectClientWithImmediateError(sessionId string, err error) base.SparkConnectClient {
+	}
+
+---
+File: spark\client\client_test.go
+Size: 4421 bytes
+Lines: 110 [structural]
+---
+package client_test
+import (
+	"context"
+	"testing"
+	"github.com/google/uuid"
+	"github.com/apache/spark-connect-go/spark/client"
+	"github.com/apache/spark-connect-go/spark/client/testutils"
+	"github.com/apache/spark-connect-go/spark/mocks"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"github.com/stretchr/testify/assert"
+func TestAnalyzePlanCallsAnalyzePlanOnClient(t *testing.T) {
+}
+func TestAnalyzePlanFailsIfClientFails(t *testing.T) {
+}
+func TestExecutePlanCallsExecutePlanOnClient(t *testing.T) {
+}
+func TestExecutePlanCallsExecuteCommandOnClient(t *testing.T) {
+}
+func Test_ExecuteWithWrongSession(t *testing.T) {
+}
+func Test_Execute_SchemaParsingFails(t *testing.T) {
+}
+
+---
+File: spark\client\conf.go
+Size: 4424 bytes
+Lines: 127 [structural]
+---
+package client
+import (
+	"context"
+	"github.com/apache/spark-connect-go/spark/client/base"
+type RuntimeConfig interface {
+}
+type runtimeConfig struct {
+}
+func (r runtimeConfig) GetAll(ctx context.Context) (map[string]string, error) {
+	}
+		}
+}
+func (r runtimeConfig) Set(ctx context.Context, key string, value string) error {
+	}
+	}
+}
+func (r runtimeConfig) Get(ctx context.Context, key string) (string, error) {
+	}
+}
+func (r runtimeConfig) Unset(ctx context.Context, key string) error {
+	}
+}
+func (r runtimeConfig) IsModifiable(ctx context.Context, key string) (bool, error) {
+	}
+	} else {
+	}
+func (r runtimeConfig) GetWithDefault(ctx context.Context, key string, default_value string) (string, error) {
+	}
+}
+func NewRuntimeConfig(client *base.SparkConnectClient) *runtimeConfig {
+}
+
+---
+File: spark\sql\dataframe.go
+Size: 57519 bytes
+Lines: 1728 [structural]
+---
+package sql
+import (
+	"context"
+	"fmt"
+	"iter"
+	"math/rand/v2"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/spark-connect-go/spark/sql/utils"
+	"github.com/apache/spark-connect-go/spark/sql/column"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+type ResultCollector interface {
+}
+type DataFrame interface {
+}
+type dataFrameImpl struct {
+}
+func (df *dataFrameImpl) Coalesce(ctx context.Context, numPartitions int) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Columns(ctx context.Context) ([]string, error) {
+	}
+	}
+}
+func (df *dataFrameImpl) Corr(ctx context.Context, col1, col2 string) (float64, error) {
+}
+func (df *dataFrameImpl) CorrWithMethod(ctx context.Context, col1, col2 string, method string) (float64, error) {
+				},
+					},
+				},
+			},
+		},
+	}
+	}
+	}
+}
+func (df *dataFrameImpl) Count(ctx context.Context) (int64, error) {
+	}
+	}
+}
+func (df *dataFrameImpl) Cov(ctx context.Context, col1, col2 string) (float64, error) {
+				},
+					},
+				},
+			},
+		},
+	}
+	}
+	}
+}
+func (df *dataFrameImpl) PlanId() int64 {
+}
+func (df *dataFrameImpl) SelectExpr(ctx context.Context, exprs ...string) (DataFrame, error) {
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Alias(ctx context.Context, alias string) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) CrossJoin(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func NewDataFrame(session *sparkSessionImpl, relation *proto.Relation) DataFrame {
+	}
+type consoleCollector struct{}
+func (c consoleCollector) WriteRow(values []any) {
+}
+func (df *dataFrameImpl) Show(ctx context.Context, numRows int, truncate bool) error {
+}
+func (df *dataFrameImpl) WriteResult(ctx context.Context, collector ResultCollector, numRows int, truncate bool) error {
+	}
+				},
+					},
+				},
+			},
+		},
+	}
+	}
+	}
+	}
+}
+func (df *dataFrameImpl) Schema(ctx context.Context) (*types.StructType, error) {
+	}
+}
+func (df *dataFrameImpl) Collect(ctx context.Context) ([]types.Row, error) {
+	}
+	}
+}
+func (df *dataFrameImpl) Write() DataFrameWriter {
+}
+func (df *dataFrameImpl) Writer() DataFrameWriter {
+}
+func (df *dataFrameImpl) CreateTempView(ctx context.Context, viewName string, replace, global bool) error {
+					},
+				},
+			},
+		},
+	}
+}
+func (df *dataFrameImpl) CreateOrReplaceTempView(ctx context.Context, viewName string) error {
+}
+func (df *dataFrameImpl) CreateGlobalTempView(ctx context.Context, viewName string) error {
+}
+func (df *dataFrameImpl) CreateOrReplaceGlobalTempView(ctx context.Context, viewName string) error {
+}
+func (df *dataFrameImpl) Repartition(ctx context.Context, numPartitions int, columns []string) (DataFrame, error) {
+	var partitionExpressions []*proto.Expression
+					},
+				},
+		}
+}
+func (df *dataFrameImpl) RepartitionByRange(ctx context.Context, numPartitions int, columns ...column.Convertible) (DataFrame, error) {
+	var partitionExpressions []*proto.Expression
+			}
+		}
+}
+func (df *dataFrameImpl) createPlan() *proto.Plan {
+		},
+func (df *dataFrameImpl) repartitionByExpressions(numPartitions int,
+	var numPartitionsPointerValue *int32
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Filter(ctx context.Context, condition column.Convertible) (DataFrame, error) {
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) FilterByString(ctx context.Context, condition string) (DataFrame, error) {
+}
+func (df *dataFrameImpl) Select(ctx context.Context, columns ...column.Convertible) (DataFrame, error) {
+	}
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) GroupBy(cols ...column.Convertible) *GroupedData {
+	}
+func (df *dataFrameImpl) WithColumn(ctx context.Context, colName string, col column.Convertible) (DataFrame, error) {
+}
+func (df *dataFrameImpl) WithColumns(ctx context.Context, cols ...column.Alias) (DataFrame, error) {
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) WithColumnRenamed(ctx context.Context, existingName, newName string) (DataFrame, error) {
+}
+func (df *dataFrameImpl) WithColumnsRenamed(ctx context.Context, colsMap map[string]string) (DataFrame, error) {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) WithMetadata(ctx context.Context, metadata map[string]string) (DataFrame, error) {
+		}
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) WithWatermark(ctx context.Context, eventTime string, delayThreshold string) (DataFrame, error) {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Where(ctx context.Context, condition string) (DataFrame, error) {
+}
+func (df *dataFrameImpl) Drop(ctx context.Context, columns ...column.Convertible) (DataFrame, error) {
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) DropByName(ctx context.Context, columns ...string) (DataFrame, error) {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) DropDuplicates(ctx context.Context, columns ...string) (DataFrame, error) {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Tail(ctx context.Context, limit int32) ([]types.Row, error) {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Limit(ctx context.Context, limit int32) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Head(ctx context.Context, limit int32) ([]types.Row, error) {
+}
+func (df *dataFrameImpl) Take(ctx context.Context, limit int32) ([]types.Row, error) {
+}
+func (df *dataFrameImpl) ToArrow(ctx context.Context) (*arrow.Table, error) {
+	}
+	}
+}
+func (df *dataFrameImpl) UnionAll(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Union(ctx context.Context, other DataFrame) DataFrame {
+}
+func (df *dataFrameImpl) UnionByName(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) UnionByNameWithMissingColumns(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) ExceptAll(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Subtract(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Intersect(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) IntersectAll(ctx context.Context, other DataFrame) DataFrame {
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) Sort(ctx context.Context, columns ...column.Convertible) (DataFrame, error) {
+		}
+				"sort expression must not be nil"), sparkerrors.InvalidArgumentError)
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) SortWithinPartitions(ctx context.Context, columns ...column.Convertible) (DataFrame, error) {
+		}
+	}
+		},
+			},
+		},
+}
+func (df *dataFrameImpl) OrderBy(ctx context.Context, columns ...column.Convertible) (DataFrame, error) {
+}
+func (df *dataFrameImpl) Explain(ctx context.Context, explainMode utils.ExplainMode) (string, error) {
+	}
+}
+func (df *dataFrameImpl) Persist(ctx context.Context, storageLevel utils.StorageLevel) error {
+		},
+}
+func (df *dataFrameImpl) Cache(ctx context.Context) error {
+}
+func (df *dataFrameImpl) Unpersist(ctx context.Context) error {
+		},
+}
+func (df *dataFrameImpl) GetStorageLevel(ctx context.Context) (*utils.StorageLevel, error) {
+		},
+}
+func (df *dataFrameImpl) SameSemantics(ctx context.Context, other DataFrame) (bool, error) {
+		},
+		},
+}
+func (df *dataFrameImpl) SemanticHash(ctx context.Context) (int32, error) {
+		},
+}
+func (df *dataFrameImpl) Join(ctx context.Context, other DataFrame, onExpr column.Convertible, joinType utils.JoinType) (DataFrame, error) {
+	}
+		},
+			},
+		},
+}
+// ... (truncated)
+
+---
+File: spark\sql\dataframe_test.go
+Size: 1598 bytes
+Lines: 49
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+import (
+	"context"
+	"testing"
+
+	proto "github.com/apache/spark-connect-go/internal/generated"
+	"github.com/apache/spark-connect-go/spark/sql/functions"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestDataFrameImpl_GroupBy(t *testing.T) {
+	ctx := context.Background()
+	rel := &proto.Relation{
+		RelType: &proto.Relation_Range{
+			Range: &proto.Range{
+				End:  10,
+				Step: 1,
+			},
+		},
+	}
+	df := NewDataFrame(nil, rel)
+	gd := df.GroupBy(functions.Col("id"))
+	assert.NotNil(t, gd)
+
+	assert.Equal(t, gd.groupType, "groupby")
+
+	df, err := gd.Agg(ctx, functions.Count(functions.Int64Lit(1)))
+	assert.Nil(t, err)
+	impl := df.(*dataFrameImpl)
+	assert.NotNil(t, impl)
+	assert.IsType(t, impl.relation.RelType, &proto.Relation_Aggregate{})
+}
+
+
+---
+File: spark\sql\dataframenafunctions.go
+Size: 2722 bytes
+Lines: 64
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+import (
+	"context"
+
+	"github.com/apache/spark-connect-go/spark/sql/types"
+)
+
+type DataFrameNaFunctions interface {
+	Drop(ctx context.Context, cols ...string) (DataFrame, error)
+	DropAll(ctx context.Context, cols ...string) (DataFrame, error)
+	DropWithThreshold(ctx context.Context, threshold int32, cols ...string) (DataFrame, error)
+	Fill(ctx context.Context, value types.PrimitiveTypeLiteral, cols ...string) (DataFrame, error)
+	FillWithValues(ctx context.Context, values map[string]types.PrimitiveTypeLiteral) (DataFrame, error)
+	Replace(ctx context.Context, toReplace []types.PrimitiveTypeLiteral,
+		values []types.PrimitiveTypeLiteral, cols ...string) (DataFrame, error)
+}
+
+type dataFrameNaFunctionsImpl struct {
+	dataFrame DataFrame
+}
+
+func (d *dataFrameNaFunctionsImpl) Drop(ctx context.Context, cols ...string) (DataFrame, error) {
+	return d.dataFrame.DropNa(ctx, cols...)
+}
+
+func (d *dataFrameNaFunctionsImpl) DropAll(ctx context.Context, cols ...string) (DataFrame, error) {
+	return d.dataFrame.DropNaAll(ctx, cols...)
+}
+
+func (d *dataFrameNaFunctionsImpl) DropWithThreshold(ctx context.Context, threshold int32, cols ...string) (DataFrame, error) {
+	return d.dataFrame.DropNaWithThreshold(ctx, threshold, cols...)
+}
+
+func (d *dataFrameNaFunctionsImpl) Fill(ctx context.Context, value types.PrimitiveTypeLiteral, cols ...string) (DataFrame, error) {
+	return d.dataFrame.FillNa(ctx, value, cols...)
+}
+
+func (d *dataFrameNaFunctionsImpl) FillWithValues(ctx context.Context,
+	values map[string]types.PrimitiveTypeLiteral,
+) (DataFrame, error) {
+	return d.dataFrame.FillNaWithValues(ctx, values)
+}
+
+func (d *dataFrameNaFunctionsImpl) Replace(ctx context.Context,
+	toReplace []types.PrimitiveTypeLiteral, values []types.PrimitiveTypeLiteral, cols ...string,
+) (DataFrame, error) {
+	return d.dataFrame.Replace(ctx, toReplace, values, cols...)
+}
+
+
+---
+File: spark\sql\dataframereader.go
+Size: 2662 bytes
+Lines: 72
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+// DataFrameReader supports reading data from storage and returning a data frame.
+// TODO needs to implement other methods like Option(), Schema(), and also "strong typed"
+// reading (e.g. Parquet(), Orc(), Csv(), etc.
+type DataFrameReader interface {
+	// Format specifies data format (data source type) for the underlying data, e.g. parquet.
+	Format(source string) DataFrameReader
+	// Load reads the underlying data and returns a data frame.
+	Load(path string) (DataFrame, error)
+	// Reads a table from the underlying data source.
+	Table(name string) (DataFrame, error)
+	Option(key, value string) DataFrameReader
+}
+
+// dataFrameReaderImpl is an implementation of DataFrameReader interface.
+type dataFrameReaderImpl struct {
+	sparkSession *sparkSessionImpl
+	formatSource string
+	options      map[string]string
+}
+
+// NewDataframeReader creates a new DataFrameReader
+func NewDataframeReader(session *sparkSessionImpl) DataFrameReader {
+	return &dataFrameReaderImpl{
+		sparkSession: session,
+	}
+}
+
+func (w *dataFrameReaderImpl) Table(name string) (DataFrame, error) {
+	return NewDataFrame(w.sparkSession, newReadTableRelation(name)), nil
+}
+
+func (w *dataFrameReaderImpl) Format(source string) DataFrameReader {
+	w.formatSource = source
+	return w
+}
+
+func (w *dataFrameReaderImpl) Load(path string) (DataFrame, error) {
+	var format string
+	if w.formatSource != "" {
+		format = w.formatSource
+	}
+	if w.options == nil {
+		return NewDataFrame(w.sparkSession, newReadWithFormatAndPath(path, format)), nil
+	}
+	return NewDataFrame(w.sparkSession, newReadWithFormatAndPathAndOptions(path, format, w.options)), nil
+}
+
+func (w *dataFrameReaderImpl) Option(key, value string) DataFrameReader {
+	if w.options == nil {
+		w.options = make(map[string]string)
+	}
+	w.options[key] = value
+	return w
+}
+
+
+---
+File: spark\sql\dataframereader_test.go
+Size: 1979 bytes
+Lines: 54
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestLoadCreatesADataFrame(t *testing.T) {
+	reader := NewDataframeReader(nil)
+	source := "source"
+	path := "path"
+	reader.Format(source)
+	frame, err := reader.Load(path)
+	assert.NoError(t, err)
+	assert.NotNil(t, frame)
+}
+
+func TestRelationContainsPathAndFormat(t *testing.T) {
+	formatSource := "source"
+	path := "path"
+	relation := newReadWithFormatAndPath(path, formatSource)
+	assert.NotNil(t, relation)
+	assert.Equal(t, &formatSource, relation.GetRead().GetDataSource().Format)
+	assert.Equal(t, path, relation.GetRead().GetDataSource().Paths[0])
+}
+
+func TestRelationContainsPathAndFormatAndOptions(t *testing.T) {
+	formatSource := "source"
+	path := "path"
+	options := map[string]string{"key": "value"}
+	relation := newReadWithFormatAndPathAndOptions(path, formatSource, options)
+	assert.NotNil(t, relation)
+	assert.Equal(t, &formatSource, relation.GetRead().GetDataSource().Format)
+	assert.Equal(t, path, relation.GetRead().GetDataSource().Paths[0])
+	for i, v := range options {
+		assert.Equal(t, v, relation.GetRead().GetDataSource().Options[i])
+	}
+}
+
+
+---
+File: spark\sql\dataframestatfunctions.go
+Size: 3862 bytes
+Lines: 86 [structural]
+---
+package sql
+import "context"
+type DataFrameStatFunctions interface {
+}
+type dataFrameStatFunctionsImpl struct {
+}
+func (d *dataFrameStatFunctionsImpl) Sample(ctx context.Context, fraction float64) (DataFrame, error) {
+}
+func (d *dataFrameStatFunctionsImpl) SampleWithReplacement(ctx context.Context,
+}
+func (d *dataFrameStatFunctionsImpl) SampleWithSeed(ctx context.Context, fraction float64, seed int64) (DataFrame, error) {
+}
+func (d *dataFrameStatFunctionsImpl) SampleWithReplacementAndSeed(ctx context.Context,
+}
+func (d *dataFrameStatFunctionsImpl) ApproxQuantile(ctx context.Context, probabilities []float64,
+}
+func (d *dataFrameStatFunctionsImpl) Cov(ctx context.Context, col1, col2 string) (float64, error) {
+}
+func (d *dataFrameStatFunctionsImpl) Corr(ctx context.Context, col1, col2 string) (float64, error) {
+}
+func (d *dataFrameStatFunctionsImpl) CorrWithMethod(ctx context.Context, col1, col2 string, method string) (float64, error) {
+}
+func (d *dataFrameStatFunctionsImpl) CrossTab(ctx context.Context, col1, col2 string) DataFrame {
+}
+func (d *dataFrameStatFunctionsImpl) FreqItems(ctx context.Context, cols ...string) DataFrame {
+}
+func (d *dataFrameStatFunctionsImpl) FreqItemsWithSupport(ctx context.Context, support float64, cols ...string) DataFrame {
+}
+
+---
+File: spark\sql\dataframewriter.go
+Size: 3573 bytes
+Lines: 111 [structural]
+---
+package sql
+import (
+	"context"
+	"fmt"
+	"strings"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+type DataFrameWriter interface {
+}
+func newDataFrameWriter(sparkExecutor *sparkSessionImpl, relation *proto.Relation) DataFrameWriter {
+	}
+type dataFrameWriterImpl struct {
+}
+func (w *dataFrameWriterImpl) Mode(saveMode string) DataFrameWriter {
+}
+func (w *dataFrameWriterImpl) Format(source string) DataFrameWriter {
+}
+func (w *dataFrameWriterImpl) Save(ctx context.Context, path string) error {
+	}
+	var source *string
+	}
+						},
+					},
+				},
+			},
+		},
+	}
+}
+func getSaveMode(mode string) (proto.WriteOperation_SaveMode, error) {
+	} else if strings.EqualFold(mode, "Append") {
+	} else if strings.EqualFold(mode, "Overwrite") {
+	} else if strings.EqualFold(mode, "ErrorIfExists") {
+	} else if strings.EqualFold(mode, "Ignore") {
+	} else {
+	}
+
+---
+File: spark\sql\dataframewriter_test.go
+Size: 3411 bytes
+Lines: 106 [structural]
+---
+package sql
+import (
+	"context"
+	"testing"
+	"github.com/apache/spark-connect-go/spark/client"
+	"github.com/apache/spark-connect-go/spark/mocks"
+	"github.com/stretchr/testify/assert"
+func TestGetSaveMode(t *testing.T) {
+}
+func TestSaveExecutesWriteOperationUntilEOF(t *testing.T) {
+	}
+}
+func TestSaveFailsIfAnotherErrorHappensWhenReadingStream(t *testing.T) {
+	})
+	}
+}
+func TestSaveFailsIfAnotherErrorHappensWhenExecuting(t *testing.T) {
+	}
+}
+
+---
+File: spark\sparkerrors\errors.go
+Size: 6224 bytes
+Lines: 173 [structural]
+---
+package sparkerrors
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"github.com/go-errors/errors"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+type wrappedError struct {
+}
+func (w *wrappedError) Unwrap() []error {
+}
+func (w *wrappedError) Error() string {
+}
+func WithType(err error, errType errorType) error {
+}
+func WithString(err error, errMsg string) error {
+}
+func WithStringf(err error, errMsg string, params ...any) error {
+}
+type errorType error
+var (
+func (w *wrappedError) Format(s fmt.State, verb rune) {
+		}
+	}
+type UnsupportedResponseTypeError struct {
+}
+func (e UnsupportedResponseTypeError) Error() string {
+}
+type InvalidServerSideSessionDetailsError struct {
+}
+func (e InvalidServerSideSessionDetailsError) Error() string {
+}
+type SparkError struct {
+}
+func (e SparkError) Error() string {
+	} else {
+	}
+func FromRPCError(e error) *SparkError {
+	}
+	}
+			var params map[string]string
+				}
+		}
+}
+
+---
+File: spark\sparkerrors\errors_test.go
+Size: 5893 bytes
+Lines: 189 [structural]
+---
+package sparkerrors
+import (
+	"fmt"
+	"testing"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"github.com/stretchr/testify/assert"
+func TestWithTypeGivesAndErrorThatIsOfThatType(t *testing.T) {
+}
+func TestErrorStringContainsErrorType(t *testing.T) {
+}
+func TestGRPCErrorConversion(t *testing.T) {
+}
+func TestNonGRPCErrorsAreConvertedAsWell(t *testing.T) {
+}
+func TestStackTracePrint(t *testing.T) {
+}
+func TestErrorDetailsExtractionFromGRPCStatus(t *testing.T) {
+	})
+}
+func TestErrorDetailsWithSqlStateAndClass(t *testing.T) {
+			"sqlState":          "42000",
+			"errorClass":        "ERROR_CLASS",
+			"errorId":           "errorId",
+			"messageParameters": "",
+		},
+	})
+}
+func TestErrorDetailsWithMessageParameterParsing(t *testing.T) {
+	type param struct {
+	}
+	}
+					"sqlState":          "42000",
+					"errorClass":        "ERROR_CLASS",
+					"errorId":           "errorId",
+					"messageParameters": p.Input,
+				},
+			})
+		})
+func TestSparkError_Error(t *testing.T) {
+	type fields struct {
+	}
+	}{
+			"UNKNOWN",
+			},
+		},
+			"Analysis Exception",
+			},
+		},
+			}
+		})
+
+---
+File: spark\sql\executeplanclient.go
+Size: 827 bytes
+Lines: 17
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+
+---
+File: spark\sql\group.go
+Size: 6417 bytes
+Lines: 198 [structural]
+---
+package sql
+import (
+	"context"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"github.com/apache/spark-connect-go/spark/sql/column"
+	"github.com/apache/spark-connect-go/spark/sql/functions"
+type GroupedData struct {
+}
+func (gd *GroupedData) Agg(ctx context.Context, exprs ...column.Convertible) (DataFrame, error) {
+	}
+	}
+		}
+	}
+		}
+	}
+		}
+		}
+		}
+			}
+		}
+	}
+		},
+		},
+}
+func (gd *GroupedData) numericAgg(ctx context.Context, name string, cols ...string) (DataFrame, error) {
+	}
+		}
+				}
+			}
+				"columns %v are not numeric", invalidCols)
+		}
+	} else {
+	}
+	}
+}
+func (gd *GroupedData) Min(ctx context.Context, cols ...string) (DataFrame, error) {
+}
+func (gd *GroupedData) Max(ctx context.Context, cols ...string) (DataFrame, error) {
+}
+func (gd *GroupedData) Avg(ctx context.Context, cols ...string) (DataFrame, error) {
+}
+func (gd *GroupedData) Sum(ctx context.Context, cols ...string) (DataFrame, error) {
+}
+func (gd *GroupedData) Count(ctx context.Context) (DataFrame, error) {
+}
+func (gd *GroupedData) Mean(ctx context.Context, cols ...string) (DataFrame, error) {
+}
+func (gd *GroupedData) Pivot(ctx context.Context, pivotCol string, pivotValues []types.LiteralType) (*GroupedData, error) {
+		}
+	}
+	}, nil
+
+---
+File: spark\sql\group_test.go
+Size: 4049 bytes
+Lines: 99 [structural]
+---
+package sql
+import (
+	"context"
+	"testing"
+	"github.com/apache/spark-connect-go/spark/client"
+	"github.com/apache/spark-connect-go/spark/client/testutils"
+	"github.com/apache/spark-connect-go/spark/mocks"
+	"github.com/stretchr/testify/assert"
+var sampleDataFrame = &dataFrameImpl{session: nil, relation: &proto.Relation{
+		},
+	},
+}}
+func TestGroupedData_Agg(t *testing.T) {
+	}
+}
+func TestGroupedData_Count(t *testing.T) {
+	}
+}
+
+---
+File: spark\mocks\mock_executor.go
+Size: 3265 bytes
+Lines: 91 [structural]
+---
+package mocks
+import (
+	"context"
+	"errors"
+	"github.com/apache/spark-connect-go/spark/sql/utils"
+	"github.com/apache/spark-connect-go/spark/client/base"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/spark-connect-go/internal/generated"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+type TestExecutor struct {
+}
+func (t *TestExecutor) ExecutePlan(ctx context.Context, plan *generated.Plan) (base.ExecuteResponseStream, error) {
+	}
+}
+func (t *TestExecutor) AnalyzePlan(ctx context.Context, plan *generated.Plan) (*generated.AnalyzePlanResponse, error) {
+}
+func (t *TestExecutor) Explain(ctx context.Context, plan *generated.Plan,
+}
+func (t *TestExecutor) ExecuteCommand(ctx context.Context, plan *generated.Plan) (arrow.Table, *types.StructType, map[string]interface{}, error) {
+	}
+}
+func (t *TestExecutor) Persist(ctx context.Context, plan *generated.Plan, storageLevel utils.StorageLevel) error {
+}
+func (t *TestExecutor) Unpersist(ctx context.Context, plan *generated.Plan) error {
+}
+func (t *TestExecutor) GetStorageLevel(ctx context.Context, plan *generated.Plan) (*utils.StorageLevel, error) {
+}
+func (t *TestExecutor) SparkVersion(ctx context.Context) (string, error) {
+}
+func (t *TestExecutor) DDLParse(ctx context.Context, sql string) (*types.StructType, error) {
+}
+func (t *TestExecutor) SameSemantics(ctx context.Context, plan1 *generated.Plan, plan2 *generated.Plan) (bool, error) {
+}
+func (t *TestExecutor) SemanticHash(ctx context.Context, plan *generated.Plan) (int32, error) {
+}
+func (t *TestExecutor) Config(ctx context.Context, configRequest *generated.ConfigRequest_Operation) (*generated.ConfigResponse, error) {
+}
+
+---
+File: spark\mocks\mocks.go
+Size: 5017 bytes
+Lines: 196 [structural]
+---
+package mocks
+import (
+	"context"
+	"io"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"github.com/google/uuid"
+	"google.golang.org/grpc/metadata"
+type MockResponse struct {
+}
+type ProtoClient struct {
+}
+var (
+	}
+var ExecutePlanResponseDone = MockResponse{
+		},
+	},
+}
+var ExecutePlanResponseEOF = MockResponse{
+}
+var ExecutePlanResponseBrokenSchema = MockResponse{
+			},
+		},
+	},
+var ExecutePlanResponseWithSchema = MockResponse{
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+var ExecutePlanResponseUnavailable = MockResponse{
+}
+var ExecutePlanRequestSql = proto.ExecutePlanRequest{
+}
+var AnalyzePlanRequestSql = proto.AnalyzePlanRequest{
+		},
+	},
+}
+var AnalyzePlanResponse = &proto.AnalyzePlanResponse{
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	},
+func NewProtoClientMock(responses ...*MockResponse) proto.SparkConnectService_ExecutePlanClient {
+}
+func (p *ProtoClient) Recv() (*proto.ExecutePlanResponse, error) {
+}
+func (p *ProtoClient) Header() (metadata.MD, error) {
+}
+func (p *ProtoClient) Trailer() metadata.MD {
+}
+func (p *ProtoClient) CloseSend() error {
+}
+func (p *ProtoClient) Context() context.Context {
+}
+func (p *ProtoClient) SendMsg(m interface{}) error {
+}
+func (p *ProtoClient) RecvMsg(m interface{}) error {
+}
+func NewSqlCommand(sql string) *proto.Plan {
+					},
+				},
+			},
+		},
+
+---
+File: spark\sql\mocks_test.go
+Size: 827 bytes
+Lines: 17
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+
+---
+File: spark\sql\plan.go
+Size: 2169 bytes
+Lines: 82 [structural]
+---
+package sql
+import (
+	"sync/atomic"
+var atomicInt64 atomic.Int64
+func newPlanId() *int64 {
+}
+func resetPlanIdForTesting() {
+}
+func newReadTableRelation(table string) *proto.Relation {
+		},
+					},
+				},
+			},
+		},
+func newReadWithFormatAndPath(path, format string) *proto.Relation {
+					},
+				},
+			},
+		},
+func newReadWithFormatAndPathAndOptions(path, format string, options map[string]string) *proto.Relation {
+					},
+				},
+			},
+		},
+
+---
+File: spark\sql\plan_test.go
+Size: 1020 bytes
+Lines: 29
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestNewPlanIdGivesNewIDs(t *testing.T) {
+	id1 := newPlanId()
+	id2 := newPlanId()
+	assert.NotEqual(t, id1, id2)
+}
+
+
+---
+File: spark\client\retry.go
+Size: 17181 bytes
+Lines: 480 [structural]
+---
+package client
+import (
+	"context"
+	"errors"
+	"io"
+	"math/rand"
+	"strings"
+	"time"
+	"github.com/apache/spark-connect-go/spark/client/base"
+	"github.com/apache/spark-connect-go/spark/client/options"
+	"google.golang.org/grpc/metadata"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+type RetryHandler func(error) bool
+type RetryPolicy struct {
+}
+var DefaultRetryPolicy = RetryPolicy{
+			}
+	},
+var TestingRetryPolicy = RetryPolicy{
+			}
+	},
+var DefaultRetryPolicyRegistry = []RetryPolicy{DefaultRetryPolicy}
+type retryState struct {
+}
+func (rs *retryState) nextAttempt(p RetryPolicy) *time.Duration {
+	}
+	}
+	}
+	}
+}
+func NewRetriableSparkConnectClient(conn *grpc.ClientConn, sessionId string,
+	}
+func wrapRetriableCall[Res rpcType](ctx context.Context, retryPolicies []RetryPolicy, in func(context.Context) (Res, error)) (Res, error) {
+	var lastErr error
+	var response Res
+					} else {
+					}
+				}
+		} else {
+		}
+}
+type rpcType interface {
+}
+type retriableSparkConnectClient struct {
+}
+func (r *retriableSparkConnectClient) FetchErrorDetails(ctx context.Context,
+	})
+func (r *retriableSparkConnectClient) ReleaseSession(ctx context.Context,
+	})
+func (r *retriableSparkConnectClient) ExecutePlan(ctx context.Context, in *proto.ExecutePlanRequest,
+	var lastErr error
+					} else {
+					}
+				}
+		} else {
+				},
+		}
+}
+func (r *retriableSparkConnectClient) AnalyzePlan(ctx context.Context, in *proto.AnalyzePlanRequest,
+	})
+func (r *retriableSparkConnectClient) Config(ctx context.Context, in *proto.ConfigRequest, opts ...grpc.CallOption) (*proto.ConfigResponse, error) {
+	})
+func (r *retriableSparkConnectClient) AddArtifacts(ctx context.Context, opts ...grpc.CallOption) (proto.SparkConnectService_AddArtifactsClient, error) {
+	var lastErr error
+					} else {
+					}
+				}
+		} else {
+		}
+}
+func (r *retriableSparkConnectClient) ArtifactStatus(ctx context.Context,
+	})
+func (r *retriableSparkConnectClient) Interrupt(ctx context.Context, in *proto.InterruptRequest,
+	})
+func (r *retriableSparkConnectClient) ReattachExecute(ctx context.Context,
+	var lastErr error
+					} else {
+					}
+				}
+		} else {
+		}
+}
+func (r *retriableSparkConnectClient) ReleaseExecute(ctx context.Context,
+	})
+type retryContext struct {
+}
+type retriableExecutePlanClient struct {
+}
+func (r retriableExecutePlanClient) Recv() (*proto.ExecutePlanResponse, error) {
+		}
+		}
+			}
+			}
+		} else {
+			}
+			}
+			}
+		}
+	})
+func (r retriableExecutePlanClient) Header() (metadata.MD, error) {
+}
+func (r retriableExecutePlanClient) Trailer() metadata.MD {
+}
+func (r retriableExecutePlanClient) CloseSend() error {
+}
+func (r retriableExecutePlanClient) Context() context.Context {
+}
+func (r retriableExecutePlanClient) SendMsg(m any) error {
+}
+func (r retriableExecutePlanClient) RecvMsg(m any) error {
+}
+
+---
+File: spark\client\retry_test.go
+Size: 9895 bytes
+Lines: 335 [structural]
+---
+package client
+import (
+	"context"
+	"errors"
+	"io"
+	"testing"
+	"time"
+	"github.com/apache/spark-connect-go/spark/client/options"
+	"github.com/apache/spark-connect-go/spark/client/testutils"
+	"github.com/apache/spark-connect-go/spark/mocks"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+func alwaysRetry(err error) bool {
+}
+func Test_retryState_nextAttempt(t *testing.T) {
+	}
+	type fields struct {
+	}
+	type args struct {
+	}
+	}{
+			"BasicRetry - initial backoff",
+			},
+			},
+		},
+			"Jitter applied correctly",
+			},
+			},
+		},
+			"Retries Exceeded",
+			},
+			},
+		},
+			}
+					"Expecting retries to be exceeded (%v, %v)", rs, tt.args.p)
+			} else {
+				} else {
+				}
+		})
+func Test_retryMaxBackOff_applied(t *testing.T) {
+	}
+	}
+}
+func Test_defaultRetryPolicyBehavior(t *testing.T) {
+	}
+			"nextAttempt(%v, %v)", state, DefaultRetryPolicy)
+	}
+}
+func Test_default_retryHandler(t *testing.T) {
+		"Must retry Internal with INVALID_CURSOR.DISCONNECTED")
+}
+func Test_retriable_success(t *testing.T) {
+		},
+}
+func Test_retriable_client(t *testing.T) {
+		},
+		},
+}
+func Test_retriable_with_reattach(t *testing.T) {
+	}
+		},
+}
+func Test_client_retriable_basics_execute(t *testing.T) {
+	}
+}
+func Test_client_retriable_basics_analyze(t *testing.T) {
+	}
+}
+
+---
+File: spark\sql\sparksession.go
+Size: 9017 bytes
+Lines: 280 [structural]
+---
+package sql
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"time"
+	"github.com/apache/arrow-go/v18/arrow/memory"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/ipc"
+	"github.com/apache/spark-connect-go/spark/client/base"
+	"github.com/apache/spark-connect-go/spark/client/options"
+	"github.com/apache/spark-connect-go/spark/client"
+	"github.com/apache/spark-connect-go/spark/client/channel"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"github.com/google/uuid"
+	"google.golang.org/grpc/metadata"
+type SparkSession interface {
+}
+func NewSessionBuilder() *SparkSessionBuilder {
+}
+type SparkSessionBuilder struct {
+}
+func (s *SparkSessionBuilder) Remote(connectionString string) *SparkSessionBuilder {
+}
+func (s *SparkSessionBuilder) WithChannelBuilder(cb channel.Builder) *SparkSessionBuilder {
+}
+func (s *SparkSessionBuilder) Build(ctx context.Context) (SparkSession, error) {
+				"failed to connect to remote %s: %w", s.connectionString, err), sparkerrors.ConnectionError)
+		}
+	}
+	}
+	}
+	}, nil
+type sparkSessionImpl struct {
+}
+func (s *sparkSessionImpl) Config() client.RuntimeConfig {
+}
+func (s *sparkSessionImpl) Read() DataFrameReader {
+}
+func (s *sparkSessionImpl) Sql(ctx context.Context, query string) (DataFrame, error) {
+					},
+				},
+			},
+		},
+	}
+			},
+				},
+			},
+	} else {
+		}
+	}
+func (s *sparkSessionImpl) Stop() error {
+}
+func (s *sparkSessionImpl) Table(name string) (DataFrame, error) {
+}
+func (s *sparkSessionImpl) CreateDataFrameFromArrow(ctx context.Context, data arrow.Table) (DataFrame, error) {
+		}
+		},
+			},
+		},
+	}
+		},
+			},
+		},
+}
+func (s *sparkSessionImpl) CreateDataFrame(ctx context.Context, data [][]any, schema *types.StructType) (DataFrame, error) {
+			}
+				}
+					"unsupported data type: %s", field.DataType), sparkerrors.NotImplementedError)
+			}
+}
+
+---
+File: spark\sql\sparksession_integration_test.go
+Size: 2964 bytes
+Lines: 80
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package sql
+
+import (
+	"testing"
+
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/memory"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestSparkSession_CreateDataFrame_StructTypeToArrowConversion(t *testing.T) {
+	// This test validates that the fix for StructType.ToArrowType() works correctly
+	// The change from .Fields() to .(*arrow.StructType).Fields() should be validated
+
+	// Create a test schema
+	schema := types.StructOf(
+		types.NewStructField("id", types.INTEGER),
+		types.NewStructField("name", types.STRING),
+		types.NewStructField("scores", types.ArrayType{
+			ElementType:  types.DOUBLE,
+			ContainsNull: true,
+		}),
+	)
+
+	// Test that ToArrowType returns the correct interface type
+	arrowType := schema.ToArrowType()
+	assert.NotNil(t, arrowType)
+
+	// Verify we can cast it to *arrow.StructType and access Fields()
+	structType, ok := arrowType.(*arrow.StructType)
+	assert.True(t, ok)
+
+	fields := structType.Fields()
+	assert.Len(t, fields, 3)
+	assert.Equal(t, "id", fields[0].Name)
+	assert.Equal(t, "name", fields[1].Name)
+	assert.Equal(t, "scores", fields[2].Name)
+
+	// Test sample data that would work with CreateDataFrame
+	data := [][]any{
+		{1, "Alice", []float64{95.5, 87.2, 92.1}},
+		{2, "Bob", []float64{88.0, 91.5, 89.3}},
+	}
+
+	// Verify that the data structure is compatible with the schema
+	assert.Len(t, data, 2)
+	for _, row := range data {
+		assert.Len(t, row, 3)
+		assert.IsType(t, 1, row[0])           // integer id
+		assert.IsType(t, "", row[1])          // string name
+		assert.IsType(t, []float64{}, row[2]) // array of doubles
+	}
+
+	// Test that we can create an Arrow schema using the converted type
+	pool := memory.NewGoAllocator()
+	_ = pool // Use the pool variable to avoid unused error
+
+	// This would previously fail due to the type assertion issue
+	// Now it should work because ToArrowType() returns arrow.DataType interface
+	arrowSchema := arrow.NewSchema(structType.Fields(), nil)
+	assert.NotNil(t, arrowSchema)
+	assert.Equal(t, 3, len(arrowSchema.Fields()))
+}
+
+
+---
+File: spark\sql\sparksession_test.go
+Size: 5574 bytes
+Lines: 193 [structural]
+---
+package sql
+import (
+	"bytes"
+	"context"
+	"io"
+	"testing"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/ipc"
+	"github.com/apache/arrow-go/v18/arrow/memory"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/apache/spark-connect-go/spark/client"
+	"github.com/apache/spark-connect-go/spark/client/testutils"
+	"github.com/apache/spark-connect-go/spark/mocks"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+func TestSparkSessionTable(t *testing.T) {
+}
+func TestSQLCallsExecutePlanWithSQLOnClient(t *testing.T) {
+				},
+			},
+		},
+				},
+			},
+		},
+		},
+	}, nil, nil, t)
+	}
+}
+func TestNewSessionBuilderCreatesASession(t *testing.T) {
+}
+func TestNewSessionBuilderFailsIfConnectionStringIsInvalid(t *testing.T) {
+}
+func TestWriteResultStreamsArrowResultToCollector(t *testing.T) {
+		},
+	var buf bytes.Buffer
+				},
+			},
+		},
+				},
+			},
+		},
+		},
+					},
+				},
+			},
+		},
+		},
+	}, nil, nil, t)
+	}
+}
+
+---
+File: spark\sql\types\arrow.go
+Size: 10764 bytes
+Lines: 389 [structural]
+---
+package types
+import (
+	"bytes"
+	"fmt"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/ipc"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+func ReadArrowTableToRows(table arrow.Table) ([]Row, error) {
+		}
+	}
+	}
+		}
+		}
+		}
+	}
+}
+func readArrayData(t arrow.Type, data arrow.ArrayData) ([]any, error) {
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+			} else {
+			}
+		}
+			}
+		}
+		}
+		}
+			}
+			}
+		}
+			}
+				}
+			}
+		}
+	}
+}
+func readChunkedColumn(chunked *arrow.Chunked) ([]any, error) {
+		}
+	}
+}
+func ReadArrowBatchToRecord(data []byte, schema *StructType) (arrow.Record, error) {
+	}
+	}
+}
+func arrowStructToProtoStruct(schema *arrow.StructType) *proto.DataType_Struct_ {
+		}
+		},
+func ArrowTypeToProto(dataType arrow.DataType) *proto.DataType {
+			},
+		}}
+	}
+func ArrowSchemaToProto(schema *arrow.Schema) proto.DataType_Struct {
+		}
+	}
+
+---
+File: spark\sql\types\arrow_test.go
+Size: 14088 bytes
+Lines: 440 [structural]
+---
+package types_test
+import (
+	"bytes"
+	"testing"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/decimal128"
+	"github.com/apache/arrow-go/v18/arrow/decimal256"
+	"github.com/apache/arrow-go/v18/arrow/float16"
+	"github.com/apache/arrow-go/v18/arrow/ipc"
+	"github.com/apache/arrow-go/v18/arrow/memory"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+func TestShowArrowBatchData(t *testing.T) {
+		},
+	var buf bytes.Buffer
+}
+func TestReadArrowRecord(t *testing.T) {
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+		},
+	var buf bytes.Buffer
+		"str1", []byte("bytes1"),
+			"field1": map[string]any{
+				"nested_field1": int32(1),
+				"nested_field2": "str1_nested",
+			},
+		},
+	},
+		"str2", []byte("bytes2"),
+			"field1": map[string]any{
+				"nested_field1": int32(2),
+				"nested_field2": "str2_nested",
+			},
+		},
+	},
+}
+func TestReadArrowRecord_UnsupportedType(t *testing.T) {
+		},
+	var buf bytes.Buffer
+}
+func TestConvertProtoDataTypeToDataType(t *testing.T) {
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+			},
+		},
+			},
+		},
+				},
+			},
+		},
+}
+func TestConvertProtoDataTypeToDataType_UnsupportedType(t *testing.T) {
+	}
+}
+
+---
+File: spark\client\base\base.go
+Size: 2617 bytes
+Lines: 52
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package base
+
+import (
+	"context"
+
+	"github.com/apache/spark-connect-go/spark/sql/utils"
+
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/spark-connect-go/internal/generated"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+)
+
+type SparkConnectRPCClient generated.SparkConnectServiceClient
+
+// SparkConnectClient is the interface for executing a plan in Spark.
+//
+// This interface does not deal with the public Spark API abstractions but roughly deals on the
+// RPC API level and the necessary translation of Arrow to Row objects.
+type SparkConnectClient interface {
+	ExecutePlan(ctx context.Context, plan *generated.Plan) (ExecuteResponseStream, error)
+	ExecuteCommand(ctx context.Context, plan *generated.Plan) (arrow.Table, *types.StructType, map[string]any, error)
+	AnalyzePlan(ctx context.Context, plan *generated.Plan) (*generated.AnalyzePlanResponse, error)
+	Explain(ctx context.Context, plan *generated.Plan, explainMode utils.ExplainMode) (*generated.AnalyzePlanResponse, error)
+	Persist(ctx context.Context, plan *generated.Plan, storageLevel utils.StorageLevel) error
+	Unpersist(ctx context.Context, plan *generated.Plan) error
+	GetStorageLevel(ctx context.Context, plan *generated.Plan) (*utils.StorageLevel, error)
+	SparkVersion(ctx context.Context) (string, error)
+	DDLParse(ctx context.Context, sql string) (*types.StructType, error)
+	SameSemantics(ctx context.Context, plan1 *generated.Plan, plan2 *generated.Plan) (bool, error)
+	SemanticHash(ctx context.Context, plan *generated.Plan) (int32, error)
+	Config(ctx context.Context, configRequest *generated.ConfigRequest_Operation) (*generated.ConfigResponse, error)
+}
+
+type ExecuteResponseStream interface {
+	ToTable() (*types.StructType, arrow.Table, error)
+	Properties() map[string]any
+}
+
+
+---
+File: spark\sql\functions\buiitins.go
+Size: 2094 bytes
+Lines: 73
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package functions
+
+import (
+	"github.com/apache/spark-connect-go/spark/sql/column"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+)
+
+func Expr(expr string) column.Column {
+	return column.NewColumn(column.NewSQLExpression(expr))
+}
+
+func Col(name string) column.Column {
+	return column.NewColumn(column.NewColumnReference(name))
+}
+
+func Lit(value types.LiteralType) column.Column {
+	return column.NewColumn(column.NewLiteral(value))
+}
+
+func Int8Lit(value int8) column.Column {
+	return Lit(types.Int8(value))
+}
+
+func Int16Lit(value int16) column.Column {
+	return Lit(types.Int16(value))
+}
+
+func Int32Lit(value int32) column.Column {
+	return Lit(types.Int32(value))
+}
+
+func Int64Lit(value int64) column.Column {
+	return Lit(types.Int64(value))
+}
+
+func Float32Lit(value float32) column.Column {
+	return Lit(types.Float32(value))
+}
+
+func Float64Lit(value float64) column.Column {
+	return Lit(types.Float64(value))
+}
+
+func StringLit(value string) column.Column {
+	return Lit(types.String(value))
+}
+
+func BoolLit(value bool) column.Column {
+	return Lit(types.Boolean(value))
+}
+
+func BinaryLit(value []byte) column.Column {
+	return Lit(types.Binary(value))
+}
+
+func IntLit(value int) column.Column {
+	return Lit(types.Int(value))
+}
+
+
+---
+File: spark\sql\types\builtin.go
+Size: 9949 bytes
+Lines: 404 [structural]
+---
+package types
+import (
+	"context"
+type LiteralType interface {
+}
+type NumericLiteral interface {
+}
+type PrimitiveTypeLiteral interface {
+}
+type Int8 int8
+func (t Int8) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Int8) isNumericLiteral() {}
+func (t Int8) isPrimitiveTypeLiteral() {}
+type Int16 int16
+func (t Int16) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Int16) isNumericLiteral() {}
+func (t Int16) isPrimitiveTypeLiteral() {}
+type Int32 int32
+func (t Int32) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Int32) isNumericLiteral() {}
+func (t Int32) isPrimitiveTypeLiteral() {}
+type Int64 int64
+func (t Int64) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Int64) isNumericLiteral() {}
+func (t Int64) isPrimitiveTypeLiteral() {}
+type Int int
+func (t Int) ToProto(ctx context.Context) (*proto.Expression, error) {
+}
+func (t Int) isNumericLiteral() {}
+func (t Int) isPrimitiveTypeLiteral() {}
+type Float32 float32
+func (t Float32) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Float32) isNumericLiteral() {}
+func (t Float32) isPrimitiveTypeLiteral() {}
+type Float64 float64
+func (t Float64) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Float64) isNumericLiteral() {}
+func (t Float64) isPrimitiveTypeLiteral() {}
+type String string
+func (t String) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t String) isPrimitiveTypeLiteral() {}
+type Boolean bool
+func (t Boolean) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+func (t Boolean) isPrimitiveTypeLiteral() {}
+type Binary []byte
+func (t Binary) ToProto(ctx context.Context) (*proto.Expression, error) {
+			},
+		},
+	}, nil
+type Int8NilType struct{}
+var Int8Nil = Int8NilType{}
+func (t Int8NilType) isNumericLiteral() {}
+func (t Int8NilType) isPrimitiveTypeLiteral() {}
+func (t Int8NilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type Int16NilType struct{}
+var Int16Nil = Int16NilType{}
+func (t Int16NilType) isNumericLiteral() {}
+func (t Int16NilType) isPrimitiveTypeLiteral() {}
+func (t Int16NilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type Int32NilType struct{}
+var Int32Nil = Int32NilType{}
+func (t Int32NilType) isNumericLiteral() {}
+func (t Int32NilType) isPrimitiveTypeLiteral() {}
+func (t Int32NilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type Int64NilType struct{}
+var Int64Nil = Int64NilType{}
+func (t Int64NilType) isNumericLiteral() {}
+func (t Int64NilType) isPrimitiveTypeLiteral() {}
+func (t Int64NilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type IntNilType struct{}
+var IntNil = IntNilType{}
+func (t IntNilType) isNumericLiteral() {}
+func (t IntNilType) isPrimitiveTypeLiteral() {}
+func (t IntNilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+}
+type Float32NilType struct{}
+var Float32Nil = Float32NilType{}
+func (t Float32NilType) isNumericLiteral() {}
+func (t Float32NilType) isPrimitiveTypeLiteral() {}
+func (t Float32NilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type Float64NilType struct{}
+var Float64Nil = Float64NilType{}
+func (t Float64NilType) isNumericLiteral() {}
+func (t Float64NilType) isPrimitiveTypeLiteral() {}
+func (t Float64NilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type StringNilType struct{}
+var StringNil = StringNilType{}
+func (t StringNilType) isPrimitiveTypeLiteral() {}
+func (t StringNilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type BooleanNilType struct{}
+var BooleanNil = BooleanNilType{}
+func (t BooleanNilType) isPrimitiveTypeLiteral() {}
+func (t BooleanNilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+type BinaryNilType struct{}
+var BinaryNil = BinaryNilType{}
+func (t BinaryNilType) ToProto(ctx context.Context) (*proto.Expression, error) {
+						},
+					},
+				},
+			},
+		},
+	}, nil
+
+---
+File: spark\sql\types\builtin_test.go
+Size: 2640 bytes
+Lines: 83 [structural]
+---
+package types
+import (
+	"context"
+	"testing"
+	"github.com/stretchr/testify/assert"
+func TestBuiltinTypes(t *testing.T) {
+}
+func testMe(n NumericLiteral) bool {
+}
+func testPrimitive(p PrimitiveTypeLiteral) bool {
+}
+func TestNumericTypes(t *testing.T) {
+}
+
+---
+File: spark\client\channel\channel.go
+Size: 7398 bytes
+Lines: 236 [structural]
+---
+package channel
+import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
+	"fmt"
+	"net"
+	"net/url"
+	"os"
+	"runtime"
+	"strconv"
+	"strings"
+	"github.com/apache/spark-connect-go/spark"
+	"github.com/google/uuid"
+	"google.golang.org/grpc/credentials/insecure"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"golang.org/x/oauth2"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/oauth"
+type Builder interface {
+}
+type BaseBuilder struct {
+}
+func (cb *BaseBuilder) Host() string {
+}
+func (cb *BaseBuilder) Port() int {
+}
+func (cb *BaseBuilder) Token() string {
+}
+func (cb *BaseBuilder) User() string {
+}
+func (cb *BaseBuilder) Headers() map[string]string {
+}
+func (cb *BaseBuilder) SessionId() string {
+}
+func (cb *BaseBuilder) UserAgent() string {
+}
+func (cb *BaseBuilder) Build(ctx context.Context) (*grpc.ClientConn, error) {
+	var opts []grpc.DialOption
+	} else {
+		}
+		})
+		})
+	}
+	}
+}
+func NewBuilder(connection string) (*BaseBuilder, error) {
+	}
+	}
+	}
+			}
+	}
+	}
+			}
+		}
+	} else if cb.userAgent == "" {
+	}
+}
+
+---
+File: spark\client\channel\channel_test.go
+Size: 4379 bytes
+Lines: 114 [structural]
+---
+package channel_test
+import (
+	"context"
+	"strings"
+	"testing"
+	"github.com/google/uuid"
+	"github.com/apache/spark-connect-go/spark/client/channel"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+	"github.com/stretchr/testify/assert"
+const goodChannelURL = "sc://host:15002/;user_id=a;token=b;x-other-header=c"
+func TestBasicChannelBuilder(t *testing.T) {
+	}
+func TestBasicChannelParsing(t *testing.T) {
+		"Channel build should fail with wrong scheme")
+		"Should not have an error for a proper URL")
+}
+func TestChannelBuildConnect(t *testing.T) {
+}
+func TestChannelBulder_UserAgent(t *testing.T) {
+}
+
+---
+File: spark\sql\utils\check.go
+Size: 931 bytes
+Lines: 23
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package utils
+
+func WarnOnError(f func() error, h func(e error)) {
+	if err := f(); err != nil {
+		h(err)
+	}
+}
+
+
+---
+File: spark\sql\utils\check_test.go
+Size: 1284 bytes
+Lines: 40
+---
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package utils
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestWarnOnError(t *testing.T) {
+	WarnOnError(func() error {
+		return nil
+	}, func(e error) {
+		t.Errorf("Unexpected error: %v", e)
+	})
+
+	called := 0
+	WarnOnError(func() error {
+		return assert.AnError
+	}, func(e error) {
+		called++
+		assert.Equal(t, assert.AnError, e)
+	})
+	assert.Equalf(t, 1, called, "Expected error handler to be called once, got %v", called)
+}
+
+
+---
+File: spark\sql\column\column.go
+Size: 4148 bytes
+Lines: 141 [structural]
+---
+package column
+import (
+	"context"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+type Convertible interface {
+}
+type Column struct {
+}
+func (c Column) ToProto(ctx context.Context) (*proto.Expression, error) {
+}
+func (c Column) Lt(other Column) Column {
+}
+func (c Column) Le(other Column) Column {
+}
+func (c Column) Gt(other Column) Column {
+}
+func (c Column) Ge(other Column) Column {
+}
+func (c Column) Eq(other Column) Column {
+}
+func (c Column) Neq(other Column) Column {
+}
+func (c Column) Mul(other Column) Column {
+}
+func (c Column) Div(other Column) Column {
+}
+func (c Column) Desc() Column {
+	})
+func (c Column) GetItem(key types.LiteralType) Column {
+}
+func (c Column) Asc() Column {
+	})
+func (c Column) Alias(alias string) Column {
+}
+func NewColumn(expr expression) Column {
+	}
+type SchemaDataFrame interface {
+}
+func OfDF(df SchemaDataFrame, colName string) Column {
+}
+func OfDFWithRegex(df SchemaDataFrame, colRegex string) Column {
+}
+type Alias struct {
+}
+func (a Alias) ToProto(ctx context.Context) (*proto.Expression, error) {
+	}
+			},
+		},
+	}, nil
+func WithAlias(name string, col Convertible) Alias {
+	}
+
+---
+File: spark\sql\column\column_test.go
+Size: 10190 bytes
+Lines: 372 [structural]
+---
+package column
+import (
+	"context"
+	"testing"
+	"github.com/stretchr/testify/assert"
+func TestNewUnresolvedFunction_Basic(t *testing.T) {
+	type args struct {
+	}
+	}{
+			},
+						},
+					},
+				},
+			},
+		},
+			},
+					},
+				},
+			},
+		},
+		})
+func TestColumnFunctions(t *testing.T) {
+	}{
+					},
+				},
+			},
+		},
+					},
+				},
+			},
+		},
+									},
+								},
+							},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+									},
+								},
+							},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+									},
+								},
+							},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+									},
+								},
+							},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+									},
+								},
+							},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+									},
+								},
+							},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+													},
+												},
+											},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		})
+func TestColumn_Alias(t *testing.T) {
+	}{
+					},
+				},
+			},
+		},
+		})
+
+---
+File: spark\client\channel\compat.go
+Size: 988 bytes
+Lines: 21
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package channel
+
+// ChannelBuilder re-exports BaseBuilder as its previous name for compatibility.
+//
+// Deprecated: use BaseBuilder instead.
+type ChannelBuilder = BaseBuilder
+
+
+---
+File: spark\sql\utils\consts.go
+Size: 5359 bytes
+Lines: 131 [structural]
+---
+package utils
+import proto "github.com/apache/spark-connect-go/internal/generated"
+type ExplainMode int
+const (
+type StorageLevel int
+const (
+func ToProtoStorageLevel(level StorageLevel) *proto.StorageLevel {
+	}
+func FromProtoStorageLevel(level *proto.StorageLevel) StorageLevel {
+	} else if level.UseDisk && level.UseMemory && level.Replication == 2 && !level.Deserialized && !level.UseOffHeap {
+	} else if level.UseDisk && !level.UseMemory && level.Replication == 3 &&
+	} else if level.UseDisk && !level.UseMemory && level.Replication == 2 &&
+	} else if level.UseDisk && !level.UseMemory && level.Replication <= 1 &&
+	} else if !level.UseDisk && level.UseMemory && level.Replication <= 1 &&
+	} else if !level.UseDisk && level.UseMemory && level.Replication == 2 &&
+	} else if level.UseDisk && level.UseMemory && level.Replication <= 1 && level.Deserialized && !level.UseOffHeap {
+	} else if !level.UseDisk && !level.UseMemory && !level.Deserialized && !level.UseOffHeap {
+	} else if level.UseOffHeap && !level.Deserialized {
+	}
+}
+type JoinType int
+const (
+func ToProtoJoinType(joinType JoinType) proto.Join_JoinType {
+	}
+
+---
+File: spark\sql\utils\consts_test.go
+Size: 1525 bytes
+Lines: 41
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package utils
+
+import "testing"
+
+func TestStorageLevelConversion(t *testing.T) {
+	// Given a list of all storage levels, convert them to and from proto and
+	// check with the original value:
+	for _, level := range []StorageLevel{
+		StorageLevelDiskOnly,
+		StorageLevelDiskOnly2,
+		StorageLevelDiskOnly3,
+		StorageLevelMemoryAndDisk,
+		StorageLevelMemoryAndDisk2,
+		StorageLevelMemoryOnly,
+		StorageLevelMemoryOnly2,
+		StorageLevelMemoyAndDiskDeser,
+		StorageLevelNone,
+		StorageLevelOffHeap,
+	} {
+		protoLevel := ToProtoStorageLevel(level)
+		convertedLevel := FromProtoStorageLevel(protoLevel)
+		if level != convertedLevel {
+			t.Errorf("Expected %v, got %v", level, convertedLevel)
+		}
+	}
+}
+
+
+---
+File: spark\sql\types\conversion.go
+Size: 3619 bytes
+Lines: 106 [structural]
+---
+package types
+import (
+	"errors"
+	"github.com/apache/spark-connect-go/internal/generated"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+func ConvertProtoDataTypeToStructType(input *generated.DataType) (*StructType, error) {
+	}
+	}, nil
+func ConvertProtoStructFields(input []*generated.DataType_StructField) []StructField {
+	}
+}
+func ConvertProtoStructField(field *generated.DataType_StructField) StructField {
+	}
+func ConvertProtoDataTypeToDataType(input *generated.DataType) DataType {
+		}
+		}
+		}
+
+---
+File: spark\sql\types\conversion_test.go
+Size: 8774 bytes
+Lines: 295 [structural]
+---
+package types_test
+import (
+	"testing"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/stretchr/testify/assert"
+func TestConvertProtoStructFieldSupported(t *testing.T) {
+	}
+}
+func TestConvertProtoStructFieldUnsupported(t *testing.T) {
+	}
+}
+func TestConvertProtoStructToGoStruct(t *testing.T) {
+					},
+				},
+			},
+		},
+}
+func TestConvertProtoArrayType(t *testing.T) {
+	}{
+					},
+				},
+			},
+			},
+		},
+					},
+				},
+			},
+			},
+		},
+								},
+							},
+						},
+					},
+				},
+			},
+				},
+			},
+		},
+		})
+func TestConvertProtoMapType(t *testing.T) {
+	}{
+					},
+				},
+			},
+			},
+		},
+								},
+							},
+						},
+					},
+				},
+			},
+				},
+			},
+		},
+								},
+							},
+						},
+					},
+				},
+			},
+				},
+			},
+		},
+		})
+func TestConvertComplexNestedTypes(t *testing.T) {
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+}
+
+---
+File: spark\sql\types\datatype.go
+Size: 6311 bytes
+Lines: 298 [structural]
+---
+package types
+import (
+	"fmt"
+	"strings"
+	"github.com/apache/arrow-go/v18/arrow"
+type DataType interface {
+}
+type BooleanType struct{}
+func (t BooleanType) TypeName() string {
+}
+func (t BooleanType) IsNumeric() bool {
+}
+func (t BooleanType) ToArrowType() arrow.DataType {
+}
+type ByteType struct{}
+func (t ByteType) IsNumeric() bool {
+}
+func (t ByteType) ToArrowType() arrow.DataType {
+}
+func (t ByteType) TypeName() string {
+}
+type ShortType struct{}
+func (t ShortType) TypeName() string {
+}
+func (t ShortType) IsNumeric() bool {
+}
+func (t ShortType) ToArrowType() arrow.DataType {
+}
+type IntegerType struct{}
+func (t IntegerType) TypeName() string {
+}
+func (t IntegerType) IsNumeric() bool {
+}
+func (t IntegerType) ToArrowType() arrow.DataType {
+}
+type LongType struct{}
+func (t LongType) TypeName() string {
+}
+func (t LongType) IsNumeric() bool {
+}
+func (t LongType) ToArrowType() arrow.DataType {
+}
+type FloatType struct{}
+func (t FloatType) TypeName() string {
+}
+func (t FloatType) IsNumeric() bool {
+}
+func (t FloatType) ToArrowType() arrow.DataType {
+}
+type DoubleType struct{}
+func (t DoubleType) TypeName() string {
+}
+func (t DoubleType) IsNumeric() bool {
+}
+func (t DoubleType) ToArrowType() arrow.DataType {
+}
+type DecimalType struct {
+}
+func (t DecimalType) TypeName() string {
+}
+func (t DecimalType) IsNumeric() bool {
+}
+func (t DecimalType) ToArrowType() arrow.DataType {
+	}
+type StringType struct{}
+func (t StringType) TypeName() string {
+}
+func (t StringType) IsNumeric() bool {
+}
+func (t StringType) ToArrowType() arrow.DataType {
+}
+type BinaryType struct{}
+func (t BinaryType) TypeName() string {
+}
+func (t BinaryType) IsNumeric() bool {
+}
+func (t BinaryType) ToArrowType() arrow.DataType {
+}
+type TimestampType struct{}
+func (t TimestampType) TypeName() string {
+}
+func (t TimestampType) IsNumeric() bool {
+}
+func (t TimestampType) ToArrowType() arrow.DataType {
+}
+type TimestampNtzType struct{}
+func (t TimestampNtzType) TypeName() string {
+}
+func (t TimestampNtzType) IsNumeric() bool {
+}
+func (t TimestampNtzType) ToArrowType() arrow.DataType {
+}
+type DateType struct{}
+func (t DateType) TypeName() string {
+}
+func (t DateType) IsNumeric() bool {
+}
+func (t DateType) ToArrowType() arrow.DataType {
+}
+type ArrayType struct {
+}
+func (t ArrayType) TypeName() string {
+}
+func (t ArrayType) IsNumeric() bool {
+}
+func (t ArrayType) ToArrowType() arrow.DataType {
+}
+type MapType struct {
+}
+func (t MapType) TypeName() string {
+}
+func (t MapType) IsNumeric() bool {
+}
+func (t MapType) ToArrowType() arrow.DataType {
+}
+type UnsupportedType struct {
+}
+func (t UnsupportedType) TypeName() string {
+}
+func (t UnsupportedType) IsNumeric() bool {
+}
+func (t UnsupportedType) ToArrowType() arrow.DataType {
+}
+func getDataTypeName(dataType DataType) string {
+}
+func MakeArrayType(elementType DataType, containsNull bool) ArrayType {
+	}
+var (
+
+---
+File: spark\sql\types\datatype_test.go
+Size: 5783 bytes
+Lines: 232 [structural]
+---
+package types
+import (
+	"testing"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/stretchr/testify/assert"
+func TestArrayType_TypeName(t *testing.T) {
+	}{
+			},
+		},
+			},
+		},
+				},
+			},
+		},
+		})
+func TestArrayType_IsNumeric(t *testing.T) {
+	}
+}
+func TestArrayType_ToArrowType(t *testing.T) {
+	}{
+			},
+			},
+		},
+			},
+			},
+		},
+		})
+func TestMapType_TypeName(t *testing.T) {
+	}{
+			},
+		},
+				},
+			},
+		},
+				},
+			},
+		},
+		})
+func TestMapType_IsNumeric(t *testing.T) {
+	}
+}
+func TestMapType_ToArrowType(t *testing.T) {
+	}{
+			},
+			},
+		},
+		})
+func TestMakeArrayType(t *testing.T) {
+}
+func TestComplexTypeNesting(t *testing.T) {
+	}
+	}
+	}
+}
+
+---
+File: spark\sql\column\expressions.go
+Size: 9744 bytes
+Lines: 361 [structural]
+---
+package column
+import (
+	"context"
+	"fmt"
+	"strings"
+	"github.com/apache/spark-connect-go/spark/sql/types"
+	"github.com/apache/spark-connect-go/spark/sparkerrors"
+func newProtoExpression() *proto.Expression {
+}
+type expression interface {
+}
+type unresolvedRegex struct {
+}
+func (d *unresolvedRegex) DebugString() string {
+}
+func (d *unresolvedRegex) ToProto(ctx context.Context) (*proto.Expression, error) {
+		},
+}
+type delayedColumnReference struct {
+}
+func (d *delayedColumnReference) DebugString() string {
+}
+func (d *delayedColumnReference) ToProto(ctx context.Context) (*proto.Expression, error) {
+	}
+		}
+	}
+		},
+}
+type sortExpression struct {
+}
+func (s *sortExpression) DebugString() string {
+}
+func (s *sortExpression) ToProto(ctx context.Context) (*proto.Expression, error) {
+	}
+		},
+}
+type caseWhenExpression struct {
+}
+type caseWhenBranch struct {
+}
+func NewCaseWhenExpression(branches []*caseWhenBranch, elseExpr expression) expression {
+}
+func (c *caseWhenExpression) DebugString() string {
+	}
+	}
+}
+func (c *caseWhenExpression) ToProto(ctx context.Context) (*proto.Expression, error) {
+	}
+	}
+}
+type unresolvedExtractValue struct {
+}
+func (u *unresolvedExtractValue) DebugString() string {
+}
+func (u *unresolvedExtractValue) ToProto(ctx context.Context) (*proto.Expression, error) {
+	}
+	}
+		},
+}
+type unresolvedFunction struct {
+}
+func (u *unresolvedFunction) DebugString() string {
+	}
+	}
+}
+func (u *unresolvedFunction) ToProto(ctx context.Context) (*proto.Expression, error) {
+	var args []*proto.Expression = nil
+			}
+		}
+		},
+}
+func NewUnresolvedExtractValue(name string, child expression, extraction expression) expression {
+}
+func NewUnresolvedFunction(name string, args []expression, isDistinct bool) expression {
+}
+func NewUnresolvedFunctionWithColumns(name string, cols ...Column) expression {
+	}
+}
+type columnAlias struct {
+}
+func NewColumnAlias(alias string, expr expression) expression {
+}
+func NewColumnAliasFromNameParts(alias []string, expr expression) expression {
+}
+func (c *columnAlias) DebugString() string {
+}
+func (c *columnAlias) ToProto(ctx context.Context) (*proto.Expression, error) {
+	}
+		},
+}
+type columnReference struct {
+}
+func NewColumnReference(unparsedIdentifier string) expression {
+}
+func NewColumnReferenceWithPlanId(unparsedIdentifier string, planId int64) expression {
+}
+func (c *columnReference) DebugString() string {
+}
+func (c *columnReference) ToProto(context.Context) (*proto.Expression, error) {
+		},
+}
+type sqlExression struct {
+}
+func NewSQLExpression(expression string) expression {
+}
+func (s *sqlExression) DebugString() string {
+}
+func (s *sqlExression) ToProto(context.Context) (*proto.Expression, error) {
+		},
+}
+type literalExpression struct {
+}
+func (l *literalExpression) DebugString() string {
+}
+func (l *literalExpression) ToProto(ctx context.Context) (*proto.Expression, error) {
+}
+func NewLiteral(value types.LiteralType) expression {
+}
+
+---
+File: spark\sql\column\expressions_test.go
+Size: 5462 bytes
+Lines: 206 [structural]
+---
+package column
+import (
+	"context"
+	"reflect"
+	"testing"
+	"github.com/stretchr/testify/assert"
+func TestNewUnresolvedFunction(t *testing.T) {
+	type args struct {
+	}
+	}{
+			},
+					},
+				},
+			},
+		},
+			},
+						},
+					},
+				},
+			},
+		},
+			}
+		})
+func TestNewUnresolvedFunctionWithColumns(t *testing.T) {
+	type args struct {
+	}
+	}{
+			},
+					},
+				},
+			},
+		},
+			},
+						},
+					},
+				},
+			},
+		},
+			},
+						},
+					},
+				},
+			},
+		},
+			}
+		})
+func TestNewSQLExpression(t *testing.T) {
+	type args struct {
+	}
+	}{
+			},
+			},
+		},
+			}
+		})
+func TestColumnAlias_Basic(t *testing.T) {
+}
+
+---
+File: spark\client\options\options.go
+Size: 1162 bytes
+Lines: 32
+---
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package options
+
+type SparkClientOptions struct {
+	ReattachExecution bool
+	UserAgent         string
+	UserId            string
+}
+
+var DefaultSparkClientOptions = SparkClientOptions{
+	ReattachExecution: false,
+}
+
+func NewSparkClientOptions(reattach bool) SparkClientOptions {
+	return SparkClientOptions{
+		ReattachExecution: reattach,
+	}
+}
+
+
+---
+File: spark\sql\types\row.go
+Size: 6817 bytes
+Lines: 237 [structural]
+---
+package types
+import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"maps"
+	"reflect"
+	"time"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/decimal128"
+	"github.com/apache/arrow-go/v18/arrow/decimal256"
+type Row interface {
+}
+type rowImpl struct {
+}
+func (r *rowImpl) At(index int) any {
+	}
+}
+func (r *rowImpl) Value(name string) any {
+	}
+}
+func (r *rowImpl) Values() []any {
+}
+func (r *rowImpl) Len() int {
+}
+func (r *rowImpl) FieldNames() []string {
+	}
+}
+func (r *rowImpl) ToJsonString() (string, error) {
+		}
+	}
+	}
+}
+func convertToJsonValue(value any) (any, error) {
+	}
+		}
+			}
+		}
+			}
+			}
+		}
+			}
+		}
+				}
+			}
+			}
+				}
+			}
+		}
+
+---
+File: spark\sql\types\row_json_test.go
+Size: 5589 bytes
+Lines: 238 [structural]
+---
+package types
+import (
+	"encoding/json"
+	"testing"
+	"time"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/decimal128"
+	"github.com/apache/arrow-go/v18/arrow/decimal256"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+func TestRowToJsonString(t *testing.T) {
+	}{
+					"hello",
+				},
+					"str_col":    0,
+					"int_col":    1,
+					"long_col":   2,
+					"double_col": 3,
+					"bool_col":   4,
+					"null_col":   5,
+				},
+			},
+		},
+				},
+					"binary_col": 0,
+				},
+			},
+		},
+				},
+					"decimal128_col": 0,
+					"decimal256_col": 1,
+				},
+			},
+		},
+				},
+					"timestamp_col": 0,
+					"date32_col":    1,
+					"date64_col":    2,
+				},
+			},
+		},
+				},
+					"int_array": 0,
+					"str_array": 1,
+				},
+			},
+		},
+						"key1": "value1",
+						"key2": 42,
+					},
+				},
+					"map_col": 0,
+				},
+			},
+		},
+						"key2": "value2",
+					},
+				},
+					"map_col": 0,
+				},
+			},
+		},
+							"nested_key": "nested_value",
+							"nested_num": 123,
+						},
+					},
+				},
+					"nested_col": 0,
+				},
+			},
+		},
+			} else {
+				var parsed map[string]any
+				var expected map[string]any
+			}
+		})
+func TestConvertToJsonValue(t *testing.T) {
+	}{
+		},
+		},
+		},
+			} else {
+			}
+		})
+
+---
+File: spark\sql\types\row_test.go
+Size: 2506 bytes
+Lines: 110 [structural]
+---
+package types
+import (
+	"testing"
+	"github.com/stretchr/testify/require"
+var rowImplSample rowImpl = rowImpl{
+		"five":  4,
+		"one":   0,
+		"two":   1,
+		"four":  3,
+		"three": 2,
+	},
+func TestRowImpl_At(t *testing.T) {
+	}{
+		},
+		},
+		},
+		})
+func TestRowImpl_Value(t *testing.T) {
+	}{
+		},
+		},
+		})
+func TestRowImpl_Values(t *testing.T) {
+}
+func TestRowImpl_Len(t *testing.T) {
+}
+func TestRowImpl_FieldNames(t *testing.T) {
+}
+
+---
+File: spark\sql\types\structtype.go
+Size: 3272 bytes
+Lines: 112 [structural]
+---
+package types
+import (
+	"fmt"
+	"strings"
+	"github.com/apache/arrow-go/v18/arrow"
+type StructField struct {
+}
+func (t *StructField) ToArrowType() arrow.Field {
+	}
+func (t *StructField) buildFormattedString(prefix string, target *string) {
+	}
+		}
+	}
+type StructType struct {
+}
+func (t StructType) TypeName() string {
+}
+func (t StructType) IsNumeric() bool {
+}
+func (t StructType) ToArrowType() arrow.DataType {
+	}
+}
+func (t *StructType) TreeString() string {
+	}
+}
+func StructOf(fields ...StructField) *StructType {
+}
+func NewStructField(name string, dataType DataType) StructField {
+	}
+
+---
+File: spark\sql\types\structtype_test.go
+Size: 6409 bytes
+Lines: 206 [structural]
+---
+package types
+import (
+	"strings"
+	"testing"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/stretchr/testify/assert"
+func TestStructOf(t *testing.T) {
+}
+func TestStructType_TypeName(t *testing.T) {
+		},
+}
+func TestStructType_IsNumeric(t *testing.T) {
+		},
+}
+func TestStructType_ToArrowType(t *testing.T) {
+	}{
+				},
+			},
+			},
+		},
+				},
+			},
+			},
+		},
+		})
+func TestStructType_ToArrowType_ReturnType(t *testing.T) {
+		},
+}
+func TestTreeString(t *testing.T) {
+}
+func TestTreeString_ComplexNestedTypes(t *testing.T) {
+	}
+	}
+		},
+	}
+	}
+
+---
+File: spark\client\testutils\utils.go
+Size: 3703 bytes
+Lines: 103 [structural]
+---
+package testutils
+import (
+	"context"
+	"testing"
+	"google.golang.org/grpc"
+type connectServiceClient struct {
+}
+func (c *connectServiceClient) FetchErrorDetails(ctx context.Context,
+}
+func (c *connectServiceClient) ReleaseSession(ctx context.Context, in *proto.ReleaseSessionRequest,
+}
+func (c *connectServiceClient) ExecutePlan(ctx context.Context, in *proto.ExecutePlanRequest,
+}
+func (c *connectServiceClient) AnalyzePlan(ctx context.Context, in *proto.AnalyzePlanRequest,
+}
+func (c *connectServiceClient) Config(ctx context.Context, in *proto.ConfigRequest, opts ...grpc.CallOption) (*proto.ConfigResponse, error) {
+}
+func (c *connectServiceClient) AddArtifacts(ctx context.Context, opts ...grpc.CallOption) (proto.SparkConnectService_AddArtifactsClient, error) {
+}
+func (c *connectServiceClient) ArtifactStatus(ctx context.Context,
+}
+func (c *connectServiceClient) Interrupt(ctx context.Context, in *proto.InterruptRequest,
+}
+func (c *connectServiceClient) ReattachExecute(ctx context.Context,
+}
+func (c *connectServiceClient) ReleaseExecute(ctx context.Context, in *proto.ReleaseExecuteRequest,
+}
+func NewConnectServiceClientMock(epc proto.SparkConnectService_ExecutePlanClient,
+	}
+
+---
+File: java\src\main\scala\org\apache\spark\golang\Runner.scala
+Size: 2187 bytes
+Lines: 56
+---
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.spark.golang
+
+import scala.sys.process._
+
+import org.apache.spark.{SparkContext, SparkFiles}
+import org.apache.spark.internal.Logging
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.connect.service.SparkConnectService
+
+/**
+ * This is the main entry point for the Spark Connect Go runner.
+ *
+ * To run any Go code on your Spark cluster using spark-submit, you can use
+ * this very simple wrapper to do so. To
+ */
+object Runner extends Logging {
+  def main(args: Array[String]): Unit = {
+    // Instantiate a new Spark Context.
+    val ctx = SparkContext.getOrCreate()
+    // Start the SparkConnect service which will listen for incoming requests.
+    SparkConnectService.start(ctx)
+
+    // Create a new Spark Session to fetch the port configuration that the service
+    // listens on.
+    val spark = SparkSession.builder().getOrCreate()
+    val port = spark.conf.get("spark.connect.grpc.binding.port").toInt
+
+    // Fetch the binary of the program to be executed.
+    val bin = spark.conf.get("spark.golang.binary")
+
+    // Fetch the local path of the binary.
+    val path = SparkFiles.get(bin)
+    val process = Process(path, None, "SPARK_REMOTE" -> s"sc://localhost:$port")
+    process.!
+    logWarning("Stopping Spark Connect service")
+    SparkConnectService.stop()
+    ctx.stop()
+  }
+}

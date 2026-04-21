@@ -1,0 +1,730 @@
+Tokens: 6699
+Repo: psf/requests-html
+Commit: 075ac162dc62fc532037df0d98954ab840a97516
+Timestamp: 2026-04-12T23:32:59.425100
+
+--- Repository Structure ---
+.
+├── .gitattributes
+├── .gitignore
+├── .travis.yml
+├── Makefile
+├── Pipfile
+├── Pipfile.lock
+├── docs
+│   ├── Makefile
+│   ├── make.bat
+│   └── source
+│       ├── _static
+│       ├── _templates
+│       │   ├── hacks.html
+│       │   ├── sidebarintro.html
+│       │   └── sidebarlogo.html
+│       └── conf.py
+├── ext
+│   └── requests-html-logo.ai
+├── pytest.ini
+├── requests_html.py
+└── setup.py
+
+--- Summary Report ---
+Total files scanned: 16
+Files included: 15
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 2
+Files with dependency extraction: 2
+Detected languages count: 7
+Top 15 largest included files:
+  87040 bytes - Pipfile.lock
+  30525 bytes - requests_html.py
+  6682 bytes - docs\source\conf.py
+  3219 bytes - setup.py
+  2880 bytes - docs\source\_templates\sidebarintro.html
+  2878 bytes - docs\source\_templates\sidebarlogo.html
+  1408 bytes - docs\source\_templates\hacks.html
+  1366 bytes - .gitignore
+  821 bytes - docs\make.bat
+  633 bytes - docs\Makefile
+  491 bytes - .travis.yml
+  450 bytes - Pipfile
+  152 bytes - Makefile
+  116 bytes - pytest.ini
+  81 bytes - .gitattributes
+-----------------------
+
+---
+File: Makefile
+Size: 152 bytes
+Lines: 5
+---
+documentation:
+	cd docs && make html
+	cd docs/build/html && git add -A && git commit -m 'updates'
+	cd docs/build/html && git push origin gh-pages
+
+
+
+---
+File: setup.py
+Size: 3219 bytes
+Lines: 108
+---
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Note: To use the 'upload' functionality of this file, you must:
+#   $ pip install twine
+
+import io
+import os
+import sys
+from shutil import rmtree
+
+from setuptools import setup, Command
+
+# Package meta-data.
+NAME = 'requests-html'
+DESCRIPTION = 'HTML Parsing for Humans.'
+URL = 'https://github.com/psf/requests-html'
+EMAIL = 'me@kennethreitz.org'
+AUTHOR = 'Kenneth Reitz'
+VERSION = '0.10.0'
+
+# What packages are required for this module to be executed?
+REQUIRED = [
+    'requests', 'pyquery', 'fake-useragent', 'parse', 'beautifulsoup4', 'w3lib', 'pyppeteer>=0.0.14'
+]
+
+# The rest you shouldn't have to touch too much :)
+# ------------------------------------------------
+# Except, perhaps the License and Trove Classifiers!
+# If you do change the License, remember to change the Trove Classifier for that!
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Import the README and use it as the long-description.
+# Note: this will only work if 'README.rst' is present in your MANIFEST.in file!
+with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = '\n' + f.read()
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = 'Build and publish the package.'
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Prints things in bold."""
+        print('\033[1m{0}\033[0m'.format(s))
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status('Removing previous builds…')
+            rmtree(os.path.join(here, 'dist'))
+        except OSError:
+            pass
+
+        self.status('Building Source and Wheel (universal) distribution…')
+        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+
+        self.status('Uploading the package to PyPi via Twine…')
+        os.system('twine upload dist/*')
+
+        self.status('Publishing git tags…')
+        os.system('git tag v{0}'.format(VERSION))
+        os.system('git push --tags')
+
+        sys.exit()
+
+
+# Where the magic happens:
+setup(
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    long_description=long_description,
+    author=AUTHOR,
+    author_email=EMAIL,
+    url=URL,
+    python_requires='>=3.6.0',
+    # If your package is a single module, use this instead of 'packages':
+    py_modules=['requests_html'],
+
+    # entry_points={
+    #     'console_scripts': ['mycli=mymodule:cli'],
+    # },
+    install_requires=REQUIRED,
+    include_package_data=True,
+    license='MIT',
+    classifiers=[
+        # Trove classifiers
+        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy'
+    ],
+    # $ setup.py publish support.
+    cmdclass={
+        'upload': UploadCommand,
+    },
+)
+
+
+---
+File: docs\Makefile
+Size: 633 bytes
+Lines: 20
+---
+# Minimal makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = requests-html
+SOURCEDIR     = source
+BUILDDIR      = build
+
+# Put it first so that "make" without argument is like "make help".
+help:
+	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+.PHONY: help Makefile
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%: Makefile
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+---
+File: .gitattributes
+Size: 81 bytes
+Lines: 2
+---
+docs/source/_templates/*.html linguist-vendored
+tests/*.html linguist-vendored
+
+
+---
+File: .gitignore
+Size: 1366 bytes
+Lines: 109
+---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.DS_Store
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+.static_storage/
+.media/
+local_settings.py
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# Visual Studio Code 
+.vscode
+
+---
+File: .travis.yml
+Size: 491 bytes
+Lines: 26
+---
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.9-dev"
+
+matrix:
+  allow_failures:
+    - python: "3.9-dev"
+
+# command to install dependencies
+install:
+  - "pip install pipenv --upgrade-strategy=only-if-needed"
+  - "pipenv install --dev"
+
+# command to run the dependencies
+script:
+  - "pipenv run tests"
+
+# command to run tests
+# jobs:
+  # include:
+    # - stage: "✨ Flake8 Nit–Picking ✨"
+      # python: "3.6"
+      # script: "pipenv run flake8"
+
+
+---
+File: pytest.ini
+Size: 116 bytes
+Lines: 4
+---
+[pytest]
+markers =
+    render: marks tests for html render
+    internet: marks tests which runs on internet pages
+
+---
+File: Pipfile
+Size: 450 bytes
+Lines: 28 [deps]
+---
+### Required Packages
+requests, pyquery, fake-useragent, parse, "bs4", "w3lib", pyppeteer, "rfc3986", twine, requests-file
+pytest, e1839a8=={path = ".",editable = true}, sphinx, mypy, pytest-asyncio, white
+
+---
+File: Pipfile.lock
+Size: 87040 bytes
+Lines: 1341 [deps]
+---
+### Required Packages
+appdirs==1.4.4, beautifulsoup4==4.11.2, bs4==0.0.1, certifi==2022.12.7, charset-normalizer==3.0.1, cssselect==1.2.0, fake-useragent==1.1.1, idna==3.4, importlib-metadata==6.0.0, lxml==4.9.2
+parse==1.19.0, pyee==8.2.2, pyppeteer==1.0.2, pyquery==2.0.0, requests==2.28.2, rfc3986==2.0.0, soupsieve==2.4, tqdm==4.64.1, urllib3==1.26.14, w3lib==2.1.1
+websockets==10.4, zipp==3.15.0, alabaster==0.7.13, appdirs==1.4.4, attrs==22.2.0, babel==2.11.0, beautifulsoup4==4.11.2, bleach==6.0.0, certifi==2022.12.7, cffi==1.15.1
+charset-normalizer==3.0.1, cryptography==39.0.1, cssselect==1.2.0, docutils==0.19, exceptiongroup==1.1.0, fake-useragent==1.1.1, idna==3.4, imagesize==1.4.1, importlib-metadata==6.0.0, iniconfig==2.0.0
+jaraco.classes==3.2.3, jeepney==0.8.0, jinja2==3.1.2, keyring==23.13.1, lxml==4.9.2, markdown-it-py==2.2.0, markupsafe==2.1.2, mdurl==0.1.2, more-itertools==9.0.0, mypy==1.0.1
+mypy-extensions==1.0.0, packaging==23.0, parse==1.19.0, pkginfo==1.9.6, pluggy==1.0.0, pycparser==2.21, pyee==8.2.2, pygments==2.14.0, pyppeteer==1.0.2, pyquery==2.0.0
+pytest==7.2.1, pytest-asyncio==0.20.3, pytz==2022.7.1, readme-renderer==37.3, requests==2.28.2, requests-file==1.5.1, requests-html, requests-toolbelt==0.10.1, rfc3986==2.0.0, rich==13.3.1
+secretstorage==3.3.3, six==1.16.0, snowballstemmer==2.2.0, soupsieve==2.4, sphinx==6.1.3, sphinxcontrib-applehelp==1.0.4, sphinxcontrib-devhelp==1.0.2, sphinxcontrib-htmlhelp==2.0.1, sphinxcontrib-jsmath==1.0.1, sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-serializinghtml==1.1.5, tomli==2.0.1, tqdm==4.64.1, twine==4.0.2, typing-extensions==4.5.0, urllib3==1.26.14, w3lib==2.1.1, webencodings==0.5.1, websockets==10.4, white==0.1.2
+zipp==3.15.0
+
+---
+File: requests_html.py
+Size: 30525 bytes
+Lines: 845 [structural]
+---
+import sys
+import asyncio
+from urllib.parse import urlparse, urlunparse, urljoin
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures._base import TimeoutError
+from functools import partial
+from typing import Set, Union, List, MutableMapping, Optional
+import pyppeteer
+import requests
+import http.cookiejar
+from pyquery import PyQuery
+from fake_useragent import UserAgent
+from lxml.html.clean import Cleaner
+import lxml
+from lxml import etree
+from lxml.html import HtmlElement
+from lxml.html import tostring as lxml_html_tostring
+from lxml.html.soupparser import fromstring as soup_parse
+from parse import search as parse_search
+from parse import findall, Result
+from w3lib.encoding import html_to_unicode
+class MaxRetries(Exception):
+    def __init__(self, message):
+class BaseParser:
+    def __init__(self, *, element, default_encoding: _DefaultEncoding = None, html: _HTML = None, url: _URL) -> None:
+    def raw_html(self) -> _RawHTML:
+    def html(self) -> _BaseHTML:
+    def html(self, html: str) -> None:
+    def raw_html(self, html: bytes) -> None:
+    def encoding(self) -> _Encoding:
+    def encoding(self, enc: str) -> None:
+    def pq(self) -> PyQuery:
+    def lxml(self) -> HtmlElement:
+    def text(self) -> _Text:
+    def full_text(self) -> _Text:
+    def find(self, selector: str = "*", *, containing: _Containing = None, clean: bool = False, first: bool = False, _encoding: str = None) -> _Find:
+    def xpath(self, selector: str, *, clean: bool = False, first: bool = False, _encoding: str = None) -> _XPath:
+    def search(self, template: str) -> Result:
+    def search_all(self, template: str) -> _Result:
+    def links(self) -> _Links:
+        def gen():
+    def _make_absolute(self, link):
+    def absolute_links(self) -> _Links:
+        def gen():
+    def base_url(self) -> _URL:
+class Element(BaseParser):
+    def __init__(self, *, element, url: _URL, default_encoding: _DefaultEncoding = None) -> None:
+    def __repr__(self) -> str:
+    def attrs(self) -> _Attrs:
+class HTML(BaseParser):
+    def __init__(self, *, session: Union['HTMLSession', 'AsyncHTMLSession'] = None, url: str = DEFAULT_URL, html: _HTML, default_encoding: str = DEFAULT_ENCODING, async_: bool = False) -> None:
+    def __repr__(self) -> str:
+    def next(self, fetch: bool = False, next_symbol: _NextSymbol = None) -> _Next:
+        def get_next():
+    def __iter__(self):
+    def __next__(self):
+    def __aiter__(self):
+    async def __anext__(self):
+    def add_next_symbol(self, next_symbol):
+    async def _async_render(self, *, url: str, script: str = None, scrolldown, sleep: int, wait: float, reload, content: Optional[str], timeout: Union[float, int], keep_page: bool, cookies: list = [{}]):
+    def _convert_cookiejar_to_render(self, session_cookiejar):
+        def __convert(cookiejar, key):
+    def _convert_cookiesjar_to_render(self):
+    def render(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
+    async def arender(self, retries: int = 8, script: str = None, wait: float = 0.2, scrolldown=False, sleep: int = 0, reload: bool = True, timeout: Union[float, int] = 8.0, keep_page: bool = False, cookies: list = [{}], send_cookies_session: bool = False):
+class HTMLResponse(requests.Response):
+    def __init__(self, session: Union['HTMLSession', 'AsyncHTMLSession']) -> None:
+    def html(self) -> HTML:
+    def _from_response(cls, response, session: Union['HTMLSession', 'AsyncHTMLSession']):
+def user_agent(style=None) -> _UserAgent:
+def _get_first_or_list(l, first=False):
+class BaseSession(requests.Session):
+    def __init__(self, mock_browser : bool = True, verify : bool = True,
+    def response_hook(self, response, **kwargs) -> HTMLResponse:
+    async def browser(self):
+class HTMLSession(BaseSession):
+    def __init__(self, **kwargs):
+    def browser(self):
+    def close(self):
+class AsyncHTMLSession(BaseSession):
+    def __init__(self, loop=None, workers=None,
+    def request(self, *args, **kwargs):
+    async def close(self):
+    def run(self, *coros):
+
+---
+File: docs\make.bat
+Size: 821 bytes
+Lines: 36
+---
+@ECHO OFF
+
+pushd %~dp0
+
+REM Command file for Sphinx documentation
+
+if "%SPHINXBUILD%" == "" (
+	set SPHINXBUILD=sphinx-build
+)
+set SOURCEDIR=source
+set BUILDDIR=build
+set SPHINXPROJ=requests-html
+
+if "%1" == "" goto help
+
+%SPHINXBUILD% >NUL 2>NUL
+if errorlevel 9009 (
+	echo.
+	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+	echo.installed, then set the SPHINXBUILD environment variable to point
+	echo.to the full path of the 'sphinx-build' executable. Alternatively you
+	echo.may add the Sphinx directory to PATH.
+	echo.
+	echo.If you don't have Sphinx installed, grab it from
+	echo.http://sphinx-doc.org/
+	exit /b 1
+)
+
+%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+goto end
+
+:help
+%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+
+:end
+popd
+
+
+---
+File: docs\source\conf.py
+Size: 6682 bytes
+Lines: 211 [structural]
+---
+import requests_html
+
+---
+File: docs\source\_templates\hacks.html
+Size: 1408 bytes
+Lines: 48
+---
+<!-- Alabaster (krTheme++) Hacks -->
+
+
+<!-- CSS Adjustments (I'm very picky.) -->
+<style type="text/css">
+
+  /* Rezzy requires precise alignment. */
+  img.logo {margin-left: -20px!important;}
+
+  /* "Quick Search" should be capitalized. */
+  div#searchbox h3 {text-transform: capitalize;}
+
+  /* Make the document a little wider, less code is cut-off. */
+  div.document {width: 1008px;}
+
+  /* Much-improved spacing around code blocks. */
+  div.highlight pre {padding: 11px 14px;}
+
+  /* Remain Responsive! */
+  @media screen and (max-width: 1008px) {
+    div.sphinxsidebar {display: none;}
+    div.document {width: 100%!important;}
+
+    /* Have code blocks escape the document right-margin. */
+    div.highlight pre {margin-right: -30px;}
+  }
+
+</style>
+
+
+<!-- Analytics tracking for Kenneth. -->
+<script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '5a956183ba4ae36e18000033');
+    t.setAttribute('data-track-path', 'https://track.gaug.es/track.gif');
+    t.src = 'https://d2fuc4clr7gvcn.cloudfront.net/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+
+<!-- That was not a hack. That was art. -->
+
+---
+File: docs\source\_templates\sidebarintro.html
+Size: 2880 bytes
+Lines: 61
+---
+<p class="logo">
+  <a href="{{ pathto(master_doc) }}">
+    <img class="logo" src="{{ pathto('_static/requests-html-logo.png', 1) }}" title="https://kennethreitz.org/tattoos"/>
+  </a>
+</p>
+
+<p>
+  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests-html&type=watch&count=true&size=large"
+    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+<p>
+  <strong>Requests-HTML</strong> intends to make parsing HTML (e.g. scraping the web) as
+simple and intuitive as possible.
+</p>
+
+<h3>Stay Informed</h3>
+<p>Receive updates on new releases and upcoming projects.</p>
+
+<p><iframe src="https://ghbtns.com/github-btn.html?user=psf&type=follow&count=false"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<style>
+.algolia-autocomplete{
+  width: 100%;
+  height: 1.5em
+}
+.algolia-autocomplete a{
+  border-bottom: none !important;
+}
+#doc_search{
+  width: 100%;
+  height: 100%;
+}
+</style>
+<input id="doc_search" placeholder="Search the doc" autofocus/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
+  apiKey: '8fcebdef37e2d888d63daf198ccecd08',
+  indexName: 'requests-html',
+  inputSelector: '#doc_search',
+  debug: false // Set debug to true if you want to inspect the dropdown
+})" async></script>
+
+<p><a href="https://twitter.com/kennethreitz" class="twitter-follow-button" data-show-count="false">Follow @kennethreitz</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://saythanks.io/to/kennethreitz">Say Thanks!</a></p>
+
+<h3>Other Projects</h3>
+
+<p>More <a href="https://kennethreitz.org/">Kenneth Reitz</a> projects:</p>
+<ul>
+    <li><a href="https://2.python-requests.org/">python-requests.org</a></li>
+    <li><a href="http://howtopython.org/">howtopython.org</a></li>
+    <li><a href="http://pipenv.org/">pipenv</a></li>
+    <li><a href="https://pep8.org/">pep8.org</a></li>
+    <li><a href="https://httpbin.org/">httpbin.org</a></li>
+    <li><a href="https://python-guide.org">The Python Guide</a></li>
+    <li><a href="https://github.com/timofurrer/maya">Maya: Datetimes for Humans</a></li>
+    <li><a href="https://github.com/kennethreitz/records">Records: SQL for Humans</a></li>
+    <li><a href="http://www.git-legit.org">Legit: Git for Humans</a></li>
+    <li><a href="http://docs.python-tablib.org/en/latest/">Tablib: Tabular Datasets</a></li>
+</ul>
+
+
+---
+File: docs\source\_templates\sidebarlogo.html
+Size: 2878 bytes
+Lines: 61
+---
+<p class="logo">
+  <a href="{{ pathto(master_doc) }}">
+    <img class="logo" src="{{ pathto('_static/requests-html-logo.png', 1) }}" title="https://kennethreitz.org/tattoos"/>
+  </a>
+</p>
+
+<p>
+  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests-html&type=watch&count=true&size=large"
+    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+<p>
+  <strong>Requests-HTML</strong> intends to make parsing HTML (e.g. scraping the web) as
+simple and intuitive as possible.
+</p>
+
+<h3>Stay Informed</h3>
+<p>Receive updates on new releases and upcoming projects.</p>
+
+<p><iframe src="https://ghbtns.com/github-btn.html?user=psf&type=follow&count=false"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+<style>
+.algolia-autocomplete{
+  width: 100%;
+  height: 1.5em
+}
+.algolia-autocomplete a{
+  border-bottom: none !important;
+}
+#doc_search{
+  width: 100%;
+  height: 100%;
+}
+</style>
+<input id="doc_search" placeholder="Search the doc" autofocus/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js" onload="docsearch({
+  apiKey: '8fcebdef37e2d888d63daf198ccecd08',
+  indexName: 'requests-html',
+  inputSelector: '#doc_search',
+  debug: false // Set debug to true if you want to inspect the dropdown
+})" async></script>
+
+<p><a href="https://twitter.com/kennethreitz" class="twitter-follow-button" data-show-count="false">Follow @kennethreitz</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://saythanks.io/to/kennethreitz">Say Thanks!</a></p>
+
+<h3>Other Projects</h3>
+
+<p>More <a href="https://kennethreitz.org/">Kenneth Reitz</a> projects:</p>
+<ul>
+    <li><a href="https://2.python-requests.org/">python-requests.org</a></li>
+    <li><a href="http://howtopython.org/">howtopython.org</a></li>
+    <li><a href="http://pipenv.org/">pipenv</a></li>
+    <li><a href="https://pep8.org/">pep8.org</a></li>
+    <li><a href="https://httpbin.org/">httpbin.org</a></li>
+    <li><a href="https://python-guide.org">The Python Guide</a></li>
+    <li><a href="https://github.com/timofurrer/maya">Maya: Datetimes for Humans</a></li>
+    <li><a href="https://github.com/kennethreitz/records">Records: SQL for Humans</a></li>
+    <li><a href="http://www.git-legit.org">Legit: Git for Humans</a></li>
+    <li><a href="http://docs.python-tablib.org/en/latest/">Tablib: Tabular Datasets</a></li>
+</ul>

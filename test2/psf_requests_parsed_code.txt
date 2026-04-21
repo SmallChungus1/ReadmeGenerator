@@ -1,0 +1,1697 @@
+Tokens: 13415
+Repo: psf/requests
+Commit: 4b0b1a3e9f2fc21b9dcd8b906f2ff02645aa697e
+Timestamp: 2026-04-12T23:33:03.118720
+
+--- Repository Structure ---
+.
+├── .coveragerc
+├── .git-blame-ignore-revs
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .readthedocs.yaml
+├── MANIFEST.in
+├── Makefile
+├── docs
+│   ├── .nojekyll
+│   ├── Makefile
+│   ├── _static
+│   │   └── custom.css
+│   ├── _templates
+│   │   └── sidebar.html
+│   ├── _themes
+│   │   ├── .gitignore
+│   │   └── flask_theme_support.py
+│   ├── community
+│   ├── conf.py
+│   ├── dev
+│   ├── make.bat
+│   ├── requirements.txt
+│   └── user
+├── ext
+│   └── requests-logo.ai
+├── pyproject.toml
+├── requirements-dev.txt
+├── setup.py
+├── src
+│   └── requests
+│       ├── __init__.py
+│       ├── __version__.py
+│       ├── _internal_utils.py
+│       ├── adapters.py
+│       ├── api.py
+│       ├── auth.py
+│       ├── certs.py
+│       ├── compat.py
+│       ├── cookies.py
+│       ├── exceptions.py
+│       ├── help.py
+│       ├── hooks.py
+│       ├── models.py
+│       ├── packages.py
+│       ├── sessions.py
+│       ├── status_codes.py
+│       ├── structures.py
+│       └── utils.py
+└── tox.ini
+
+--- Summary Report ---
+Total files scanned: 39
+Files included: 38
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 15
+Files with dependency extraction: 2
+Detected languages count: 10
+Top 15 largest included files:
+  36506 bytes - src\requests\models.py
+  34049 bytes - src\requests\utils.py
+  31404 bytes - src\requests\sessions.py
+  26869 bytes - src\requests\adapters.py
+  19151 bytes - src\requests\cookies.py
+  12533 bytes - docs\conf.py
+  10484 bytes - src\requests\auth.py
+  7880 bytes - docs\Makefile
+  7253 bytes - docs\make.bat
+  6606 bytes - src\requests\api.py
+  5227 bytes - src\requests\__init__.py
+  4961 bytes - docs\_themes\flask_theme_support.py
+  4450 bytes - src\requests\status_codes.py
+  4413 bytes - src\requests\exceptions.py
+  3933 bytes - src\requests\help.py
+-----------------------
+
+---
+File: MANIFEST.in
+Size: 129 bytes
+Lines: 3
+---
+include README.md LICENSE NOTICE HISTORY.md requirements-dev.txt
+recursive-include tests *.py
+recursive-include tests/certs *
+
+
+---
+File: Makefile
+Size: 861 bytes
+Lines: 27
+---
+.PHONY: docs
+init:
+	python -m pip install -r requirements-dev.txt
+test:
+	python -m pytest tests
+
+ci:
+	python -m pytest tests --junitxml=report.xml
+
+test-readme:
+	python setup.py check --restructuredtext --strict && ([ $$? -eq 0 ] && echo "README.rst and HISTORY.rst ok") || echo "Invalid markup in README.rst or HISTORY.rst!"
+
+coverage:
+	python -m pytest --cov-config .coveragerc --verbose --cov-report term --cov-report xml --cov=src/requests tests
+
+.publishenv:
+	python -m venv .publishenv
+	.publishenv/bin/pip install 'twine>=1.5.0' build
+
+publish: .publishenv
+	.publishenv/bin/python -m build
+	.publishenv/bin/python -m twine upload --skip-existing dist/*
+	rm -fr build dist .egg requests.egg-info
+
+docs:
+	cd docs && make html
+	@echo "\033[95m\n\nBuild successful! View the docs homepage at docs/_build/html/index.html.\n\033[0m"
+
+
+---
+File: pyproject.toml
+Size: 3026 bytes
+Lines: 106
+---
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "requests"
+description = "Python HTTP for Humans."
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [
+    { name = "Kenneth Reitz", email = "me@kennethreitz.org" },
+]
+maintainers = [
+    {name = "Ian Stapleton Cordasco", email="graffatcolmingov@gmail.com"},
+    {name = "Nate Prewitt", email="nate.prewitt@gmail.com"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "charset_normalizer>=2,<4",
+    "idna>=2.5,<4",
+    "urllib3>=1.26,<3",
+    "certifi>=2023.5.7"
+]
+dynamic = ["version"]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries"
+]
+
+[project.urls]
+Documentation = "https://requests.readthedocs.io"
+Source = "https://github.com/psf/requests"
+
+[project.optional-dependencies]
+security = []
+socks = ["PySocks>=1.5.6, !=1.5.7"]
+use_chardet_on_py3 = ["chardet>=3.0.2,<8"]
+
+[dependency-groups]
+test = [
+    "requests[socks]",
+    "pytest-httpbin==2.1.0",
+    "httpbin~=0.10.0",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-xdist",
+    "pytest>=3",
+    "trustme",
+]
+
+[tool.setuptools]
+license-files = ["LICENSE", "NOTICE"]
+
+[tool.setuptools.dynamic]
+version = {attr = "requests.__version__.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+src = ["src/requests", "tests"]
+exclude = ["docs/", "ext/"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "T10",    # flake8-debugger (replaces debug-statements hook)
+]
+ignore = ["E203", "E501", "UP038", "UP031"]
+per-file-ignores = {"src/requests/__init__.py" = ["E402", "F401"], "src/requests/compat.py" = ["E402", "F401"], "tests/compat.py" = ["F401"]}
+
+[tool.ruff.lint.isort]
+known-first-party = ["requests"]
+
+[tool.ruff.format]
+# Use black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
+minversion = "6.2"
+testpaths = ["tests"]
+
+
+---
+File: setup.py
+Size: 188 bytes
+Lines: 9
+---
+import sys
+
+if sys.version_info < (3, 10):  # noqa: UP036
+    sys.stderr.write("Requests requires Python 3.10 or later.\n")
+    sys.exit(1)
+
+from setuptools import setup
+
+setup()
+
+
+---
+File: docs\Makefile
+Size: 7880 bytes
+Lines: 216
+---
+# Makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+PAPER         =
+BUILDDIR      = _build
+
+# User-friendly check for sphinx-build
+ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
+$(error The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx installed, then set the SPHINXBUILD environment variable to point to the full path of the '$(SPHINXBUILD)' executable. Alternatively you can add the directory with the executable to your PATH. If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
+endif
+
+# Internal variables.
+PAPEROPT_a4     = -D latex_paper_size=a4
+PAPEROPT_letter = -D latex_paper_size=letter
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+# the i18n builder cannot share the environment and doctrees with the others
+I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+
+.PHONY: help
+help:
+	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  html       to make standalone HTML files"
+	@echo "  dirhtml    to make HTML files named index.html in directories"
+	@echo "  singlehtml to make a single large HTML file"
+	@echo "  pickle     to make pickle files"
+	@echo "  json       to make JSON files"
+	@echo "  htmlhelp   to make HTML files and a HTML help project"
+	@echo "  qthelp     to make HTML files and a qthelp project"
+	@echo "  applehelp  to make an Apple Help Book"
+	@echo "  devhelp    to make HTML files and a Devhelp project"
+	@echo "  epub       to make an epub"
+	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
+	@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
+	@echo "  text       to make text files"
+	@echo "  man        to make manual pages"
+	@echo "  texinfo    to make Texinfo files"
+	@echo "  info       to make Texinfo files and run them through makeinfo"
+	@echo "  gettext    to make PO message catalogs"
+	@echo "  changes    to make an overview of all changed/added/deprecated items"
+	@echo "  xml        to make Docutils-native XML files"
+	@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
+	@echo "  linkcheck  to check all external links for integrity"
+	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
+	@echo "  coverage   to run coverage check of the documentation (if enabled)"
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILDDIR)/*
+
+.PHONY: html
+html:
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+.PHONY: dirhtml
+dirhtml:
+	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
+
+.PHONY: singlehtml
+singlehtml:
+	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
+	@echo
+	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
+
+.PHONY: pickle
+pickle:
+	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle
+	@echo
+	@echo "Build finished; now you can process the pickle files."
+
+.PHONY: json
+json:
+	$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) $(BUILDDIR)/json
+	@echo
+	@echo "Build finished; now you can process the JSON files."
+
+.PHONY: htmlhelp
+htmlhelp:
+	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(BUILDDIR)/htmlhelp
+	@echo
+	@echo "Build finished; now you can run HTML Help Workshop with the" \
+	      ".hhp project file in $(BUILDDIR)/htmlhelp."
+
+.PHONY: qthelp
+qthelp:
+	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) $(BUILDDIR)/qthelp
+	@echo
+	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
+	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/Requests.qhcp"
+	@echo "To view the help file:"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/Requests.qhc"
+
+.PHONY: applehelp
+applehelp:
+	$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
+	@echo
+	@echo "Build finished. The help book is in $(BUILDDIR)/applehelp."
+	@echo "N.B. You won't be able to view it unless you put it in" \
+	      "~/Library/Documentation/Help or install it in your application" \
+	      "bundle."
+
+.PHONY: devhelp
+devhelp:
+	$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
+	@echo
+	@echo "Build finished."
+	@echo "To view the help file:"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/Requests"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/Requests"
+	@echo "# devhelp"
+
+.PHONY: epub
+epub:
+	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) $(BUILDDIR)/epub
+	@echo
+	@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
+
+.PHONY: latex
+latex:
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+	@echo
+	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
+	@echo "Run \`make' in that directory to run these through (pdf)latex" \
+	      "(use \`make latexpdf' here to do that automatically)."
+
+.PHONY: latexpdf
+latexpdf:
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+	@echo "Running LaTeX files through pdflatex..."
+	$(MAKE) -C $(BUILDDIR)/latex all-pdf
+	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
+.PHONY: latexpdfja
+latexpdfja:
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+	@echo "Running LaTeX files through platex and dvipdfmx..."
+	$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
+	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
+.PHONY: text
+text:
+	$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
+	@echo
+	@echo "Build finished. The text files are in $(BUILDDIR)/text."
+
+.PHONY: man
+man:
+	$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(BUILDDIR)/man
+	@echo
+	@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
+
+.PHONY: texinfo
+texinfo:
+	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
+	@echo
+	@echo "Build finished. The Texinfo files are in $(BUILDDIR)/texinfo."
+	@echo "Run \`make' in that directory to run these through makeinfo" \
+	      "(use \`make info' here to do that automatically)."
+
+.PHONY: info
+info:
+	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
+	@echo "Running Texinfo files through makeinfo..."
+	make -C $(BUILDDIR)/texinfo info
+	@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
+
+.PHONY: gettext
+gettext:
+	$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
+	@echo
+	@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
+
+.PHONY: changes
+changes:
+	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
+	@echo
+	@echo "The overview file is in $(BUILDDIR)/changes."
+
+.PHONY: linkcheck
+linkcheck:
+	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
+	@echo
+	@echo "Link check complete; look for any errors in the above output " \
+	      "or in $(BUILDDIR)/linkcheck/output.txt."
+
+.PHONY: doctest
+doctest:
+	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
+	@echo "Testing of doctests in the sources finished, look at the " \
+	      "results in $(BUILDDIR)/doctest/output.txt."
+
+.PHONY: coverage
+coverage:
+	$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(BUILDDIR)/coverage
+	@echo "Testing of coverage in the sources finished, look at the " \
+	      "results in $(BUILDDIR)/coverage/python.txt."
+
+.PHONY: xml
+xml:
+	$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
+	@echo
+	@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
+
+.PHONY: pseudoxml
+pseudoxml:
+	$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
+	@echo
+	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
+
+
+---
+File: docs\requirements.txt
+Size: 90 bytes
+Lines: 3 [deps]
+---
+### Required Packages
+Sphinx==7.2.6
+
+---
+File: .coveragerc
+Size: 35 bytes
+Lines: 2
+---
+[run]
+omit = requests/packages/*
+
+
+---
+File: .git-blame-ignore-revs
+Size: 239 bytes
+Lines: 5
+---
+# You can configure git to automatically use this file with the following config:
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Add automatic code formatting to Requests
+2a6f290bc09324406708a4d404a88a45d848ddf9
+
+
+---
+File: .gitignore
+Size: 358 bytes
+Lines: 37
+---
+.coverage
+MANIFEST
+coverage.xml
+nosetests.xml
+junit-report.xml
+pylint.txt
+toy.py
+.cache/
+cover/
+build/
+docs/_build
+requests.egg-info/
+*.pyc
+*.swp
+*.egg
+env/
+.venv/
+.eggs/
+.tox/
+.pytest_cache/
+.vscode/
+.eggs/
+
+.workon
+
+# in case you work with IntelliJ/PyCharm
+.idea
+*.iml
+.python-version
+
+
+t.py
+
+t2.py
+dist
+
+/.mypy_cache/
+
+
+---
+File: .pre-commit-config.yaml
+Size: 505 bytes
+Lines: 21
+---
+exclude: 'docs/|ext/'
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: check-case-conflict
+  - id: check-merge-conflict
+  - id: check-toml
+  - id: check-yaml
+  - id: end-of-file-fixer
+  - id: mixed-line-ending
+    args: [--fix=auto]
+  - id: trailing-whitespace
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.15.9
+  hooks:
+    - id: ruff-check
+      args: [--fix]
+    - id: ruff-format
+      exclude: tests/test_lowlevel.py
+
+
+---
+File: .readthedocs.yaml
+Size: 767 bytes
+Lines: 29
+---
+# Read the Docs configuration file for Sphinx projects
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"
+
+# Build documentation in the "docs/" directory with Sphinx
+sphinx:
+  configuration: docs/conf.py
+  builder: "dirhtml"
+
+# Optionally build your docs in additional formats such as PDF and ePub
+formats:
+  - pdf
+  - epub
+
+# Optional but recommended, declare the Python requirements required
+# to build your documentation
+# See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
+python:
+  install:
+    - path: .
+    - requirements: docs/requirements.txt
+
+
+---
+File: tox.ini
+Size: 303 bytes
+Lines: 18
+---
+[tox]
+envlist = py{310,311,312,313,314}-{default, use_chardet_on_py3}
+
+[testenv]
+deps = -rrequirements-dev.txt
+extras =
+    security
+    socks
+commands =
+    pytest {posargs:tests}
+
+[testenv:default]
+
+[testenv:use_chardet_on_py3]
+extras =
+    security
+    socks
+    use_chardet_on_py3
+
+
+---
+File: requirements-dev.txt
+Size: 99 bytes
+Lines: 7 [deps]
+---
+### Required Packages
+pytest>=2.8.0,<9, pytest-cov, pytest-httpbin==2.1.0, httpbin~=0.10.0, trustme, wheel
+
+---
+File: src\requests\__init__.py
+Size: 5227 bytes
+Lines: 183 [structural]
+---
+import warnings
+import urllib3
+from .exceptions import RequestsDependencyWarning
+    from charset_normalizer import __version__ as charset_normalizer_version
+    from chardet import __version__ as chardet_version
+def check_compatibility(urllib3_version, chardet_version, charset_normalizer_version):
+def _check_cryptography(cryptography_version):
+        import ssl
+        from urllib3.contrib import pyopenssl
+        from cryptography import __version__ as cryptography_version
+from urllib3.exceptions import DependencyWarning
+import logging
+from logging import NullHandler
+from . import packages, utils
+from .__version__ import (
+from .api import delete, get, head, options, patch, post, put, request
+from .exceptions import (
+from .models import PreparedRequest, Request, Response
+from .sessions import Session, session
+from .status_codes import codes
+
+---
+File: src\requests\__version__.py
+Size: 449 bytes
+Lines: 14
+---
+# .-. .-. .-. . . .-. .-. .-. .-.
+# |(  |-  |.| | | |-  `-.  |  `-.
+# ' ' `-' `-`.`-' `-' `-'  '  `-'
+
+__title__ = "requests"
+__description__ = "Python HTTP for Humans."
+__url__ = "https://requests.readthedocs.io"
+__version__ = "2.33.1"
+__build__ = 0x023301
+__author__ = "Kenneth Reitz"
+__author_email__ = "me@kennethreitz.org"
+__license__ = "Apache-2.0"
+__copyright__ = "Copyright Kenneth Reitz"
+__cake__ = "\u2728 \U0001f370 \u2728"
+
+
+---
+File: src\requests\_internal_utils.py
+Size: 1553 bytes
+Lines: 51
+---
+"""
+requests._internal_utils
+~~~~~~~~~~~~~~
+
+Provides utility functions that are consumed internally by Requests
+which depend on extremely few external helpers (such as compat)
+"""
+
+import re
+
+from .compat import builtin_str
+
+_VALID_HEADER_NAME_RE_BYTE = re.compile(rb"^[^:\s][^:\r\n]*\Z")
+_VALID_HEADER_NAME_RE_STR = re.compile(r"^[^:\s][^:\r\n]*\Z")
+_VALID_HEADER_VALUE_RE_BYTE = re.compile(rb"^\S[^\r\n]*\Z|^\Z")
+_VALID_HEADER_VALUE_RE_STR = re.compile(r"^\S[^\r\n]*\Z|^\Z")
+
+_HEADER_VALIDATORS_STR = (_VALID_HEADER_NAME_RE_STR, _VALID_HEADER_VALUE_RE_STR)
+_HEADER_VALIDATORS_BYTE = (_VALID_HEADER_NAME_RE_BYTE, _VALID_HEADER_VALUE_RE_BYTE)
+HEADER_VALIDATORS = {
+    bytes: _HEADER_VALIDATORS_BYTE,
+    str: _HEADER_VALIDATORS_STR,
+}
+
+
+def to_native_string(string, encoding="ascii"):
+    """Given a string object, regardless of type, returns a representation of
+    that string in the native string type, encoding and decoding where
+    necessary. This assumes ASCII unless told otherwise.
+    """
+    if isinstance(string, builtin_str):
+        out = string
+    else:
+        out = string.decode(encoding)
+
+    return out
+
+
+def unicode_is_ascii(u_string):
+    """Determine if unicode string only contains ASCII characters.
+
+    :param str u_string: unicode string to check. Must be unicode
+        and not Python 2 `str`.
+    :rtype: bool
+    """
+    assert isinstance(u_string, str)
+    try:
+        u_string.encode("ascii")
+        return True
+    except UnicodeEncodeError:
+        return False
+
+
+---
+File: src\requests\adapters.py
+Size: 26869 bytes
+Lines: 697 [structural]
+---
+import os.path
+import socket  # noqa: F401
+import typing
+import warnings
+from urllib3.exceptions import (
+from urllib3.exceptions import HTTPError as _HTTPError
+from urllib3.exceptions import InvalidHeader as _InvalidHeader
+from urllib3.exceptions import ProxyError as _ProxyError
+from urllib3.exceptions import SSLError as _SSLError
+from urllib3.poolmanager import PoolManager, proxy_from_url
+from urllib3.util import Timeout as TimeoutSauce
+from urllib3.util import parse_url
+from urllib3.util.retry import Retry
+from .auth import _basic_auth_str
+from .compat import basestring, urlparse
+from .cookies import extract_cookies_to_jar
+from .exceptions import (
+from .models import Response
+from .structures import CaseInsensitiveDict
+from .utils import (
+    from urllib3.contrib.socks import SOCKSProxyManager
+    def SOCKSProxyManager(*args, **kwargs):
+    from .models import PreparedRequest
+def _urllib3_request_context(
+class BaseAdapter:
+    def __init__(self):
+    def send(
+    def close(self):
+class HTTPAdapter(BaseAdapter):
+    def __init__(
+    def __getstate__(self):
+    def __setstate__(self, state):
+    def init_poolmanager(
+    def proxy_manager_for(self, proxy, **proxy_kwargs):
+    def cert_verify(self, conn, url, verify, cert):
+    def build_response(self, req, resp):
+    def build_connection_pool_key_attributes(self, request, verify, cert=None):
+    def get_connection_with_tls_context(self, request, verify, proxies=None, cert=None):
+    def get_connection(self, url, proxies=None):
+    def close(self):
+    def request_url(self, request, proxies):
+    def add_headers(self, request, **kwargs):
+    def proxy_headers(self, proxy):
+    def send(
+
+---
+File: src\requests\api.py
+Size: 6606 bytes
+Lines: 157 [structural]
+---
+from . import sessions
+def request(method, url, **kwargs):
+def get(url, params=None, **kwargs):
+def options(url, **kwargs):
+def head(url, **kwargs):
+def post(url, data=None, json=None, **kwargs):
+def put(url, data=None, **kwargs):
+def patch(url, data=None, **kwargs):
+def delete(url, **kwargs):
+
+---
+File: src\requests\auth.py
+Size: 10484 bytes
+Lines: 314 [structural]
+---
+import hashlib
+import os
+import re
+import threading
+import time
+import warnings
+from base64 import b64encode
+from ._internal_utils import to_native_string
+from .compat import basestring, str, urlparse
+from .cookies import extract_cookies_to_jar
+from .utils import parse_dict_header
+def _basic_auth_str(username, password):
+class AuthBase:
+    def __call__(self, r):
+class HTTPBasicAuth(AuthBase):
+    def __init__(self, username, password):
+    def __eq__(self, other):
+    def __ne__(self, other):
+    def __call__(self, r):
+class HTTPProxyAuth(HTTPBasicAuth):
+    def __call__(self, r):
+class HTTPDigestAuth(AuthBase):
+    def __init__(self, username, password):
+    def init_per_thread_state(self):
+    def build_digest_header(self, method, url):
+            def md5_utf8(x):
+            def sha_utf8(x):
+            def sha256_utf8(x):
+            def sha512_utf8(x):
+    def handle_redirect(self, r, **kwargs):
+    def handle_401(self, r, **kwargs):
+    def __call__(self, r):
+    def __eq__(self, other):
+    def __ne__(self, other):
+
+---
+File: src\requests\certs.py
+Size: 448 bytes
+Lines: 18
+---
+#!/usr/bin/env python
+
+"""
+requests.certs
+~~~~~~~~~~~~~~
+
+This module returns the preferred default CA certificate bundle. There is
+only one — the one from the certifi package.
+
+If you are packaging Requests, e.g., for a Linux distribution or a managed
+environment, you can change the definition of where() to return a separately
+packaged CA bundle.
+"""
+
+from certifi import where
+
+if __name__ == "__main__":
+    print(where())
+
+
+---
+File: src\requests\compat.py
+Size: 2248 bytes
+Lines: 106 [structural]
+---
+import importlib
+import sys
+from urllib3 import __version__ as urllib3_version
+def _resolve_char_detection():
+    import simplejson as json
+    import json
+    from simplejson import JSONDecodeError
+    from json import JSONDecodeError
+from collections import OrderedDict
+from collections.abc import Callable, Mapping, MutableMapping
+from http import cookiejar as cookielib
+from http.cookies import Morsel
+from io import StringIO
+from urllib.parse import (
+from urllib.request import (
+
+---
+File: src\requests\cookies.py
+Size: 19151 bytes
+Lines: 561 [structural]
+---
+import calendar
+import copy
+import time
+from ._internal_utils import to_native_string
+from .compat import Morsel, MutableMapping, cookielib, urlparse, urlunparse
+    import threading
+    import dummy_threading as threading
+class MockRequest:
+    def __init__(self, request):
+    def get_type(self):
+    def get_host(self):
+    def get_origin_req_host(self):
+    def get_full_url(self):
+    def is_unverifiable(self):
+    def has_header(self, name):
+    def get_header(self, name, default=None):
+    def add_header(self, key, val):
+    def add_unredirected_header(self, name, value):
+    def get_new_headers(self):
+    def unverifiable(self):
+    def origin_req_host(self):
+    def host(self):
+class MockResponse:
+    def __init__(self, headers):
+    def info(self):
+    def getheaders(self, name):
+def extract_cookies_to_jar(jar, request, response):
+def get_cookie_header(jar, request):
+def remove_cookie_by_name(cookiejar, name, domain=None, path=None):
+class CookieConflictError(RuntimeError):
+class RequestsCookieJar(cookielib.CookieJar, MutableMapping):
+    def get(self, name, default=None, domain=None, path=None):
+    def set(self, name, value, **kwargs):
+    def iterkeys(self):
+    def keys(self):
+    def itervalues(self):
+    def values(self):
+    def iteritems(self):
+    def items(self):
+    def list_domains(self):
+    def list_paths(self):
+    def multiple_domains(self):
+    def get_dict(self, domain=None, path=None):
+    def __contains__(self, name):
+    def __getitem__(self, name):
+    def __setitem__(self, name, value):
+    def __delitem__(self, name):
+    def set_cookie(self, cookie, *args, **kwargs):
+    def update(self, other):
+    def _find(self, name, domain=None, path=None):
+    def _find_no_duplicates(self, name, domain=None, path=None):
+    def __getstate__(self):
+    def __setstate__(self, state):
+    def copy(self):
+    def get_policy(self):
+def _copy_cookie_jar(jar):
+def create_cookie(name, value, **kwargs):
+def morsel_to_cookie(morsel):
+def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
+def merge_cookies(cookiejar, cookies):
+
+---
+File: src\requests\exceptions.py
+Size: 4413 bytes
+Lines: 152 [structural]
+---
+from urllib3.exceptions import HTTPError as BaseHTTPError
+from .compat import JSONDecodeError as CompatJSONDecodeError
+class RequestException(IOError):
+    def __init__(self, *args, **kwargs):
+class InvalidJSONError(RequestException):
+class JSONDecodeError(InvalidJSONError, CompatJSONDecodeError):
+    def __init__(self, *args, **kwargs):
+    def __reduce__(self):
+class HTTPError(RequestException):
+class ConnectionError(RequestException):
+class ProxyError(ConnectionError):
+class SSLError(ConnectionError):
+class Timeout(RequestException):
+class ConnectTimeout(ConnectionError, Timeout):
+class ReadTimeout(Timeout):
+class URLRequired(RequestException):
+class TooManyRedirects(RequestException):
+class MissingSchema(RequestException, ValueError):
+class InvalidSchema(RequestException, ValueError):
+class InvalidURL(RequestException, ValueError):
+class InvalidHeader(RequestException, ValueError):
+class InvalidProxyURL(InvalidURL):
+class ChunkedEncodingError(RequestException):
+class ContentDecodingError(RequestException, BaseHTTPError):
+class StreamConsumedError(RequestException, TypeError):
+class RetryError(RequestException):
+class UnrewindableBodyError(RequestException):
+class RequestsWarning(Warning):
+class FileModeWarning(RequestsWarning, DeprecationWarning):
+class RequestsDependencyWarning(RequestsWarning):
+
+---
+File: src\requests\help.py
+Size: 3933 bytes
+Lines: 131 [structural]
+---
+import json
+import platform
+import ssl
+import sys
+import idna
+import urllib3
+from . import __version__ as requests_version
+    import charset_normalizer
+    import chardet
+    from urllib3.contrib import pyopenssl
+    import cryptography
+    import OpenSSL
+def _implementation():
+def info():
+def main():
+
+---
+File: src\requests\hooks.py
+Size: 768 bytes
+Lines: 34
+---
+"""
+requests.hooks
+~~~~~~~~~~~~~~
+
+This module provides the capabilities for the Requests hooks system.
+
+Available hooks:
+
+``response``:
+    The response generated from a Request.
+"""
+
+HOOKS = ["response"]
+
+
+def default_hooks():
+    return {event: [] for event in HOOKS}
+
+
+# TODO: response is the only one
+
+
+def dispatch_hook(key, hooks, hook_data, **kwargs):
+    """Dispatches a hook dictionary on a given piece of data."""
+    hooks = hooks or {}
+    hooks = hooks.get(key)
+    if hooks:
+        if hasattr(hooks, "__call__"):
+            hooks = [hooks]
+        for hook in hooks:
+            _hook_data = hook(hook_data, **kwargs)
+            if _hook_data is not None:
+                hook_data = _hook_data
+    return hook_data
+
+
+---
+File: src\requests\models.py
+Size: 36506 bytes
+Lines: 1041 [structural]
+---
+import datetime
+import encodings.idna  # noqa: F401
+from io import UnsupportedOperation
+from urllib3.exceptions import (
+from urllib3.fields import RequestField
+from urllib3.filepost import encode_multipart_formdata
+from urllib3.util import parse_url
+from ._internal_utils import to_native_string, unicode_is_ascii
+from .auth import HTTPBasicAuth
+from .compat import (
+from .compat import json as complexjson
+from .cookies import _copy_cookie_jar, cookiejar_from_dict, get_cookie_header
+from .exceptions import (
+from .exceptions import JSONDecodeError as RequestsJSONDecodeError
+from .exceptions import SSLError as RequestsSSLError
+from .hooks import default_hooks
+from .status_codes import codes
+from .structures import CaseInsensitiveDict
+from .utils import (
+class RequestEncodingMixin:
+    def path_url(self):
+    def _encode_params(data):
+    def _encode_files(files, data):
+class RequestHooksMixin:
+    def register_hook(self, event, hook):
+    def deregister_hook(self, event, hook):
+class Request(RequestHooksMixin):
+    def __init__(
+    def __repr__(self):
+    def prepare(self):
+class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):
+    def __init__(self):
+    def prepare(
+    def __repr__(self):
+    def copy(self):
+    def prepare_method(self, method):
+    def _get_idna_encoded_host(host):
+        import idna
+    def prepare_url(self, url, params):
+    def prepare_headers(self, headers):
+    def prepare_body(self, data, files, json=None):
+    def prepare_content_length(self, body):
+    def prepare_auth(self, auth, url=""):
+    def prepare_cookies(self, cookies):
+    def prepare_hooks(self, hooks):
+class Response:
+    def __init__(self):
+    def __enter__(self):
+    def __exit__(self, *args):
+    def __getstate__(self):
+    def __setstate__(self, state):
+    def __repr__(self):
+    def __bool__(self):
+    def __nonzero__(self):
+    def __iter__(self):
+    def ok(self):
+    def is_redirect(self):
+    def is_permanent_redirect(self):
+    def next(self):
+    def apparent_encoding(self):
+    def iter_content(self, chunk_size=1, decode_unicode=False):
+        def generate():
+    def iter_lines(
+    def content(self):
+    def text(self):
+    def json(self, **kwargs):
+    def links(self):
+    def raise_for_status(self):
+    def close(self):
+
+---
+File: src\requests\packages.py
+Size: 927 bytes
+Lines: 23
+---
+import sys
+
+from .compat import chardet
+
+# This code exists for backwards compatibility reasons.
+# I don't like it either. Just look the other way. :)
+
+for package in ("urllib3", "idna"):
+    locals()[package] = __import__(package)
+    # This traversal is apparently necessary such that the identities are
+    # preserved (requests.packages.urllib3.* is urllib3.*)
+    for mod in list(sys.modules):
+        if mod == package or mod.startswith(f"{package}."):
+            sys.modules[f"requests.packages.{mod}"] = sys.modules[mod]
+
+if chardet is not None:
+    target = chardet.__name__
+    for mod in list(sys.modules):
+        if mod == target or mod.startswith(f"{target}."):
+            imported_mod = sys.modules[mod]
+            sys.modules[f"requests.packages.{mod}"] = imported_mod
+            mod = mod.replace(target, "chardet")
+            sys.modules[f"requests.packages.{mod}"] = imported_mod
+
+
+---
+File: src\requests\sessions.py
+Size: 31404 bytes
+Lines: 833 [structural]
+---
+import os
+import sys
+import time
+from collections import OrderedDict
+from datetime import timedelta
+from ._internal_utils import to_native_string
+from .adapters import HTTPAdapter
+from .auth import _basic_auth_str
+from .compat import Mapping, cookielib, urljoin, urlparse
+from .cookies import (
+from .exceptions import (
+from .hooks import default_hooks, dispatch_hook
+from .models import (  # noqa: F401
+from .status_codes import codes
+from .structures import CaseInsensitiveDict
+from .utils import (  # noqa: F401
+def merge_setting(request_setting, session_setting, dict_class=OrderedDict):
+def merge_hooks(request_hooks, session_hooks, dict_class=OrderedDict):
+class SessionRedirectMixin:
+    def get_redirect_target(self, resp):
+    def should_strip_auth(self, old_url, new_url):
+    def resolve_redirects(
+    def rebuild_auth(self, prepared_request, response):
+    def rebuild_proxies(self, prepared_request, proxies):
+    def rebuild_method(self, prepared_request, response):
+class Session(SessionRedirectMixin):
+    def __init__(self):
+    def __enter__(self):
+    def __exit__(self, *args):
+    def prepare_request(self, request):
+    def request(
+    def get(self, url, **kwargs):
+    def options(self, url, **kwargs):
+    def head(self, url, **kwargs):
+    def post(self, url, data=None, json=None, **kwargs):
+    def put(self, url, data=None, **kwargs):
+    def patch(self, url, data=None, **kwargs):
+    def delete(self, url, **kwargs):
+    def send(self, request, **kwargs):
+    def merge_environment_settings(self, url, proxies, stream, verify, cert):
+    def get_adapter(self, url):
+    def close(self):
+    def mount(self, prefix, adapter):
+    def __getstate__(self):
+    def __setstate__(self, state):
+def session():
+
+---
+File: src\requests\status_codes.py
+Size: 4450 bytes
+Lines: 128 [structural]
+---
+from .structures import LookupDict
+def _init():
+    def doc(code):
+
+---
+File: src\requests\structures.py
+Size: 3011 bytes
+Lines: 99 [structural]
+---
+from collections import OrderedDict
+from .compat import Mapping, MutableMapping
+class CaseInsensitiveDict(MutableMapping):
+    def __init__(self, data=None, **kwargs):
+    def __setitem__(self, key, value):
+    def __getitem__(self, key):
+    def __delitem__(self, key):
+    def __iter__(self):
+    def __len__(self):
+    def lower_items(self):
+    def __eq__(self, other):
+    def copy(self):
+    def __repr__(self):
+class LookupDict(dict):
+    def __init__(self, name=None):
+    def __repr__(self):
+    def __getitem__(self, key):
+    def get(self, key, default=None):
+
+---
+File: src\requests\utils.py
+Size: 34049 bytes
+Lines: 1083 [structural]
+---
+import codecs
+import contextlib
+import io
+import os
+import re
+import socket
+import struct
+import sys
+import tempfile
+import warnings
+import zipfile
+from collections import OrderedDict
+from urllib3.util import make_headers, parse_url
+from . import certs
+from .__version__ import __version__
+from ._internal_utils import (  # noqa: F401
+from .compat import (
+from .compat import parse_http_list as _parse_list_header
+from .cookies import cookiejar_from_dict
+from .exceptions import (
+from .structures import CaseInsensitiveDict
+    def proxy_bypass_registry(host):
+            import winreg
+    def proxy_bypass(host):  # noqa
+def dict_to_sequence(d):
+def super_len(o):
+def get_netrc_auth(url, raise_errors=False):
+        from netrc import NetrcParseError, netrc
+def guess_filename(obj):
+def extract_zipped_paths(path):
+def atomic_open(filename):
+def from_key_val_list(value):
+def to_key_val_list(value):
+def parse_list_header(value):
+def parse_dict_header(value):
+def unquote_header_value(value, is_filename=False):
+def dict_from_cookiejar(cj):
+def add_dict_to_cookiejar(cj, cookie_dict):
+def get_encodings_from_content(content):
+def _parse_content_type_header(header):
+def get_encoding_from_headers(headers):
+def stream_decode_response_unicode(iterator, r):
+def iter_slices(string, slice_length):
+def get_unicode_from_response(r):
+def unquote_unreserved(uri):
+def requote_uri(uri):
+def address_in_network(ip, net):
+def dotted_netmask(mask):
+def is_ipv4_address(string_ip):
+def is_valid_cidr(string_network):
+def set_environ(env_name, value):
+def should_bypass_proxies(url, no_proxy):
+    def get_proxy(key):
+def get_environ_proxies(url, no_proxy=None):
+def select_proxy(url, proxies):
+def resolve_proxies(request, proxies, trust_env=True):
+def default_user_agent(name="python-requests"):
+def default_headers():
+def parse_header_links(value):
+def guess_json_utf(data):
+def prepend_scheme_if_needed(url, new_scheme):
+def get_auth_from_url(url):
+def check_header_validity(header):
+def _validate_header_part(header, header_part, header_validator_index):
+def urldefragauth(url):
+def rewind_body(prepared_request):
+
+---
+File: docs\.nojekyll
+Size: 2 bytes
+Lines: 1
+---
+
+
+
+---
+File: docs\conf.py
+Size: 12533 bytes
+Lines: 385 [structural]
+---
+import sys
+import os
+import requests
+
+---
+File: docs\make.bat
+Size: 7253 bytes
+Lines: 263
+---
+@ECHO OFF
+
+REM Command file for Sphinx documentation
+
+if "%SPHINXBUILD%" == "" (
+	set SPHINXBUILD=sphinx-build
+)
+set BUILDDIR=_build
+set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% .
+set I18NSPHINXOPTS=%SPHINXOPTS% .
+if NOT "%PAPER%" == "" (
+	set ALLSPHINXOPTS=-D latex_paper_size=%PAPER% %ALLSPHINXOPTS%
+	set I18NSPHINXOPTS=-D latex_paper_size=%PAPER% %I18NSPHINXOPTS%
+)
+
+if "%1" == "" goto help
+
+if "%1" == "help" (
+	:help
+	echo.Please use `make ^<target^>` where ^<target^> is one of
+	echo.  html       to make standalone HTML files
+	echo.  dirhtml    to make HTML files named index.html in directories
+	echo.  singlehtml to make a single large HTML file
+	echo.  pickle     to make pickle files
+	echo.  json       to make JSON files
+	echo.  htmlhelp   to make HTML files and a HTML help project
+	echo.  qthelp     to make HTML files and a qthelp project
+	echo.  devhelp    to make HTML files and a Devhelp project
+	echo.  epub       to make an epub
+	echo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+	echo.  text       to make text files
+	echo.  man        to make manual pages
+	echo.  texinfo    to make Texinfo files
+	echo.  gettext    to make PO message catalogs
+	echo.  changes    to make an overview over all changed/added/deprecated items
+	echo.  xml        to make Docutils-native XML files
+	echo.  pseudoxml  to make pseudoxml-XML files for display purposes
+	echo.  linkcheck  to check all external links for integrity
+	echo.  doctest    to run all doctests embedded in the documentation if enabled
+	echo.  coverage   to run coverage check of the documentation if enabled
+	goto end
+)
+
+if "%1" == "clean" (
+	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
+	del /q /s %BUILDDIR%\*
+	goto end
+)
+
+
+REM Check if sphinx-build is available and fallback to Python version if any
+%SPHINXBUILD% 1>NUL 2>NUL
+if errorlevel 9009 goto sphinx_python
+goto sphinx_ok
+
+:sphinx_python
+
+set SPHINXBUILD=python -m sphinx.__init__
+%SPHINXBUILD% 2> nul
+if errorlevel 9009 (
+	echo.
+	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+	echo.installed, then set the SPHINXBUILD environment variable to point
+	echo.to the full path of the 'sphinx-build' executable. Alternatively you
+	echo.may add the Sphinx directory to PATH.
+	echo.
+	echo.If you don't have Sphinx installed, grab it from
+	echo.http://sphinx-doc.org/
+	exit /b 1
+)
+
+:sphinx_ok
+
+
+if "%1" == "html" (
+	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%/html
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The HTML pages are in %BUILDDIR%/html.
+	goto end
+)
+
+if "%1" == "dirhtml" (
+	%SPHINXBUILD% -b dirhtml %ALLSPHINXOPTS% %BUILDDIR%/dirhtml
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The HTML pages are in %BUILDDIR%/dirhtml.
+	goto end
+)
+
+if "%1" == "singlehtml" (
+	%SPHINXBUILD% -b singlehtml %ALLSPHINXOPTS% %BUILDDIR%/singlehtml
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The HTML pages are in %BUILDDIR%/singlehtml.
+	goto end
+)
+
+if "%1" == "pickle" (
+	%SPHINXBUILD% -b pickle %ALLSPHINXOPTS% %BUILDDIR%/pickle
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished; now you can process the pickle files.
+	goto end
+)
+
+if "%1" == "json" (
+	%SPHINXBUILD% -b json %ALLSPHINXOPTS% %BUILDDIR%/json
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished; now you can process the JSON files.
+	goto end
+)
+
+if "%1" == "htmlhelp" (
+	%SPHINXBUILD% -b htmlhelp %ALLSPHINXOPTS% %BUILDDIR%/htmlhelp
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished; now you can run HTML Help Workshop with the ^
+.hhp project file in %BUILDDIR%/htmlhelp.
+	goto end
+)
+
+if "%1" == "qthelp" (
+	%SPHINXBUILD% -b qthelp %ALLSPHINXOPTS% %BUILDDIR%/qthelp
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished; now you can run "qcollectiongenerator" with the ^
+.qhcp project file in %BUILDDIR%/qthelp, like this:
+	echo.^> qcollectiongenerator %BUILDDIR%\qthelp\Requests.qhcp
+	echo.To view the help file:
+	echo.^> assistant -collectionFile %BUILDDIR%\qthelp\Requests.ghc
+	goto end
+)
+
+if "%1" == "devhelp" (
+	%SPHINXBUILD% -b devhelp %ALLSPHINXOPTS% %BUILDDIR%/devhelp
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished.
+	goto end
+)
+
+if "%1" == "epub" (
+	%SPHINXBUILD% -b epub %ALLSPHINXOPTS% %BUILDDIR%/epub
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The epub file is in %BUILDDIR%/epub.
+	goto end
+)
+
+if "%1" == "latex" (
+	%SPHINXBUILD% -b latex %ALLSPHINXOPTS% %BUILDDIR%/latex
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished; the LaTeX files are in %BUILDDIR%/latex.
+	goto end
+)
+
+if "%1" == "latexpdf" (
+	%SPHINXBUILD% -b latex %ALLSPHINXOPTS% %BUILDDIR%/latex
+	cd %BUILDDIR%/latex
+	make all-pdf
+	cd %~dp0
+	echo.
+	echo.Build finished; the PDF files are in %BUILDDIR%/latex.
+	goto end
+)
+
+if "%1" == "latexpdfja" (
+	%SPHINXBUILD% -b latex %ALLSPHINXOPTS% %BUILDDIR%/latex
+	cd %BUILDDIR%/latex
+	make all-pdf-ja
+	cd %~dp0
+	echo.
+	echo.Build finished; the PDF files are in %BUILDDIR%/latex.
+	goto end
+)
+
+if "%1" == "text" (
+	%SPHINXBUILD% -b text %ALLSPHINXOPTS% %BUILDDIR%/text
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The text files are in %BUILDDIR%/text.
+	goto end
+)
+
+if "%1" == "man" (
+	%SPHINXBUILD% -b man %ALLSPHINXOPTS% %BUILDDIR%/man
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The manual pages are in %BUILDDIR%/man.
+	goto end
+)
+
+if "%1" == "texinfo" (
+	%SPHINXBUILD% -b texinfo %ALLSPHINXOPTS% %BUILDDIR%/texinfo
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The Texinfo files are in %BUILDDIR%/texinfo.
+	goto end
+)
+
+if "%1" == "gettext" (
+	%SPHINXBUILD% -b gettext %I18NSPHINXOPTS% %BUILDDIR%/locale
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The message catalogs are in %BUILDDIR%/locale.
+	goto end
+)
+
+if "%1" == "changes" (
+	%SPHINXBUILD% -b changes %ALLSPHINXOPTS% %BUILDDIR%/changes
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.The overview file is in %BUILDDIR%/changes.
+	goto end
+)
+
+if "%1" == "linkcheck" (
+	%SPHINXBUILD% -b linkcheck %ALLSPHINXOPTS% %BUILDDIR%/linkcheck
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Link check complete; look for any errors in the above output ^
+or in %BUILDDIR%/linkcheck/output.txt.
+	goto end
+)
+
+if "%1" == "doctest" (
+	%SPHINXBUILD% -b doctest %ALLSPHINXOPTS% %BUILDDIR%/doctest
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Testing of doctests in the sources finished, look at the ^
+results in %BUILDDIR%/doctest/output.txt.
+	goto end
+)
+
+if "%1" == "coverage" (
+	%SPHINXBUILD% -b coverage %ALLSPHINXOPTS% %BUILDDIR%/coverage
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Testing of coverage in the sources finished, look at the ^
+results in %BUILDDIR%/coverage/python.txt.
+	goto end
+)
+
+if "%1" == "xml" (
+	%SPHINXBUILD% -b xml %ALLSPHINXOPTS% %BUILDDIR%/xml
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The XML files are in %BUILDDIR%/xml.
+	goto end
+)
+
+if "%1" == "pseudoxml" (
+	%SPHINXBUILD% -b pseudoxml %ALLSPHINXOPTS% %BUILDDIR%/pseudoxml
+	if errorlevel 1 exit /b 1
+	echo.
+	echo.Build finished. The pseudo-XML files are in %BUILDDIR%/pseudoxml.
+	goto end
+)
+
+:end
+
+
+---
+File: docs\_themes\.gitignore
+Size: 25 bytes
+Lines: 3
+---
+*.pyc
+*.pyo
+.DS_Store
+
+
+---
+File: docs\_static\custom.css
+Size: 337 bytes
+Lines: 13
+---
+img.logo {margin-left: -20px!important;}
+
+div#searchbox h3 {text-transform: capitalize;}
+
+div.document {width: 1008px;}
+
+div.highlight pre {padding: 11px 14px;}
+
+@media screen and (max-width: 1008px) {
+  div.sphinxsidebar {display: none;}
+  div.document {width: 100%!important;}
+  div.highlight pre {margin-right: -30px;}
+}
+
+
+---
+File: docs\_themes\flask_theme_support.py
+Size: 4961 bytes
+Lines: 86 [structural]
+---
+from pygments.style import Style
+from pygments.token import Keyword, Name, Comment, String, Error, \
+class FlaskyStyle(Style):
+
+---
+File: docs\_templates\sidebar.html
+Size: 1394 bytes
+Lines: 33
+---
+<p class="logo">
+  <a href="{{ pathto(root_doc) }}">
+    <img class="logo" src="{{ pathto('_static/requests-sidebar.png', 1) }}" alt="{{ _('Requests logo') }}" />
+  </a>
+</p>
+
+<p>
+  <iframe src="https://ghbtns.com/github-btn.html?user=psf&repo=requests&type=watch&count=true&size=large"
+    allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+<p>
+  {{ _('Requests is an elegant and simple HTTP library for Python, built for human beings.') }}
+</p>
+
+<h3>{{ _('Useful Links') }}</h3>
+<ul>
+  <li><a href="{{ pathto('user/quickstart') }}">{{ _('Quickstart') }}</a></li>
+  <li><a href="{{ pathto('user/advanced') }}">{{ _('Advanced Usage') }}</a></li>
+  <li><a href="{{ pathto('api') }}">{{ _('API Reference') }}</a></li>
+  <li><a href="{{ pathto('community/updates') + '#release-history' }}">{{ _('Release History') }}</a></li>
+  <li><a href="{{ pathto('dev/contributing') }}">{{ _('Contributors Guide') }}</a></li>
+
+  <p></p>
+
+  <li><a href="{{ pathto('community/recommended') }}">{{ _('Recommended Packages and Extensions') }}</a></li>
+
+  <p></p>
+
+  <li><a href="https://github.com/psf/requests">{{ _('Requests @ GitHub') }}</a></li>
+  <li><a href="https://pypi.org/project/requests/">{{ _('Requests @ PyPI') }}</a></li>
+  <li><a href="https://github.com/psf/requests/issues">{{ _('Issue Tracker') }}</a></li>
+</ul>
+

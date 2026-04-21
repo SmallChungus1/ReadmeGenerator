@@ -1,0 +1,329 @@
+Tokens: 2378
+Repo: apache/cordova-plugin-splashscreen
+Commit: 586b988371fc57919288caacf7e1486ac44d19ca
+Timestamp: 2026-04-12T23:33:06.887689
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .eslintrc.yml
+├── .gitignore
+├── .npmignore
+├── package-lock.json
+├── package.json
+├── plugin.xml
+├── src
+│   └── browser
+│       └── SplashScreenProxy.js
+├── types
+│   └── index.d.ts
+└── www
+    └── splashscreen.js
+
+--- Summary Report ---
+Total files scanned: 10
+Files included: 9
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 1
+Files with dependency extraction: 0
+Detected languages count: 7
+Top 15 largest included files:
+  6353 bytes - src\browser\SplashScreenProxy.js
+  1671 bytes - plugin.xml
+  1302 bytes - package.json
+  1109 bytes - www\splashscreen.js
+  1026 bytes - .asf.yaml
+  952 bytes - .eslintrc.yml
+  635 bytes - types\index.d.ts
+  179 bytes - .gitignore
+  11 bytes - .npmignore
+-----------------------
+
+---
+File: package.json
+Size: 1302 bytes
+Lines: 54
+---
+{
+  "name": "cordova-plugin-splashscreen",
+  "version": "7.0.0-dev",
+  "description": "Cordova Splashscreen Plugin",
+  "types": "./types/index.d.ts",
+  "cordova": {
+    "id": "cordova-plugin-splashscreen",
+    "platforms": [
+      "browser"
+    ]
+  },
+  "repository": "github:apache/cordova-plugin-splashscreen",
+  "bugs": "https://github.com/apache/cordova-plugin-splashscreen/issues",
+  "keywords": [
+    "cordova",
+    "splashscreen",
+    "ecosystem:cordova",
+    "cordova-browser"
+  ],
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "cordovaDependencies": {
+      "2.0.0": {
+        "cordova-android": ">=3.6.0"
+      },
+      ">=4.0.0": {
+        "cordova-android": ">=3.6.0",
+        "cordova-windows": ">=4.4.0"
+      },
+      "<6.0.0": {
+        "cordova-ios": "<6.0.0"
+      },
+      "6.0.2": {
+        "cordova-android": ">=3.6.0 <11.0.0",
+        "cordova-windows": ">=4.4.0"
+      },
+      "<7.0.0": {
+        "cordova-android": ">=3.6.0 <11.0.0",
+        "cordova-windows": ">=4.4.0"
+      },
+      "8.0.0": {
+        "cordova": ">100"
+      }
+    }
+  },
+  "author": "Apache Software Foundation",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@cordova/eslint-config": "^3.0.0"
+  }
+}
+
+
+---
+File: .asf.yaml
+Size: 1026 bytes
+Lines: 22
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+notifications:
+  commits:              commits@cordova.apache.org
+  issues:               issues@cordova.apache.org
+  pullrequests_status:  issues@cordova.apache.org
+  pullrequests_comment: issues@cordova.apache.org
+
+
+---
+File: .eslintrc.yml
+Size: 952 bytes
+Lines: 23
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+root: true
+extends: '@cordova/eslint-config/browser'
+
+overrides:
+  - files: [tests/**/*.js]
+    extends: '@cordova/eslint-config/node-tests'
+
+
+---
+File: .gitignore
+Size: 179 bytes
+Lines: 15
+---
+#If ignorance is bliss, then somebody knock the smile off my face
+
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+*.DS_Store
+
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+node_modules
+
+
+---
+File: .npmignore
+Size: 11 bytes
+Lines: 2
+---
+.*
+tests
+
+
+---
+File: plugin.xml
+Size: 1671 bytes
+Lines: 40
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-splashscreen"
+        version="7.0.0-dev">
+    <name>Splashscreen</name>
+    <description>Cordova Splashscreen Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,splashscreen</keywords>
+    <repo>https://github.com/apache/cordova-plugin-splashscreen.git</repo>
+    <issue>https://github.com/apache/cordova-plugin-splashscreen/issues</issue>
+    <!-- browser -->
+    <platform name="browser">
+        <js-module src="src/browser/SplashScreenProxy.js" name="SplashScreenProxy">
+            <runs />
+        </js-module>
+
+        <js-module src="www/splashscreen.js" name="SplashScreen">
+            <clobbers target="navigator.splashscreen" />
+        </js-module>
+    </platform>
+</plugin>
+
+
+---
+File: types\index.d.ts
+Size: 635 bytes
+Lines: 17
+---
+// Type definitions for Apache Cordova Splashscreen plugin
+// Project: https://github.com/apache/cordova-plugin-splashscreen
+// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// 
+// Copyright (c) Microsoft Open Technologies Inc
+// Licensed under the MIT license.
+
+interface Navigator {
+    /** This plugin displays and hides a splash screen during application launch. */
+    splashscreen: {
+        /** Dismiss the splash screen. */
+        hide(): void;
+        /** Displays the splash screen. */
+        show(): void;
+    }
+}
+
+---
+File: www\splashscreen.js
+Size: 1109 bytes
+Lines: 33
+---
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+*/
+
+var exec = require('cordova/exec');
+
+var splashscreen = {
+    show: function () {
+        exec(null, null, 'SplashScreen', 'show', []);
+    },
+    hide: function () {
+        exec(null, null, 'SplashScreen', 'hide', []);
+    }
+};
+
+module.exports = splashscreen;
+
+
+---
+File: src\browser\SplashScreenProxy.js
+Size: 6353 bytes
+Lines: 168 [structural]
+---
+var splashImageWidth = 170;
+var splashImageHeight = 200;
+var position = { x: 0, y: 0, width: splashImageWidth, height: splashImageHeight };
+var localSplash; // the image to display
+var localSplashImage;
+var bgColor = '#464646';
+var imageSrc = '/img/logo.png';
+var splashScreenDelay = 3000; // in milliseconds
+var showSplashScreen = true; // show splashcreen by default
+var cordova = require('cordova');
+var configHelper = cordova.require('cordova/confighelper');
+var autoHideSplashScreen = true;
+function updateImageLocation () {
+function onResize () {
+var SplashScreen = {
+            var innerLocalSplash = localSplash;
+function readPreferencesFromCfg (cfg) {
+        var value = cfg.getPreferenceValue('ShowSplashScreen');
+        var msg = '[Browser][SplashScreen] Error occurred on loading preferences from config.xml: ' + JSON.stringify(e);
+function showAndHide () {

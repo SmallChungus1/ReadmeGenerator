@@ -1,0 +1,601 @@
+Tokens: 4495
+Repo: apache/openserverless
+Commit: 6860a443c5c8cba2aaf5299683b1057bb1636cdc
+Timestamp: 2026-04-12T23:33:07.878725
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .gitignore
+├── .gitmodules
+├── DISCLAIMER
+├── assets
+│   └── logos
+│       ├── png
+│       └── svg
+├── bash_aliases
+├── cli
+├── cloud-init.yaml
+├── devcontainer
+├── direnv-init.sh
+├── get-diff.sh
+├── olaris
+├── olaris-op
+├── openserverless-cli.code-workspace
+├── openserverless-operator.code-workspace
+├── openserverless.code-workspace
+├── runtimes
+├── site
+├── sync-branch.sh
+├── testing
+├── update-tree.sh
+└── vscode
+
+--- Summary Report ---
+Total files scanned: 13
+Files included: 13
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 0
+Files with dependency extraction: 0
+Detected languages count: 4
+Top 15 largest included files:
+  3666 bytes - bash_aliases
+  3449 bytes - cloud-init.yaml
+  1557 bytes - .asf.yaml
+  1120 bytes - get-diff.sh
+  934 bytes - .gitmodules
+  703 bytes - sync-branch.sh
+  646 bytes - openserverless.code-workspace
+  572 bytes - DISCLAIMER
+  480 bytes - openserverless-operator.code-workspace
+  478 bytes - openserverless-cli.code-workspace
+  344 bytes - direnv-init.sh
+  108 bytes - update-tree.sh
+  57 bytes - .gitignore
+-----------------------
+
+---
+File: .asf.yaml
+Size: 1557 bytes
+Lines: 51
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+github:
+  description: "Apache OpenServerless (incubating)"
+  homepage: https://openserverless.apache.org
+  labels:
+    - openserverless
+    - cloud
+    - serverless
+    - kubernetes
+
+  enabled_merge_buttons:
+    merge: false
+    squash: true
+    rebase: true
+
+  protected_branches:
+    main:
+      required_linear_history: true
+      required_status_checks:
+        strict: true
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+      required_conversation_resolution: true
+
+  features:
+    wiki: true
+    issues: true
+    projects: true
+
+  collaborators: []  # Note: the number of collaborators is limited to 10
+
+  ghp_branch: gh-pages
+  ghp_path: /
+
+
+
+---
+File: .gitignore
+Size: 57 bytes
+Lines: 5
+---
+.attic/
+.vscode/
+.idea/
+**/.DS_Store
+network-cache/
+
+
+---
+File: .gitmodules
+Size: 934 bytes
+Lines: 32
+---
+[submodule "site"]
+	path = site
+	url = https://github.com/apache/openserverless-site
+	branch = main
+[submodule "cli"]
+	path = cli
+	url = https://github.com/apache/openserverless-cli
+	branch = main
+[submodule "operator"]
+	path = olaris-op
+	url = https://github.com/apache/openserverless-operator
+	branch = main
+[submodule "testing"]
+	path = testing
+	url = https://github.com/apache/openserverless-testing
+	branch = main
+[submodule "task"]
+	path = olaris
+	url = https://github.com/apache/openserverless-task
+	branch = main
+[submodule "runtimes"]
+	path = runtimes
+	url = https://github.com/apache/openserverless-runtimes
+	branch = main
+[submodule "vscode"]
+	path = vscode
+	url = https://github.com/apache/openserverless-vscode-extension
+        branch = main
+[submodule "openserverless-devcontainer"]
+	path = devcontainer
+	url = https://github.com/apache/openserverless-devcontainer
+        branch = main
+
+
+---
+File: cloud-init.yaml
+Size: 3449 bytes
+Lines: 103
+---
+#cloud-config
+apt_update: true
+apt_upgrade: true
+packages:
+  - at
+
+users:
+  - name: ubuntu
+    uid: 1000
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+write_files:
+  - path: /etc/cloud-init.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+      echo "OPS_CLOUD_INIT_VER=3" >>/etc/environment
+      IP="$(ip -o -4 addr | awk '$2 ~/en/ { print $4}' | cut -d/ -f1)"
+      # install k3s, direnv, task
+      curl -sfL https://get.k3s.io | sh -
+      # set home and user
+      USR="$(getent passwd 1000 | awk -F: '{print $1}')"
+      HOME="/home/$USR"
+      # copy authkey if there is a root one
+      mkdir -p /home/$USR/.ssh
+      if test -e /root/.ssh/authorized_keys
+      then cat /root/.ssh/authorized_keys >>/home/$USR/.ssh/authorized_keys
+      fi
+      # access k3s
+      mkdir -p "$HOME/.kube"
+      cat /etc/rancher/k3s/k3s.yaml "$HOME/.kube/config" | sed -e 's!server: https://127.0.0.1:!server: https://'$IP':!' >"$HOME/.kube/config"
+      echo "export KUBECONFIG=/home/$USR/.kube/config" >>$HOME/.bashrc
+      chown -Rvf "$USR" /home/$USR
+      #sudo -u $USR bash /etc/install-opsv.sh
+      echo "== DONE =="
+
+  - path: /etc/install-opsv.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+        curl -sL bit.ly/get-ops | bash
+        # TODO: use the released version not main
+        echo "export OPS_BRANCH=main" >> ~/.bashrc
+        source ~/.bashrc
+        ops -t
+        ops -info
+        # configure opsv
+        ops config slim 
+        IP="$(ip -o -4 addr | awk '$2 ~/en/ { print $4}' | cut -d/ -f1)"
+        ops config apihost "$IP.nip.io"
+        ops setup cluster
+
+  - path: /home/ubuntu/waitready
+    permissions: '0755'
+    owner: ubuntu:ubuntu
+    defer: true
+    content: |
+      #!/bin/bash
+      sudo cloud-init status --wait
+      tail -f /tmp/cloud-init.log | while read line
+      do echo "$line"
+        if [[ "$line" == *"== DONE =="* ]]
+        then exit 0
+        fi
+      done
+  
+  - path: /home/ubuntu/i-am-a-developer
+    permissions: '0755'
+    defer: true
+    owner: ubuntu:ubuntu
+    content: |
+      # get openserverless sources
+      cd $HOME
+      # install task and skywalking-eyes
+      sudo snap install task --classic
+      sudo snap install go --classic
+      go install github.com/apache/skywalking-eyes/cmd/license-eye@latest
+      echo "export PATH=\$PATH:\$HOME/go/bin" >> .bashrc
+      # install direnv and nix
+      curl -sL https://nixos.org/nix/install | sh
+      source .profile
+      curl -sL https://direnv.net/install.sh | sudo bash
+      echo 'eval "$(direnv hook bash)"' >> .bashrc
+      source .bashrc
+      # setup openserverless
+      git clone https://github.com/apache/openserverless.git --recurse-submodules
+      cd openserverless 
+      bash sync-branch.sh
+      bash direnv-init.sh
+      # TODO add a .git-hooks directory with hooks
+      #git config core.hooksPath .git-hooks
+ 
+runcmd:
+  - |
+    cd /home/ubuntu
+    # add z.sh and .aliases
+    curl -sL "https://raw.githubusercontent.com/rupa/z/master/z.sh" -o ".z.sh"
+    curl -sL https://raw.githubusercontent.com/sciabarracom/openserverless/refs/heads/main/bash_aliases -o ".bash_aliases"
+    echo 'source $HOME/.z.sh' >> .bashrc
+    chown ubuntu:ubuntu .z.sh .bashrc .bash_aliases 
+    echo -e '#!/bin/bash\n/etc/cloud-init.sh 2>&1 >/tmp/cloud-init.log\n' | at now
+
+
+---
+File: DISCLAIMER
+Size: 572 bytes
+Lines: 11
+---
+Apache OpenServerless (Incubating) is an effort undergoing incubation at the Apache
+Software Foundation (ASF), sponsored by the Apache Incubator PMC.
+
+Incubation is required of all newly accepted projects until a further review
+indicates that the infrastructure, communications, and decision making process
+have stabilized in a manner consistent with other successful ASF projects.
+
+While incubation status is not necessarily a reflection of the completeness
+or stability of the code, it does indicate that the project has yet to be
+fully endorsed by the ASF.
+
+
+
+---
+File: bash_aliases
+Size: 3666 bytes
+Lines: 118
+---
+## NOTE! This script should be sourced, not executed. 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+alias va="vi ~/.bash_aliases ; source ~/.bash_aliases"
+
+# prompt
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+}
+export PS1="[\h:\[\e[32m\]\w:\[\e[91m\]\$(parse_git_branch)\[\e[00m\]]\n$ "
+
+
+function secrets {
+    if ! which op
+    then echo "download the op cli from https://developer.1password.com/docs/cli/get-started/"
+         return
+    fi
+    if ! test -e .env.dist
+    then echo "no .env.dist listing the required secrets" 
+         return
+    fi
+    echo "reading .env.dist to generate .env and .env.src from 1password"
+    echo "I OVERWRITE the existing files, type your password or interrupt now"
+    eval $(op signin)
+    rm -f .env .env.src
+    cat .env.dist | awk '{
+        if(match($1, /^(.*)=(.*):/, a)) {
+            print a[1] " op://secrets/" a[2] "/" a[1]
+        }
+    }' | while read VAR SEC 
+    do 
+        VAL="$(op read $SEC)"
+        echo read $VAR 
+        echo "$VAR=$VAL" >>.env
+        echo "echo export and config $VAR" >>.env.src
+        echo "export $VAR=\"$VAL\"" >>.env.src
+        echo "nuv -config \"$VAR=$VAL\""  >>.env.src
+    done
+    source .env.src
+}
+
+export KNS="default"
+alias k='kubectl -n $KNS'
+alias kg='kubectl -n $KNS get'
+alias kgy='kubectl -n $KNS -o yaml get'
+alias kaf='kubectl -n $KNS apply -f'
+alias kde='kubectl -n $KNS describe'
+alias kdel='kubectl -n $KNS delete'
+alias kin="kubectl cluster-info"
+
+function kex { 
+  ME=$1
+  CMD=${2:-bash} 
+  kubectl -n $KNS exec -ti $(kubectl -n $KNS get po | awk "/$ME/"'{print $1}') -- $CMD
+}
+
+function klo {
+  ME=$1
+  shift
+  kubectl -n $KNS logs $(kubectl -n $KNS get po | awk "/$ME/"'{print $1}') "$@"
+} 
+
+function kns {
+  if test -z "$1"
+  then kubectl get ns
+       echo "*** current: $KNS ***"
+  else export KNS="$1"
+       kubectl config set-context --current --namespace "$1"
+  fi
+}
+
+alias kwa="watch kubectl get po,deploy,sts,jobs,svc,ingress --no-headers"
+alias kwp="watch kubectl get po,deploy,sts,jobs --no-headers"
+alias kws="watch kubectl get svc,ingress --no-headers"
+alias kwc="watch kubectl get cm,secret --no-headers"
+
+alias kfin='kubectl patch -p {"metadata":{"finalizers":[]}} --type=merge' 
+
+alias ga="git add"
+alias gst="git status"
+alias glog="git log --pretty=oneline"
+alias gdf="git diff --name-only"
+alias gcm="git commit -m"
+alias gcam="git commit -a -m"
+alias gpom="git push origin main"
+
+function gsnap {
+  if test -z "$1"
+  then echo msg please
+  else x=""; for i in "$@" ; do x="$x$i " ; done
+       git commit -a -m "$x" 
+       git push 
+  fi
+}
+
+alias t=task
+alias tt='task -d ..'
+alias ttt='task -d ../..'
+alias dtag="date +%y%m%d%H"
+alias lenv='export $(xargs <.env)'
+alias nssh="ssh -oStrictHostKeyChecking=no"
+alias gr="grep -nr"
+
+---
+File: direnv-init.sh
+Size: 344 bytes
+Lines: 8
+---
+#!/bin/bash
+cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+git clone https://github.com/nix-community/nix-direnv $HOME/nix-direnv
+mkdir -p $HOME/.config/direnv
+echo 'source $HOME/nix-direnv/direnvrc' >>$HOME/.config/direnv/direnvrc
+find . -name '.envrc' -execdir direnv allow . pwd  \;
+find . -name '.envrc' -execdir direnv exec . pwd  \;
+
+
+
+---
+File: get-diff.sh
+Size: 1120 bytes
+Lines: 36
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+F=${1:?file}
+
+FILE=$(realpath $F)
+echo $FILE
+
+CUR="$(basename $FILE)"
+CONT="$(dirname $FILE)"
+while ! test -d ${CONT}.diff
+do 
+    echo $CUR
+    CUR="$(basename $CONT)/$CUR"
+    CONT=$(dirname $CONT)
+    echo $CONT
+done
+
+echo  CONTAINER $CONT
+echo  PATH $CUR
+
+code -r -d ${CONT}.diff/$CUR $CONT/$CUR
+
+---
+File: openserverless-cli.code-workspace
+Size: 478 bytes
+Lines: 21
+---
+{
+  "folders": [
+    {
+      "name": "cli",
+      "path": "cli"
+    },
+   { 
+      "name": "task",
+      "path": "task"
+    }
+  ],
+  "settings": {
+    "workbench.colorCustomizations": {
+      "activityBar.background": "#5b09e0",
+      "titleBar.activeBackground": "#5b09e0",
+      "titleBar.activeForeground": "#5b09e0",
+      "statusBar.background": "#5b09e0"
+    },
+    "go.goroot": "/nix/store/nnh57s7m672k6snkanhz1kb18skwjpbg-go-1.21.11/share/go"
+  }
+}
+
+
+---
+File: openserverless-operator.code-workspace
+Size: 480 bytes
+Lines: 17
+---
+{
+    "folders": [
+            {
+                "name": "openserverless-operator",
+                "path": "operator"
+            }
+        ],
+    "settings": {
+            "workbench.colorCustomizations": {
+                    "activityBar.background": "#32cb0f",
+                    "titleBar.activeBackground": "#32cb0f",
+                    "titleBar.activeForeground": "#32cb0f",
+                    "statusBar.background": "#32cb0f"
+
+            }
+    }
+}
+
+
+---
+File: openserverless.code-workspace
+Size: 646 bytes
+Lines: 24
+---
+{
+    "folders": [
+            {
+                "name": "operator",
+                "path": "operator"
+            },
+            {
+                "name": "site",
+                "path": "site"
+            },
+            { 
+                "name": "root",
+                "path": "."
+	    }
+        ],
+    "settings": {
+            "workbench.colorCustomizations": {
+                    "activityBar.background": "#d2e313",
+                    "titleBar.activeBackground": "#d2e313",
+                    "titleBar.activeForeground": "#d2e313",
+                    "statusBar.background": "#d2e313"
+            }
+    }
+}
+
+
+---
+File: sync-branch.sh
+Size: 703 bytes
+Lines: 26
+---
+#!/bin/bash
+me="$(realpath $0)"
+if test -z "$1"
+then
+    cd "$(dirname $0)"
+    git submodule --quiet foreach --recursive "$me \$toplevel/.gitmodules \$name" 
+    #>_submodules
+    #cat _submodules
+else 
+    #echo "*** $1 - $2 ***"
+    #pwd
+    BRANCH=$(git config -f "$1" "submodule.$2.branch")
+    if test -z "$BRANCH"
+    then echo "??? $(pwd) no branch: $2"
+    else 
+        CUR=$(git rev-parse --abbrev-ref HEAD)
+        if test "$CUR" = "HEAD"
+        then git checkout "origin/$BRANCH" -B "$BRANCH"
+        else 
+	     if test "$CUR" = "$BRANCH"
+	     then echo "ok: $2@$CUR "
+	     else echo "!!! $2: found: $CUR expected: $BRANCH"
+             fi 
+        fi
+    fi
+fi
+
+---
+File: update-tree.sh
+Size: 108 bytes
+Lines: 4
+---
+#!/bin/bash
+git pull origin main --rebase
+git submodule update --recursive --remote
+bash sync-branch.sh
+

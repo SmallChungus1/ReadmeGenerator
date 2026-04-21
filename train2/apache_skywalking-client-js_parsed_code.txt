@@ -1,0 +1,2212 @@
+Tokens: 16924
+Repo: apache/skywalking-client-js
+Commit: 1e12bcf7baf66d2be638e59c82ba4f65f363b6d3
+Timestamp: 2026-04-12T23:32:17.006322
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .gitignore
+├── .licenserc.yaml
+├── .npmrc
+├── .prettierrc
+├── Makefile
+├── index.js
+├── package-lock.json
+├── package.json
+├── src
+│   ├── errors
+│   │   ├── ajax.ts
+│   │   ├── frames.ts
+│   │   ├── index.ts
+│   │   ├── js.ts
+│   │   ├── promise.ts
+│   │   ├── resource.ts
+│   │   └── vue.ts
+│   ├── index.ts
+│   ├── monitor.ts
+│   ├── performance
+│   │   ├── fmp.ts
+│   │   ├── index.ts
+│   │   ├── perf.ts
+│   │   └── type.ts
+│   ├── services
+│   │   ├── apiDetectSupported.ts
+│   │   ├── base.ts
+│   │   ├── bfcache.ts
+│   │   ├── constant.ts
+│   │   ├── eventsListener.ts
+│   │   ├── getEntries.ts
+│   │   ├── getVisibilityObserver.ts
+│   │   ├── interactions.ts
+│   │   ├── observe.ts
+│   │   ├── report.ts
+│   │   ├── task.ts
+│   │   ├── types.ts
+│   │   └── uuid.ts
+│   ├── trace
+│   │   ├── interceptors
+│   │   │   ├── fetch.ts
+│   │   │   └── xhr.ts
+│   │   ├── segment.ts
+│   │   └── type.ts
+│   └── types.ts
+├── tsconfig.json
+├── tslint.json
+└── webpack.config.js
+
+--- Summary Report ---
+Total files scanned: 43
+Files included: 42
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 7
+Files with dependency extraction: 0
+Detected languages count: 5
+Top 15 largest included files:
+  9771 bytes - src\performance\fmp.ts
+  9582 bytes - src\performance\index.ts
+  8873 bytes - src\trace\interceptors\xhr.ts
+  6722 bytes - src\monitor.ts
+  6423 bytes - src\trace\interceptors\fetch.ts
+  3312 bytes - src\services\interactions.ts
+  3038 bytes - src\performance\perf.ts
+  2663 bytes - src\services\report.ts
+  2408 bytes - src\errors\resource.ts
+  2385 bytes - src\errors\ajax.ts
+  2301 bytes - src\services\base.ts
+  2168 bytes - src\performance\type.ts
+  2105 bytes - src\errors\promise.ts
+  2094 bytes - src\services\types.ts
+  2031 bytes - src\services\getVisibilityObserver.ts
+-----------------------
+
+---
+File: Makefile
+Size: 1864 bytes
+Lines: 69
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+SHELL := /bin/bash -o pipefail
+
+VERSION ?= latest
+RELEASE_SRC = skywalking-client-js-${VERSION}-src
+
+GPG_UID :=
+
+# set gpg user id
+ifdef GPG_UID
+	GPG_UID_FLAG := -u $(GPG_UID)
+endif
+
+.PHONY: release-src
+release-src:
+	tar -zcvf $(RELEASE_SRC).tgz \
+	--exclude .git/ \
+	--exclude .idea/ \
+	--exclude .gitignore \
+	--exclude .DS_Store \
+	--exclude .github \
+	--exclude lib \
+	--exclude node_modules \
+	--exclude release \
+	--exclude $(RELEASE_SRC).tgz \
+	.
+
+	gpg $(GPG_UID_FLAG) --batch --yes --armor --detach-sig $(RELEASE_SRC).tgz
+	shasum -a 512 $(RELEASE_SRC).tgz > $(RELEASE_SRC).tgz.sha512
+
+	mkdir -p release
+	mv $(RELEASE_SRC).tgz release/$(RELEASE_SRC).tgz
+	mv $(RELEASE_SRC).tgz.asc release/$(RELEASE_SRC).tgz.asc
+	mv $(RELEASE_SRC).tgz.sha512 release/$(RELEASE_SRC).tgz.sha512
+
+.PHONY: install
+install:
+	npm install
+
+.PHONY: clean
+clean:
+	rm -rf ./node_modules && \
+	rm -rf ./lib
+
+.PHONY: build
+build:
+	npm run build
+
+.PHONY: rebuild
+rebuild:
+	npm run rebuild
+
+.PHONY: publish
+publish: rebuild
+	npm publish
+
+
+---
+File: package.json
+Size: 1609 bytes
+Lines: 66
+---
+{
+  "name": "skywalking-client-js",
+  "version": "1.1.0",
+  "description": "Client-side JavaScript exception and tracing library for Apache SkyWalking APM",
+  "main": "index.js",
+  "types": "lib/src/index.ts",
+  "repository": "apache/skywalking-client-js",
+  "homepage": "skywalking.apache.org",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/apache/skywalking/issues",
+    "email": "dev@skywalking.apache.org"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.1",
+    "minimist": "^1.2.3",
+    "prettier": "^2.1.1",
+    "ts-loader": "^9.2.1",
+    "tslint": "^5.20.1",
+    "typescript": "^4.9.5",
+    "webpack": "^5.105.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-concat-files-plugin": "^0.5.2",
+    "webpack-dev-server": "^5.2.1"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "rebuild": "rm -rf ./node_modules && rm -rf ./lib && npm install && npm run build",
+    "start": "npx webpack serve",
+    "release": "make release-src"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "files": [
+    "LICENSE",
+    "NOTICE",
+    "CHANGES.md",
+    "README.md",
+    "index.js",
+    "lib/",
+    "dist/licenses"
+  ],
+  "keywords": [
+    "skywalking",
+    "observability",
+    "apm",
+    "distributed-tracing",
+    "dapper",
+    "javascript",
+    "web-performance"
+  ],
+  "dependencies": {
+    "js-base64": "^3.6.0"
+  }
+}
+
+
+---
+File: .asf.yaml
+Size: 1427 bytes
+Lines: 41
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+github:
+  description: Client-side JavaScript exception and tracing library for Apache SkyWalking APM.
+  homepage: https://skywalking.apache.org/
+  labels:
+    - skywalking
+    - observability
+    - apm
+    - distributed-tracing
+    - dapper
+    - javascript
+    - web-performance
+  enabled_merge_buttons:
+    squash:  true
+    merge:   false
+    rebase:  false
+  protected_branches:
+    master:
+      required_status_checks:
+        strict: true
+        contexts:
+          - build
+      required_pull_request_reviews:
+        dismiss_stale_reviews: true
+        required_approving_review_count: 1 
+
+
+---
+File: .gitignore
+Size: 175 bytes
+Lines: 19
+---
+# dependencies
+/node_modules
+
+# production
+/lib
+
+# misc
+.DS_Store
+
+.idea
+*.iml
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock*
+
+# release
+release/
+
+---
+File: .licenserc.yaml
+Size: 1108 bytes
+Lines: 35
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Apache Software Foundation
+
+  paths-ignore:
+    - 'lib'
+    - 'dist'
+    - 'LICENSE'
+    - 'NOTICE'
+    - '.gitignore'
+    - '.prettierrc'
+    - '.browserslistrc'
+    - '**/*.md'
+    - '**/*.json'
+
+  comment: on-failure
+
+
+---
+File: .npmrc
+Size: 844 bytes
+Lines: 16
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+
+
+---
+File: .prettierrc
+Size: 168 bytes
+Lines: 9
+---
+{
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "arrowParens": "always"
+}
+
+
+---
+File: tsconfig.json
+Size: 1071 bytes
+Lines: 28
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+{
+  "compilerOptions": {
+    "outDir": "./lib/",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "module": "es6",
+    "target": "es5",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node"
+  }
+}
+
+---
+File: tslint.json
+Size: 1220 bytes
+Lines: 36
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+  "defaultSeverity": "warning",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**"
+    ]
+  },
+  "rules": {
+    "quotemark": [true, "single"],
+    "indent": [true, "spaces", 2],
+    "interface-name": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-consecutive-blank-lines": false
+  }
+}
+
+
+---
+File: index.js
+Size: 878 bytes
+Lines: 20
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import './lib/index';
+
+export default ClientMonitor;
+
+
+---
+File: src\index.ts
+Size: 945 bytes
+Lines: 22
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import ClientMonitor from './monitor';
+
+(window as any).ClientMonitor = ClientMonitor;
+
+export default ClientMonitor;
+
+
+---
+File: src\errors\index.ts
+Size: 1128 bytes
+Lines: 25
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import JSErrors from './js';
+import PromiseErrors from './promise';
+import AjaxErrors from './ajax';
+import ResourceErrors from './resource';
+import VueErrors from './vue';
+import FrameErrors from './frames';
+
+export { JSErrors, PromiseErrors, AjaxErrors, ResourceErrors, VueErrors, FrameErrors };
+
+
+---
+File: src\performance\index.ts
+Size: 9582 bytes
+Lines: 276 [structural]
+---
+import {CustomOptionsType} from '../types';
+import Report from '../services/report';
+import {prerenderChangeListener, onHidden, runOnce, idlePeriod} from '../services/eventsListener';
+import pagePerf from './perf';
+import FMP from './fmp';
+import {observe} from '../services/observe';
+import {LCPMetric, INPMetric, CLSMetric} from './type';
+import {LayoutShift} from '../services/types';
+import {getVisibilityObserver} from '../services/getVisibilityObserver';
+import {getActivationStart, getResourceEntry} from '../services/getEntries';
+import {onBFCacheRestore} from '../services/bfcache';
+import {handleInteractionEntry, clearInteractions, getLongestInteraction, DEFAULT_DURATION_THRESHOLD} from '../services/interactions';
+import {isLayoutShiftSupported, isEventSupported, isLargestContentfulPaintSupported} from '../services/apiDetectSupported';
+const handler = {
+  set(target: {[key: string]: unknown}, prop: string, value: unknown) {
+    const source: {[key: string]: unknown} = {
+const reportedMetricNames: Record<string, boolean> = {};
+const InitiatorTypes = ["beacon", "xmlhttprequest", "fetch"];
+class TracePerf {
+  public getPerf(options: CustomOptionsType) {
+      window.addEventListener('load', () => this.getBasicPerf());
+    window.addEventListener('beforeunload', () => {
+  private observeResources() {    
+    observe('resource', (list) => {
+      const newResources = list.filter((d: PerformanceResourceTiming) => !InitiatorTypes.includes(d.initiatorType))
+      .map((d: PerformanceResourceTiming) => ({
+  private reportResources() {
+    const newResources = getResourceEntry().filter((d: PerformanceResourceTiming) => !InitiatorTypes.includes(d.initiatorType))
+      .map((d: PerformanceResourceTiming) => ({
+    const list = [...newResources, ...this.resources];
+  private getCorePerf() {
+    setTimeout(() => {
+  private CLS() {
+    let partValue = 0;
+    let entryList: LayoutShift[] = [];
+    const handleEntries = (entries: LayoutShift[]) => {
+      entries.forEach((entry) => {
+          const firstEntry = entryList[0];
+          const lastEntry = entryList[entryList.length - 1];
+        setTimeout(() => {
+    const obs = observe('layout-shift', handleEntries);
+    onHidden(() => {
+  private LCP() {
+    prerenderChangeListener(() => {
+      const visibilityObserver = getVisibilityObserver();
+      const processEntries = (entries: LCPMetric['entries']) => {
+      const obs = observe('largest-contentful-paint', processEntries);
+      const disconnect = runOnce(() => {
+      ['keydown', 'click'].forEach((type) => {
+        addEventListener(type, () => idlePeriod(disconnect), true);
+  private INP() {
+    prerenderChangeListener(() => {
+      const processEntries = (entries: INPMetric['entries']) => {
+        idlePeriod(() => {
+          const interaction = getLongestInteraction();
+          const len = this.inpList.length;
+            const param = {
+      const obs = observe('event', processEntries, {
+        runOnce(() => {
+      onBFCacheRestore(() => {
+  private reportINP() {
+  private getBasicPerf() {
+    const perfDetail = this.options.autoTracePerf ? new pagePerf().getPerfTiming() : {};
+    const perfInfo = {
+  public reportPerf(data: {[key: string]: unknown}, collector: string) {
+    const perf = {
+  private clearPerf() {
+export default new TracePerf();
+
+---
+File: webpack.config.js
+Size: 1754 bytes
+Lines: 61
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const path = require('path');
+const WebpackConcatPlugin = require('webpack-concat-files-plugin');
+
+const isDev = process.env.NODE_ENV !== 'production';
+const config = {
+  entry: './src/index.ts',
+  devtool: 'inline-source-map',
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+    mainFiles: ['index'],
+  },
+  output: {
+    filename: 'index.js',
+    path: path.resolve(__dirname, 'lib'),
+    publicPath: '/',
+  },
+  plugins: [
+    new WebpackConcatPlugin({
+      bundles: [
+        {
+          dest: './lib/src/types.ts',
+          src: './src/**/*.ts',
+        },
+      ],
+    }),
+  ],
+  optimization: {
+    moduleIds: 'named',
+  },
+};
+if (isDev) {
+  config.mode = 'development';
+} else {
+  config.mode = 'production';
+}
+module.exports = config;
+
+
+---
+File: src\monitor.ts
+Size: 6722 bytes
+Lines: 208 [structural]
+---
+import { CustomOptionsType, CustomReportOptions, TagOption } from './types';
+import { JSErrors, PromiseErrors, AjaxErrors, ResourceErrors, VueErrors, FrameErrors } from './errors/index';
+import tracePerf from './performance/index';
+import traceSegment, { setConfig } from './trace/segment';
+const ClientMonitor = {
+  register(configs: CustomOptionsType) {
+  performance(configs: any) {
+        () => {
+  catchErrors(options: CustomOptionsType) {
+    const { service, pagePath, serviceVersion, collector } = options;
+  setPerformance(configs: CustomReportOptions) {
+    const { service, pagePath, serviceVersion, collector } = this.customOptions;
+  reportFrameErrors(configs: CustomReportOptions, error: Error) {
+  validateTags(customTags?: TagOption[]) {
+    let isTags = true;
+  validateOptions() {
+    const {
+  setCustomTags(tags: TagOption[]) {
+    const opt = { ...this.customOptions, customTags: tags };
+export default ClientMonitor;
+
+---
+File: src\types.ts
+Size: 1420 bytes
+Lines: 43
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export interface CustomOptionsType extends CustomReportOptions {
+  jsErrors?: boolean;
+  apiErrors?: boolean;
+  resourceErrors?: boolean;
+  autoTracePerf?: boolean;
+  enableSPA?: boolean;
+  vue?: any;
+  traceSDKInternal?: boolean;
+  detailMode?: boolean;
+  noTraceOrigins?: (string | RegExp)[];
+  traceTimeInterval?: number;
+  customTags?: TagOption[];
+  useWebVitals?: boolean;
+}
+
+export interface CustomReportOptions {
+  collector?: string;
+  service: string;
+  pagePath: string;
+  serviceVersion: string;
+}
+
+export type TagOption = {
+  key: string;
+  value: string;
+};
+
+
+---
+File: src\errors\ajax.ts
+Size: 2385 bytes
+Lines: 70
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory, ReportTypes } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class AjaxErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  // get http error info
+  public handleError(options: CustomReportOptions) {
+    // XMLHttpRequest Object
+    if (!window.XMLHttpRequest) {
+      return;
+    }
+    this.infoOpt = options;
+    window.addEventListener(
+      'xhrReadyStateChange',
+      (event: CustomEvent<XMLHttpRequest & { getRequestConfig: any[] }>) => {
+        const detail = event.detail;
+
+        if (detail.readyState !== 4) {
+          return;
+        }
+        if (detail.getRequestConfig[1] === options.collector + ReportTypes.ERRORS) {
+          return;
+        }
+        if (detail.status !== 0 && detail.status < 400) {
+          return;
+        }
+
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.AJAX_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: detail.getRequestConfig[1],
+          message: `status: ${detail.status}; statusText: ${detail.statusText};`,
+          collector: options.collector,
+          stack: detail.responseText,
+        };
+        this.traceInfo();
+      },
+    );
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+
+export default new AjaxErrors();
+
+
+---
+File: src\services\apiDetectSupported.ts
+Size: 1203 bytes
+Lines: 27
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export function isLayoutShiftSupported() {
+  return PerformanceObserver.supportedEntryTypes.includes('layout-shift');
+}
+
+export function isLargestContentfulPaintSupported() {
+  return PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint');
+}
+
+export function isEventSupported() {
+  return PerformanceObserver.supportedEntryTypes.includes('event');
+}
+
+
+---
+File: src\services\base.ts
+Size: 2301 bytes
+Lines: 66
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import Task from './task';
+import { ErrorsCategory, GradeTypeEnum } from './constant';
+import { ErrorInfoFields, ReportFields } from './types';
+
+let pageHasjsError: { [key: string]: boolean } = {};
+let interval: NodeJS.Timeout;
+export default class Base {
+  public logInfo: ErrorInfoFields & ReportFields & { collector: string } = {
+    uniqueId: '',
+    service: '',
+    serviceVersion: '',
+    pagePath: '',
+    category: ErrorsCategory.UNKNOWN_ERROR,
+    grade: GradeTypeEnum.INFO,
+    errorUrl: '',
+    line: 0,
+    col: 0,
+    message: '',
+    firstReportedError: false,
+    collector: '',
+  };
+
+  public traceInfo(logInfo?: ErrorInfoFields & ReportFields & { collector: string }) {
+    this.logInfo = logInfo || this.logInfo;
+    const ExcludeErrorTypes: string[] = [
+      ErrorsCategory.AJAX_ERROR,
+      ErrorsCategory.RESOURCE_ERROR,
+      ErrorsCategory.UNKNOWN_ERROR,
+    ];
+    // mark js error pv
+    if (!pageHasjsError[location.href] && !ExcludeErrorTypes.includes(this.logInfo.category)) {
+      pageHasjsError = {
+        [location.href]: true,
+      };
+      this.logInfo.firstReportedError = true;
+    }
+    const collector = this.logInfo.collector;
+
+    delete this.logInfo.collector;
+    Task.addTask(this.logInfo, collector);
+    Task.finallyFireTasks();
+    if (interval) {
+      return;
+    }
+    // report errors within 1min
+    interval = setInterval(() => {
+      Task.fireTasks();
+    }, 60000);
+  }
+}
+
+
+---
+File: src\services\bfcache.ts
+Size: 1259 bytes
+Lines: 37
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+interface onBFCacheRestoreCallback {
+  (event: PageTransitionEvent): void;
+}
+
+let bfcacheRestoreTime = -1;
+
+export const getBFCacheRestoreTime = () => bfcacheRestoreTime;
+
+export function onBFCacheRestore(cb: onBFCacheRestoreCallback) {
+  addEventListener(
+    'pageshow',
+    (event) => {
+      if (event.persisted) {
+        bfcacheRestoreTime = event.timeStamp;
+        cb(event);
+      }
+    },
+    true,
+  );
+};
+
+
+---
+File: src\services\constant.ts
+Size: 1612 bytes
+Lines: 48
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export enum ErrorsCategory {
+  AJAX_ERROR = 'ajax',
+  RESOURCE_ERROR = 'resource',
+  VUE_ERROR = 'vue',
+  PROMISE_ERROR = 'promise',
+  JS_ERROR = 'js',
+  UNKNOWN_ERROR = 'unknown',
+}
+export enum GradeTypeEnum {
+  INFO = 'Info',
+  WARNING = 'Warning',
+  ERROR = 'Error',
+}
+export enum ReportTypes {
+  ERROR = '/browser/errorLog',
+  ERRORS = '/browser/errorLogs',
+  PERF = '/browser/perfData',
+  WEBVITALS = '/browser/perfData/webVitals',
+  WEBINTERACTIONS = '/browser/perfData/webInteractions',
+  RESOURCES = '/browser/perfData/resources',
+  SEGMENT = '/v3/segment',
+  SEGMENTS = '/v3/segments',
+}
+
+export const SpanLayer = 'Http';
+export const SpanType = 'Exit';
+
+export enum ReadyStatus {
+  OPENED = 1,
+  DONE = 4,
+}
+export const ComponentId = 10001; // ajax
+
+
+---
+File: src\services\eventsListener.ts
+Size: 1720 bytes
+Lines: 55
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export function prerenderChangeListener(callback: () => void) {
+  if ((document as any).prerendering) {
+    addEventListener('prerenderingchange', callback, true);
+    return;
+  }
+  callback();
+}
+
+export function onHidden (cb: () => void) {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      cb();
+    }
+  });
+};
+
+export function runOnce (callback: () => void) {
+  let called = false;
+  return () => {
+    if (!called) {
+      callback();
+      called = true;
+    }
+  };
+};
+
+export function idlePeriod(callback: () => void): number {
+  const func = window.requestIdleCallback || window.setTimeout;
+
+  let handle = -1;
+  callback = runOnce(callback);
+  if (document.visibilityState === 'hidden') {
+    callback();
+  } else {
+    handle = func(callback);
+    onHidden(callback);
+  }
+  return handle;
+};
+
+
+---
+File: src\performance\fmp.ts
+Size: 9771 bytes
+Lines: 290 [structural]
+---
+import { ICalScore, ElementList } from './type';
+const getStyle = (element: Element | any, attr: any) => {
+const START_TIME: number = performance.now();
+const IGNORE_TAG_SET: string[] = ['SCRIPT', 'STYLE', 'META', 'HEAD', 'LINK'];
+const LIMIT: number = 3000;
+const WW: number = window.innerWidth;
+const WH: number = window.innerHeight;
+const DELAY: number = 2000; // fmp retry interval
+class FMPTiming {
+  constructor() {
+  private getFirstSnapShot() {
+    const time: number = performance.now();
+    const $body: HTMLElement = document.body;
+  private initObserver() {
+    this.observer = new MutationObserver(() => {
+      const time = performance.now();
+      const $body: HTMLElement = document.body;
+  private calculateFinalScore() {
+      const res = this.getTreeScore(document.body);
+      let tp: ICalScore = null;
+      performance.getEntries().forEach((item: PerformanceResourceTiming) => {
+      const resultEls: ElementList = this.filterResult(tp.els);
+      setTimeout(() => {
+  private getFmpTime(resultEls: ElementList): number {
+    let rt = 0;
+      let time: number = 0;
+        const index: number = parseInt(item.ele.getAttribute('fmp_c'), 10);
+          const index: number = parseInt(item.ele.getAttribute('fmp_c'), 10);
+          const match = getStyle(item.ele, 'background-image').match(/url\(\"(.*?)\"\)/);
+          let url: string = '';
+          const index: number = parseInt(item.ele.getAttribute('fmp_c'), 10);
+  private filterResult(els: ElementList): ElementList {
+    let sum: number = 0;
+    els.forEach((item: any) => {
+    const avg: number = sum / els.length;
+    return els.filter((item: any) => {
+  private checkNeedCancel(start: number): boolean {
+    const time: number = performance.now() - start;
+    const lastCalTime: number =
+  private getTreeScore(node: Element): ICalScore | any {
+    const dpss = [];
+    const children: any = node.children;
+      const s = this.getTreeScore(child);
+  private calcaulteGrades(ele: Element, dpss: ICalScore[]): ICalScore {
+    const { width, height, left, top } = ele.getBoundingClientRect();
+    let isInViewPort: boolean = true;
+    let sdp: number = 0;
+    dpss.forEach((item: any) => {
+    let weight: number = Number(ELE_WEIGHT[ele.tagName as any]) || 1;
+    let st: number = isInViewPort ? width * height * weight : 0;
+    let els = [{ ele, st, weight }];
+    const root = ele;
+    const areaPercent = this.calculateAreaParent(ele);
+  private calculateAreaParent(ele: Element): number {
+    const { left, right, top, bottom, width, height } = ele.getBoundingClientRect();
+    const winLeft: number = 0;
+    const winTop: number = 0;
+    const winRight: number = WW;
+    const winBottom: number = WH;
+    const overlapX = right - left + (winRight - winLeft) - (Math.max(right, winRight) - Math.min(left, winLeft));
+    const overlapY = bottom - top + (winBottom - winTop) - (Math.max(bottom, winBottom) - Math.min(top, winTop));
+  private setTag(target: Element, callbackCount: number): void {
+    const tagName: string = target.tagName;
+      const $children: HTMLCollection = target.children;
+        for (let i = $children.length - 1; i >= 0; i--) {
+          const $child: Element = $children[i];
+          const hasSetTag = $child.getAttribute('fmp_c') !== null;
+            const { left, top, width, height } = $child.getBoundingClientRect();
+export default new FMPTiming();
+
+---
+File: src\errors\frames.ts
+Size: 1646 bytes
+Lines: 44
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class FrameErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions, error: Error) {
+    this.infoOpt = options;
+    this.logInfo = {
+      ...this.infoOpt,
+      uniqueId: uuid(),
+      category: ErrorsCategory.JS_ERROR,
+      grade: GradeTypeEnum.ERROR,
+      errorUrl: error.name || location.href,
+      message: error.message,
+      collector: options.collector || location.origin,
+      stack: error.stack,
+    };
+    this.traceInfo();
+  }
+}
+export default new FrameErrors();
+
+
+---
+File: src\services\getEntries.ts
+Size: 1566 bytes
+Lines: 45
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export function getNavigationEntry() {
+  const navigationEntry: PerformanceEntry | any =
+    self.performance &&
+    performance.getEntriesByType &&
+    performance.getEntriesByType('navigation')[0];
+
+  if (
+    navigationEntry &&
+    navigationEntry.responseStart > 0 &&
+    navigationEntry.responseStart < performance.now()
+  ) {
+    return navigationEntry;
+  }
+};
+
+
+export function getActivationStart() {
+  const entry = getNavigationEntry();
+  return (entry && entry.activationStart) || 0;
+};
+
+export function getResourceEntry() {
+  const resourceEntry: PerformanceEntry | any =
+    self.performance &&
+    performance.getEntriesByType &&
+    performance.getEntriesByType('resource');
+    return resourceEntry;
+};
+
+---
+File: src\services\getVisibilityObserver.ts
+Size: 2031 bytes
+Lines: 61
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {onBFCacheRestore} from './bfcache';
+
+let firstHiddenTime = -1;
+
+function initHiddenTime () {
+  return document.visibilityState === 'hidden' && !(document as any).prerendering
+    ? 0
+    : Infinity;
+};
+
+function onVisibilityUpdate(event: Event) {
+  if (document.visibilityState === 'hidden' && firstHiddenTime > -1) {
+    firstHiddenTime = event.type === 'visibilitychange' ? event.timeStamp : 0;
+    removeChangeListeners();
+  }
+};
+
+function addChangeListeners() {
+  addEventListener('visibilitychange', onVisibilityUpdate, true);
+  addEventListener('prerenderingchange', onVisibilityUpdate, true);
+};
+
+function removeChangeListeners() {
+  removeEventListener('visibilitychange', onVisibilityUpdate, true);
+  removeEventListener('prerenderingchange', onVisibilityUpdate, true);
+};
+
+export function getVisibilityObserver() {
+  if (firstHiddenTime < 0) {
+    firstHiddenTime = initHiddenTime();
+    addChangeListeners();
+    onBFCacheRestore(() => {
+      setTimeout(() => {
+        firstHiddenTime = initHiddenTime();
+        addChangeListeners();
+      }, 0);
+    });
+  }
+  return {
+    get firstHiddenTime() {
+      return firstHiddenTime;
+    },
+  };
+};
+
+
+---
+File: src\services\interactions.ts
+Size: 3312 bytes
+Lines: 91 [structural]
+---
+import { Interaction, EntryPreProcessingHook, PerformanceEventTiming } from "./types";
+export const DEFAULT_DURATION_THRESHOLD = 40;
+export const interactionList: Interaction[] = [];
+export const interactionsMap: Map<number, Interaction> = new Map();
+export const entryPreProcessingCallbacks: EntryPreProcessingHook[] = [];
+const MAX_INTERACTIONS_TO_CONSIDER = 10;
+let prevInteractionCount = 0;
+export function handleInteractionEntry (entry: PerformanceEventTiming) {
+  entryPreProcessingCallbacks.forEach((cb) => cb(entry));
+  const minLongestInteraction = interactionList[interactionList.length - 1];
+  const existingInteraction = interactionsMap.get(entry.interactionId!);
+      const interaction = {
+    interactionList.sort((a, b) => b.latency - a.latency);
+        .forEach((i) => interactionsMap.delete(i.id));
+function getInteractionCountForNavigation() {
+export function getLongestInteraction() {
+  const index = Math.min(interactionList.length - 1, Math.floor(getInteractionCountForNavigation() / 50));
+export function clearInteractions() {
+export function getInteractionCount() {
+
+---
+File: src\errors\js.ts
+Size: 1770 bytes
+Lines: 50
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+class JSErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions) {
+    this.infoOpt = options;
+    window.onerror = (message, url, line, col, error) => {
+      this.logInfo = {
+        ...this.infoOpt,
+        uniqueId: uuid(),
+        category: ErrorsCategory.JS_ERROR,
+        grade: GradeTypeEnum.ERROR,
+        errorUrl: url,
+        line,
+        col,
+        message,
+        collector: options.collector,
+        stack: error ? error.stack : '',
+      };
+      this.traceInfo();
+    };
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+export default new JSErrors();
+
+
+---
+File: src\services\observe.ts
+Size: 1847 bytes
+Lines: 52
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {LargestContentfulPaint, LayoutShift, PerformanceEventTiming, PerformanceObserverInit} from "./types";
+interface PerformanceEntryObj {
+  'layout-shift': LayoutShift[];
+  'largest-contentful-paint': LargestContentfulPaint[];
+  'resource': PerformanceResourceTiming[];
+  'event': PerformanceEventTiming[];
+}
+
+export function observe <K extends keyof PerformanceEntryObj>(
+  type: K,
+  callback: (entries: PerformanceEntryObj[K]) => void,
+  opts?: PerformanceObserverInit,
+): PerformanceObserver {
+  try {
+    if (PerformanceObserver.supportedEntryTypes.includes(type)) {
+      const perfObs = new PerformanceObserver((list) => {
+
+        Promise.resolve().then(() => {
+          callback(list.getEntries() as PerformanceEntryObj[K]);
+        });
+      });
+      perfObs.observe(
+        Object.assign(
+          {
+            type,
+            buffered: true,
+          },
+          opts || {},
+        ),
+      );
+      return perfObs;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+---
+File: src\performance\perf.ts
+Size: 3038 bytes
+Lines: 66
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { IPerfDetail } from './type';
+import {getNavigationEntry} from '../services/getEntries';
+class PagePerf {
+  public getPerfTiming(): IPerfDetail {
+    try {
+      let { timing } = window.performance as PerformanceNavigationTiming | any; // PerformanceTiming
+      if (typeof window.PerformanceNavigationTiming === 'function') {
+        const nt2Timing = getNavigationEntry();
+
+        if (nt2Timing) {
+          timing = nt2Timing;
+        }
+      }
+      let redirectTime = 0;
+
+      if (timing.navigationStart !== undefined) {
+        redirectTime = Math.floor(timing.fetchStart - timing.navigationStart);
+      } else if (timing.redirectEnd !== undefined) {
+        redirectTime = Math.floor(timing.redirectEnd - timing.redirectStart);
+      } else {
+        redirectTime = 0;
+      }
+
+      return {
+        redirectTime,
+        dnsTime: Math.floor(timing.domainLookupEnd - timing.domainLookupStart),
+        ttfbTime: Math.floor(timing.responseStart - timing.requestStart), // Time to First Byte
+        tcpTime: Math.floor(timing.connectEnd - timing.connectStart),
+        transTime: Math.floor(timing.responseEnd - timing.responseStart),
+        domAnalysisTime: Math.floor(timing.domInteractive - timing.responseEnd),
+        fptTime: Math.floor(timing.responseEnd - timing.fetchStart), // First Paint Time or Blank Screen Time
+        domReadyTime: Math.floor(timing.domContentLoadedEventEnd - timing.fetchStart),
+        loadPageTime: Math.floor(timing.loadEventStart - timing.fetchStart), // Page full load time
+        // Synchronous load resources in the page
+        resTime: Math.floor(timing.loadEventStart - timing.domContentLoadedEventEnd),
+        // Only valid for HTTPS
+        sslTime:
+          location.protocol === 'https:' && timing.secureConnectionStart > 0
+            ? Math.floor(timing.connectEnd - timing.secureConnectionStart)
+            : undefined,
+        ttlTime: Math.floor(timing.domInteractive - timing.fetchStart), // time to interact
+        firstPackTime: Math.floor(timing.responseStart - timing.domainLookupStart), // first pack time
+      };
+    } catch (e) {
+      throw e;
+    }
+  }
+}
+
+export default PagePerf;
+
+
+---
+File: src\errors\promise.ts
+Size: 2105 bytes
+Lines: 61
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class PromiseErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions) {
+    this.infoOpt = options;
+    window.addEventListener('unhandledrejection', (event) => {
+      try {
+        let url = '';
+        if (!event || !event.reason) {
+          return;
+        }
+        if (event.reason.config && event.reason.config.url) {
+          url = event.reason.config.url;
+        }
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.PROMISE_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: url || location.href,
+          message: event.reason.message,
+          stack: event.reason.stack,
+          collector: options.collector,
+        };
+
+        this.traceInfo();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+export default new PromiseErrors();
+
+
+---
+File: src\services\report.ts
+Size: 2663 bytes
+Lines: 87 [structural]
+---
+import { ReportTypes } from './constant';
+class Report {
+  constructor(type: string, collector: string) {
+    const typesMap: Record<string, string> = {
+  public sendByFetch(data: any) {
+    const sendRequest = new Request(this.url, { method: 'POST', body: JSON.stringify(data) });
+      .then((response) => {
+      .catch((error) => {
+  public sendByXhr(data: any) {
+    const xhr = new XMLHttpRequest();
+  public sendByBeacon(data: any) {
+export default Report;
+
+---
+File: src\errors\resource.ts
+Size: 2408 bytes
+Lines: 66
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class ResourceErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions) {
+    this.infoOpt = options;
+    window.addEventListener('error', (event) => {
+      try {
+        if (!event) {
+          return;
+        }
+        const target: any = event.target;
+        const isElementTarget =
+          target instanceof HTMLScriptElement ||
+          target instanceof HTMLLinkElement ||
+          target instanceof HTMLImageElement;
+
+        if (!isElementTarget) {
+          // return js error
+          return;
+        }
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.RESOURCE_ERROR,
+          grade: target.tagName === 'IMG' ? GradeTypeEnum.WARNING : GradeTypeEnum.ERROR,
+          errorUrl: (target as HTMLScriptElement).src || (target as HTMLLinkElement).href || location.href,
+          message: `load ${target.tagName} resource error`,
+          collector: options.collector,
+          stack: `load ${target.tagName} resource error`,
+        };
+        this.traceInfo();
+      } catch (error) {
+        throw error;
+      }
+    },true);
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+export default new ResourceErrors();
+
+
+---
+File: src\trace\segment.ts
+Size: 1849 bytes
+Lines: 48
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import xhrInterceptor, { setOptions } from './interceptors/xhr';
+import windowFetch, { setFetchOptions } from './interceptors/fetch';
+import Report from '../services/report';
+import { SegmentFields } from './type';
+import { CustomOptionsType } from '../types';
+
+export default function traceSegment(options: CustomOptionsType) {
+  const segments = [] as SegmentFields[];
+  // inject interceptor
+  xhrInterceptor(options, segments);
+  windowFetch(options, segments);
+  window.addEventListener('beforeunload', () => {
+    if (!segments.length) {
+      return;
+    }
+    new Report('SEGMENTS', options.collector).sendByBeacon(segments);
+  });
+  //report per options.traceTimeInterval min
+  setInterval(() => {
+    if (!segments.length) {
+      return;
+    }
+    new Report('SEGMENTS', options.collector).sendByXhr(segments);
+    segments.splice(0, segments.length);
+  }, options.traceTimeInterval);
+}
+
+export function setConfig(opt: CustomOptionsType) {
+  setOptions(opt);
+  setFetchOptions(opt);
+}
+
+
+---
+File: src\services\task.ts
+Size: 1648 bytes
+Lines: 48
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { ErrorInfoFields, ReportFields } from './types';
+import Report from './report';
+
+class TaskQueue {
+  private queues: ((ErrorInfoFields & ReportFields) | undefined)[] = [];
+  private collector: string = '';
+
+  public addTask(data: ErrorInfoFields & ReportFields, collector: string) {
+    this.queues.push(data);
+    this.collector = collector;
+  }
+
+  public fireTasks() {
+    if (!(this.queues && this.queues.length)) {
+      return;
+    }
+
+    new Report('ERRORS', this.collector).sendByXhr(this.queues);
+    this.queues = [];
+  }
+
+  public finallyFireTasks() {
+    window.addEventListener('beforeunload', () => {
+      if (!this.queues.length) {
+        return;
+      }
+      new Report('ERRORS', this.collector).sendByBeacon(this.queues);
+    });
+  }
+}
+
+export default new TaskQueue();
+
+
+---
+File: src\performance\type.ts
+Size: 2168 bytes
+Lines: 56
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {LargestContentfulPaint, LayoutShift, PerformanceEventTiming} from "../services/types";
+export interface ICalScore {
+  dpss: ICalScore[];
+  st: number;
+  els: ElementList;
+  root?: Element;
+}
+export type ElementList = Array<{
+  ele: Element;
+  st: number;
+  weight: number;
+}>;
+export type IPerfDetail = {
+  redirectTime: number | undefined; // Time of redirection
+  dnsTime: number | undefined; // DNS query time
+  ttfbTime: number | undefined; // Time to First Byte
+  tcpTime: number | undefined; // Tcp connection time
+  transTime: number | undefined; // Content transfer time
+  domAnalysisTime: number | undefined; // Dom parsing time
+  fptTime: number | undefined; // First Paint Time or Blank Screen Time
+  domReadyTime: number | undefined; // Dom ready time
+  loadPageTime: number | undefined; // Page full load time
+  resTime: number | undefined; // Synchronous load resources in the page
+  sslTime: number | undefined; // Only valid for HTTPS
+  ttlTime: number | undefined; // Time to interact
+  firstPackTime: number | undefined; // first pack time
+};
+export interface LCPMetric {
+  name: 'LCP';
+  entries: LargestContentfulPaint[];
+}
+
+export interface INPMetric {
+  name: 'INP';
+  entries: PerformanceEventTiming[];
+}
+export interface CLSMetric {
+  name: 'CLS';
+  entries: LayoutShift[];
+}
+
+
+---
+File: src\trace\type.ts
+Size: 1246 bytes
+Lines: 38
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export interface SegmentFields {
+  traceId: string;
+  service: string;
+  spans: SpanFields[];
+  serviceInstance: string;
+  traceSegmentId: string;
+}
+
+export interface SpanFields {
+  operationName: string;
+  startTime: number;
+  endTime: number;
+  spanId: number;
+  spanLayer: string;
+  spanType: string;
+  isError: boolean;
+  parentSpanId: number;
+  componentId: number;
+  peer: string;
+  tags?: any;
+}
+
+
+---
+File: src\services\types.ts
+Size: 2094 bytes
+Lines: 68
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export interface ErrorInfoFields {
+  uniqueId: string;
+  category: string;
+  grade: string;
+  message: any;
+  errorUrl: string;
+  line?: number;
+  col?: number;
+  stack?: string;
+  firstReportedError?: boolean;
+}
+
+export interface ReportFields {
+  service: string;
+  serviceVersion: string;
+  pagePath: string;
+}
+export interface LargestContentfulPaint extends PerformanceEntry {
+  readonly renderTime: DOMHighResTimeStamp;
+  readonly loadTime: DOMHighResTimeStamp;
+  readonly size: number;
+  readonly id: string;
+  readonly url: string;
+  readonly element: Element | null;
+}
+
+interface LayoutShiftAttribution {
+  node?: Node;
+  previousRect: DOMRectReadOnly;
+  currentRect: DOMRectReadOnly;
+}
+export interface LayoutShift extends PerformanceEntry {
+  value: number;
+  sources: LayoutShiftAttribution[];
+  hadRecentInput: boolean;
+}
+export interface PerformanceEventTiming extends PerformanceEntry {
+  duration: DOMHighResTimeStamp;
+  interactionId: number;
+}
+export interface Interaction {
+  id: number;
+  latency: number;
+  entries: PerformanceEventTiming[];
+}
+export interface EntryPreProcessingHook {
+  (entry: PerformanceEventTiming): void;
+}
+export interface PerformanceObserverInit {
+  durationThreshold?: number;
+}
+
+---
+File: src\services\uuid.ts
+Size: 1112 bytes
+Lines: 27
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+export default function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    /* tslint:disable */
+    const r = (Math.random() * 16) | 0;
+    /* tslint:disable */
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+
+    return v.toString(16);
+  });
+}
+
+
+---
+File: src\errors\vue.ts
+Size: 1921 bytes
+Lines: 57
+---
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import uuid from '../services/uuid';
+import Base from '../services/base';
+import { GradeTypeEnum, ErrorsCategory } from '../services/constant';
+import { CustomReportOptions } from '../types';
+
+class VueErrors extends Base {
+  private infoOpt: CustomReportOptions = {
+    service: '',
+    pagePath: '',
+    serviceVersion: '',
+  };
+  public handleErrors(options: CustomReportOptions, Vue: any) {
+    this.infoOpt = options;
+    if (!(Vue && Vue.config)) {
+      return;
+    }
+    Vue.config.errorHandler = (error: Error, vm: any, info: string) => {
+      try {
+        this.logInfo = {
+          ...this.infoOpt,
+          uniqueId: uuid(),
+          category: ErrorsCategory.VUE_ERROR,
+          grade: GradeTypeEnum.ERROR,
+          errorUrl: location.href,
+          message: info,
+          collector: options.collector,
+          stack: error.stack,
+        };
+        this.traceInfo();
+      } catch (error) {
+        throw error;
+      }
+    };
+  }
+  setOptions(opt: CustomReportOptions) {
+    this.infoOpt = opt;
+  }
+}
+
+export default new VueErrors();
+
+
+---
+File: src\trace\interceptors\fetch.ts
+Size: 6423 bytes
+Lines: 163 [structural]
+---
+import { encode } from 'js-base64';
+import uuid from '../../services/uuid';
+import { SegmentFields, SpanFields } from '../type';
+import { CustomOptionsType } from '../../types';
+import Base from '../../services/base';
+import { ComponentId, ReportTypes, SpanLayer, SpanType, ErrorsCategory, GradeTypeEnum } from '../../services/constant';
+let customConfig: any = {};
+export default function windowFetch(options: CustomOptionsType, segments: SegmentFields[]) {
+  const originFetch: any = window.fetch;
+  window.fetch = async (...args: any) => {
+    const startTime = new Date().getTime();
+    const traceId = uuid();
+    const traceSegmentId = uuid();
+    let segment = {
+    let url = {} as URL;
+    const noTraceOrigins = customConfig.noTraceOrigins.some((rule: string | RegExp) => {
+    const cURL = new URL(customConfig.collector);
+    const pathname = cURL.pathname === '/' ? url.pathname : url.pathname.replace(new RegExp(`^${cURL.pathname}`), '');
+    const internals = [ReportTypes.ERROR, ReportTypes.ERRORS, ReportTypes.PERF, ReportTypes.SEGMENTS] as string[];
+    const isSDKInternal = internals.includes(pathname);
+    const hasTrace = !noTraceOrigins || (isSDKInternal && customConfig.traceSDKInternal);
+      const traceIdStr = String(encode(traceId));
+      const segmentId = String(encode(traceSegmentId));
+      const service = String(encode(segment.service));
+      const instance = String(encode(segment.serviceInstance));
+      const endpoint = String(encode(customConfig.pagePath));
+      const peer = String(encode(url.host));
+      const index = segment.spans.length;
+      const values = `${1}-${traceIdStr}-${segmentId}-${index}-${service}-${instance}-${endpoint}-${peer}`;
+    const response = await originFetch(...args);
+        const logInfo = {
+        const tags = [
+        const endTime = new Date().getTime();
+        const exitSpan: SpanFields = {
+export function setFetchOptions(opt: CustomOptionsType) {
+
+---
+File: src\trace\interceptors\xhr.ts
+Size: 8873 bytes
+Lines: 237 [structural]
+---
+import { ComponentId, ReadyStatus, ReportTypes, SpanLayer, SpanType } from '../../services/constant';
+import uuid from '../../services/uuid';
+import { encode } from 'js-base64';
+import { CustomOptionsType } from '../../types';
+import { SegmentFields, SpanFields } from '../type';
+interface EnhancedXMLHttpRequest extends XMLHttpRequest {
+let customConfig: CustomOptionsType = {} as CustomOptionsType;
+export default function xhrInterceptor(options: CustomOptionsType, segments: SegmentFields[]) {
+  const originalXHR = window.XMLHttpRequest as any;
+  function ajaxEventTrigger(this: EnhancedXMLHttpRequest, event: string): void {
+    const ajaxEvent = new CustomEvent(event, { detail: this });
+  function customizedXHR(): EnhancedXMLHttpRequest {
+    const liveXHR = new originalXHR();
+    const originalOpen = liveXHR.open;
+    const originalSend = liveXHR.send;
+  const segCollector: { event: EnhancedXMLHttpRequest; startTime: number; traceId: string; traceSegmentId: string }[] = [];
+  window.addEventListener('xhrReadyStateChange', (event: CustomEvent<EnhancedXMLHttpRequest>) => {
+    let segment = {
+    const xhrState = event.detail.readyState;
+    const config = event.detail.getRequestConfig;
+    let url: URL;
+    const urlString = config[1] as string;
+    const noTraceOrigins = customConfig.noTraceOrigins?.some((rule: string | RegExp): boolean => {
+    const cURL = new URL(customConfig.collector);
+    const pathname = cURL.pathname === '/' ? url.pathname : url.pathname.replace(new RegExp(`^${cURL.pathname}`), '');
+    const internals = [ReportTypes.ERROR, ReportTypes.ERRORS, ReportTypes.PERF, ReportTypes.SEGMENTS] as string[];
+    const isSDKInternal = internals.includes(pathname);
+      const traceId = uuid();
+      const traceSegmentId = uuid();
+      const traceIdStr = String(encode(traceId));
+      const segmentId = String(encode(traceSegmentId));
+      const service = String(encode(segment.service));
+      const instance = String(encode(segment.serviceInstance));
+      const endpoint = String(encode(customConfig.pagePath));
+      const peer = String(encode(url.host));
+      const index = segment.spans.length;
+      const values = `${1}-${traceIdStr}-${segmentId}-${index}-${service}-${instance}-${endpoint}-${peer}`;
+      const endTime = new Date().getTime();
+      for (let i = 0; i < segCollector.length; i++) {
+          let responseURL: URL | null = null;
+          const tags = [
+          const combinedTags = customConfig.detailMode ? [...tags, ...(customConfig.customTags || [])] : undefined;
+          const exitSpan: SpanFields = {
+export function setOptions(opt: CustomOptionsType) {

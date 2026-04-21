@@ -1,0 +1,751 @@
+Tokens: 5009
+Repo: apache/cordova-plugin-device
+Commit: 2c6219fd1e05eccd6817e79ed51faabbd8415891
+Timestamp: 2026-04-12T23:31:50.806283
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .eslintignore
+├── .eslintrc.yml
+├── .gitattributes
+├── .gitignore
+├── .npmignore
+├── package-lock.json
+├── package.json
+├── plugin.xml
+├── src
+│   ├── android
+│   │   └── Device.java
+│   ├── browser
+│   │   └── DeviceProxy.js
+│   ├── electron
+│   │   ├── index.js
+│   │   └── package.json
+│   └── ios
+│       ├── CDVDevice.bundle
+│       │   └── PrivacyInfo.xcprivacy
+│       ├── CDVDevice.h
+│       └── CDVDevice.m
+├── types
+│   └── index.d.ts
+└── www
+    └── device.js
+
+--- Summary Report ---
+Total files scanned: 18
+Files included: 17
+Files skipped by rule: 0
+Files skipped by size: 1
+Files skipped by budget: 0
+Files with structural extraction: 3
+Files with dependency extraction: 0
+Detected languages count: 11
+Top 15 largest included files:
+  4323 bytes - src\android\Device.java
+  3600 bytes - src\ios\CDVDevice.m
+  3520 bytes - www\device.js
+  2955 bytes - plugin.xml
+  2786 bytes - src\browser\DeviceProxy.js
+  1482 bytes - types\index.d.ts
+  1396 bytes - src\electron\index.js
+  1395 bytes - .asf.yaml
+  1375 bytes - src\ios\CDVDevice.bundle\PrivacyInfo.xcprivacy
+  1048 bytes - package.json
+  957 bytes - src\ios\CDVDevice.h
+  931 bytes - .eslintrc.yml
+  417 bytes - src\electron\package.json
+  198 bytes - .gitignore
+  65 bytes - .npmignore
+-----------------------
+
+---
+File: package.json
+Size: 1048 bytes
+Lines: 49
+---
+{
+  "name": "cordova-plugin-device",
+  "version": "3.0.1-dev",
+  "description": "Cordova Device Plugin",
+  "types": "./types/index.d.ts",
+  "cordova": {
+    "id": "cordova-plugin-device",
+    "platforms": [
+      "android",
+      "electron",
+      "ios",
+      "browser"
+    ]
+  },
+  "repository": "github:apache/cordova-plugin-device",
+  "bugs": "https://github.com/apache/cordova-plugin-device/issues",
+  "keywords": [
+    "cordova",
+    "device",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-electron",
+    "cordova-ios",
+    "cordova-browser"
+  ],
+  "scripts": {
+    "test": "npm run lint",
+    "lint": "eslint ."
+  },
+  "author": "Apache Software Foundation",
+  "license": "Apache-2.0",
+  "engines": {
+    "cordovaDependencies": {
+      "2.1.0": {
+        "cordova-electron": ">=3.0.0"
+      },
+      "3.0.0": {
+        "cordova-electron": ">=3.0.0",
+        "cordova-android": ">=7.0.0"
+      },
+      "4.0.0": {
+        "cordova": ">100"
+      }
+    }
+  },
+  "devDependencies": {
+    "@cordova/eslint-config": "^5.1.0"
+  }
+}
+
+
+---
+File: src\electron\package.json
+Size: 417 bytes
+Lines: 20
+---
+{
+  "name": "cordova-plugin-device-electron",
+  "version": "1.0.0",
+  "description": "Electron Native Support for Cordova Device Plugin",
+  "main": "index.js",
+  "keywords": [
+    "cordova",
+    "electron",
+    "device",
+    "native"
+  ],
+  "author": "Apache Software Foundation",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "systeminformation": "^5.11.9"
+  },
+  "cordova": {
+    "serviceName": "Device"
+  }
+}
+
+
+---
+File: .asf.yaml
+Size: 1395 bytes
+Lines: 48
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+github:
+  description: Apache Cordova Device Plugin
+  homepage: https://cordova.apache.org/
+
+  labels:
+    - android
+    - cordova
+    - hacktoberfest
+    - ios
+    - java
+    - javascript
+    - library
+    - mobile
+    - nodejs
+    - objective-c
+
+  features:
+    wiki: false
+    issues: true
+    projects: true
+
+  enabled_merge_buttons:
+    squash: true
+    merge: false
+    rebase: false
+
+notifications:
+  commits:              commits@cordova.apache.org
+  issues:               issues@cordova.apache.org
+  pullrequests_status:  issues@cordova.apache.org
+  pullrequests_comment: issues@cordova.apache.org
+
+
+---
+File: .eslintignore
+Size: 25 bytes
+Lines: 1
+---
+src/electron/node_modules
+
+---
+File: .eslintrc.yml
+Size: 931 bytes
+Lines: 23
+---
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+root: true
+extends: '@cordova/eslint-config/browser'
+
+overrides:
+    - files: [tests/**/*.js]
+      extends: '@cordova/eslint-config/node-tests'
+
+
+---
+File: .gitattributes
+Size: 13 bytes
+Lines: 1
+---
+* text eol=lf
+
+---
+File: .gitignore
+Size: 198 bytes
+Lines: 17
+---
+﻿#If ignorance is bliss, then somebody knock the smile off my face
+
+*.csproj.user
+*.suo
+*.cache
+Thumbs.db
+*.DS_Store
+
+*.bak
+*.cache
+*.log
+*.swp
+*.user
+
+node_modules
+
+src/electron/package-lock.json
+
+---
+File: .npmignore
+Size: 65 bytes
+Lines: 4
+---
+.*
+tests
+src/electron/node_modules
+src/electron/package-lock.json
+
+---
+File: src\electron\index.js
+Size: 1396 bytes
+Lines: 42
+---
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+const { system, osInfo } = require('systeminformation');
+
+module.exports = {
+    getDeviceInfo: async () => {
+        try {
+            const { manufacturer, model, uuid } = await system();
+            const { platform, distro, codename, build: version } = await osInfo();
+
+            return {
+                manufacturer,
+                model,
+                platform: platform === 'darwin' ? codename : distro,
+                version,
+                uuid,
+                isVirtual: false
+            };
+        } catch (e) {
+            console.log(e);
+        }
+    }
+};
+
+
+---
+File: plugin.xml
+Size: 2955 bytes
+Lines: 85
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:rim="http://www.blackberry.com/ns/widgets"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-plugin-device"
+    version="3.0.1-dev">
+    <name>Device</name>
+    <description>Cordova Device Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,device</keywords>
+    <repo>https://github.com/apache/cordova-plugin-device</repo>
+    <issue>https://github.com/apache/cordova-plugin-device/issues</issue>
+
+    <engines>
+        <engine name="cordova-electron" version=">=3.0.0" />
+        <engine name="cordova-android" version=">=7.0.0" />
+    </engines>
+
+    <js-module src="www/device.js" name="device">
+        <clobbers target="device" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Device" >
+                <param name="android-package" value="org.apache.cordova.device.Device"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/Device.java" target-dir="src/org/apache/cordova/device" />
+    </platform>
+
+    <!-- ios -->
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Device">
+                <param name="ios-package" value="CDVDevice"/>
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/CDVDevice.h" />
+        <source-file src="src/ios/CDVDevice.m" />
+
+        <resource-file src="src/ios/CDVDevice.bundle" target="CDVDevice.bundle" />
+    </platform>
+
+    <!-- electron -->
+    <platform name="electron">
+        <framework src="src/electron" />
+    </platform>
+
+    <!-- browser -->
+    <platform name="browser">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Device">
+                <param name="browser-package" value="Device" />
+            </feature>
+        </config-file>
+
+        <js-module src="src/browser/DeviceProxy.js" name="DeviceProxy">
+            <runs />
+        </js-module>
+    </platform>
+
+</plugin>
+
+
+---
+File: www\device.js
+Size: 3520 bytes
+Lines: 96 [structural]
+---
+var argscheck = require('cordova/argscheck');
+var channel = require('cordova/channel');
+var exec = require('cordova/exec');
+var cordova = require('cordova');
+function Device () {
+    var me = this;
+                var buildLabel = cordova.version;
+
+---
+File: types\index.d.ts
+Size: 1482 bytes
+Lines: 37
+---
+// Type definitions for cordova-plugin-device
+// Project: https://github.com/apache/cordova-plugin-device
+// Definitions by: Microsoft Open Technologies Inc <http://msopentech.com>
+//                 Tim Brust <https://github.com/timbru31>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+
+/**
+ * This plugin defines a global device object, which describes the device's hardware and software.
+ * Although the object is in the global scope, it is not available until after the deviceready event.
+ */
+interface Device {
+    /** Get the version of Cordova running on the device. */
+    cordova: string;
+    /** Indicates that Cordova initialize successfully. */
+    available: boolean;
+    /**
+     * The device.model returns the name of the device's model or product. The value is set
+     * by the device manufacturer and may be different across versions of the same product.
+     */
+    model: string;
+    /** Get the device's operating system name. */
+    platform: string;
+    /** Get the device's Universally Unique Identifier (UUID). */
+    uuid: string;
+    /** Get the operating system version. */
+    version: string;
+    /** Get the device's manufacturer. */
+    manufacturer: string;
+    /** Whether the device is running on a simulator. */
+    isVirtual: boolean;
+    /** Get the device hardware serial number. */
+    serial: string;
+    /** Get the Android device's SDK version. (Android-only) */
+    sdkVersion?: string;
+}
+
+declare var device: Device;
+
+
+---
+File: src\ios\CDVDevice.h
+Size: 957 bytes
+Lines: 30
+---
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+#import <UIKit/UIKit.h>
+#import <Cordova/CDVPlugin.h>
+
+@interface CDVDevice : CDVPlugin
+{}
+
++ (NSString*)cordovaVersion;
+
+- (void)getDeviceInfo:(CDVInvokedUrlCommand*)command;
+
+@end
+
+
+---
+File: src\ios\CDVDevice.m
+Size: 3600 bytes
+Lines: 130
+---
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include "TargetConditionals.h"
+
+#import <Availability.h>
+
+#import <Cordova/CDV.h>
+#import "CDVDevice.h"
+
+@implementation UIDevice (ModelVersion)
+
+- (NSString*)modelVersion
+{
+#if TARGET_IPHONE_SIMULATOR
+    NSString* platform = NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
+#else
+    size_t size;
+
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    char* machine = malloc(size);
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);
+    NSString* platform = [NSString stringWithUTF8String:machine];
+    free(machine);
+#endif
+    return platform;
+}
+
+@end
+
+@interface CDVDevice () {}
+@end
+
+@implementation CDVDevice
+
+- (NSString*)uniqueAppInstanceIdentifier:(UIDevice*)device
+{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    static NSString* UUID_KEY = @"CDVUUID";
+
+    // Check user defaults first to maintain backwards compaitibility with previous versions
+    // which didn't user identifierForVendor
+    NSString* app_uuid = [userDefaults stringForKey:UUID_KEY];
+    if (app_uuid == nil) {
+        if ([device respondsToSelector:@selector(identifierForVendor)]) {
+            app_uuid = [[device identifierForVendor] UUIDString];
+        } else {
+            CFUUIDRef uuid = CFUUIDCreate(NULL);
+            app_uuid = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, uuid);
+            CFRelease(uuid);
+        }
+
+        [userDefaults setObject:app_uuid forKey:UUID_KEY];
+        [userDefaults synchronize];
+    }
+
+    return app_uuid;
+}
+
+- (void)getDeviceInfo:(CDVInvokedUrlCommand*)command
+{
+    NSDictionary* deviceProperties = [self deviceProperties];
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:deviceProperties];
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (NSDictionary*)deviceProperties
+{
+    UIDevice* device = [UIDevice currentDevice];
+
+    return @{
+             @"manufacturer": @"Apple",
+             @"model": [device modelVersion],
+             @"platform": @"iOS",
+             @"version": [device systemVersion],
+             @"uuid": [self uniqueAppInstanceIdentifier:device],
+             @"cordova": [[self class] cordovaVersion],
+             @"isVirtual": @([self isVirtual]),
+             @"isiOSAppOnMac": @([self isiOSAppOnMac])
+             };
+}
+
++ (NSString*)cordovaVersion
+{
+    return CDV_VERSION;
+}
+
+- (BOOL)isVirtual
+{
+    #if TARGET_OS_SIMULATOR
+        return true;
+    #elif TARGET_IPHONE_SIMULATOR
+        return true;
+    #else
+        return false;
+    #endif
+}
+
+
+- (BOOL) isiOSAppOnMac
+{
+    #if __IPHONE_14_0
+    if (@available(iOS 14.0, *)) {
+        return [[NSProcessInfo processInfo] isiOSAppOnMac];
+    }
+    #endif
+
+    return false;
+}
+
+@end
+
+
+---
+File: src\android\Device.java
+Size: 4323 bytes
+Lines: 134 [structural]
+---
+package org.apache.cordova.device;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaInterface;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import android.provider.Settings;
+public class Device extends CordovaPlugin {
+    public static String uuid;                                // Device UUID
+    private static final String ANDROID_PLATFORM = "Android";
+    public Device() {
+    }
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+    }
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        }
+        }
+    }
+    public String getPlatform() {
+    }
+    public String getUuid() {
+    }
+    public String getModel() {
+    }
+    public String getManufacturer() {
+    }
+    public String getSerialNumber() {
+    }
+    public String getOSVersion() {
+    }
+    public String getSDKVersion() {
+    }
+    public boolean isVirtual() {
+    }
+
+---
+File: src\browser\DeviceProxy.js
+Size: 2786 bytes
+Lines: 84 [structural]
+---
+var browser = require('cordova/platform');
+function getPlatform () {
+function getModel () {
+function getVersion () {
+function getBrowserInfo (getModel) {
+    var userAgent = navigator.userAgent;
+    var returnVal = '';
+    var offset;
+
+---
+File: src\ios\CDVDevice.bundle\PrivacyInfo.xcprivacy
+Size: 1375 bytes
+Lines: 41
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Licensed to the Apache Software Foundation (ASF) under one
+	or more contributor license agreements.  See the NOTICE file
+	distributed with this work for additional information
+	regarding copyright ownership.  The ASF licenses this file
+	to you under the Apache License, Version 2.0 (the
+	"License"); you may not use this file except in compliance
+	with the License.  You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing,
+	software distributed under the License is distributed on an
+	"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	KIND, either express or implied.  See the License for the
+	specific language governing permissions and limitations
+	under the License.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+</dict>
+</plist>
+

@@ -1,0 +1,785 @@
+Tokens: 6036
+Repo: apache/rocketmq-client-python
+Commit: 143af507040d30173908b96b81f338e34e1f81e9
+Timestamp: 2026-04-12T23:32:13.322094
+
+--- Repository Structure ---
+.
+├── .bumpversion.cfg
+├── .coveragerc
+├── .gitignore
+├── .travis.yml
+├── MANIFEST.in
+├── ci
+│   └── Dockerfile
+├── manylinux.sh
+├── pytest.ini
+├── rocketmq
+│   ├── __init__.py
+│   ├── client.py
+│   ├── consts.py
+│   ├── exceptions.py
+│   └── ffi.py
+├── samples
+│   ├── __init__.py
+│   ├── consumer.py
+│   └── producer.py
+├── setup.cfg
+└── setup.py
+
+--- Summary Report ---
+Total files scanned: 18
+Files included: 18
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 4
+Files with dependency extraction: 0
+Detected languages count: 7
+Top 15 largest included files:
+  16305 bytes - rocketmq\client.py
+  11684 bytes - rocketmq\ffi.py
+  4339 bytes - samples\producer.py
+  3039 bytes - setup.py
+  2690 bytes - rocketmq\exceptions.py
+  2276 bytes - .travis.yml
+  2048 bytes - ci\Dockerfile
+  1643 bytes - rocketmq\consts.py
+  1479 bytes - samples\consumer.py
+  1106 bytes - manylinux.sh
+  1023 bytes - setup.cfg
+  892 bytes - .bumpversion.cfg
+  839 bytes - pytest.ini
+  827 bytes - rocketmq\__init__.py
+  818 bytes - .gitignore
+-----------------------
+
+---
+File: MANIFEST.in
+Size: 178 bytes
+Lines: 3
+---
+include README.md rocketmq/librocketmq.dylib rocketmq/librocketmq_client_core.dylib rocketmq/librocketmq.so rocketmq/librocketmq_client_core.so
+
+recursive-exclude * .DS_Store
+
+
+---
+File: setup.cfg
+Size: 1023 bytes
+Lines: 25
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+[aliases]
+release = sdist bdist_wheel
+
+[bdist_wheel]
+universal = 0
+
+[flake8]
+exclude = .svn,CVS,.bzr,.hg,.git,__pycache,.ropeproject
+max-line-length = 120
+import-order-style = pep8
+application-import-names = rocketmq
+
+
+---
+File: setup.py
+Size: 3039 bytes
+Lines: 91
+---
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+import os
+import sys
+import struct
+
+from setuptools import setup, find_packages
+from setuptools.command.install import install
+
+readme = 'README.md'
+with open(readme) as f:
+    long_description = f.read()
+
+# from https://stackoverflow.com/questions/45150304/how-to-force-a-python-wheel-to-be-platform-specific-when-building-it # noqa
+cmdclass = {}
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+
+
+    class bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            # Mark us as not a pure python package (we have platform specific C/C++ code)
+            self.root_is_pure = False
+
+        def get_tag(self):
+            # this set's us up to build generic wheels.
+            python, abi, plat = _bdist_wheel.get_tag(self)
+            python, abi = 'py2.py3', 'none'
+            return python, abi, plat
+
+
+    cmdclass['bdist_wheel'] = bdist_wheel
+
+except ImportError:
+    pass
+
+
+class InstallPlatlib(install):
+    def finalize_options(self):
+        install.finalize_options(self)
+        # force platlib
+        self.install_lib = self.install_platlib
+
+
+cmdclass['install'] = InstallPlatlib
+
+setup(
+    name='rocketmq-client-python',
+    version='2.0.1rc1',
+    author='apache.rocketmq',
+    author_email='dev@rocketmq.apache.org',
+    packages=find_packages(exclude=('tests', 'tests.*')),
+    keywords='rocketmq',
+    description='RocketMQ Python Client',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    include_package_data=True,
+    install_requires=[
+        "enum34; python_version<='3.4'",
+    ],
+    cmdclass=cmdclass,
+    classifiers=[
+        'Operating System :: MacOS',
+        'Operating System :: POSIX',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+    ]
+)
+
+
+---
+File: ci\Dockerfile
+Size: 2048 bytes
+Lines: 38
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+FROM quay.io/pypa/manylinux1_x86_64:latest
+
+RUN yum install -y wget curl gcc libtool unzip automake autoconf bzip2-devel && ln -s `which cmake28` /usr/bin/cmake
+
+# Install zlib
+RUN curl -sqL https://zlib.net/zlib-1.2.11.tar.gz | tar -xz -C /tmp && \
+  cd /tmp/zlib-1.2.11/ && \
+  ./configure --prefix=/usr && \
+  make && \
+  make install && \
+  cd -  && \
+  rm -rf /tmp/zlib-1.2.11
+
+# Build rocketmq-client-cpp
+RUN git clone --depth=1 --branch=master https://github.com/apache/rocketmq-client-cpp.git /tmp/rocketmq-client-cpp && \
+  mkdir -p /tmp/rocketmq-client-cpp/tmp_down_dir && \
+  curl -sqL -o /tmp/rocketmq-client-cpp/tmp_down_dir/libevent-release-2.1.8-stable.zip https://github.com/libevent/libevent/archive/release-2.1.8-stable.zip  && \
+  curl -sqL -o /tmp/rocketmq-client-cpp/tmp_down_dir/jsoncpp-0.10.7.zip https://github.com/open-source-parsers/jsoncpp/archive/0.10.7.zip && \
+  curl -sqL -o /tmp/rocketmq-client-cpp/tmp_down_dir/boost_1_58_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz && \
+  cd /tmp/rocketmq-client-cpp && bash build.sh && cd - && \
+  cp /tmp/rocketmq-client-cpp/bin/librocketmq.so /usr/local/lib/librocketmq.so && \
+  rm -rf /tmp/rocketmq-client-cpp
+
+
+---
+File: .bumpversion.cfg
+Size: 892 bytes
+Lines: 22
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+[bumpversion]
+files = setup.py
+commit = True
+tag = True
+current_version = 2.0.1rc1
+
+
+
+---
+File: .coveragerc
+Size: 184 bytes
+Lines: 10
+---
+[run]
+source = rocketmq
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+
+
+---
+File: .gitignore
+Size: 818 bytes
+Lines: 77
+---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+include/
+man/
+etc/
+share/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# pyenv
+.python-version
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+pip-selfcheck.json
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage*
+.cache
+nosetests.xml
+coverage.xml
+
+# Profiling
+prof/
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
+# PyCharm
+.idea/
+
+# Vagrant
+.vagrant/
+
+.mypy_cache/
+
+# dylib
+rocketmq/*.dylib
+rocketmq/*.so
+rocketmq/*.dll
+
+
+---
+File: .travis.yml
+Size: 2276 bytes
+Lines: 61
+---
+sudo: required
+
+matrix:
+  include:
+    - dist: trusty
+      language: python
+      python: 2.7
+      services:
+        - docker
+      script:
+        - docker pull apacherocketmq/rocketmq-client-python-ci:latest
+        - docker run --rm -it -v `pwd`:/io -w /io apacherocketmq/rocketmq-client-python-ci:latest /io/manylinux.sh
+        - ls dist/
+        - sudo rm -rf build *.egg-info
+        - pip install -Ur dev-requirements.txt
+        - pip install -e .
+        - pytest --cov=rocketmq -v tests
+        - pip install codecov && codecov
+        # Try to install binary wheel
+        - pip install --force-reinstall dist/*.whl
+    - dist: trusty
+      language: python
+      python: 3.6
+      services:
+        - docker
+      script:
+        - docker pull apacherocketmq/rocketmq-client-python-ci:latest
+        - docker run --rm -it -v `pwd`:/io -w /io apacherocketmq/rocketmq-client-python-ci:latest /io/manylinux.sh
+        - ls dist/
+        - sudo rm -rf build *.egg-info
+        - pip install -Ur dev-requirements.txt
+        - pip install -e .
+        - pytest --cov=rocketmq -v tests
+        - pip install codecov && codecov
+        # Try to install binary wheel
+        - pip install --force-reinstall dist/*.whl
+        # Build source distribution
+        - if [[ "${TRAVIS_TAG:-}" != "" ]]; then sudo python setup.py sdist; fi
+
+before_script:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then export JAVA_HOME=$(/usr/libexec/java_home); fi
+  - wget https://archive.apache.org/dist/rocketmq/4.5.2/rocketmq-all-4.5.2-bin-release.zip
+  - unzip rocketmq-all-4.5.2-bin-release.zip
+  - cd rocketmq-all-4.5.2-bin-release
+  - perl -i -pe's/-Xms8g -Xmx8g -Xmn4g/-Xms2g -Xmx2g -Xmn1g/g' bin/runbroker.sh
+  - nohup sh bin/mqnamesrv &
+  - nohup sh bin/mqbroker -n localhost:9876 &
+  - sleep 10
+  - ./bin/mqadmin updateTopic -b '127.0.0.1:10911' –n '127.0.0.1:9876' -t test
+  - ./bin/mqadmin updateSubGroup -b '127.0.0.1:10911' –n '127.0.0.1:9876' -g testGroup
+  - cd ..
+
+after_failure:
+  - cat ~/logs/rocketmq-cpp/*.log.*
+
+after_success:
+  - |
+    if [[ "${TRAVIS_TAG:-}" != "" && $TRAVIS_PYTHON_VERSION != "2.7" ]]; then
+      sudo python -m pip install -U twine;
+      twine upload --skip-existing dist/*;
+    fi
+
+
+---
+File: pytest.ini
+Size: 839 bytes
+Lines: 17
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+[pytest]
+testpaths = tests
+timeout = 600
+
+
+---
+File: manylinux.sh
+Size: 1106 bytes
+Lines: 28
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cp /usr/local/lib/librocketmq.so /io/rocketmq/librocketmq.so
+
+# Build wheels
+which linux32 && LINUX32=linux32
+$LINUX32 /opt/python/cp27-cp27mu/bin/python setup.py bdist_wheel
+
+# Audit wheels
+for wheel in dist/*-linux_*.whl; do
+  auditwheel -v repair $wheel -w dist/
+  rm $wheel
+done
+
+
+---
+File: rocketmq\__init__.py
+Size: 827 bytes
+Lines: 18
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+---
+File: rocketmq\client.py
+Size: 16305 bytes
+Lines: 462 [structural]
+---
+import sys
+import ctypes
+from enum import IntEnum
+from collections import namedtuple
+from .ffi import (
+from .exceptions import (
+from .consts import MessageProperty
+class SendStatus(IntEnum):
+class TransactionStatus(IntEnum):
+class ConsumeStatus(IntEnum):
+def _to_bytes(s):
+class Message(object):
+    def __init__(self, topic):
+    def __del__(self):
+    def set_keys(self, keys):
+    def set_tags(self, tags):
+    def set_body(self, body):
+    def set_property(self, key, value):
+    def set_delay_time_level(self, delay_time_level):
+    def _as_parameter_(self):
+def maybe_decode(val):
+class ReceivedMessage(object):
+    def __init__(self, handle):
+    def topic(self):
+    def tags(self):
+    def keys(self):
+    def body(self):
+    def id(self):
+    def delay_time_level(self):
+    def queue_id(self):
+    def reconsume_times(self):
+    def store_size(self):
+    def born_timestamp(self):
+    def store_timestamp(self):
+    def queue_offset(self):
+    def commit_log_offset(self):
+    def prepared_transaction_offset(self):
+    def get_property(self, prop):
+    def __getitem__(self, key):
+    def __str__(self):
+    def __bytes__(self):
+    def __repr__(self):
+class Producer(object):
+    def __init__(self, group_id, orderly=False, timeout=None, compress_level=None, max_message_size=None):
+    def __enter__(self):
+    def __exit__(self, exec_type, value, traceback):
+    def send_sync(self, msg):
+    def send_oneway(self, msg):
+    def send_orderly_with_sharding_key(self, msg, sharding_key):
+    def set_group(self, group_name):
+    def set_instance_name(self, name):
+    def set_name_server_address(self, addr):
+    def set_name_server_domain(self, domain):
+    def set_session_credentials(self, access_key, access_secret, channel):
+    def set_timeout(self, timeout):
+    def set_compress_level(self, level):
+    def set_max_message_size(self, max_size):
+    def set_message_trace(self, message_trace):
+    def set_ssl_enable(self, enable):
+    def set_ssl_property_file(self, file_path):
+    def start(self):
+    def shutdown(self):
+class TransactionMQProducer(Producer):
+    def __init__(self, group_id, checker_callback, user_args=None, timeout=None, compress_level=None,
+        def _on_check(producer, c_message, user_data):
+    def __enter__(self):
+    def __exit__(self, exec_type, value, traceback):
+    def set_name_server_address(self, addr):
+    def set_message_trace(self, message_trace):
+    def start(self):
+    def send_message_in_transaction(self, message, local_execute, user_args=None):
+        def _on_local_execute(producer, c_message, usr_args):
+class PushConsumer(object):
+    def __init__(self, group_id, orderly=False, message_model=MessageModel.CLUSTERING):
+    def __enter__(self):
+    def __exit__(self, exec_type, value, traceback):
+    def set_message_model(self, model):
+    def start(self):
+    def shutdown(self):
+    def set_group(self, group_id):
+    def set_name_server_address(self, addr):
+    def set_name_server_domain(self, domain):
+    def set_session_credentials(self, access_key, access_secret, channel):
+    def set_ssl_enable(self, enable):
+    def set_ssl_property_file(self, file_path):
+    def subscribe(self, topic, callback, expression='*'):
+        def _on_message(consumer, msg):
+    def _register_callback(self, callback):
+    def _unregister_callback(self):
+    def set_thread_count(self, thread_count):
+    def set_message_batch_max_size(self, max_size):
+    def set_instance_name(self, name):
+    def set_message_trace(self, message_trace):
+
+---
+File: rocketmq\consts.py
+Size: 1643 bytes
+Lines: 44
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+from enum import Enum
+
+
+class MessageProperty(Enum):
+    TRACE_SWITCH = "TRACE_ON"
+    MSG_REGION = "MSG_REGION"
+    KEYS = "KEYS"
+    TAGS = "TAGS"
+    WAIT_STORE_MSG_OK = "WAIT"
+    DELAY_TIME_LEVEL = "DELAY"
+    RETRY_TOPIC = "RETRY_TOPIC"
+    REAL_TOPIC = "REAL_TOPIC"
+    REAL_QUEUE_ID = "REAL_QID"
+    TRANSACTION_PREPARED = "TRAN_MSG"
+    PRODUCER_GROUP = "PGROUP"
+    MIN_OFFSET = "MIN_OFFSET"
+    MAX_OFFSET = "MAX_OFFSET"
+    BUYER_ID = "BUYER_ID"
+    ORIGIN_MESSAGE_ID = "ORIGIN_MESSAGE_ID"
+    TRANSFER_FLAG = "TRANSFER_FLAG"
+    CORRECTION_FLAG = "CORRECTION_FLAG"
+    MQ2_FLAG = "MQ2_FLAG"
+    RECONSUME_TIME = "RECONSUME_TIME"
+    UNIQ_CLIENT_MESSAGE_ID_KEYIDX = "UNIQ_KEY"
+    MAX_RECONSUME_TIMES = "MAX_RECONSUME_TIMES"
+    CONSUME_START_TIMESTAMP = "CONSUME_START_TIME"
+
+
+---
+File: rocketmq\exceptions.py
+Size: 2690 bytes
+Lines: 102 [structural]
+---
+import re
+from .ffi import dll, _CStatus
+def _register(status_code):
+    def register(cls):
+def ffi_check(status_code):
+class RocketMQException(Exception):
+class NullPointerException(RocketMQException):
+class MallocFailed(RocketMQException):
+class ProducerException(RocketMQException):
+class ProducerStartFailed(ProducerException):
+class ProducerSendSyncFailed(ProducerException):
+class ProducerSendOnewayFailed(ProducerException):
+class ProducerSendOrderlyFailed(ProducerException):
+class ProducerSendAsyncFailed(ProducerException):
+    def __init__(self, msg, error, file, line, type):
+class ConsumerException(RocketMQException):
+class PushConsumerStartFailed(ConsumerException):
+
+---
+File: rocketmq\ffi.py
+Size: 11684 bytes
+Lines: 291 [structural]
+---
+import os
+import sys
+import ctypes
+from ctypes.util import find_library
+from ctypes import c_char, c_char_p, c_void_p, c_int, c_long, c_longlong, Structure, POINTER
+from enum import IntEnum
+class CtypesEnum(IntEnum):
+    def from_param(cls, obj):
+class _CStatus(CtypesEnum):
+class _CLogLevel(CtypesEnum):
+class MessageModel(CtypesEnum):
+class TraceModel(CtypesEnum):
+class _CSendResult(Structure):
+class _CMessageQueue(Structure):
+class _CMQException(Structure):
+
+---
+File: samples\__init__.py
+Size: 0 bytes
+Lines: 0
+---
+
+
+---
+File: samples\consumer.py
+Size: 1479 bytes
+Lines: 40
+---
+# -*- coding: utf-8 -*-
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+from rocketmq.client import PushConsumer, ConsumeStatus
+import time
+
+def callback(msg):
+    print(msg.id, msg.body,  msg.get_property('property'))
+    return ConsumeStatus.CONSUME_SUCCESS
+
+def start_consume_message():
+    consumer = PushConsumer('consumer_group')
+    consumer.set_name_server_address('127.0.0.1:9876')
+    consumer.subscribe('BenchmarkTest', callback)
+    # consumer.set_ssl_enable(True)
+    # consumer.set_ssl_property_file("/etc/rocketmq/tls.properties")
+    print ('start consume message')
+    consumer.start()
+
+    while True:
+        time.sleep(3600)
+
+if __name__ == '__main__':
+    start_consume_message()
+
+---
+File: samples\producer.py
+Size: 4339 bytes
+Lines: 137 [structural]
+---
+from rocketmq.client import Producer, Message, TransactionMQProducer, TransactionStatus
+import time
+import threading
+def create_message():
+def send_message_sync(count):
+def send_message_multi_threaded(retry_time):
+def send_orderly_with_sharding_key(count):
+def check_callback(msg):
+def local_execute(msg, user_args):
+def send_transaction_message(count):
+def send_message_with_ssl(count):

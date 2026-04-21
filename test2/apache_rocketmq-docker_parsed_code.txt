@@ -1,0 +1,4291 @@
+Tokens: 40367
+Repo: apache/rocketmq-docker
+Commit: 8792ec254364fe04b65a9938d764ce1817e822c7
+Timestamp: 2026-04-12T23:33:06.120718
+
+--- Repository Structure ---
+.
+├── .gitignore
+├── image-build
+│   ├── Dockerfile-alpine
+│   ├── Dockerfile-centos-dashboard
+│   ├── Dockerfile-ubuntu
+│   ├── build-image-dashboard.sh
+│   ├── build-image.sh
+│   ├── scripts
+│   │   ├── docker-entrypoint.sh
+│   │   ├── runbroker-customize.sh
+│   │   └── runserver-customize.sh
+│   └── update.sh
+├── image-build-ci
+│   ├── Dockerfile-alpine
+│   ├── Dockerfile-centos
+│   ├── Dockerfile-ubuntu
+│   ├── build-image-local.sh
+│   └── scripts
+│       ├── runbroker-customize.sh
+│       ├── runserver-customize.sh
+│       └── tools-customize.sh
+├── product
+│   ├── conf
+│   │   ├── 2m-2s-async
+│   │   │   ├── broker-a-s.properties
+│   │   │   ├── broker-a.properties
+│   │   │   ├── broker-b-s.properties
+│   │   │   └── broker-b.properties
+│   │   ├── 2m-2s-sync
+│   │   │   ├── broker-a-s.properties
+│   │   │   ├── broker-a.properties
+│   │   │   ├── broker-b-s.properties
+│   │   │   └── broker-b.properties
+│   │   ├── 2m-noslave
+│   │   │   ├── broker-a.properties
+│   │   │   ├── broker-b.properties
+│   │   │   └── broker-trace.properties
+│   │   └── broker.conf
+│   ├── start-broker.sh
+│   ├── start-dashboard.sh
+│   └── start-ns.sh
+├── rocketmq-k8s-helm
+│   ├── .helmignore
+│   ├── Chart.yaml
+│   ├── templates
+│   │   ├── broker
+│   │   │   ├── _brokerconfig.tpl
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── configmap.yaml
+│   │   │   ├── service.yaml
+│   │   │   └── statefulset.yaml
+│   │   ├── controller
+│   │   │   ├── _controllerconfig.tpl
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── configmap.yaml
+│   │   │   ├── service.yaml
+│   │   │   └── statefulset.yaml
+│   │   ├── nameserver
+│   │   │   ├── _helpers.tpl
+│   │   │   ├── configmap.yaml
+│   │   │   ├── deployment.yaml
+│   │   │   └── service.yaml
+│   │   └── proxy
+│   │       ├── _helpers.tpl
+│   │       ├── _proxyconfig.tpl
+│   │       ├── configmap.yaml
+│   │       ├── deployment.yaml
+│   │       └── service.yaml
+│   └── values.yaml
+├── stage.sh
+└── templates
+    ├── data
+    │   ├── broker
+    │   │   └── conf
+    │   │       ├── broker.conf
+    │   │       └── broker1.conf
+    │   ├── broker0
+    │   │   └── conf
+    │   │       └── dledger
+    │   │           └── broker.conf
+    │   ├── broker1
+    │   │   └── conf
+    │   │       └── dledger
+    │   │           └── broker.conf
+    │   └── broker2
+    │       └── conf
+    │           └── dledger
+    │               └── broker.conf
+    ├── docker-compose
+    │   ├── data
+    │   │   └── broker
+    │   │       └── conf
+    │   │           └── broker.conf
+    │   ├── data1
+    │   │   └── broker
+    │   │       └── conf
+    │   │           └── broker.conf
+    │   ├── proxy
+    │   │   └── conf
+    │   │       └── rmq-proxy.json
+    │   ├── rmq4-docker-compose.yml
+    │   └── rmq5-docker-compose.yml
+    ├── kubernetes
+    │   ├── deployment.yaml
+    │   └── deployment2.yaml
+    ├── play-consumer.sh
+    ├── play-docker-compose.sh
+    ├── play-docker-dledger.sh
+    ├── play-docker-tls.sh
+    ├── play-docker.sh
+    ├── play-kubernetes.sh
+    ├── play-producer.sh
+    └── ssl
+        ├── ca.crt
+        ├── ca.srl
+        ├── client.crt
+        ├── client.csr
+        ├── client_rsa_private.pem.unsecure
+        ├── server.crt
+        ├── server.csr
+        ├── server_rsa_private.pem.unsecure
+        └── ssl.properties
+
+--- Summary Report ---
+Total files scanned: 83
+Files included: 83
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 0
+Files with dependency extraction: 0
+Detected languages count: 12
+Top 15 largest included files:
+  4714 bytes - rocketmq-k8s-helm\values.yaml
+  3954 bytes - image-build\Dockerfile-centos-dashboard
+  3788 bytes - image-build\Dockerfile-ubuntu
+  3769 bytes - rocketmq-k8s-helm\templates\controller\statefulset.yaml
+  3528 bytes - image-build\Dockerfile-alpine
+  3515 bytes - image-build-ci\build-image-local.sh
+  3434 bytes - rocketmq-k8s-helm\templates\broker\statefulset.yaml
+  3318 bytes - image-build\scripts\runbroker-customize.sh
+  3317 bytes - image-build-ci\scripts\runbroker-customize.sh
+  3312 bytes - templates\play-docker-dledger.sh
+  2804 bytes - image-build\scripts\runserver-customize.sh
+  2803 bytes - image-build-ci\scripts\runserver-customize.sh
+  2737 bytes - image-build-ci\Dockerfile-ubuntu
+  2634 bytes - templates\play-docker.sh
+  2617 bytes - rocketmq-k8s-helm\templates\proxy\deployment.yaml
+-----------------------
+
+---
+File: .gitignore
+Size: 23 bytes
+Lines: 4
+---
+stages/
+
+.idea/
+*.py
+
+---
+File: templates\ssl\server.crt
+Size: 1266 bytes
+Lines: 21
+---
+-----BEGIN CERTIFICATE-----
+MIIDajCCAlICCQDljUA20BnKpDANBgkqhkiG9w0BAQUFADB1MQswCQYDVQQGEwJD
+TjELMAkGA1UECAwCQkoxCzAJBgNVBAcMAkJKMQwwCgYDVQQKDANDT00xDDAKBgNV
+BAsMA05TUDELMAkGA1UEAwwCQ0ExIzAhBgkqhkiG9w0BCQEWFHlvdXJlbWFpbEBh
+cGFjaGUuY29tMB4XDTE5MDYxMzA3MTAxOVoXDTIwMDYxMjA3MTAxOVoweTELMAkG
+A1UEBhMCQ04xCzAJBgNVBAgMAkJKMQswCQYDVQQHDAJCSjEMMAoGA1UECgwDQ09N
+MQwwCgYDVQQLDANOU1AxDzANBgNVBAMMBlNFUlZFUjEjMCEGCSqGSIb3DQEJARYU
+eW91cmVtYWlsQGFwYWNoZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+AoIBAQCrcoEkq7+3+/j6kptOBxJSC3y90oGOyQvMJyCmsytwr+Qj0J7so3ZyBp8B
+lsUdvgq6Z9NzZpgu+bsjvIws/Ej6yfdM+TSPc7WdctRwtJjbxsYNRXI5X6dLf8gn
+u9eXSkTzaJhNyx0+r0hH24ts1rTwAVXB5Rfb0A8748fR5Lx8juN+SSfCWaTQKqmd
+QDiQN08WkCeNTnxMWOb9AqN2XAxj9GCCJOIdlr/XyPNWIJuIZkL+R6WsjIcR/7NH
+v58VB9I0ve4tjd0fk7SpHrIqi3q87lt43Pf05yQqIp90HU5wu55JT6p9YsW+UaSl
+eVVIxVAhehou4Q3oOjPNcJABwgPRAgMBAAEwDQYJKoZIhvcNAQEFBQADggEBAKM2
+rIbsKe+kpxdVgoZSznWztN10APYtGM/0ss76B2mT2SCmKDdhbkeCG4VW6qw3CtUs
+odPTp4pKtG9UF/J3BAgwIHI0LnWQfxJ973t7vfzP9D1Q7/X6j4UaMbldj442MEDM
+pItITWPxpEqMdd4O3EcqsxbqQRWiugjQ57+Z80GxoSFSthIMX3nUjGHfbewxy/Jk
+VPdyqElzcJ0CwRE0Dey18h+bbqdyDaG0wJ+HKZlbx2A018SX+VhyTUpnytrTHhVb
+SD9rsdtFJFfnyeatJMmtjn/Hlhb19k4kk/UxiStW95zxmesen9OHi1bRlUvPKcOO
+bwdeH2xp7R1Tio1CY4E=
+-----END CERTIFICATE-----
+
+
+---
+File: templates\ssl\server.csr
+Size: 1046 bytes
+Lines: 17
+---
+-----BEGIN CERTIFICATE REQUEST-----
+MIICvjCCAaYCAQAweTELMAkGA1UEBhMCQ04xCzAJBgNVBAgMAkJKMQswCQYDVQQH
+DAJCSjEMMAoGA1UECgwDQ09NMQwwCgYDVQQLDANOU1AxDzANBgNVBAMMBlNFUlZF
+UjEjMCEGCSqGSIb3DQEJARYUeW91cmVtYWlsQGFwYWNoZS5jb20wggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCrcoEkq7+3+/j6kptOBxJSC3y90oGOyQvM
+JyCmsytwr+Qj0J7so3ZyBp8BlsUdvgq6Z9NzZpgu+bsjvIws/Ej6yfdM+TSPc7Wd
+ctRwtJjbxsYNRXI5X6dLf8gnu9eXSkTzaJhNyx0+r0hH24ts1rTwAVXB5Rfb0A87
+48fR5Lx8juN+SSfCWaTQKqmdQDiQN08WkCeNTnxMWOb9AqN2XAxj9GCCJOIdlr/X
+yPNWIJuIZkL+R6WsjIcR/7NHv58VB9I0ve4tjd0fk7SpHrIqi3q87lt43Pf05yQq
+Ip90HU5wu55JT6p9YsW+UaSleVVIxVAhehou4Q3oOjPNcJABwgPRAgMBAAGgADAN
+BgkqhkiG9w0BAQsFAAOCAQEAPVQCIHeZszbwZWBWYxSsOyg8zdGJUJr94coP1Vqf
+h4iSiMUQDIAVpobw2Np1f1SfIU/kc3jK3pSk+ac7kb5hf/2WA8UJMtyb4KUYxhYL
+U6x+/imKjijLQb2UMOx9QyATMzX9N+r42mblWpGKbeT8v2iXXbFWOB6xffR3VmfO
+FmZkHCTe0rO29wfDvJNG7UM7o7a4v9hu3FU3wu0woJKmNm7We8ePIYg1aWAoT7+6
+XloBIX4vpmqQgG1DoAwkJIQIyr+4z8o6MXDdMDYHK+OaRz0u7CpZD3fkWm92ceYP
+W5jYtEV/krwwbMJJNOc3UlBf1bFnD6PrfCH68G4rnn2OtA==
+-----END CERTIFICATE REQUEST-----
+
+
+---
+File: stage.sh
+Size: 2266 bytes
+Lines: 63
+---
+#!/bin/sh
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+checkVersion()
+{
+    echo "Stage version = $1"
+	echo $1 |grep -E "^[0-9]+\.[0-9]+\.[0-9]+" > /dev/null
+    if [ $? = 0 ]; then
+        return 1
+    fi
+            
+	echo "Version $1 illegal, it should be X.X.X format(e.g. 4.5.0), please check released versions in 'https://archive.apache.org/dist/rocketmq/'"
+    return 0
+} 
+
+CURRENT_DIR="$(cd "$(dirname "$0")"; pwd)"
+
+[ ! -d "$STAGE_DIR" ] &&  STAGE_DIR=$CURRENT_DIR/stages
+mkdir -p $STAGE_DIR
+
+if [ $# -lt 1 ]; then
+    echo "Usage: sh $0 version"
+    exit -1
+fi
+
+version=$1
+checkVersion $version
+if [ $? = 0 ]; then
+	exit -1
+fi
+
+echo "mkdir $STAGE_DIR/$version"
+mkdir -p "$STAGE_DIR/$version"
+
+cp -rf "$CURRENT_DIR/templates" "$STAGE_DIR/$version"
+
+echo "staged templates into folder $STAGE_DIR/$version"
+
+# Replace string "ROCKETMQ_VERSION" with real version in all files under $STAGE_DIR/$version
+find "$STAGE_DIR/$version" -type f | xargs perl -pi -e "s/ROCKETMQ_VERSION/${version}/g"
+
+
+if [[ "${version}" > "5.0.0" ]]; then
+    cp $STAGE_DIR/$version/templates/docker-compose/rmq5-docker-compose.yml $STAGE_DIR/$version/templates/docker-compose/docker-compose.yml
+else
+    cp $STAGE_DIR/$version/templates/docker-compose/rmq4-docker-compose.yml $STAGE_DIR/$version/templates/docker-compose/docker-compose.yml
+fi
+
+rm $STAGE_DIR/$version/templates/docker-compose/rmq4-docker-compose.yml $STAGE_DIR/$version/templates/docker-compose/rmq5-docker-compose.yml
+
+---
+File: rocketmq-k8s-helm\.helmignore
+Size: 372 bytes
+Lines: 23
+---
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+
+
+---
+File: rocketmq-k8s-helm\Chart.yaml
+Size: 1168 bytes
+Lines: 24
+---
+apiVersion: v2
+name: rocketmq
+description: A Helm chart for Kubernetes
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.0.1
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: "1.16.0"
+
+
+---
+File: image-build-ci\Dockerfile-alpine
+Size: 2343 bytes
+Lines: 71
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+
+USER root
+
+RUN apk add --no-cache bash gettext nmap-ncat openssl busybox-extras libc6-compat
+
+ARG version
+
+# Rocketmq version
+ENV ROCKETMQ_VERSION ${version}
+
+# Rocketmq home
+ENV ROCKETMQ_HOME  /home/rocketmq/rocketmq-${ROCKETMQ_VERSION}
+
+WORKDIR  ${ROCKETMQ_HOME}
+
+# Install
+COPY rocketmq/ ${ROCKETMQ_HOME}/dist
+
+RUN mv ${ROCKETMQ_HOME}/dist/rocketmq*/rocketmq*/* ${ROCKETMQ_HOME}/; \
+    rm -rf ${ROCKETMQ_HOME}/dist; \
+    ls ${ROCKETMQ_HOME}
+
+# Copy customized scripts
+COPY scripts ${ROCKETMQ_HOME}/bin/
+
+RUN chown -R ${uid}:${gid} ${ROCKETMQ_HOME}
+
+
+# Expose namesrv&proxy port
+EXPOSE 9876 8080 8081 7001
+
+RUN mv ${ROCKETMQ_HOME}/bin/runserver-customize.sh ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && mv ${ROCKETMQ_HOME}/bin/tools-customize.sh ${ROCKETMQ_HOME}/bin/tools.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqadmin \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqnamesrv \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqproxy
+
+# Expose broker port
+EXPOSE 10909 10911 10912
+
+RUN mv ${ROCKETMQ_HOME}/bin/runbroker-customize.sh ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqbroker
+
+# Export Java options
+RUN export JAVA_OPT=" -Duser.home=/opt"
+
+# Add ${JAVA_HOME}/lib/ext as java.ext.dirs
+RUN sed -i 's/${JAVA_HOME}\/jre\/lib\/ext/${JAVA_HOME}\/jre\/lib\/ext:${JAVA_HOME}\/lib\/ext/' ${ROCKETMQ_HOME}/bin/tools.sh
+
+WORKDIR ${ROCKETMQ_HOME}/bin
+
+---
+File: image-build\Dockerfile-alpine
+Size: 3528 bytes
+Lines: 97
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+################################################################################
+# Build stage 1 `builder`:
+# Download and extract RocketMQ
+################################################################################
+FROM eclipse-temurin:8-jdk-alpine AS builder
+
+ARG version
+
+RUN set -eux; \
+    apk add --virtual .build-deps curl gnupg unzip;
+
+RUN curl -L https://archive.apache.org/dist/rocketmq/${version}/rocketmq-all-${version}-bin-release.zip -o rocketmq.zip; \
+    curl -L https://archive.apache.org/dist/rocketmq/${version}/rocketmq-all-${version}-bin-release.zip.asc -o rocketmq.zip.asc; \
+	curl -L https://www.apache.org/dist/rocketmq/KEYS -o KEYS; \
+	gpg --import KEYS; \
+    gpg --batch --verify rocketmq.zip.asc rocketmq.zip;
+
+RUN unzip rocketmq.zip; \
+    mkdir -p /tmp/rocketmq-${version}; \
+	mv rocketmq*/* /tmp/rocketmq-${version}
+
+   
+################################################################################
+# Build stage 2:
+# Make the actual RocketMQ docker image
+################################################################################
+FROM eclipse-temurin:8-jdk-alpine
+
+ARG user=rocketmq
+ARG group=rocketmq
+ARG uid=3000
+ARG gid=3000
+
+ARG version
+
+# Rocketmq version
+ENV ROCKETMQ_VERSION ${version}
+
+# Rocketmq home
+ENV ROCKETMQ_HOME  /home/rocketmq/rocketmq-${ROCKETMQ_VERSION}
+
+
+# Expose namesrv port
+EXPOSE 9876
+# Expose broker ports
+EXPOSE 10909 10911 10912
+
+# RocketMQ is run with user `rocketmq`, uid = 3000
+# If you bind mount a volume from the host or a data container,
+# ensure you use the same uid
+RUN addgroup --gid ${gid} ${group} \
+    && adduser --uid ${uid} -G ${group} ${user} -s /bin/bash -D \
+    && apk add --no-cache bash gettext nmap-ncat openssl busybox-extras which
+
+# Copy customized scripts
+COPY scripts/ ${ROCKETMQ_HOME}/bin/
+
+# Copy RocketMQ artifact from builder
+COPY --from=builder --chown=${uid}:${gid} /tmp/rocketmq-${version}/ ${ROCKETMQ_HOME}
+
+
+# Override customized scripts for namesrv
+# Override customized scripts for broker
+# Export Java options
+# Add ${JAVA_HOME}/lib/ext as java.ext.dirs
+RUN mv ${ROCKETMQ_HOME}/bin/runserver-customize.sh ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && mv ${ROCKETMQ_HOME}/bin/runbroker-customize.sh ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod -R a+x ${ROCKETMQ_HOME}/bin/ \
+ && export JAVA_OPT=" -Duser.home=/opt" \
+ && sed -i 's/${JAVA_HOME}\/jre\/lib\/ext/${JAVA_HOME}\/jre\/lib\/ext:${JAVA_HOME}\/lib\/ext/' ${ROCKETMQ_HOME}/bin/tools.sh \
+ && chown -R ${uid}:${gid} ${ROCKETMQ_HOME}
+
+USER ${user}
+
+WORKDIR ${ROCKETMQ_HOME}/bin
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+# Dummy overridable parameter parsed by entrypoint
+CMD ["dummy"]
+
+
+
+---
+File: image-build-ci\Dockerfile-centos
+Size: 2391 bytes
+Lines: 72
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+
+USER root
+
+RUN yum install -y java-1.8.0-openjdk-devel.x86_64 unzip gettext nmap-ncat openssl, which gnupg, telnet \
+ && yum clean all -y
+
+ARG version
+
+# Rocketmq version
+ENV ROCKETMQ_VERSION ${version}
+
+# Rocketmq home
+ENV ROCKETMQ_HOME  /home/rocketmq/rocketmq-${ROCKETMQ_VERSION}
+
+WORKDIR  ${ROCKETMQ_HOME}
+
+# Install
+COPY rocketmq/ ${ROCKETMQ_HOME}/dist
+
+RUN mv ${ROCKETMQ_HOME}/dist/rocketmq*/rocketmq*/* ${ROCKETMQ_HOME}/; \
+    rm -rf ${ROCKETMQ_HOME}/dist; \
+    ls ${ROCKETMQ_HOME}
+
+# Copy customized scripts
+COPY scripts ${ROCKETMQ_HOME}/bin/
+
+RUN chown -R ${uid}:${gid} ${ROCKETMQ_HOME}
+
+
+# Expose namesrv&proxy port
+EXPOSE 9876 8080 8081 7001
+
+RUN mv ${ROCKETMQ_HOME}/bin/runserver-customize.sh ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && mv ${ROCKETMQ_HOME}/bin/tools-customize.sh ${ROCKETMQ_HOME}/bin/tools.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqadmin \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqnamesrv \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqproxy
+
+# Expose broker port
+EXPOSE 10909 10911 10912
+
+RUN mv ${ROCKETMQ_HOME}/bin/runbroker-customize.sh ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod a+x ${ROCKETMQ_HOME}/bin/mqbroker
+
+# export Java options
+RUN export JAVA_OPT=" -Duser.home=/opt"
+
+# Add ${JAVA_HOME}/lib/ext as java.ext.dirs
+RUN sed -i 's/${JAVA_HOME}\/jre\/lib\/ext/${JAVA_HOME}\/jre\/lib\/ext:${JAVA_HOME}\/lib\/ext/' ${ROCKETMQ_HOME}/bin/tools.sh
+
+WORKDIR ${ROCKETMQ_HOME}/bin
+
+
+---
+File: image-build\Dockerfile-centos-dashboard
+Size: 3954 bytes
+Lines: 94
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM centos:7
+
+RUN yum install -y java-1.8.0-openjdk-devel.x86_64 unzip openssl, which gnupg, wget \
+ && yum clean all -y
+
+# FROM openjdk:8-jdk
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#  bash libapr1 unzip telnet wget gnupg ca-certificates \
+# && rm -rf /var/lib/apt/lists/*
+
+ARG user=rocketmq
+ARG group=rocketmq
+ARG uid=3000
+ARG gid=3000
+
+# RocketMQ Dashboard runs with user `rocketmq`, uid = 3000
+# If you bind mount a volume from the host or a data container,
+# ensure you use the same uid
+RUN groupadd -g ${gid} ${group} \
+    && useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
+
+ARG version
+
+# install maven 3.6.3
+ARG MAVEN_VERSION=3.6.3
+ARG MAVEN_DOWNLOAD_URL=https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref && \
+    wget -O /tmp/apache-maven.tar.gz ${MAVEN_DOWNLOAD_URL} --no-check-certificate && \
+    tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 && \
+    rm -f /tmp/apache-maven.tar.gz && \
+    ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+    
+### make it faster if remove those "#"s bellow
+# RUN sed -i '159i \
+#     <mirror> \
+#       <id>nexus-tencentyun</id> \
+#       <mirrorOf>*</mirrorOf> \
+#       <name>Nexus tencentyun</name> \
+#       <url>http://mirrors.cloud.tencent.com/nexus/repository/maven-public/</url> \
+#     </mirror> \
+# ' /usr/share/maven/conf/settings.xml
+
+RUN cat /usr/share/maven/conf/settings.xml
+
+ENV ROCKETMQ_DASHBOARD_VERSION ${version}
+ENV ROCKETMQ_DASHBOARD_HOME  /home/rocketmq/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}
+WORKDIR ${ROCKETMQ_DASHBOARD_HOME}
+
+RUN set -eux; \
+    curl -L https://dist.apache.org/repos/dist/release/rocketmq/rocketmq-dashboard/${ROCKETMQ_DASHBOARD_VERSION}/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}-source-release.zip -o rocketmq-dashboard.zip; \
+    curl -L https://dist.apache.org/repos/dist/release/rocketmq/rocketmq-dashboard/${ROCKETMQ_DASHBOARD_VERSION}/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}-source-release.zip.asc -o rocketmq-dashboard.zip.asc; \
+    wget https://www.apache.org/dist/rocketmq/KEYS --no-check-certificate; \
+    \
+    gpg --import KEYS; \
+    gpg --batch --verify rocketmq-dashboard.zip.asc rocketmq-dashboard.zip ; \
+    unzip rocketmq-dashboard.zip ; \
+    rm rocketmq-dashboard.zip rocketmq-dashboard.zip.asc KEYS;
+    
+RUN cd rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION} ; \
+    mvn -DskipTests clean install ;\
+    ls -l target ; 
+
+
+RUN mkdir bin; \
+    mv rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}/target/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}.jar bin/ ; \
+    mv bin/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}.jar bin/rocketmq-dashboard.jar; \
+    ls -l bin; \
+    rm -rf rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}
+    
+RUN rm -rf /root/.m2/repository/*
+RUN rm -rf /usr/share/maven
+RUN yum remove wget unzip openssl -y
+
+RUN chown -R ${uid}:${gid} ${ROCKETMQ_DASHBOARD_HOME}
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "bin/rocketmq-dashboard.jar"];
+
+---
+File: image-build-ci\Dockerfile-ubuntu
+Size: 2737 bytes
+Lines: 78
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash vim unzip telnet openssl wget gnupg ca-certificates
+
+ARG version
+
+# Rocketmq version
+ENV ROCKETMQ_VERSION ${version}
+
+# Rocketmq home
+ENV ROCKETMQ_HOME  /root/rocketmq-${ROCKETMQ_VERSION}
+
+WORKDIR  ${ROCKETMQ_HOME}
+
+# Install
+COPY rocketmq/ ${ROCKETMQ_HOME}/dist
+
+RUN mv ${ROCKETMQ_HOME}/dist/rocketmq*/rocketmq*/* ${ROCKETMQ_HOME}/; \
+    rm -rf ${ROCKETMQ_HOME}/dist; \
+    ls ${ROCKETMQ_HOME}
+
+# Copy customized scripts
+COPY scripts ${ROCKETMQ_HOME}/bin/
+
+RUN chown -R ${uid}:${gid} ${ROCKETMQ_HOME}
+
+
+# Expose namesrv&proxy port
+EXPOSE 9876 8080 8081 7001 2023
+
+RUN wget https://repo1.maven.org/maven2/org/jacoco/jacoco/0.8.8/jacoco-0.8.8.zip -O jacoco-0.8.8.zip && \
+    unzip jacoco-0.8.8.zip -d jacoco
+
+ENV JAVA_OPT="-javaagent:${ROCKETMQ_HOME}/jacoco/lib/jacocoagent.jar=includes=*,output=tcpserver,port=2023,address=0.0.0.0"
+
+RUN mv ${ROCKETMQ_HOME}/bin/runserver-customize.sh ${ROCKETMQ_HOME}/bin/runserver.sh \
+    && mv ${ROCKETMQ_HOME}/bin/tools-customize.sh ${ROCKETMQ_HOME}/bin/tools.sh \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/runserver.sh \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/mqadmin \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/mqnamesrv \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/mqproxy \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/mqcontroller
+
+# Expose broker port
+EXPOSE 10909 10911 10912
+
+RUN mv ${ROCKETMQ_HOME}/bin/runbroker-customize.sh ${ROCKETMQ_HOME}/bin/runbroker.sh \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/runbroker.sh \
+    && chmod a+x ${ROCKETMQ_HOME}/bin/mqbroker
+
+# export Java options
+RUN export JAVA_OPT=" -Duser.home=/opt"
+
+# Add ${JAVA_HOME}/lib/ext as java.ext.dirs
+RUN sed -i 's/${JAVA_HOME}\/jre\/lib\/ext/${JAVA_HOME}\/jre\/lib\/ext:${JAVA_HOME}\/lib\/ext/' ${ROCKETMQ_HOME}/bin/tools.sh
+
+WORKDIR ${ROCKETMQ_HOME}/bin
+
+
+---
+File: image-build\Dockerfile-ubuntu
+Size: 3788 bytes
+Lines: 107
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+################################################################################
+# Build stage 1 `builder`:
+# Download and extract RocketMQ
+################################################################################
+FROM eclipse-temurin:8-jdk AS builder
+
+ARG version
+
+RUN set -eux; \
+    apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        gnupg2 \
+        unzip \
+    ; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://archive.apache.org/dist/rocketmq/${version}/rocketmq-all-${version}-bin-release.zip -o rocketmq.zip \
+    && curl -L https://archive.apache.org/dist/rocketmq/${version}/rocketmq-all-${version}-bin-release.zip.asc -o rocketmq.zip.asc \
+	&& curl -L https://www.apache.org/dist/rocketmq/KEYS -o KEYS \
+    && gpg --import KEYS \
+    && gpg --batch --verify rocketmq.zip.asc rocketmq.zip
+
+RUN unzip rocketmq.zip \
+    && mkdir -p /tmp/rocketmq-${version} \
+	&& mv rocketmq*/* /tmp/rocketmq-${version}
+
+################################################################################
+# Build stage 2:
+# Make the actual RocketMQ docker image
+################################################################################
+FROM eclipse-temurin:8-jdk
+
+ARG user=rocketmq
+ARG group=rocketmq
+ARG uid=3000
+ARG gid=3000
+
+ARG version
+
+# Rocketmq version
+ENV ROCKETMQ_VERSION=${version}
+
+# Rocketmq home
+ENV ROCKETMQ_HOME=/home/rocketmq/rocketmq-${ROCKETMQ_VERSION}
+
+# expose namesrv port
+EXPOSE 9876
+
+# expose broker ports
+EXPOSE 10909 10911 10912
+
+# RocketMQ is run with user `rocketmq`, uid = 3000
+# If you bind mount a volume from the host or a data container,
+# ensure you use the same uid
+RUN groupadd -g ${gid} ${group} \
+    && useradd -l -u ${uid} -g ${gid} -m -s /bin/bash ${user} \
+    && apt-get update; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        less \
+        openssl \
+        which \
+    \
+    && apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy customized scripts
+COPY scripts/ ${ROCKETMQ_HOME}/bin/
+
+# Copy RocketMQ artifact from builder
+COPY --from=builder --chown=${uid}:${gid} /tmp/rocketmq-${version}/ ${ROCKETMQ_HOME}
+
+# Override customized scripts for namesrv
+# Override customized scripts for broker
+# Export Java options
+# Add ${JAVA_HOME}/lib/ext as java.ext.dirs
+RUN mv ${ROCKETMQ_HOME}/bin/runserver-customize.sh ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && mv ${ROCKETMQ_HOME}/bin/runbroker-customize.sh ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod -R a+x ${ROCKETMQ_HOME}/bin/ \
+ && export JAVA_OPT=" -Duser.home=/opt" \
+ && sed -i 's/${JAVA_HOME}\/jre\/lib\/ext/${JAVA_HOME}\/jre\/lib\/ext:${JAVA_HOME}\/lib\/ext/' ${ROCKETMQ_HOME}/bin/tools.sh \
+ && chown -R ${uid}:${gid} ${ROCKETMQ_HOME}
+
+
+USER ${user}
+
+WORKDIR ${ROCKETMQ_HOME}/bin
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+# Dummy overridable parameter parsed by entrypoint
+CMD ["dummy"]
+
+
+---
+File: image-build\build-image-dashboard.sh
+Size: 1682 bytes
+Lines: 49
+---
+#!/usr/bin/env bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+checkVersion() {
+    echo "Version = $1"
+	echo $1 |grep -E "^[0-9]+\.[0-9]+\.[0-9]+" > /dev/null
+    if [ $? = 0 ]; then
+        return 1
+    fi
+
+	echo "Version $1 illegal, it should be X.X.X format(e.g. 4.5.0), please check released versions in 'https://archive.apache.org/dist/rocketmq/'"
+    exit -1
+}
+
+if [ $# -lt 2 ]; then
+    echo -e "Usage: sh $0 Version BaseImage"
+    exit -1
+fi
+
+ROCKETMQ_DASHBOARD_VERSION=$1
+BASE_IMAGE=$2
+
+checkVersion $ROCKETMQ_DASHBOARD_VERSION
+
+# Build rocketmq
+case "${BASE_IMAGE}" in
+    centos)
+        docker build --no-cache -f Dockerfile-centos-dashboard -t apache/rocketmq-dashboard:${ROCKETMQ_DASHBOARD_VERSION}-centos --build-arg version=${ROCKETMQ_DASHBOARD_VERSION} .
+    ;;
+    *)
+        echo "${BASE_IMAGE} is not supported, supported base images: centos"
+        exit -1
+    ;;
+esac
+
+
+
+---
+File: image-build-ci\build-image-local.sh
+Size: 3515 bytes
+Lines: 76
+---
+#!/usr/bin/env bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+if [ $# -lt 4 ]; then
+  echo -e "Usage: sh $0 ROCKETMQ_VERSION BASE_IMAGE JAVA_VERSION IMAGE_REPO "
+  exit -1
+fi
+
+ROCKETMQ_VERSION=$1
+BASE_IMAGE=$2
+JAVA_VERSION=$3
+IMAGE_REPO=$4
+
+TAG=${ROCKETMQ_VERSION}-$(echo $BASE_IMAGE | sed -e "s/:/-/g")
+
+cp -r ../../rocketmq ./
+
+# Build rocketmq
+case "${BASE_IMAGE}" in
+#alpine)
+#  if [ "$JAVA_VERSION" -eq 8 ]; then
+#    docker build --no-cache -f Dockerfile-alpine -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:8-jre-alpine .
+#  elif [ "$JAVA_VERSION" -eq 11 ]; then
+#    docker build --no-cache -f Dockerfile-alpine -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:11-jre-alpine .
+#  else
+#    echo "in ${BASE_IMAGE}, jdk ${JAVA_VERSION} is not supported, supported java versions: 8, 11"
+#  fi
+#  ;;
+#centos)
+#  if [ "$JAVA_VERSION" -eq 8 ]; then
+#    docker build --no-cache -f Dockerfile-centos -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:8-centos7 .
+#  elif [ "$JAVA_VERSION" -eq 11 ]; then
+#    docker build --no-cache -f Dockerfile-centos -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:11-centos7 .
+#  else
+#    echo "in ${BASE_IMAGE}, jdk ${JAVA_VERSION} is not supported, supported java versions: 8, 11"
+#  fi
+#  ;;
+ubuntu)
+  if [ "$JAVA_VERSION" -eq 8 ]; then
+    docker build --no-cache -f Dockerfile-ubuntu -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:8-jre .
+#  elif [ "$JAVA_VERSION" -eq 11 ]; then
+#    docker build --no-cache -f Dockerfile-ubuntu -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:11-jre .
+  else
+    echo "in ${BASE_IMAGE}, jdk ${JAVA_VERSION} is not supported, supported java versions: 8, 11"
+  fi
+  ;;
+#windows)
+#  if [ "$JAVA_VERSION" -eq 8 ]; then
+#    docker build --no-cache -f Dockerfile-windows -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:8-jre-windowsservercore .
+#  elif [ "$JAVA_VERSION" -eq 11 ]; then
+#    docker build --no-cache -f Dockerfile-windows -t ${IMAGE_REPO}:${TAG} --build-arg version=${ROCKETMQ_VERSION} --build-arg BASE_IMAGE=eclipse-temurin:11-jre-windowsservercore .
+#  else
+#    echo "in ${BASE_IMAGE}, jdk ${JAVA_VERSION} is not supported, supported java versions: 8, 11"
+#  fi
+#  ;;
+*)
+  echo "${BASE_IMAGE} is not supported, supported base images: ubuntu, centos, alpine, windows"
+  exit -1
+  ;;
+esac
+
+docker push ${IMAGE_REPO}:${TAG}
+
+
+---
+File: image-build\build-image.sh
+Size: 1786 bytes
+Lines: 52
+---
+#!/usr/bin/env bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+checkVersion() {
+    echo "Version = $1"
+	echo $1 |grep -E "^[0-9]+\.[0-9]+\.[0-9]+" > /dev/null
+    if [ $? = 0 ]; then
+        return 1
+    fi
+
+	echo "Version $1 illegal, it should be X.X.X format(e.g. 4.5.0), please check released versions in 'https://archive.apache.org/dist/rocketmq/'"
+    exit -1
+}
+
+if [ $# -lt 2 ]; then
+    echo -e "Usage: sh $0 Version BaseImage"
+    exit -1
+fi
+
+ROCKETMQ_VERSION=$1
+BASE_IMAGE=$2
+
+checkVersion $ROCKETMQ_VERSION
+
+# Build rocketmq
+case "${BASE_IMAGE}" in
+    alpine)
+        docker build --no-cache -f Dockerfile-alpine -t apache/rocketmq:${ROCKETMQ_VERSION}-alpine --build-arg version=${ROCKETMQ_VERSION} .
+    ;;
+    ubuntu)
+        docker build --no-cache -f Dockerfile-ubuntu -t apache/rocketmq:${ROCKETMQ_VERSION} --build-arg version=${ROCKETMQ_VERSION} .
+    ;;
+    *)
+        echo "${BASE_IMAGE} is not supported, supported base images: ubuntu, alpine"
+        exit -1
+    ;;
+esac
+
+
+
+---
+File: templates\play-consumer.sh
+Size: 921 bytes
+Lines: 20
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# Consume messages
+docker exec -ti rmqbroker sh ./tools.sh org.apache.rocketmq.example.quickstart.Consumer
+
+---
+File: templates\play-docker-compose.sh
+Size: 1567 bytes
+Lines: 42
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+RMQ_CONTAINER=$(docker ps -a|awk '/rmq/ {print $1}')
+if [[ -n "$RMQ_CONTAINER" ]]; then
+   echo "Removing RocketMQ Container..."
+   docker rm -fv $RMQ_CONTAINER
+   # Wait till the existing containers are removed
+   sleep 5
+fi
+
+prepare_dir()
+{
+    dirs=("docker-compose/data/namesrv/logs" "docker-compose/data/broker/logs" "docker-compose/data/broker/store" "docker-compose/data1/broker/logs" "docker-compose/data1/broker/store" "docker-compose/proxy/logs")
+
+    for dir in ${dirs[@]}
+    do
+        if [ ! -d "`pwd`/${dir}" ]; then
+            mkdir -p "`pwd`/${dir}"
+            chmod a+rw "`pwd`/${dir}"
+        fi
+    done
+}
+
+prepare_dir
+
+# Run nameserver and broker
+docker compose -f ./docker-compose/docker-compose.yml up -d
+
+
+---
+File: templates\play-docker-dledger.sh
+Size: 3312 bytes
+Lines: 66
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+RMQ_CONTAINER=$(docker ps -a|awk '/rmq/ {print $1}')
+if [[ -n "$RMQ_CONTAINER" ]]; then
+   echo "Removing RocketMQ Container..."
+   docker rm -fv $RMQ_CONTAINER
+   # Wait till the existing containers are removed
+   sleep 5
+fi
+
+DLEDGER_NET=$(docker network ls |awk '/dledger-br/ {print $1}')
+if [[ -n "$DLEDGER_NET" ]]; then
+   echo "Removing DLedger Bridge network..."
+   docker network rm $DLEDGER_NET
+   # Wait till the existing networks are removed
+   sleep 5
+fi
+
+prepare_dir()
+{
+    dirs=("data/namesrv/logs" "data/broker0/logs" "data/broker0/store" "data/broker1/logs" "data/broker1/store" "data/broker2/logs" "data/broker2/store")
+
+    for dir in ${dirs[@]}
+    do
+        if [ ! -d "`pwd`/${dir}" ]; then
+            mkdir -p "`pwd`/${dir}"
+            chmod a+rw "`pwd`/${dir}"
+        fi
+    done
+}
+
+prepare_dir
+
+echo "Starting RocketMQ nodes..."
+
+# Create network
+docker network create --subnet=172.18.0.0/16 dledger-br
+
+# Start nameserver
+docker run --net dledger-br --ip 172.18.0.11  -d -p 9876:9876 -v `pwd`/data/namesrv/logs:/home/rocketmq/logs --name rmqnamesrv  apache/rocketmq:ROCKETMQ_VERSION sh mqnamesrv
+
+# Start Brokers
+docker run --net dledger-br --ip 172.18.0.12 -d -p 30911:30911 -p 30909:30909 -v `pwd`/data/broker0/logs:/home/rocketmq/logs -v `pwd`/data/broker0/store:/home/rocketmq/store -v `pwd`/data/broker0/conf/dledger:/opt/rocketmq-ROCKETMQ_VERSION/conf/dledger --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" apache/rocketmq:ROCKETMQ_VERSION sh mqbroker  -c  ../conf/dledger/broker.conf
+docker run --net dledger-br --ip 172.18.0.13 -d -p 30921:30921 -p 30919:30919 -v `pwd`/data/broker1/logs:/home/rocketmq/logs -v `pwd`/data/broker1/store:/home/rocketmq/store -v `pwd`/data/broker1/conf/dledger:/opt/rocketmq-ROCKETMQ_VERSION/conf/dledger --name rmqbroker1 --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" apache/rocketmq:ROCKETMQ_VERSION sh mqbroker  -c  ../conf/dledger/broker.conf
+docker run --net dledger-br --ip 172.18.0.14 -d -p 30931:30931 -p 30929:30929 -v `pwd`/data/broker2/logs:/home/rocketmq/logs -v `pwd`/data/broker2/store:/home/rocketmq/store -v `pwd`/data/broker2/conf/dledger:/opt/rocketmq-ROCKETMQ_VERSION/conf/dledger --name rmqbroker2 --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" apache/rocketmq:ROCKETMQ_VERSION sh mqbroker  -c  ../conf/dledger/broker.conf
+
+# Service unavailable when not ready
+# sleep 20
+
+# Produce messages
+# sh ./play-producer.sh
+
+
+---
+File: templates\play-docker-tls.sh
+Size: 2330 bytes
+Lines: 53
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+RMQ_CONTAINER=$(docker ps -a|awk '/rmq/ {print $1}')
+if [[ -n "$RMQ_CONTAINER" ]]; then
+   echo "Removing RocketMQ Container..."
+   docker rm -fv $RMQ_CONTAINER
+   # Wait till the existing containers are removed
+   sleep 5
+fi
+
+prepare_dir()
+{
+    dirs=("data/namesrv/logs" "data/broker/logs" "data/broker/store")
+
+    for dir in ${dirs[@]}
+    do
+        if [ ! -d "`pwd`/${dir}" ]; then
+            mkdir -p "`pwd`/${dir}"
+            chmod a+rw "`pwd`/${dir}"
+        fi
+    done
+}
+
+prepare_dir
+
+echo "Starting RocketMQ nodes..."
+
+# Start nameserver
+docker run -d -v `pwd`/ssl:/home/rocketmq/ssl  -v `pwd`/data/namesrv/logs:/home/rocketmq/logs --name rmqnamesrv -e "JAVA_OPT=-Dtls.test.mode.enable=false -Dtls.config.file=/home/rocketmq/ssl/ssl.properties -Dtls.test.mode.enable=false -Dtls.server.need.client.auth=required"  apache/rocketmq:ROCKETMQ_VERSION sh mqnamesrv
+
+# Start Broker
+docker run -d -v `pwd`/ssl:/home/rocketmq/ssl  -v `pwd`/data/broker/logs:/home/rocketmq/logs -v `pwd`/data/broker/store:/home/rocketmq/store --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "JAVA_OPT=-Dtls.enable=true -Dtls.client.authServer=true -Dtls.test.mode.enable=false -Dtls.config.file=/home/rocketmq/ssl/ssl.properties -Dtls.test.mode.enable=false -Dtls.server.mode=enforcing  -Dtls.server.need.client.auth=required" apache/rocketmq:ROCKETMQ_VERSION sh mqbroker
+
+# Service unavailable when not ready
+# sleep 20
+
+# Produce messages
+# sh ./play-producer.sh
+
+
+---
+File: templates\play-docker.sh
+Size: 2634 bytes
+Lines: 78
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+start_namesrv_broker()
+{
+    TAG_SUFFIX=$1
+    # Start nameserver
+    docker run -d -v `pwd`/data/namesrv/logs:/home/rocketmq/logs --name rmqnamesrv -p 9876:9876 apache/rocketmq:ROCKETMQ_VERSION${TAG_SUFFIX} sh mqnamesrv
+    # Start Broker
+    docker run -d -v `pwd`/data/broker/logs:/home/rocketmq/logs -v `pwd`/data/broker/store:/home/rocketmq/store -v `pwd`/data/broker/conf/broker.conf:/home/rocketmq/rocketmq-ROCKETMQ_VERSION/conf/broker.conf --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -p 10909:10909 -p 10911:10911 -p 10912:10912 apache/rocketmq:ROCKETMQ_VERSION${TAG_SUFFIX} sh mqbroker -c /home/rocketmq/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+}
+
+if [ $# -lt 1 ]; then
+    echo -e "Usage: sh $0 BaseImage"
+    exit -1
+fi
+
+export BASE_IMAGE=$1
+
+echo "Play RocketMQ docker image of tag ROCKETMQ_VERSION-${BASE_IMAGE}"
+
+RMQ_CONTAINER=$(docker ps -a|awk '/rmq/ {print $1}')
+if [[ -n "$RMQ_CONTAINER" ]]; then
+   echo "Removing RocketMQ Container..."
+   docker rm -fv $RMQ_CONTAINER
+   # Wait till the existing containers are removed
+   sleep 5
+fi
+
+prepare_dir()
+{
+    dirs=("data/namesrv/logs" "data/broker/logs" "data/broker/store")
+
+    for dir in ${dirs[@]}
+    do
+        if [ ! -d "`pwd`/${dir}" ]; then
+            mkdir -p "`pwd`/${dir}"
+            chmod a+rw "`pwd`/${dir}"
+        fi
+    done
+}
+
+prepare_dir
+
+echo "Starting RocketMQ nodes..."
+
+case "${BASE_IMAGE}" in
+    alpine)
+        start_namesrv_broker -alpine
+    ;;
+    ubuntu|centos)
+        start_namesrv_broker
+    ;;
+    *)
+        echo "${BASE_IMAGE} is not supported, supported base images: ubuntu, alpine, centos (deprecated)"
+        exit -1
+    ;;
+esac
+
+# Service unavailable when not ready
+# sleep 20
+
+# Produce messages
+# sh ./play-producer.sh
+
+
+---
+File: templates\play-kubernetes.sh
+Size: 970 bytes
+Lines: 23
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+if [ ! -d "`pwd`/data" ]; then
+  mkdir -p "data"
+fi
+
+# Run nameserver and broker on your Kubernetes cluster
+kubectl apply -f kubernetes/deployment.yaml
+
+
+---
+File: templates\play-producer.sh
+Size: 919 bytes
+Lines: 19
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Produce messages
+docker exec -ti rmqbroker sh ./tools.sh org.apache.rocketmq.example.quickstart.Producer
+
+---
+File: product\start-broker.sh
+Size: 2134 bytes
+Lines: 67
+---
+#!/bin/sh
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## Main
+if [ $# -lt 4 ]; then
+    echo "Usage: sh $0 DATA_HOME ROCKETMQ_VERSION NAMESRV_ADDR CONF_FILE"
+    exit -1
+fi
+
+DATA_HOME=$1
+ROCKETMQ_VERSION=$2
+NAMESRV_ADDR=$3
+CONF_FILE=$4
+BASE_IMAGE=$5
+
+## Show Env Setting
+echo "ENV Setting: "
+echo "  DATA_HOME=${DATA_HOME} ROCKETMQ_VERSION=${ROCKETMQ_VERSION}"
+echo "  NAMESRV_ADDR=${NAMESRV_ADDR}"
+echo "  CONF_FILE=${CONF_FILE}" 
+
+## Check config file existing
+if [ ! -f "${DATA_HOME}/conf/${CONF_FILE}" ]; then
+    echo "You must ensure the broker config file [${DATA_HOME}/conf/${CONF_FILE}] is pre-defined!!!"
+    exit -1
+fi
+
+
+# Start Broker
+start_broker()
+{
+    TAG_SUFFIX=$1
+    docker run -d  -v ${DATA_HOME}/logs:/home/rocketmq/logs -v ${DATA_HOME}/store:/home/rocketmq/store \
+      -v ${DATA_HOME}/conf:/home/rocketmq/conf \
+      --name rmqbroker \
+      -e "NAMESRV_ADDR=${NAMESRV_ADDR}" \
+      -p 10911:10911 -p 10912:10912 -p 10909:10909 \
+      apache/rocketmq:${ROCKETMQ_VERSION}${TAG_SUFFIX} \
+      sh mqbroker -c /home/rocketmq/conf/${CONF_FILE}
+}
+
+case "${BASE_IMAGE}" in
+    alpine)
+        start_broker -alpine
+    ;;
+    ubuntu|centos)
+        start_broker
+    ;;
+    *)
+        echo "${BASE_IMAGE} is not supported, supported base images: ubuntu, alpine, centos (deprecated)"
+        exit -1
+    ;;
+esac
+
+---
+File: product\start-dashboard.sh
+Size: 972 bytes
+Lines: 20
+---
+#!/usr/bin/env bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ROCKETMQ_DASHBOARD_VERSION=$1
+
+docker run -d -it --name rocketmq-dashboard -p 6765:8080 apache/rocketmq-dashboard:${ROCKETMQ_DASHBOARD_VERSION}-centos
+
+---
+File: product\start-ns.sh
+Size: 1616 bytes
+Lines: 55
+---
+#!/bin/sh
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+## Main
+if [ $# -lt 3 ]; then
+    echo "Usage: sh $0 DATA_HOME ROCKETMQ_VERSION BASE_IMAGE"
+    exit -1
+fi
+
+DATA_HOME=$1
+ROCKETMQ_VERSION=$2
+BASE_IMAGE=$3
+
+## Show Env Setting
+echo "ENV Setting: "
+echo "DATA_HOME=${DATA_HOME} ROCKETMQ_VERSION=${ROCKETMQ_VERSION}"
+
+# Start nameserver
+start_namesrv()
+{
+    TAG_SUFFIX=$1
+    docker run -d -v ${DATA_HOME}/logs:/home/rocketmq/logs \
+      --name rmqnamesrv \
+      -p 9876:9876 \
+      apache/rocketmq:${ROCKETMQ_VERSION}${TAG_SUFFIX} \
+      sh mqnamesrv
+}
+
+case "${BASE_IMAGE}" in
+    alpine)
+        start_namesrv -alpine
+    ;;
+    ubuntu|centos)
+        start_namesrv
+    ;;
+    *)
+        echo "${BASE_IMAGE} is not supported, supported base images: ubuntu, alpine, centos (deprecated)"
+        exit -1
+    ;;
+esac
+
+---
+File: image-build\update.sh
+Size: 1775 bytes
+Lines: 49
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+checkVersion()
+{
+    echo "Version = $1"
+	echo $1 |grep -E "^[0-9]+\.[0-9]+\.[0-9]+" > /dev/null
+    if [ $? = 0 ]; then
+        return 0
+    fi
+
+	echo "Version $1 illegal, it should be X.X.X format(e.g. 4.5.0), please check released versions in 'https://archive.apache.org/dist/rocketmq/'"
+    exit -1
+}
+
+set -eu;
+
+# Update the image of the latest released version
+LATEST_VERSION=$(curl -s https://archive.apache.org/dist/rocketmq/ | awk -F '>' '{print $3}' | awk -F '/' '{print $1}' | grep '^[0-9]' | sort | tail -1)
+
+checkVersion ${LATEST_VERSION}
+
+baseImages=("alpine" "ubuntu")
+
+for baseImage in ${baseImages[@]}
+do
+    echo "Building image of version ${LATEST_VERSION}, base-image ${baseImage}"
+    bash build-image.sh ${LATEST_VERSION} ${baseImage}
+    if [ "${baseImage}" = "ubuntu" ];then
+        TAG=${LATEST_VERSION}
+    else
+        TAG=${LATEST_VERSION}-${baseImage}
+    fi
+    docker push apache/rocketmq:${TAG}
+done
+
+
+---
+File: rocketmq-k8s-helm\values.yaml
+Size: 4714 bytes
+Lines: 239
+---
+# Default values for rocketmq-proxy.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameserver:
+  replicaCount: 1
+  image:
+    pullPolicy: IfNotPresent
+    repository: "apache/rocketmq"
+    tag: "latest"
+
+  imagePullSecrets: [ ]
+  nameOverride: "nameserver"
+  fullnameOverride: ""
+
+  port: 9876
+  heapSize: "1792M"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: { }
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: { }
+  nodeSelector: { }
+
+  podSecurityContext:
+    { }
+  # fsGroup: 2000
+
+  service:
+    type: ClusterIP
+    servicePort: 9876
+    enableDraining: true
+    drainTimeout: 30
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations:
+      { }
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: [ ]
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  persistence:
+    enabled: false
+    size: 8Gi
+
+  resources:
+    limits:
+      cpu: 1
+      memory: 2Gi
+    requests:
+      cpu: 250m
+      memory: 2Gi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  configmap: |
+    defaultThreadPoolNums=4
+
+
+proxy:
+  replicaCount: 1
+  image:
+    pullPolicy: IfNotPresent
+    repository: "apache/rocketmq"
+    tag: "latest"
+
+  imagePullSecrets: [ ]
+  nameOverride: "proxy"
+  fullnameOverride: ""
+
+  heapSize: "1920M"
+  maxDirectMemorySize: "384M"
+  rocketMQClusterName: "DefaultCluster"
+
+  config: { }
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: { }
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations:
+
+  service:
+    remotingInternetPort: 8080
+    grpcPort: 8081
+    adminPort: 8088
+    internet:
+      enabled: false
+      acl:
+        enabled: false
+        id: ""
+      configs:
+        - id: ""
+
+  ingress:
+    enabled: false
+    annotations: { }
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths: [ ]
+    tls: [ ]
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources:
+    limits:
+      cpu: 1
+      memory: 8Gi
+    requests:
+      cpu: 1
+      memory: 8Gi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+
+broker:
+  replicaCount: 1
+  image:
+    pullPolicy: IfNotPresent
+    repository: "apache/rocketmq"
+    tag: "latest"
+
+  imagePullSecrets: [ ]
+  partition: 0
+  persistence:
+    enabled: false
+    size: 8Gi
+
+  nameOverride: "broker"
+  fullnameOverride: ""
+  namesrvAddr: ""
+
+  conf:
+    clusterNameOverride: ""
+    brokerNamePrefixOverride: ""
+    tlsMode: disabled
+    heapSize: "3G"
+    enableStartupProbe: false
+    startupProbeNamesrvAddr: ""
+    nameServerHeadlessAddr: ""
+
+  config: ""
+
+  service:
+    port: 10911
+
+  jvmMemory: " -Xms4g -Xmx4g -Xmn2g -XX:MaxDirectMemorySize=8g "
+  resources:
+    limits:
+      cpu: 2
+      memory: 6Gi
+    requests:
+      cpu: 2
+      memory: 6Gi
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+controller:
+  nameOverride: "controller"
+  fullnameOverride: ""
+  replicas: 3
+  image:
+    repository: "apache/rocketmq"
+    tag: "latest"
+    pullPolicy: IfNotPresent
+    imagePullSecrets: [ ]
+  service:
+    port: 9878
+    internalport: 9888
+  resources:
+    limits: 
+      cpu: 2
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 4Gi
+  readinessProbe:
+    tcpSocket:
+      port: 9878
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  livenessProbe:
+    tcpSocket:
+      port: 9878
+    periodSeconds: 10
+  startupProbe:
+    tcpSocket:
+      port: 9878
+    failureThreshold: 30
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 10
+  config: ""
+  persistence:
+    enabled: false
+    existingClaim: ""
+    storageClass: ""
+    size: 20Gi
+
+
+---
+File: product\conf\broker.conf
+Size: 1058 bytes
+Lines: 25
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+brokerClusterName = DefaultCluster
+brokerName = broker-b
+brokerId = 0
+deleteWhen = 04
+fileReservedTime = 48
+brokerRole = ASYNC_MASTER
+flushDiskType = ASYNC_FLUSH
+
+# Set self-defined brokerIP address (e.g. the host node's) 
+#brokerIP1=30.25.90.82
+
+
+---
+File: templates\ssl\ca.crt
+Size: 1262 bytes
+Lines: 21
+---
+-----BEGIN CERTIFICATE-----
+MIIDZjCCAk4CCQCtAwqWe7vLNzANBgkqhkiG9w0BAQsFADB1MQswCQYDVQQGEwJD
+TjELMAkGA1UECAwCQkoxCzAJBgNVBAcMAkJKMQwwCgYDVQQKDANDT00xDDAKBgNV
+BAsMA05TUDELMAkGA1UEAwwCQ0ExIzAhBgkqhkiG9w0BCQEWFHlvdXJlbWFpbEBh
+cGFjaGUuY29tMB4XDTE5MDYxMzA3MDk1M1oXDTIwMDYxMjA3MDk1M1owdTELMAkG
+A1UEBhMCQ04xCzAJBgNVBAgMAkJKMQswCQYDVQQHDAJCSjEMMAoGA1UECgwDQ09N
+MQwwCgYDVQQLDANOU1AxCzAJBgNVBAMMAkNBMSMwIQYJKoZIhvcNAQkBFhR5b3Vy
+ZW1haWxAYXBhY2hlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+ANdzKEOXr/NRkJir0+vHGYkbAYhRZaFvAJTnjymAOtipAEWENgUTcNSOfdJu+0EZ
+Xiw8sItYgj/WOBMdsHLDFDv2Z/tKZodPFOH2UkgmqrHEQLVSXoRcEaOMs9OXrVBy
+0tzv2VQdGyihIM0hWHGXEcf7jbh7mhho0fVI0Kc7YfWrx1Q57ad4WzM9zAvsU5J4
+tyBGfgZQcScwVbyqc01N5Q0pUKRbVNgIYbr806a6lOHc0NfHrZFyyo0TGCF/U3o5
+Wkyb2Nm67IGJXwbFICi3u8IEVcqy/8JLHja8IXW89oksqY6lSkergsHpUESW1y7q
+tREeeLbZqJVUUA/T8yLAr7UCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAResTmwE0
+JW9mvWfZX9jI5/ERUOklYkiTRNfbVtXMJv2dnqpI6ZqUoAt7Yq+W1jYHqqf+sSYP
+jbaxO2aC5nTQIigdbrtNazpUScSiFCydu9wThlY4sGWu39Yy5YJ55MsE/Ra7J8lj
+v7EjWe+eG54f9kOfjwAsH2oKIntxSvHvGoNZ7/46JwU3volL+EAVA+Yvs5mwR4F2
+NB9FItBK2TCRErmf6JrP/2TZ399kabVRk1ZSjGNoe3UQc5ZxlvtW3shGR0d98ysf
+/AkVb6P77tAc4VX9ccoznc1xR/kzZMCu/AWc8TNV5lzVL4EfmKrtrzWAHkkeTLjY
+lSck/qDdF0uKNg==
+-----END CERTIFICATE-----
+
+
+---
+File: templates\ssl\ca.srl
+Size: 18 bytes
+Lines: 1
+---
+E58D4036D019CAA5
+
+
+---
+File: templates\ssl\client.crt
+Size: 1266 bytes
+Lines: 21
+---
+-----BEGIN CERTIFICATE-----
+MIIDajCCAlICCQDljUA20BnKpTANBgkqhkiG9w0BAQUFADB1MQswCQYDVQQGEwJD
+TjELMAkGA1UECAwCQkoxCzAJBgNVBAcMAkJKMQwwCgYDVQQKDANDT00xDDAKBgNV
+BAsMA05TUDELMAkGA1UEAwwCQ0ExIzAhBgkqhkiG9w0BCQEWFHlvdXJlbWFpbEBh
+cGFjaGUuY29tMB4XDTE5MDYxMzA3MTA1NVoXDTIwMDYxMjA3MTA1NVoweTELMAkG
+A1UEBhMCQ04xCzAJBgNVBAgMAkJKMQswCQYDVQQHDAJCSjEMMAoGA1UECgwDQ09N
+MQwwCgYDVQQLDANOU1AxDzANBgNVBAMMBkNMSUVOVDEjMCEGCSqGSIb3DQEJARYU
+eW91cmVtYWlsQGFwYWNoZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+AoIBAQC9DgTX7RfPfdu7kI0LTDJZsEZjcO7v6jjuI5AsGie9V8jCYusJGI7VbHEF
+DlAd8Bj+Di+VDSKyVhBwVvE9vCFtccXpnnbq1BuLTiJuMJ8JoAF6BZnnS7heGeXE
+073nco8m90kt2GvDJ+GGtM29tDzAGRZiEXlGABQOvRblqUNK4ZyIOcS+nhPMxu5v
+JF1kA2xS03ow+Sas0CtJ90yPCNJEczuyeXuyeJTlMKUsPyjzwQsKQRScipi7X6MO
+h+4dDm3FRt0N4+H29yGHSjxgmlzR5H4/je7INW6YXCPoK5YrcsPfbgl2FvqHMMC2
+wH7+Yjlf1GCFWWAC84p6x+2DtbgdAgMBAAEwDQYJKoZIhvcNAQEFBQADggEBAH97
+Nia1GGSR2oyLD/AYuss3NyPkLvwjd2s2rZR2HfvqivRCrMSt8GAlQBhrN8dnVCd1
+j3dLQMEQ7iZ6lsL7Gjo8ppmz6el2yvZ0XHYkCS8YC7pu5G+9H2+SP5pFXA5CFowj
+GCwUHETMnGEZ3dGIVn06Ifyu0nPNT22l0gycC7lZDz69i0JE7FN3ijBl2UCsfphm
+9ayBf+bZ+ZQWGTaBO8hQcl4FNPle6Yw63/x4l47ks+zHw7pIOKE59gSbzimvi8zI
+uLn0GnJrn+medVSlD1enDrWvEfFSL1ZyGkFiqMlBAQjHGDfj8+sTLfsA4pwnYNqq
+1reXIuFOMouI4UVfgS0=
+-----END CERTIFICATE-----
+
+
+---
+File: templates\ssl\client.csr
+Size: 1046 bytes
+Lines: 17
+---
+-----BEGIN CERTIFICATE REQUEST-----
+MIICvjCCAaYCAQAweTELMAkGA1UEBhMCQ04xCzAJBgNVBAgMAkJKMQswCQYDVQQH
+DAJCSjEMMAoGA1UECgwDQ09NMQwwCgYDVQQLDANOU1AxDzANBgNVBAMMBkNMSUVO
+VDEjMCEGCSqGSIb3DQEJARYUeW91cmVtYWlsQGFwYWNoZS5jb20wggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQC9DgTX7RfPfdu7kI0LTDJZsEZjcO7v6jju
+I5AsGie9V8jCYusJGI7VbHEFDlAd8Bj+Di+VDSKyVhBwVvE9vCFtccXpnnbq1BuL
+TiJuMJ8JoAF6BZnnS7heGeXE073nco8m90kt2GvDJ+GGtM29tDzAGRZiEXlGABQO
+vRblqUNK4ZyIOcS+nhPMxu5vJF1kA2xS03ow+Sas0CtJ90yPCNJEczuyeXuyeJTl
+MKUsPyjzwQsKQRScipi7X6MOh+4dDm3FRt0N4+H29yGHSjxgmlzR5H4/je7INW6Y
+XCPoK5YrcsPfbgl2FvqHMMC2wH7+Yjlf1GCFWWAC84p6x+2DtbgdAgMBAAGgADAN
+BgkqhkiG9w0BAQsFAAOCAQEADPNzwKiL4s4XJNv1tUbwMGoxjgoIGit8o/cHkR1t
+zM98KREvCsSxhR+oAjnXTq/sw57ZxDW49RABFswsKcq1gi/14XvQOLjn9q8+Lt3d
+tZO0wnvF0wbPruMG1BzDNcNZ6cI6MxnffdgHaIvj8jZ6+ky3/AWFm54xQv/k2sos
+Am9gTKFad+1nQWK0BB5LlL92CeJ070i1QaLqAcpqLNxQt/AHlcCYsXgh3Em4DE3T
+NXQ6LfLDtXRMS4LHsCg9FpX5kdCBhtpR711F3dp/L8FT2mfI4dnpxiow3jE68+S9
+o3Xp+QCNmJ8MXlQx3X0mBO1Lb7dy6TgR1FCiltAx0JMhbg==
+-----END CERTIFICATE REQUEST-----
+
+
+---
+File: templates\ssl\client_rsa_private.pem.unsecure
+Size: 1702 bytes
+Lines: 27
+---
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAvQ4E1+0Xz33bu5CNC0wyWbBGY3Du7+o47iOQLBonvVfIwmLr
+CRiO1WxxBQ5QHfAY/g4vlQ0islYQcFbxPbwhbXHF6Z526tQbi04ibjCfCaABegWZ
+50u4XhnlxNO953KPJvdJLdhrwyfhhrTNvbQ8wBkWYhF5RgAUDr0W5alDSuGciDnE
+vp4TzMbubyRdZANsUtN6MPkmrNArSfdMjwjSRHM7snl7sniU5TClLD8o88ELCkEU
+nIqYu1+jDofuHQ5txUbdDePh9vchh0o8YJpc0eR+P43uyDVumFwj6CuWK3LD324J
+dhb6hzDAtsB+/mI5X9RghVlgAvOKesftg7W4HQIDAQABAoIBAFwuQLhUF58JXCGZ
+etw+W/KVW8zS3P5IM1gSKRMH8caFzhLSDo4R1ltEE9uGPhRK5LTDj/naPMe95SgR
+jHEwkQ//QKQHqy4XHBMRlwIpXPJhfTbVElTP++aONBWDtP3sQtaaDql29BxlDrcS
+45qTDmgQE3Tf1kUGdsE0+7whivkwLxQS9V0G/Gk20Nfypx26iBGLPlf7DANn6CcM
+DYySHF/AYjuwf7bHM7P6YOHGio3aZmV455RNw98lK29DwkAQnHwrs5Q9Dp+fibE8
+WrPDjB+mfJg/M5SHExnIbYxC/wO7GC2CnKEQ25jdC820yw/wPp3ug5fh9XDK6rd/
+CCA9mSECgYEA8e3IUZa9Xp3kkkJjPllcy8rsNv79+Ifmtn5Cx4klclHFQe2I8Wvw
+/ZkhvjknDWaGxOYb4CEbLQCPQWxrvNp1/pItze68PrtsiSNnJHAjTnjXNaHc9wgy
+y+/H4FqJy2Mfo0zGG65fCxiBSoFrx0K8p7Rs4nnrclohsRZ9Qc1/MmUCgYEAyAz2
+wwUrj76xUIta/j2Mnbnwcb0oY0uZVs9XMxpR05mGLw9FMSPTVWtE+rRCJ/dKBark
+dSGkZ+rG8ICvgek09D6Tl+gSgUiM5mXPNcW3BuNF/EVQCGhakeyTFWUTGeuEb/Og
+QsxccwcUHCXM4WryYnUu1yqzcpF+/hqlaMyrt1kCgYEA7hyht6PMeK6gxE9xDHG5
+wp7TxQFOCGoB6oX0xh027QCMTGo1CaC6zW8FZgssY6UQagUtVHhhHfbaCINkurit
+v8QyLuiVAI1JsuRUZOm15ktLTe8k40J/dHdo22lhC/xgrEIpDh+eTfZtcl5VLQaD
+VfBf5rwmvyL03C4NVFGkqn0CgYBf3P5+s8KNLncvvqfK/1mb15dmGZv6ASco11DU
+9z7Q5FfNw0aH5sAFxdKXRLwTBMhe8OZrTsTG21WbuD7iRQuQI1B80cPUWhzS52Sl
+QuqTDWPjIJ/ad483MCPHc9j0aczcDOX2PJHsuS6k0mRcfPBLyBW7HAZD138Aa2pq
+TvHWeQKBgADj8mPJMyQfn6YcBCL81KvzF/1HmbdehIMh2kJNK/9g8PZOKx0KnIum
+43JZDFnqheoZcHCO/K+IAR7Vw+MV4MWZ/pNG65rcFGwyXygVdV8j5/o5dfbY64jX
+WZIixa4+pqr+PbILGC6YJrPBaxJclmzay+jFCkDyrfjIsJVXHmis
+-----END RSA PRIVATE KEY-----
+
+
+---
+File: templates\kubernetes\deployment.yaml
+Size: 1281 bytes
+Lines: 46
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rocketmq
+spec:
+  replicas: 1
+  template:
+    metadata:
+     labels:
+       app: rocketmq
+    spec:
+      containers:
+      - name: broker
+        image: apache/rocketmq:ROCKETMQ_VERSION
+        command: ["sh","mqbroker", "-n","localhost:9876"]
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 10909
+          - containerPort: 10911
+        volumeMounts:
+          - mountPath: /home/rocketmq/logs
+            name: brokeroptlogs
+          - mountPath: /home/rocketmq/store
+            name: brokeroptstore
+      - name: namesrv
+        image: apache/rocketmq:ROCKETMQ_VERSION
+        command: ["sh","mqnamesrv"]
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9876
+        volumeMounts:
+          - mountPath: /home/rocketmq/logs
+            name: namesrvoptlogs
+      volumes:
+      - name: brokeroptlogs
+        hostPath:
+          path: /data/broker/logs
+      - name: brokeroptstore
+        hostPath:
+          path: /data/broker/store
+      - name: namesrvoptlogs
+        hostPath:
+          path: /data/namesrv/logs
+      - name: namesrvoptstore
+        hostPath:
+          path: /data/namesrv/store
+
+
+---
+File: templates\kubernetes\deployment2.yaml
+Size: 1687 bytes
+Lines: 68
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: rocketmq-ns-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rocketmq-nameserver
+      name: rocketmq-nameserver
+  template:
+    metadata:
+     labels:
+      app: rocketmq-nameserver
+      name: rocketmq-nameserver
+    spec:
+      containers:
+      - name: rocketmq-nameserver
+        image: apache/rocketmq:ROCKETMQ_VERSION
+        command: ["sh","mqnamesrv"]
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9876
+        volumeMounts:
+          - mountPath: /home/rocketmq/logs
+            name: namesrvlogs
+      volumes:
+      - name: namesrvlogs
+        emptyDir: {}
+      - name: namesrvstore 
+        emptyDir: {}
+---          
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: rocketmq-broker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rocketmq-broker
+      name: rocketmq-broker
+  template:
+    metadata:
+     labels:
+      app: rocketmq-broker
+      name: rocketmq-broker
+    spec:
+      containers:
+      - name: rocketmq-broker
+        image: apache/rocketmq:ROCKETMQ_VERSION
+        command: ["sh","mqbroker", "-n","rocketmq-ns-deployment:9876"]
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 10909
+          - containerPort: 10911
+        volumeMounts:
+          - mountPath: /home/rocketmq/logs
+            name: brokerlogs
+          - mountPath: /home/rocketmq/store
+            name: brokerstore
+      volumes:
+      - name: brokerlogs
+        emptyDir: {}
+      - name: brokerstore
+        emptyDir: {}
+
+
+
+
+---
+File: image-build\scripts\docker-entrypoint.sh
+Size: 479 bytes
+Lines: 17
+---
+#!/bin/bash
+set -e
+
+# Allow user specify custom CMD, maybe run /bin/bash to check the image
+if [[ "$1" == "nameserver" || "${NODE_ROLE}" == "nameserver" ]]; then
+  shift
+  exec ./mqnamesrv "${@}"
+elif [[ "$1" == "broker" || "${NODE_ROLE}" == "broker" ]]; then
+  shift
+  exec ./mqbroker "${@}"
+elif [[ "$1" == "controller" || "${NODE_ROLE}" == "controller" ]]; then
+  shift
+  exec ./mqcontroller "${@}"
+else
+  # Run whatever command the user wants
+  exec "$@"
+fi
+
+
+---
+File: templates\docker-compose\rmq4-docker-compose.yml
+Size: 1379 bytes
+Lines: 47
+---
+version: '2'
+services:
+  #Service for nameserver
+  namesrv:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqnamesrv
+    ports:
+      - 9876:9876
+    volumes:
+      - ./data/namesrv/logs:/home/rocketmq/logs
+    command: sh mqnamesrv
+
+  #Service for broker
+  broker:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqbroker
+    links:
+      - namesrv
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    environment:
+      - NAMESRV_ADDR=namesrv:9876
+    volumes:
+      - ./data/broker/logs:/home/rocketmq/logs
+      - ./data/broker/store:/home/rocketmq/store
+      - ./data/broker/conf/broker.conf:/opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+    command: sh mqbroker -c /opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+
+  #Service for another broker -- broker1
+  broker1:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqbroker-b
+    links:
+      - namesrv
+    ports:
+      - 10929:10909
+      - 10931:10911
+      - 10932:10912
+    environment:
+      - NAMESRV_ADDR=namesrv:9876
+    volumes:
+      - ./data1/broker/logs:/home/rocketmq/logs
+      - ./data1/broker/store:/home/rocketmq/store
+      - ./data1/broker/conf/broker.conf:/opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+    command: sh mqbroker -c /opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+
+
+---
+File: templates\docker-compose\rmq5-docker-compose.yml
+Size: 1950 bytes
+Lines: 69
+---
+version: '2'
+services:
+  #Service for nameserver
+  namesrv:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqnamesrv
+    ports:
+      - 9876:9876
+    volumes:
+      - ./data/namesrv/logs:/home/rocketmq/logs
+    command: sh mqnamesrv
+
+  #Service for broker
+  broker:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqbroker
+    links:
+      - namesrv
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    environment:
+      - NAMESRV_ADDR=namesrv:9876
+    volumes:
+      - ./data/broker/logs:/home/rocketmq/logs
+      - ./data/broker/store:/home/rocketmq/store
+      - ./data/broker/conf/broker.conf:/opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+    command: sh mqbroker -c /opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+
+  #Service for another broker -- broker1
+  broker1:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqbroker-b
+    links:
+      - namesrv
+    ports:
+      - 10929:10909
+      - 10931:10911
+      - 10932:10912
+    environment:
+      - NAMESRV_ADDR=namesrv:9876
+    volumes:
+      - ./data1/broker/logs:/home/rocketmq/logs
+      - ./data1/broker/store:/home/rocketmq/store
+      - ./data1/broker/conf/broker.conf:/opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+    command: sh mqbroker -c /opt/rocketmq-ROCKETMQ_VERSION/conf/broker.conf
+
+  #Service for proxy
+  proxy:
+    image: apache/rocketmq:ROCKETMQ_VERSION
+    container_name: rmqproxy
+    links:
+      - namesrv
+      - broker
+      - broker1
+    depends_on:
+      - broker
+      - broker1
+    ports:
+      - 8080:8080
+      - 8081:8081
+    restart: on-failure
+    environment:
+      - NAMESRV_ADDR=namesrv:9876
+    volumes:
+      - ./proxy/logs:/home/rocketmq/logs
+      - ./proxy/conf/rmq-proxy.json:/opt/rocketmq-ROCKETMQ_VERSION/conf/rmq-proxy.json
+    command: sh mqproxy -pc /opt/rocketmq-ROCKETMQ_VERSION/conf/rmq-proxy.json
+
+---
+File: image-build-ci\scripts\runbroker-customize.sh
+Size: 3317 bytes
+Lines: 81
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#===========================================================================================
+# Java Environment Setting
+#===========================================================================================
+error_exit ()
+{
+    echo "ERROR: $1 !!"
+    exit 1
+}
+
+find_java_home()
+{
+    case "`uname`" in
+        Darwin)
+            JAVA_HOME=$(/usr/libexec/java_home)
+        ;;
+        *)
+            JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+        ;;
+    esac
+}
+
+find_java_home
+
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=$HOME/jdk/java
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
+[ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
+
+export JAVA_HOME
+export JAVA="$JAVA_HOME/bin/java"
+export BASE_DIR=$(dirname $0)/..
+export CLASSPATH=.:${BASE_DIR}/conf:${CLASSPATH}
+
+#===========================================================================================
+# JVM Configuration
+#===========================================================================================
+
+# Set default JVM memory options if not provided
+DEFAULT_HEAP_OPTS="-Xms2g -Xmx2g -Xmn1g -XX:MaxDirectMemorySize=1g"
+HEAP_OPTS=${HEAP_OPTS:-$DEFAULT_HEAP_OPTS}
+
+# Setting JAVA options
+JAVA_OPT="${JAVA_OPT} -server ${HEAP_OPTS}"
+JAVA_OPT="${JAVA_OPT} -XX:+UseG1GC -XX:G1HeapRegionSize=16m -XX:G1ReservePercent=25 -XX:InitiatingHeapOccupancyPercent=30 -XX:SoftRefLRUPolicyMSPerMB=0 -XX:SurvivorRatio=8"
+JAVA_OPT="${JAVA_OPT} -verbose:gc -Xloggc:/dev/shm/mq_gc_%p.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintAdaptiveSizePolicy"
+JAVA_OPT="${JAVA_OPT} -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=30m"
+JAVA_OPT="${JAVA_OPT} -XX:-OmitStackTraceInFastThrow"
+JAVA_OPT="${JAVA_OPT} -XX:+AlwaysPreTouch"
+JAVA_OPT="${JAVA_OPT} -XX:-UseLargePages -XX:-UseBiasedLocking"
+JAVA_OPT="${JAVA_OPT} -Djava.ext.dirs=${JAVA_HOME}/jre/lib/ext:${BASE_DIR}/lib"
+#JAVA_OPT="${JAVA_OPT} -Xdebug -Xrunjdwp:transport=dt_socket,address=9555,server=y,suspend=n"
+JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
+JAVA_OPT="${JAVA_OPT} -cp ${CLASSPATH}"
+
+numactl --interleave=all pwd > /dev/null 2>&1
+if [ $? -eq 0 ]
+then
+	if [ -z "$RMQ_NUMA_NODE" ] ; then
+		numactl --interleave=all $JAVA ${JAVA_OPT} $@
+	else
+		numactl --cpunodebind=$RMQ_NUMA_NODE --membind=$RMQ_NUMA_NODE $JAVA ${JAVA_OPT} $@
+	fi
+else
+	$JAVA ${JAVA_OPT} $@
+fi
+
+
+---
+File: image-build\scripts\runbroker-customize.sh
+Size: 3318 bytes
+Lines: 81
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#===========================================================================================
+# Java Environment Setting
+#===========================================================================================
+error_exit ()
+{
+    echo "ERROR: $1 !!"
+    exit 1
+}
+
+find_java_home()
+{
+    case "`uname`" in
+        Darwin)
+            JAVA_HOME=$(/usr/libexec/java_home)
+        ;;
+        *)
+            JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
+        ;;
+    esac
+}
+
+find_java_home
+
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=$HOME/jdk/java
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
+[ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
+
+export JAVA_HOME
+export JAVA="$JAVA_HOME/bin/java"
+export BASE_DIR=$(dirname $0)/..
+export CLASSPATH=.:${BASE_DIR}/conf:${CLASSPATH}
+
+#===========================================================================================
+# JVM Configuration
+#===========================================================================================
+
+# Set default JVM memory options if not provided
+DEFAULT_HEAP_OPTS="-Xms2g -Xmx2g -Xmn1g -XX:MaxDirectMemorySize=1g"
+HEAP_OPTS=${HEAP_OPTS:-$DEFAULT_HEAP_OPTS}
+
+# Setting JAVA options
+JAVA_OPT="${JAVA_OPT} -server ${HEAP_OPTS}"
+JAVA_OPT="${JAVA_OPT} -XX:+UseG1GC -XX:G1HeapRegionSize=16m -XX:G1ReservePercent=25 -XX:InitiatingHeapOccupancyPercent=30 -XX:SoftRefLRUPolicyMSPerMB=0 -XX:SurvivorRatio=8"
+JAVA_OPT="${JAVA_OPT} -verbose:gc -Xloggc:/dev/shm/mq_gc_%p.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintAdaptiveSizePolicy"
+JAVA_OPT="${JAVA_OPT} -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=30m"
+JAVA_OPT="${JAVA_OPT} -XX:-OmitStackTraceInFastThrow"
+JAVA_OPT="${JAVA_OPT} -XX:+AlwaysPreTouch"
+JAVA_OPT="${JAVA_OPT} -XX:-UseLargePages -XX:-UseBiasedLocking"
+JAVA_OPT="${JAVA_OPT} -Djava.ext.dirs=${JAVA_HOME}/jre/lib/ext:${BASE_DIR}/lib"
+#JAVA_OPT="${JAVA_OPT} -Xdebug -Xrunjdwp:transport=dt_socket,address=9555,server=y,suspend=n"
+JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
+JAVA_OPT="${JAVA_OPT} -cp ${CLASSPATH}"
+
+numactl --interleave=all pwd > /dev/null 2>&1
+if [ $? -eq 0 ]
+then
+	if [ -z "$RMQ_NUMA_NODE" ] ; then
+		numactl --interleave=all $JAVA ${JAVA_OPT} $@
+	else
+		numactl --cpunodebind=$RMQ_NUMA_NODE --membind=$RMQ_NUMA_NODE $JAVA ${JAVA_OPT} $@
+	fi
+else
+	$JAVA ${JAVA_OPT} $@
+fi
+
+
+---
+File: image-build-ci\scripts\runserver-customize.sh
+Size: 2803 bytes
+Lines: 67
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#===========================================================================================
+# Java Environment Setting
+#===========================================================================================
+error_exit ()
+{
+    echo "ERROR: $1 !!"
+    exit 1
+}
+
+find_java_home()
+{
+    case "`uname`" in
+        Darwin)
+            JAVA_HOME=$(/usr/libexec/java_home)
+        ;;
+        *)
+            JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+        ;;
+    esac
+}
+
+find_java_home
+
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=$HOME/jdk/java
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
+[ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
+
+export JAVA_HOME
+export JAVA="$JAVA_HOME/bin/java"
+export BASE_DIR=$(dirname $0)/..
+export CLASSPATH=.:${BASE_DIR}/conf:${CLASSPATH}
+
+#===========================================================================================
+# JVM Configuration
+#===========================================================================================
+DEFAULT_HEAP_OPTS="-Xms1g -Xmx1g -Xmn512M"
+HEAP_OPTS=${HEAP_OPTS:-$DEFAULT_HEAP_OPTS}
+
+# Set for `JAVA_OPT`.
+JAVA_OPT="${JAVA_OPT} -server ${HEAP_OPTS}"
+JAVA_OPT="${JAVA_OPT} -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSParallelRemarkEnabled -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+CMSClassUnloadingEnabled -XX:SurvivorRatio=8  -XX:-UseParNewGC"
+JAVA_OPT="${JAVA_OPT} -verbose:gc -Xloggc:/dev/shm/rmq_srv_gc.log -XX:+PrintGCDetails"
+JAVA_OPT="${JAVA_OPT} -XX:-OmitStackTraceInFastThrow"
+JAVA_OPT="${JAVA_OPT}  -XX:-UseLargePages"
+JAVA_OPT="${JAVA_OPT} -Djava.ext.dirs=${JAVA_HOME}/jre/lib/ext:${BASE_DIR}/lib"
+#JAVA_OPT="${JAVA_OPT} -Xdebug -Xrunjdwp:transport=dt_socket,address=9555,server=y,suspend=n"
+JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
+JAVA_OPT="${JAVA_OPT} -cp ${CLASSPATH}"
+
+$JAVA ${JAVA_OPT} $@
+
+
+---
+File: image-build\scripts\runserver-customize.sh
+Size: 2804 bytes
+Lines: 67
+---
+#!/bin/bash
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#===========================================================================================
+# Java Environment Setting
+#===========================================================================================
+error_exit ()
+{
+    echo "ERROR: $1 !!"
+    exit 1
+}
+
+find_java_home()
+{
+    case "`uname`" in
+        Darwin)
+            JAVA_HOME=$(/usr/libexec/java_home)
+        ;;
+        *)
+            JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
+        ;;
+    esac
+}
+
+find_java_home
+
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=$HOME/jdk/java
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
+[ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
+
+export JAVA_HOME
+export JAVA="$JAVA_HOME/bin/java"
+export BASE_DIR=$(dirname $0)/..
+export CLASSPATH=.:${BASE_DIR}/conf:${CLASSPATH}
+
+#===========================================================================================
+# JVM Configuration
+#===========================================================================================
+DEFAULT_HEAP_OPTS="-Xms1g -Xmx1g -Xmn512M"
+HEAP_OPTS=${HEAP_OPTS:-$DEFAULT_HEAP_OPTS}
+
+# Set for `JAVA_OPT`.
+JAVA_OPT="${JAVA_OPT} -server ${HEAP_OPTS}"
+JAVA_OPT="${JAVA_OPT} -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSParallelRemarkEnabled -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+CMSClassUnloadingEnabled -XX:SurvivorRatio=8  -XX:-UseParNewGC"
+JAVA_OPT="${JAVA_OPT} -verbose:gc -Xloggc:/dev/shm/rmq_srv_gc.log -XX:+PrintGCDetails"
+JAVA_OPT="${JAVA_OPT} -XX:-OmitStackTraceInFastThrow"
+JAVA_OPT="${JAVA_OPT}  -XX:-UseLargePages"
+JAVA_OPT="${JAVA_OPT} -Djava.ext.dirs=${JAVA_HOME}/jre/lib/ext:${BASE_DIR}/lib"
+#JAVA_OPT="${JAVA_OPT} -Xdebug -Xrunjdwp:transport=dt_socket,address=9555,server=y,suspend=n"
+JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
+JAVA_OPT="${JAVA_OPT} -cp ${CLASSPATH}"
+
+$JAVA ${JAVA_OPT} $@
+
+
+---
+File: templates\ssl\server_rsa_private.pem.unsecure
+Size: 1702 bytes
+Lines: 27
+---
+-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAq3KBJKu/t/v4+pKbTgcSUgt8vdKBjskLzCcgprMrcK/kI9Ce
+7KN2cgafAZbFHb4KumfTc2aYLvm7I7yMLPxI+sn3TPk0j3O1nXLUcLSY28bGDUVy
+OV+nS3/IJ7vXl0pE82iYTcsdPq9IR9uLbNa08AFVweUX29APO+PH0eS8fI7jfkkn
+wlmk0CqpnUA4kDdPFpAnjU58TFjm/QKjdlwMY/RggiTiHZa/18jzViCbiGZC/kel
+rIyHEf+zR7+fFQfSNL3uLY3dH5O0qR6yKot6vO5beNz39OckKiKfdB1OcLueSU+q
+fWLFvlGkpXlVSMVQIXoaLuEN6DozzXCQAcID0QIDAQABAoIBAFKQlSLc1zo6TUAW
+pFYiT69VOuCLZLsnlNffK/k7pbrh6eNZj390hREKoT55pjnZkH8OiyUzDizpNTdT
+kMoFQPwNkVvvU2GWHqtRZn9UaZzFkBFKFWUN7JoOUozYCE4ihSwXfelQ3KeYcB2y
+2+UxTPecHPmAY0oHW57C5jLtjdwJhjo3m3S+lh79uFE4u+QIUV86Psn8JBLej2QU
+AYUy7AaAMuLHsJtWtP5jpaCKikCWYtfaCHismWpN2RbIwVp+unWhpryUpOOZx5F/
+iEE8OaDAkZimPgS2Bh67VmX2+SmaRFDRXKWEUXP3v7EVPY40SIZfZcqW7JSVrHkp
+w+/pNUECgYEA0gw84EFJBGumMptwjTffajrtynE/cjtYSp/cmYisQsQXcb2DSjTS
+zrK2kJmJUCuEeM1GQRkS0by4lk157BzZaBcMwad/4zwJ8ZU8676yKv0Rf488+DE4
+4IWByoSYElH9N9iW2eWWuH8+BeP86JUt+DgLqPBLsy7PKndNbzJE4BkCgYEA0PRw
+JeNfjvcGTLDmm2qbtYYzheIUdQmwYUrYqRQCRPP3jxJIrrvwn9ID6Cx8FS2vdsXr
+3vxYdaDARrijF1pDH3swm3GHrIV/qYAkb4Cy9mdoXK96AB0RD5plbo15952d6kfD
+OdZ3D+FXUdJbqHIR0Vk60iRSR+bphfOK73r32HkCgYAd5/Ym68Ssp3MTU4RT5ved
+VWST5UnmRsLMZTRwe8AjBW5dGGGACENXgKRztBiT3I5Q8NEm5Z4DVL5nUAKi9nyR
+0G5ViDayMNMtnVT+L7mIW13Jbqh8oe16MigHoJdSTHAkKmdYANNT03IOPqa8qrjP
+1ZL7a7MrgOeoITJaOasKyQKBgES81JOyK4JFQt5Bp2ri9BwP7K0TRTWHHW20CHf+
+bAyw0PRQyHYqvypkFQLwd1UkNT92NnShQJxZaEcbgBMzjzcw+Dl6bG5VcDybOeEw
+Ti7+r3cmBpU4+p7OZKWshr3tLMCgINnK8lnYADibYamU9MWQe+gbKLIchR+akU7c
+feHJAoGADF8pbOuCpRFZnUYzKh+RP2tHcRJSGSi7VouI9tCx+NXfKuuFlfw3+2ug
+/xmbjwzXYUDw+VjpOYA1OAsqmtyk4sJKP2z4oA1RLUfuL1nXyHRgMQ39/KmY4/Uy
+2hPaS1CkfAgSGqTpb0ciY8ELCJQIDrX3QNgCeR1cCHxLygDVGvc=
+-----END RSA PRIVATE KEY-----
+
+
+---
+File: templates\ssl\ssl.properties
+Size: 501 bytes
+Lines: 13
+---
+## client setting
+tls.client.certPath=/home/rocketmq/ssl/client.crt
+tls.client.keyPath=/home/rocketmq/ssl/client_rsa_private_pkcs8.pem
+tls.client.keyPassword=client
+tls.client.trustCertPath=/home/rocketmq/ssl/ca.crt
+
+## server setting
+tls.server.certPath=/home/rocketmq/ssl/server.crt
+tls.server.keyPath=/home/rocketmq/ssl/server_rsa_private_pkcs8.pem
+tls.server.keyPassword=server
+tls.server.trustCertPath=/home/rocketmq/ssl/ca.crt
+#server.auth.client
+tls.server.need.client.auth=required
+
+---
+File: image-build-ci\scripts\tools-customize.sh
+Size: 1867 bytes
+Lines: 42
+---
+#!/bin/sh
+
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#===========================================================================================
+# Java Environment Setting
+#===========================================================================================
+error_exit ()
+{
+    echo "ERROR: $1 !!"
+    exit 1
+}
+
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=$HOME/jdk/java
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
+[ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
+
+export JAVA_HOME
+export JAVA="$JAVA_HOME/bin/java"
+export BASE_DIR=$(dirname $0)/..
+export CLASSPATH=.:${BASE_DIR}/conf:${BASE_DIR}/lib/*:${CLASSPATH}
+
+#===========================================================================================
+# JVM Configuration
+#===========================================================================================
+JAVA_OPTS="${JAVA_OPTS} -server -Xms1g -Xmx1g -Xmn256m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=128m"
+JAVA_OPTS="${JAVA_OPTS} -cp ${CLASSPATH}"
+
+$JAVA ${JAVA_OPTS} "$@"
+
+
+---
+File: rocketmq-k8s-helm\templates\broker\_brokerconfig.tpl
+Size: 1433 bytes
+Lines: 49
+---
+{{- define "rocketmq-broker.config" -}}
+{{- $name := include "rocketmq-broker.fullname" . }}
+{{- $clusterName := include "rocketmq-broker.clusterName" . }}
+{{- $brokerNamePrefix := include "rocketmq-broker.brokerNamePrefix" . }}
+{{- $config := .Values.broker.config }}
+{{- $replicaCount := .Values.broker.replicaCount | int }}
+{{- range $index := until $replicaCount }}
+  {{ $name }}-{{ $index }}: |
+    brokerClusterName={{ $clusterName }}
+    brokerName={{ $brokerNamePrefix }}-{{ $index }}
+    enableNameServerAddressResolve=true
+
+    # common configs
+    traceOn=true
+    autoCreateTopicEnable=false
+    autoCreateSubscriptionGroup=true
+    enableIncrementalTopicCreation=true
+    generateConfigForScaleOutEnable=false
+    enableNotifyAfterPopOrderLockRelease=true
+    autoMessageVersionOnTopicLen=true
+
+    # pop config
+    enablePopBufferMerge=true
+    enableConsumePopRetryTopic=true
+    enableConsumePullRetryTopic=true
+    enableSkipLongWaitAck=true
+
+    # Store config
+    flushDiskType=SYNC_FLUSH
+
+    # Enable SQL92
+    enablePropertyFilter=true
+
+    # Transaction config
+    transactionCheckMaxTimeInMs=14400000
+    transactionCheckInterval=60000
+
+    # Delay config
+    timerWheelEnable=true
+    timerMaxDelaySec=86400
+
+    waitTimeMillsInSendQueue=900
+    maxMessageSize=5242880
+
+    # stream
+    litePullMessageEnable=true
+{{ $config | indent 4 }}
+{{- end }}
+{{- end }}
+
+---
+File: rocketmq-k8s-helm\templates\controller\_controllerconfig.tpl
+Size: 1972 bytes
+Lines: 50
+---
+{{- /*
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- define "controller.jRaftInitConf" -}}
+{{- $replicaCount := .Values.controller.replicas | int }}
+{{- $args := list -}}
+{{- $name := include "controller.fullname" . }}
+{{- $namespace := .Release.Namespace -}}
+{{- $result := "" -}}
+{{- $port := .Values.controller.service.internalport | int -}}
+{{- range untilStep 0 $replicaCount 1 -}}
+{{-   $args = printf "%s-%d.%s.%s:%d" $name . $name $namespace $port | append $args -}}
+{{- end }}
+   {{- $result = printf "%s=%s" "jRaftInitConf" (join "," $args) -}}
+   {{- $result -}}
+{{- end -}}
+
+{{- define "controller.jRaftControllerRPCAddr" -}}
+{{- $replicaCount := .Values.controller.replicas | int }}
+{{- $args := list -}}
+{{- $name := include "controller.fullname" . }}
+{{- $namespace := .Release.Namespace -}}
+{{- $result := "" -}}
+{{- $port := .Values.controller.service.port | int -}}
+{{- range untilStep 0 $replicaCount 1 -}}
+{{-   $args = printf "%s-%d.%s.%s:%d" $name . $name $namespace $port | append $args -}}
+{{- end }}
+   {{- $result = printf "%s=%s" "jRaftControllerRPCAddr" (join "," $args) -}}
+   {{- $result -}}
+{{- end -}}
+
+{{- define "controller.config" -}}
+{{- $name := include "controller.fullname" . }}
+{{- $config := .Values.controller.config }}
+{{- $replicaCount := .Values.controller.replicas | int }}
+{{- $jRaftInitConf := include "controller.jRaftInitConf" . -}}
+{{- $jRaftControllerRPCAddr := include "controller.jRaftControllerRPCAddr" . -}}
+{{- range $index := until $replicaCount }}
+  {{ $name }}-{{ $index }}: |
+    controllerType=jRaft
+    jRaftGroupId=jRaft-controller-group
+    jRaftServerId = {{ $name }}-{{ $index }}.{{ $name }}.{{ $.Release.Namespace }}:{{ $.Values.controller.service.internalport }}  
+    {{ $jRaftInitConf }}
+    {{ $jRaftControllerRPCAddr }}
+    jRaftSnapshotIntervalSecs = 3600
+    controllerStorePath=/home/rocketmq/store
+{{ $config | indent 4 }}
+{{- end }}
+{{- end }}
+
+
+---
+File: rocketmq-k8s-helm\templates\broker\_helpers.tpl
+Size: 2226 bytes
+Lines: 70
+---
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "rocketmq-broker.name" -}}
+{{- default .Chart.Name .Values.broker.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "rocketmq-broker.fullname" -}}
+{{- if .Values.broker.fullnameOverride }}
+{{- .Values.broker.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.broker.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "rocketmq-broker.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "rocketmq-broker.labels" -}}
+{{ include "rocketmq-broker.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "rocketmq-broker.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "rocketmq-broker.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "rocketmq-broker.clusterName" -}}
+{{- if .Values.broker.conf.clusterNameOverride }}
+{{- .Values.broker.conf.clusterNameOverride | trunc 63 | trimSuffix "-" }}
+{{- else -}}
+DefaultCluster
+{{- end }}
+{{- end }}
+
+{{- define "rocketmq-broker.brokerNamePrefix" -}}
+{{- if .Values.broker.conf.brokerNamePrefixOverride }}
+{{- .Values.broker.conf.brokerNamePrefixOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- include "rocketmq-broker.fullname" . }}
+{{- end }}
+{{- end }}
+
+{{- define "rocketmq-broker.brokerImage" -}}
+{{ .Values.broker.image.repository }}:{{ .Values.broker.image.tag | default .Chart.AppVersion }}
+{{- end }}
+
+
+---
+File: rocketmq-k8s-helm\templates\controller\_helpers.tpl
+Size: 1630 bytes
+Lines: 55
+---
+{{- /*
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "controller.name" -}}
+{{- default .Chart.Name .Values.controller.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "controller.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.controller.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "controller.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "controller.labels" -}}
+helm.sh/chart: {{ include "controller.chart" . }}
+{{ include "controller.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "controller.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "controller.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+
+---
+File: rocketmq-k8s-helm\templates\nameserver\_helpers.tpl
+Size: 1932 bytes
+Lines: 59
+---
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "rocketmq-nameserver.name" -}}
+{{- default .Chart.Name .Values.nameserver.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "rocketmq-nameserver.fullname" -}}
+{{- if .Values.nameserver.fullnameOverride }}
+{{- .Values.nameserver.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameserver.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "rocketmq-nameserver.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "rocketmq-nameserver.labels" -}}
+helm.sh/chart: {{ include "rocketmq-nameserver.chart" . }}
+{{ include "rocketmq-nameserver.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "rocketmq-nameserver.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "rocketmq-nameserver.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "rocketmq-nameserver.namesrvImage" -}}
+{{ .Values.nameserver.image.repository }}:{{ .Values.nameserver.image.tag | default .Chart.AppVersion }}
+{{- end }}
+
+{{- define "rocketmq-nameserver.port" -}}
+{{- .Values.nameserver.port  }}
+{{- end }}
+
+
+---
+File: rocketmq-k8s-helm\templates\proxy\_helpers.tpl
+Size: 1490 bytes
+Lines: 47
+---
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "rocketmq-proxy.name" -}}
+{{- default .Chart.Name .Values.proxy.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "rocketmq-proxy.fullname" -}}
+{{- if .Values.proxy.fullnameOverride }}
+{{- .Values.proxy.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.proxy.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "rocketmq-proxy.labels" -}}
+{{ include "rocketmq-proxy.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "rocketmq-proxy.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "rocketmq-proxy.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "rocketmq-proxy.proxyImage" -}}
+{{ .Values.proxy.image.repository }}:{{ .Values.proxy.image.tag | default .Chart.AppVersion }}
+{{- end }}
+
+
+---
+File: rocketmq-k8s-helm\templates\proxy\_proxyconfig.tpl
+Size: 951 bytes
+Lines: 26
+---
+{{/*
+Using mergeOverwrite to merge configs from Values into regional config,
+valuse from .Values.config have the higher priority.
+*/}}
+
+{{- define "rocketmq-proxy.conf" -}}
+{{- $commonConf := fromYaml (include "rocketmq-proxy.common.conf" . ) -}}
+  rmq-proxy.json: |
+{{- mergeOverwrite $commonConf .Values.proxy.config | mustToPrettyJson | nindent 4 }}
+{{- end }}
+{{- define "rocketmq-proxy.common.conf" -}}
+enableFlowControl: true
+enableFlowLimitAction: true
+metricCollectorMode: "proxy"
+longPollingReserveTimeInMillis: 1000
+maxMessageSize: 4194304
+maxUserPropertySize: 16384
+userPropertyMaxNum: 128
+maxMessageGroupSize: 64
+grpcClientProducerBackoffInitialMillis: 5
+grpcClientProducerBackoffMultiplier: 5
+grpcClientProducerBackoffMaxMillis: 1000
+transactionHeartbeatBatchNum: 1
+rocketMQClusterName: "{{ include "rocketmq-broker.clusterName" . }}"
+namesrvAddr: "{{ include "rocketmq-nameserver.fullname" . }}:9876"
+{{- end -}}
+
+---
+File: product\conf\2m-2s-async\broker-a-s.properties
+Size: 1112 bytes
+Lines: 30
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+
+
+#Slave host dns-name/ip
+brokerIP1=REPLACE_IT 
+#with Master's BroperIP1
+brokerIP2=REPLACE_IT 
+
+#with Master's haListenPort, default 10912
+#haListenPort=10912 
+
+
+---
+File: product\conf\2m-2s-sync\broker-a-s.properties
+Size: 1108 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+
+#Slave host dns-name/ip
+brokerIP1=REPLACE_IT 
+#with Master's BroperIP1
+brokerIP2=REPLACE_IT 
+
+#with Master's haListenPort, default 10912
+#haListenPort=10912 
+
+---
+File: product\conf\2m-2s-async\broker-a.properties
+Size: 1201 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+#haListenPort=10912
+
+---
+File: product\conf\2m-2s-sync\broker-a.properties
+Size: 1200 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+#haListenPort=10912
+
+---
+File: product\conf\2m-noslave\broker-a.properties
+Size: 1180 bytes
+Lines: 28
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-a
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+
+---
+File: product\conf\2m-2s-async\broker-b-s.properties
+Size: 1109 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+
+#Slave host dns-name/ip
+brokerIP1=REPLACE_IT 
+#with Master's BroperIP1
+brokerIP2=REPLACE_IT 
+
+# with Master's haListenPort, default 10912
+#haListenPort=10912 
+
+---
+File: product\conf\2m-2s-sync\broker-b-s.properties
+Size: 1109 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=1
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SLAVE
+flushDiskType=ASYNC_FLUSH
+
+#Slave host dns-name/ip
+brokerIP1=REPLACE_IT 
+#with Master's BroperIP1
+brokerIP2=REPLACE_IT 
+
+# with Master's haListenPort, default 10912
+#haListenPort=10912 
+
+---
+File: product\conf\2m-2s-async\broker-b.properties
+Size: 1201 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+#haListenPort=10912
+
+---
+File: product\conf\2m-2s-sync\broker-b.properties
+Size: 1200 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=SYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+#haListenPort=10912
+
+---
+File: product\conf\2m-noslave\broker-b.properties
+Size: 1201 bytes
+Lines: 29
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-b
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+#haListenPort=10912
+
+---
+File: product\conf\2m-noslave\broker-trace.properties
+Size: 1184 bytes
+Lines: 28
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+brokerClusterName=DefaultCluster
+brokerName=broker-trace
+brokerId=0
+deleteWhen=04
+fileReservedTime=48
+brokerRole=ASYNC_MASTER
+flushDiskType=ASYNC_FLUSH
+
+# Host node's dns-name or ip
+brokerIP1=REPLACE_IT
+
+# Optional config different value rather than default ports.
+# Caution: changing default ports need to update port mapping setting (-p) in start-broker.sh
+#listenPort=10911
+
+---
+File: rocketmq-k8s-helm\templates\broker\configmap.yaml
+Size: 183 bytes
+Lines: 8
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-conf
+  labels:
+    {{- include "rocketmq-broker.labels" . | nindent 4 }}
+data:
+{{- include "rocketmq-broker.config" . }}
+
+---
+File: rocketmq-k8s-helm\templates\controller\configmap.yaml
+Size: 257 bytes
+Lines: 12
+---
+{{- /*
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "controller.fullname" . }}-conf
+  labels:
+    {{- include "controller.labels" . | nindent 4 }}
+data:
+{{- include "controller.config" . }}
+
+---
+File: rocketmq-k8s-helm\templates\nameserver\configmap.yaml
+Size: 283 bytes
+Lines: 10
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nameserver-conf
+  labels:
+    {{- include "rocketmq-nameserver.labels" . | nindent 4 }}
+data:
+  namesrv.p: |
+    listenPort={{ include "rocketmq-nameserver.port" . }}
+    {{ .Values.nameserver.configmap | indent 4 | trim }}
+
+
+---
+File: rocketmq-k8s-helm\templates\proxy\configmap.yaml
+Size: 112 bytes
+Lines: 6
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-conf
+data:
+  {{ include "rocketmq-proxy.conf" . }}
+
+
+---
+File: rocketmq-k8s-helm\templates\nameserver\deployment.yaml
+Size: 2381 bytes
+Lines: 71
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rocketmq-nameserver.fullname" . }}
+spec:
+  replicas: {{ .Values.nameserver.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "rocketmq-nameserver.selectorLabels" . | nindent 6 }}
+      component: nameserver
+  template:
+    metadata:
+      labels:
+        {{- include "rocketmq-nameserver.selectorLabels" . | nindent 8 }}
+        component: nameserver
+    spec:
+      {{- with .Values.proxy.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: nameserver
+          image: {{ include "rocketmq-nameserver.namesrvImage" .  }}
+          {{- if .Values.nameserver.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.nameserver.image.pullPolicy | quote }}
+          {{- end }}
+          command: [ "/bin/sh" ]
+          args: [ "-c", "./mqnamesrv -c /home/rocketmq/config/namesrv.p" ]
+          env:
+            - name: JAVA_HEAP_SIZE
+              value: {{ .Values.nameserver.heapSize }}
+          ports:
+            - name: nameserver
+              containerPort: {{ include "rocketmq-nameserver.port" . }}
+              protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: nameserver
+            periodSeconds: 5
+            initialDelaySeconds: 20
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: nameserver
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: nameserver
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.nameserver.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /home/rocketmq/config
+              name: nameserver-config
+            - mountPath: /home/rocketmq/logs
+              name: nameserver-log
+      volumes:
+        - name: nameserver-config
+          configMap:
+            name: nameserver-conf
+        - name: nameserver-log
+          emptyDir: { }
+      {{- with .Values.nameserver.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+File: rocketmq-k8s-helm\templates\proxy\deployment.yaml
+Size: 2617 bytes
+Lines: 82
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rocketmq-proxy.fullname" . }}
+spec:
+{{- if not .Values.proxy.autoscaling.enabled }}
+  replicas: {{ .Values.proxy.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "rocketmq-proxy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.proxy.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "rocketmq-proxy.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.proxy.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: proxy
+          image: {{ include "rocketmq-proxy.proxyImage" . }}
+          {{- if .Values.proxy.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.proxy.image.pullPolicy | quote }}
+          {{- end }}
+          command: [ "/bin/sh" ]
+          args: [ "-c", "./mqproxy -pc /home/rocketmq/rocketmq-proxy/configmap/rmq-proxy.json" ]
+          env:
+            - name: RMQ_PROXY_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESRV_ADDR
+              value: {{ include "rocketmq-nameserver.fullname" . }}:9876
+            - name: RMQ_PROXY_CONFIG_PATH
+              value: /home/rocketmq/rocketmq-proxy/configmap
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - ./bin/mqshutdown
+                  - proxy
+          ports:
+            - name: remote
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 8081
+              protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 10
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.proxy.resources | nindent 12 }}
+          volumeMounts:
+            - name: conf
+              mountPath: /home/rocketmq/rocketmq-proxy/configmap/
+      volumes:
+        - name: conf
+          configMap:
+            name: proxy-conf
+      {{- with .Values.proxy.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+File: rocketmq-k8s-helm\templates\broker\service.yaml
+Size: 404 bytes
+Lines: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rocketmq-broker.fullname" . }}
+  labels:
+    {{- include "rocketmq-broker.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.broker.service.port }}
+      targetPort: broker-port
+      protocol: TCP
+      name: broker-port
+  selector:
+    {{- include "rocketmq-broker.selectorLabels" . | nindent 4 }}
+  clusterIP: None
+
+
+---
+File: rocketmq-k8s-helm\templates\controller\service.yaml
+Size: 599 bytes
+Lines: 25
+---
+{{- /*
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "controller.fullname" . }}
+  labels:
+    {{- include "controller.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: main
+    port: {{ .Values.controller.service.port }}
+    protocol: TCP
+    targetPort: main
+  - name: internal
+    port: {{ .Values.controller.service.internalport }}
+    protocol: TCP
+    targetPort: internal
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "controller.selectorLabels" . | nindent 4 }}
+
+
+---
+File: rocketmq-k8s-helm\templates\nameserver\service.yaml
+Size: 465 bytes
+Lines: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rocketmq-nameserver.fullname" . }}
+  labels:
+    {{- include "rocketmq-nameserver.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ .Values.nameserver.service.servicePort }}
+      targetPort: {{ include "rocketmq-nameserver.port" . }}
+      protocol: TCP
+      name: nameserver-service
+  selector:
+    {{- include "rocketmq-nameserver.selectorLabels" . | nindent 4 }}
+
+
+---
+File: rocketmq-k8s-helm\templates\proxy\service.yaml
+Size: 526 bytes
+Lines: 19
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rocketmq-proxy.fullname" . }}
+  labels:
+    {{- include "rocketmq-proxy.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ .Values.proxy.service.remotingInternetPort }}
+      targetPort: 7001
+      protocol: TCP
+      name: remoting-internet
+    - port: {{ .Values.proxy.service.grpcPort }}
+      targetPort: 8081
+      protocol: TCP
+      name: grpc
+  selector:
+    {{- include "rocketmq-proxy.selectorLabels" . | nindent 4 }}
+
+---
+File: rocketmq-k8s-helm\templates\broker\statefulset.yaml
+Size: 3434 bytes
+Lines: 106
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "rocketmq-broker.fullname" . }}
+spec:
+  replicas: {{ .Values.broker.replicaCount }}
+  serviceName: {{ include "rocketmq-broker.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "rocketmq-broker.selectorLabels" . | nindent 6 }}
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "rocketmq-broker.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.proxy.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: broker
+          image: {{ include "rocketmq-broker.brokerImage" . }}
+        {{- if $.Values.broker.image.pullPolicy }}
+          imagePullPolicy: {{ $.Values.broker.image.pullPolicy }}
+        {{- end }}
+          command: [ "/bin/sh" ]
+          args: [ "-c", "./mqbroker -c /home/rocketmq/conf/$(POD_NAME)" ]
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: HEAP_OPTS
+              value: {{ .Values.broker.jvmMemory }}
+            - name: NAMESRV_ADDR
+              value: {{ include "rocketmq-nameserver.fullname" . }}:9876
+          ports:
+            - name: broker
+              containerPort: 10911
+              protocol: TCP
+            - name: con-nameserver
+              containerPort: 10909
+              protocol: TCP
+            - name: ha
+              containerPort: 10912
+              protocol: TCP
+            - name: proxy
+              containerPort: 8081
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            successThreshold: 1
+            tcpSocket:
+              port: 10911
+            timeoutSeconds: 1
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            successThreshold: 1
+            tcpSocket:
+              port: 10911
+            timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.broker.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /home/rocketmq/conf
+              name: broker-config
+            - mountPath: /home/rocketmq/logs
+              name: broker-storage
+              subPath: home/rocketmq/rocketmq-broker
+            - mountPath: /home/rocketmq/store
+              name: broker-storage
+              subPath: store/rocketmq-broker
+      {{- with .Values.broker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: 3000
+      volumes:
+        - name: broker-config
+          configMap:
+            name: broker-conf
+  {{- if not $.Values.broker.persistence.enabled }}
+        - name: broker-storage
+          emptyDir: { }
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: broker-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.broker.persistence.size }}
+  {{- end }}
+
+
+---
+File: rocketmq-k8s-helm\templates\controller\statefulset.yaml
+Size: 3769 bytes
+Lines: 109
+---
+{{- /*
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  name: {{ include "controller.fullname" . }}
+  labels:
+    {{- include "controller.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.controller.replicas }}
+  selector:
+    matchLabels:
+      {{- include "controller.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "controller.fullname" . }}
+  template: 
+    metadata: 
+      annotations: 
+        checksum/config: {{ include (print $.Template.BasePath "/controller/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "controller.labels" . | nindent 8 }}
+    spec: 
+      {{- with .Values.controller.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers: 
+      - name: controller
+        image: "{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}"
+        imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+        env: 
+        - name: NODE_ROLE
+          value: controller
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        command: [ "/bin/sh" ]
+        args: [ "-c", "./mqcontroller -c /home/rocketmq/conf/$(POD_NAME)" ]
+        ports:
+        - name: main
+          containerPort: {{ .Values.controller.service.port }}
+          protocol: TCP
+        - name: internal
+          containerPort: {{  .Values.controller.service.internalport }}
+          protocol: TCP
+        livenessProbe:
+        {{- toYaml .Values.controller.livenessProbe | nindent 10 }}
+        readinessProbe:
+        {{- toYaml .Values.controller.readinessProbe | nindent 10 }}
+        startupProbe:
+        {{- toYaml .Values.controller.startupProbe | nindent 10 }}
+        resources: 
+        {{- toYaml .Values.controller.resources  | nindent 10 }}
+        volumeMounts:
+        - mountPath: /home/rocketmq/conf
+          name: controller-config
+        - mountPath: /home/rocketmq/logs
+          name: controller-storage
+          subPath: logs
+        - mountPath: /home/rocketmq/store
+          name: controller-storage
+          subPath: store
+      securityContext:
+        fsGroup: 3000
+      volumes:
+      - name: controller-config
+        configMap:
+          name: {{ include "controller.fullname" . }}-conf
+      {{- if not $.Values.controller.persistence.enabled }}
+      - name: controller-storage
+        emptyDir: { }
+      {{- else if .Values.controller.persistence.existingClaim }}
+      - name: controller-storage
+        persistentVolumeClaim:
+          claimName: {{ printf "%s" (tpl .Values.controller.persistence.existingClaim .) }}
+      {{- end }}
+  {{- if and .Values.controller.persistence.enabled (not .Values.controller.persistence.existingClaim) }}
+  volumeClaimTemplates:
+    - metadata:
+        name: controller-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage:  {{ .Values.controller.persistence.size | quote }}
+        {{- if (eq "-" .Values.controller.persistence.storageClass) -}}
+        storageClassName: ""
+        {{- else }}
+        storageClassName: {{ .Values.controller.persistence.storageClass }}
+        {{- end -}}        
+  {{- end }}
+
+
+
+
+
+---
+File: templates\data\broker\conf\broker.conf
+Size: 196 bytes
+Lines: 8
+---
+brokerClusterName = DefaultCluster
+brokerName = broker-abc
+brokerId = 0
+deleteWhen = 04
+fileReservedTime = 48
+brokerRole = ASYNC_MASTER
+flushDiskType = ASYNC_FLUSH
+brokerIP1 = 30.25.90.30
+
+
+---
+File: templates\data\broker\conf\broker1.conf
+Size: 209 bytes
+Lines: 9
+---
+brokerClusterName = DefaultCluster
+brokerName = broker-abc1
+brokerId = 1
+deleteWhen = 04
+fileReservedTime = 48
+brokerRole = ASYNC_MASTER
+flushDiskType = ASYNC_FLUSH
+brokerIP1 = m30
+listenPort = 10921
+
+
+---
+File: templates\docker-compose\proxy\conf\rmq-proxy.json
+Size: 47 bytes
+Lines: 3
+---
+{
+  "rocketMQClusterName": "DefaultCluster"
+}
+
+---
+File: templates\data\broker0\conf\dledger\broker.conf
+Size: 1189 bytes
+Lines: 27
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+brokerClusterName = RaftCluster
+brokerName=RaftNode00
+listenPort=30911
+#namesrvAddr=127.0.0.1:9876
+storePathRootDir=/tmp/rmqstore/node00
+storePathCommitLog=/tmp/rmqstore/node00/commitlog
+enableDLegerCommitLog=true
+dLegerGroup=RaftNode00
+dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
+## must be unique
+dLegerSelfId=n0
+sendMessageThreadPoolNums=16
+
+
+---
+File: templates\data\broker1\conf\dledger\broker.conf
+Size: 1189 bytes
+Lines: 27
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+brokerClusterName = RaftCluster
+brokerName=RaftNode01
+listenPort=30911
+#namesrvAddr=127.0.0.1:9876
+storePathRootDir=/tmp/rmqstore/node00
+storePathCommitLog=/tmp/rmqstore/node00/commitlog
+enableDLegerCommitLog=true
+dLegerGroup=RaftNode00
+dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
+## must be unique
+dLegerSelfId=n1
+sendMessageThreadPoolNums=16
+
+
+---
+File: templates\data\broker2\conf\dledger\broker.conf
+Size: 1189 bytes
+Lines: 27
+---
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+brokerClusterName = RaftCluster
+brokerName=RaftNode02
+listenPort=30911
+#namesrvAddr=127.0.0.1:9876
+storePathRootDir=/tmp/rmqstore/node00
+storePathCommitLog=/tmp/rmqstore/node00/commitlog
+enableDLegerCommitLog=true
+dLegerGroup=RaftNode00
+dLegerPeers=n0-172.18.0.12:40911;n1-172.18.0.13:40912;n2-172.18.0.14:40913
+## must be unique
+dLegerSelfId=n2
+sendMessageThreadPoolNums=16
+
+
+---
+File: templates\docker-compose\data1\broker\conf\broker.conf
+Size: 169 bytes
+Lines: 7
+---
+brokerClusterName = DefaultCluster
+brokerName = broker-b
+brokerId = 0
+deleteWhen = 04
+fileReservedTime = 48
+brokerRole = ASYNC_MASTER
+flushDiskType = ASYNC_FLUSH
+
+
+---
+File: templates\docker-compose\data\broker\conf\broker.conf
+Size: 169 bytes
+Lines: 7
+---
+brokerClusterName = DefaultCluster
+brokerName = broker-a
+brokerId = 0
+deleteWhen = 04
+fileReservedTime = 48
+brokerRole = ASYNC_MASTER
+flushDiskType = ASYNC_FLUSH
+

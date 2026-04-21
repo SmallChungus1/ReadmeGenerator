@@ -1,0 +1,5243 @@
+Tokens: 41758
+Repo: apache/dubbo-python
+Commit: ae74a992eec8d67b07f53a72b9e6e2356a2e2b45
+Timestamp: 2026-04-12T23:31:57.791912
+
+--- Repository Structure ---
+.
+├── .asf.yaml
+├── .gitignore
+├── .license-ignore
+├── docs
+│   └── img
+├── pyproject.toml
+├── requirements-dev.txt
+├── samples
+│   ├── __init__.py
+│   ├── helloworld
+│   │   ├── __init__.py
+│   │   ├── client.py
+│   │   └── server.py
+│   ├── llm
+│   │   ├── __init__.py
+│   │   ├── chat.proto
+│   │   ├── chat_pb2.py
+│   │   └── main.py
+│   ├── proto
+│   │   ├── __init__.py
+│   │   ├── greeter.proto
+│   │   └── greeter_pb2.py
+│   ├── registry
+│   │   ├── __init__.py
+│   │   └── zookeeper
+│   │       ├── __init__.py
+│   │       ├── client.py
+│   │       └── server.py
+│   ├── serialization
+│   │   ├── __init__.py
+│   │   ├── json
+│   │   │   ├── __init__.py
+│   │   │   ├── client.py
+│   │   │   └── server.py
+│   │   └── protobuf
+│   │       ├── __init__.py
+│   │       ├── client.py
+│   │       └── server.py
+│   └── stream
+│       ├── __init__.py
+│       ├── bidi_stream
+│       │   ├── __init__.py
+│       │   ├── client.py
+│       │   └── server.py
+│       ├── client_stream
+│       │   ├── __init__.py
+│       │   ├── client.py
+│       │   └── server.py
+│       └── server_stream
+│           ├── __init__.py
+│           ├── client.py
+│           └── server.py
+├── scripts
+│   ├── build.sh
+│   ├── check.sh
+│   ├── install-dev.sh
+│   ├── rat.sh
+│   └── test.sh
+└── src
+    └── dubbo
+        ├── __about__.py
+        ├── __init__.py
+        ├── bootstrap.py
+        ├── classes.py
+        ├── client.py
+        ├── cluster
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   ├── directories.py
+        │   ├── failfast_cluster.py
+        │   ├── loadbalances.py
+        │   └── monitor
+        │       ├── __init__.py
+        │       └── cpu.py
+        ├── compression
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   ├── bzip2s.py
+        │   ├── gzips.py
+        │   └── identities.py
+        ├── configs.py
+        ├── constants
+        │   ├── __init__.py
+        │   ├── common_constants.py
+        │   ├── config_constants.py
+        │   ├── logger_constants.py
+        │   └── registry_constants.py
+        ├── extension
+        │   ├── __init__.py
+        │   ├── extension_loader.py
+        │   └── registries.py
+        ├── loadbalance
+        │   ├── __init__.py
+        │   └── _interfaces.py
+        ├── loggers.py
+        ├── node.py
+        ├── protocol
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   ├── invocation.py
+        │   └── triple
+        │       ├── __init__.py
+        │       ├── call
+        │       │   ├── __init__.py
+        │       │   ├── _interfaces.py
+        │       │   ├── client_call.py
+        │       │   └── server_call.py
+        │       ├── coders.py
+        │       ├── constants.py
+        │       ├── exceptions.py
+        │       ├── invoker.py
+        │       ├── metadata.py
+        │       ├── protocol.py
+        │       ├── results.py
+        │       ├── status.py
+        │       ├── stream
+        │       │   ├── __init__.py
+        │       │   ├── _interfaces.py
+        │       │   ├── client_stream.py
+        │       │   └── server_stream.py
+        │       └── streams.py
+        ├── proxy
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   ├── callables.py
+        │   └── handlers.py
+        ├── registry
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   ├── protocol.py
+        │   └── zookeeper
+        │       ├── __init__.py
+        │       ├── _interfaces.py
+        │       ├── kazoo_transport.py
+        │       └── zk_registry.py
+        ├── remoting
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   └── aio
+        │       ├── __init__.py
+        │       ├── _interfaces.py
+        │       ├── aio_transporter.py
+        │       ├── constants.py
+        │       ├── event_loop.py
+        │       ├── exceptions.py
+        │       └── http2
+        │           ├── __init__.py
+        │           ├── controllers.py
+        │           ├── frames.py
+        │           ├── headers.py
+        │           ├── protocol.py
+        │           ├── registries.py
+        │           ├── stream.py
+        │           ├── stream_handler.py
+        │           └── utils.py
+        ├── serialization
+        │   ├── __init__.py
+        │   ├── _interfaces.py
+        │   ├── custom_serializers.py
+        │   └── direct_serializers.py
+        ├── server.py
+        ├── types.py
+        ├── url.py
+        └── utils.py
+
+--- Summary Report ---
+Total files scanned: 129
+Files included: 129
+Files skipped by rule: 0
+Files skipped by size: 0
+Files skipped by budget: 0
+Files with structural extraction: 47
+Files with dependency extraction: 1
+Detected languages count: 7
+Top 15 largest included files:
+  26215 bytes - src\dubbo\configs.py
+  15038 bytes - src\dubbo\registry\zookeeper\kazoo_transport.py
+  14714 bytes - src\dubbo\remoting\aio\http2\controllers.py
+  13296 bytes - src\dubbo\remoting\aio\http2\protocol.py
+  12796 bytes - src\dubbo\utils.py
+  11936 bytes - src\dubbo\protocol\triple\stream\server_stream.py
+  10827 bytes - src\dubbo\protocol\triple\stream\client_stream.py
+  10701 bytes - src\dubbo\url.py
+  10095 bytes - src\dubbo\remoting\aio\http2\registries.py
+  9528 bytes - src\dubbo\protocol\triple\streams.py
+  9406 bytes - src\dubbo\remoting\aio\http2\stream.py
+  8919 bytes - src\dubbo\remoting\aio\aio_transporter.py
+  8807 bytes - src\dubbo\protocol\triple\coders.py
+  7988 bytes - src\dubbo\proxy\handlers.py
+  7851 bytes - src\dubbo\classes.py
+-----------------------
+
+---
+File: pyproject.toml
+Size: 4659 bytes
+Lines: 173
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[build-system]
+requires = ["hatchling", "hatch-fancy-pypi-readme"]
+build-backend = "hatchling.build"
+
+[project]
+name="apache-dubbo"
+requires-python = ">=3.9"
+authors = [
+    {name = "Apache Dubbo Community", email = "dev@dubbo.apache.org"}
+]
+maintainers = [
+    {name = "Apache Dubbo Community", email = "dev@dubbo.apache.org"}
+]
+description = "Python Implementation For Apache Dubbo."
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E.*"]
+keywords=["dubbo", "rpc","grpc", "dubbo-python", "http2", "network"]
+classifiers=[
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: AsyncIO",
+    "Topic :: Internet",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Networking",
+]
+
+dependencies = [
+    "h2>=4.1.0",
+    "uvloop>=0.19.0; platform_system!='Windows'",
+    "psutil>=6.0.0",
+]
+dynamic = ["version", "readme"]
+
+
+[project.urls]
+Homepage = "https://cn.dubbo.apache.org"
+Documentation = "https://cn.dubbo.apache.org/en/overview/mannual/python-sdk/"
+Repository = "https://github.com/apache/dubbo-python"
+Issues = "https://github.com/apache/dubbo/issues"
+
+[project.optional-dependencies]
+zookeeper = [
+    "kazoo>=2.10.0",
+]
+
+### Hatch settings ###
+[tool.hatch.version]
+path = "src/dubbo/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dubbo"]
+
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+
+
+### Ruff settings ###
+
+# Top-level
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+extend-exclude = ["samples/proto"]
+
+# Format
+[tool.ruff.format]
+docstring-code-format = true
+
+# Lint
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # Check for missing imports (auto-fixable)
+    "UP", # pyupgrade
+    "ASYNC", # flake8-async
+    "ISC", # Checks for implicit literal string concatenation (auto-fixable)
+    "LOG", # Checking the use of logging objects
+    "G",  # Check for logging format issues (auto-fixable)
+]
+ignore = [
+    "ISC001" # may casue conflict with ruff
+]
+
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder"
+]
+
+### Coverage settings ###
+[tool.coverage.run]
+branch = true
+relative_files = true
+include = ["src/dubbo/*"]
+
+[tool.coverage.report]
+# Skip coverage report for 100% covered files
+skip_covered = true
+exclude_also = [
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "@(abc\\.)?abstractmethod",
+    "@(typing(_extensions)?\\.)?overload",
+    "if (typing(_extensions)?\\.)?TYPE_CHECKING:"
+]
+
+
+### Mypy settings ###
+[tool.mypy]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+### Pytest settings ###
+[tool.pytest]
+addopts = "-rxXs"
+testpaths = ["tests"]
+python_files = [
+    "test_*.py"
+]
+
+---
+File: .asf.yaml
+Size: 806 bytes
+Lines: 34
+---
+notifications:
+    commits:      commits@dubbo.apache.org
+    issues:       notifications@dubbo.apache.org
+    pullrequests: notifications@dubbo.apache.org
+    jira_options: link label link label
+
+
+github:
+  homepage: https://dubbo.apache.org/
+  description: "The python Implementation For Apache Dubbo."
+  features:
+    # Enable wiki for documentation
+    wiki: false
+    # Enable issue management
+    issues: false
+    # Enable projects for project management boards
+    projects: false
+  collaborators:
+    - cnzakii
+  enabled_merge_buttons:
+    # enable squash button:
+    squash: true
+    # enable merge button:
+    merge: false
+    # disable rebase button:
+    rebase: false
+  labels:
+    - dubbo
+    - python
+    - rpc
+    - framework
+    - http2
+    - h2
+    - grpc
+
+---
+File: .gitignore
+Size: 804 bytes
+Lines: 66
+---
+# Compiler
+.idea/
+.vscode/
+
+# Byte-compiled / optimized / DLL files / logs
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+
+---
+File: .license-ignore
+Size: 341 bytes
+Lines: 21
+---
+# This file is used to ignore files and directories from the license scan
+# Note: these patterns are applied to single files or directories, not full paths
+
+# file extensions
+.*md
+.*proto
+.*_pb2.py
+
+# files
+.asf.yaml
+LICENSE
+NOTICE
+requirements-dev.txt
+
+# directories
+.vscode
+.idea
+.github
+.gitignore
+.license-ignore
+docs
+
+---
+File: samples\llm\main.py
+Size: 4034 bytes
+Lines: 106 [structural]
+---
+from time import sleep
+from lmdeploy import GenerationConfig, TurbomindEngineConfig, pipeline
+from dubbo import Dubbo
+from dubbo.configs import RegistryConfig, ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+import chat_pb2
+class DeepSeekAiServicer:
+    def __init__(self, model: str, backend_config: TurbomindEngineConfig, gen_config: GenerationConfig):
+    def chat(self, stream):
+def build_server_handler():
+
+---
+File: samples\helloworld\server.py
+Size: 1819 bytes
+Lines: 45
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+
+
+class UnaryServiceServicer:
+    def say_hello(self, message: bytes) -> bytes:
+        print(f"Received message from client: {message}")
+        return b"Hello from server"
+
+
+def build_service_handler():
+    # build a method handler
+    method_handler = RpcMethodHandler.unary(method=UnaryServiceServicer().say_hello, method_name="unary")
+    # build a service handler
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.HelloWorld",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    # build service config
+    service_handler = build_service_handler()
+    service_config = ServiceConfig(service_handler=service_handler, host="127.0.0.1", port=50051)
+    # start the server
+    server = dubbo.Server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: src\dubbo\server.py
+Size: 2846 bytes
+Lines: 84 [structural]
+---
+import threading
+from typing import Optional
+from dubbo.bootstrap import Dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.constants import common_constants
+from dubbo.extension import extensionLoader
+from dubbo.protocol import Protocol
+from dubbo.registry.protocol import RegistryProtocol
+from dubbo.url import URL
+class Server:
+    def __init__(self, service_config: ServiceConfig, dubbo: Optional[Dubbo] = None):
+    def _initialize(self):
+    def start(self):
+
+---
+File: samples\registry\zookeeper\server.py
+Size: 2168 bytes
+Lines: 55
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import RegistryConfig, ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceServicer:
+    def say_hello(self, request):
+        print(f"Received request: {request.name}")
+        return greeter_pb2.GreeterReply(message=f"Hello, {request.name}!")
+
+
+def build_server_handler():
+    # build a method handler
+    method_handler = RpcMethodHandler.unary(
+        GreeterServiceServicer().say_hello,
+        method_name="sayHello",
+        request_deserializer=greeter_pb2.GreeterRequest.FromString,
+        response_serializer=greeter_pb2.GreeterReply.SerializeToString,
+    )
+    # build a service handler
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.data.Greeter",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    registry_config = RegistryConfig.from_url("zookeeper://127.0.0.1:2181")
+    bootstrap = dubbo.Dubbo(registry_config=registry_config)
+
+    # build a service config
+    service_handler = build_server_handler()
+    service_config = ServiceConfig(service_handler)
+
+    # start the server
+    server = bootstrap.create_server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: samples\serialization\json\server.py
+Size: 2246 bytes
+Lines: 64
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import orjson
+
+import dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+
+
+def request_deserializer(data: bytes) -> tuple[str, int]:
+    json_dict = orjson.loads(data)
+    return json_dict["name"], json_dict["age"]
+
+
+def response_serializer(message: str) -> bytes:
+    return orjson.dumps({"message": message})
+
+
+class GreeterServiceServicer:
+    def say_hello(self, request):
+        name, age = request
+        print(f"Received request: {name}, {age}")
+        return f"Hello, {name}, you are {age} years old."
+
+
+def build_service_handler():
+    # build a method handler
+    method_handler = RpcMethodHandler.unary(
+        GreeterServiceServicer().say_hello,
+        method_name="unary",
+        request_deserializer=request_deserializer,
+        response_serializer=response_serializer,
+    )
+    # build a service handler
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.serialization.json",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    # build server config
+    service_handler = build_service_handler()
+    service_config = ServiceConfig(service_handler=service_handler, host="127.0.0.1", port=50051)
+
+    # start the server
+    server = dubbo.Server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: samples\serialization\protobuf\server.py
+Size: 2043 bytes
+Lines: 52
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceServicer:
+    def say_hello(self, request):
+        print(f"Received request: {request}")
+        return greeter_pb2.GreeterReply(message=f"Hello, {request.name}")
+
+
+def build_service_handler():
+    # build a method handler
+    method_handler = RpcMethodHandler.unary(
+        GreeterServiceServicer().say_hello,
+        method_name="sayHello",
+        request_deserializer=greeter_pb2.GreeterRequest.FromString,
+        response_serializer=greeter_pb2.GreeterReply.SerializeToString,
+    )
+    # build a service handler
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.data.Greeter",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    # build a service handler
+    service_handler = build_service_handler()
+    service_config = ServiceConfig(service_handler=service_handler, host="127.0.0.1", port=50051)
+
+    # start the server
+    server = dubbo.Server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: samples\stream\bidi_stream\server.py
+Size: 2224 bytes
+Lines: 61
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import time
+
+import dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceServicer:
+    def bi_stream(self, stream):
+        counter = 0
+        for request in stream:
+            print(f"Received request: {request.name}")
+            # simulate a long time to process
+            if counter == 1:
+                time.sleep(1)
+            counter += 1
+
+            stream.write(greeter_pb2.GreeterReply(message=f"Hello, {request.name}!"))
+
+        stream.done_writing()
+
+
+def build_server_handler():
+    method_handler = RpcMethodHandler.bi_stream(
+        GreeterServiceServicer().bi_stream,
+        method_name="biStream",
+        request_deserializer=greeter_pb2.GreeterRequest.FromString,
+        response_serializer=greeter_pb2.GreeterReply.SerializeToString,
+    )
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.data.Greeter",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    # build a service config
+    service_handler = build_server_handler()
+    service_config = ServiceConfig(service_handler, host="127.0.0.1", port=50051)
+
+    # start the server
+    server = dubbo.Server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: samples\stream\client_stream\server.py
+Size: 2168 bytes
+Lines: 54
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceServicer:
+    def client_stream(self, request_iterator):
+        response = ""
+        for request in request_iterator:
+            print(f"Received request: {request.name}")
+            response += f"{request.name} "
+        return greeter_pb2.GreeterReply(message=response)
+
+
+def build_service_handler():
+    # build a method handler
+    method_handler = RpcMethodHandler.client_stream(
+        GreeterServiceServicer().client_stream,
+        method_name="clientStream",
+        request_deserializer=greeter_pb2.GreeterRequest.FromString,
+        response_serializer=greeter_pb2.GreeterReply.SerializeToString,
+    )
+    # build a service handler
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.data.Greeter",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    # build server config
+    service_handler = build_service_handler()
+    service_config = ServiceConfig(service_handler=service_handler, host="127.0.0.1", port=50051)
+    # start the server
+    server = dubbo.Server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: samples\stream\server_stream\server.py
+Size: 2133 bytes
+Lines: 55
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ServiceConfig
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceServicer:
+    def server_stream(self, stream):
+        request = stream.read()
+        print(f"Received request: {request.name}")
+        response = request.name.split(" ")
+        for i in response:
+            yield greeter_pb2.GreeterReply(message=i)
+
+
+def build_server_handler():
+    # build a method handler
+    method_handler = RpcMethodHandler.server_stream(
+        GreeterServiceServicer().server_stream,
+        method_name="serverStream",
+        request_deserializer=greeter_pb2.GreeterRequest.FromString,
+        response_serializer=greeter_pb2.GreeterReply.SerializeToString,
+    )
+    # build a service handler
+    service_handler = RpcServiceHandler(
+        service_name="org.apache.dubbo.samples.data.Greeter",
+        method_handlers=[method_handler],
+    )
+    return service_handler
+
+
+if __name__ == "__main__":
+    # build a service config
+    service_handler = build_server_handler()
+    service_config = ServiceConfig(service_handler, host="127.0.0.1", port=50051)
+
+    # start the server
+    server = dubbo.Server(service_config).start()
+
+    input("Press Enter to stop the server...\n")
+
+
+---
+File: requirements-dev.txt
+Size: 449 bytes
+Lines: 19 [deps]
+---
+### Required Packages
+hatch>=1.14.0, ruff>=0.9.1, mypy>=1.14.1, pytest>=8.3.4, coverage[toml]>=7.6.10
+
+---
+File: scripts\build.sh
+Size: 901 bytes
+Lines: 24
+---
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+echo "Building the project..."
+
+hatch build
+
+echo "Finished building the project."
+
+---
+File: scripts\check.sh
+Size: 1149 bytes
+Lines: 30
+---
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+export SOURCE_FILES="src/dubbo tests"
+
+# check code style
+echo "Checking code style..."
+ruff format $SOURCE_FILES --diff
+ruff check --output-format=github $SOURCE_FILES --config=pyproject.toml
+
+# TODO：Temporarily disable mypy check, because it's too strict for now
+# mypy $SOURCE_FILES
+
+
+echo "Finished code style check."
+
+
+---
+File: scripts\install-dev.sh
+Size: 993 bytes
+Lines: 27
+---
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Install dependencies for development
+REQUIREMENTS_DEV="requirements-dev.txt"
+
+# Upgrade pip
+pip install -U pip
+
+# Install dependencies
+pip install -r $REQUIREMENTS_DEV
+
+
+
+---
+File: scripts\rat.sh
+Size: 2497 bytes
+Lines: 80
+---
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+### Apache RAT license check script ###
+# This script downloads Apache RAT and runs it to check the license headers of the source files.
+
+set -e
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+TMP_DIR="$(mktemp -d)"
+
+RAT_VERSION="0.16.1"
+RAT_JAR="${TMP_DIR}/apache-rat-${RAT_VERSION}.jar"
+
+
+cd "${ROOT_DIR}"
+
+# Set Java command
+if [ -x "${JAVA_HOME}/bin/java" ]; then
+    java_cmd="${JAVA_HOME}/bin/java"
+else
+    java_cmd="java"
+fi
+
+
+# Download Apache RAT jar
+echo "Downloading Apache RAT ${RAT_VERSION}..."
+
+RAT_URL="https://repo1.maven.org/maven2/org/apache/rat/apache-rat/${RAT_VERSION}/apache-rat-${RAT_VERSION}.jar"
+JAR_PART="${RAT_JAR}.part"
+
+if command -v curl &> /dev/null; then
+  curl -L --silent "${RAT_URL}" -o "${JAR_PART}" && mv "${JAR_PART}" "${RAT_JAR}"
+elif command -v wget &> /dev/null; then
+  wget --quiet "${RAT_URL}" -O "${JAR_PART}" && mv "${JAR_PART}" "${RAT_JAR}"
+else
+  echo "Neither curl nor wget found."
+  exit 1
+fi
+
+unzip -tq "${RAT_JAR}" > /dev/null
+if [ $? -ne 0 ]; then
+  echo "Downloaded Apache RAT jar is invalid"
+  exit 1
+fi
+
+echo "Downloaded Apache RAT ${RAT_VERSION} successfully."
+
+
+# Run Apache RAT
+echo "Running Apache license check, this may take a while..."
+${java_cmd} -jar ${RAT_JAR} -d ${ROOT_DIR} -E "${ROOT_DIR}/.license-ignore" > "${TMP_DIR}/rat-report.txt"
+
+
+# Check the result
+if [ $? -ne 0 ]; then
+   echo "RAT exited abnormally"
+   exit 1
+elif grep -q "??" "${TMP_DIR}/rat-report.txt"; then
+    echo >&2 "Could not find Apache license headers in the following files:"
+    grep "??" "${TMP_DIR}/rat-report.txt" >&2
+    exit 1
+else
+    echo "Apache license check passed."
+fi
+
+
+---
+File: scripts\test.sh
+Size: 1039 bytes
+Lines: 25
+---
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# Run tests
+coverage run -m pytest
+
+# Generate coverage report
+# TODO: shut down the coverage report for now, because the current code coverage is too low
+# coverage report --show-missing --skip-covered --fail-under=100
+
+---
+File: src\dubbo\__about__.py
+Size: 825 bytes
+Lines: 17
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+__version__ = "3.0.0b1"
+
+
+---
+File: src\dubbo\__init__.py
+Size: 929 bytes
+Lines: 21
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from .bootstrap import Dubbo
+from .client import Client
+from .server import Server
+
+__all__ = ["Dubbo", "Client", "Server"]
+
+
+---
+File: src\dubbo\bootstrap.py
+Size: 4521 bytes
+Lines: 134 [structural]
+---
+import threading
+from typing import Optional
+from dubbo.classes import SingletonBase
+from dubbo.configs import (
+from dubbo.constants import common_constants
+from dubbo.loggers import loggerFactory
+class Dubbo(SingletonBase):
+    def __init__(
+    def application_config(self) -> Optional[ApplicationConfig]:
+    def registry_config(self) -> Optional[RegistryConfig]:
+    def logger_config(self) -> Optional[LoggerConfig]:
+    def _check_default(self):
+    def _initialize(self):
+    def create_client(self, reference_config: ReferenceConfig):
+        from dubbo import Client
+    def create_server(self, config):
+        from dubbo import Server
+
+---
+File: src\dubbo\classes.py
+Size: 7851 bytes
+Lines: 246 [structural]
+---
+import abc
+import threading
+from typing import Any, Callable, Optional, Union
+from dubbo.types import DeserializingFunction, RpcType, RpcTypes, SerializingFunction
+class _EOF:
+    def __bool__(self):
+    def __len__(self):
+    def __repr__(self) -> str:
+    def __str__(self) -> str:
+class SingletonBase:
+    def __new__(cls, *args, **kwargs):
+class MethodDescriptor:
+    def __init__(
+    def get_method(self) -> Callable:
+    def get_method_name(self) -> str:
+    def get_rpc_type(self) -> RpcType:
+    def get_arg_serializer(self) -> Optional[SerializingFunction]:
+    def get_arg_deserializer(self) -> Optional[DeserializingFunction]:
+    def get_return_serializer(self) -> Optional[SerializingFunction]:
+    def get_return_deserializer(self) -> Optional[DeserializingFunction]:
+class ReadStream(abc.ABC):
+    def read(self, *args, **kwargs) -> Any:
+class WriteStream(abc.ABC):
+    def can_write_more(self) -> bool:
+    def write(self, *args, **kwargs) -> None:
+    def done_writing(self, **kwargs) -> None:
+class ReadWriteStream(ReadStream, WriteStream, abc.ABC):
+
+---
+File: src\dubbo\client.py
+Size: 5901 bytes
+Lines: 163 [structural]
+---
+import threading
+from typing import Optional
+from dubbo.bootstrap import Dubbo
+from dubbo.classes import MethodDescriptor
+from dubbo.configs import ReferenceConfig
+from dubbo.constants import common_constants
+from dubbo.extension import extensionLoader
+from dubbo.protocol import Invoker, Protocol
+from dubbo.proxy import RpcCallable, RpcCallableFactory
+from dubbo.proxy.callables import DefaultRpcCallableFactory
+from dubbo.registry.protocol import RegistryProtocol
+from dubbo.types import (
+from dubbo.url import URL
+class Client:
+    def __init__(self, reference: ReferenceConfig, dubbo: Optional[Dubbo] = None):
+    def _initialize(self):
+    def unary(
+    def client_stream(
+    def server_stream(
+    def bi_stream(
+    def _callable(self, method_descriptor: MethodDescriptor) -> RpcCallable:
+
+---
+File: src\dubbo\configs.py
+Size: 26215 bytes
+Lines: 911 [structural]
+---
+import abc
+from dataclasses import dataclass
+from typing import Optional, Union
+from dubbo.constants import (
+from dubbo.proxy.handlers import RpcServiceHandler
+from dubbo.url import URL, create_url
+from dubbo.utils import NetworkUtils
+class AbstractConfig(abc.ABC):
+    def __init__(self):
+class ApplicationConfig(AbstractConfig):
+    def __init__(
+    def name(self) -> str:
+    def name(self, name: str) -> None:
+    def version(self) -> Optional[str]:
+    def version(self, version: str) -> None:
+    def owner(self) -> Optional[str]:
+    def owner(self, owner: str) -> None:
+    def organization(self) -> Optional[str]:
+    def organization(self, organization: str) -> None:
+    def architecture(self) -> Optional[str]:
+    def architecture(self, architecture: str) -> None:
+    def environment(self) -> str:
+    def environment(self, environment: str) -> None:
+    def _ensure_environment(environment: Optional[str]) -> str:
+class ReferenceConfig(AbstractConfig):
+    def __init__(
+    def protocol(self) -> str:
+    def protocol(self, protocol: str) -> None:
+    def service(self) -> str:
+    def service(self, service: str) -> None:
+    def host(self) -> Optional[str]:
+    def host(self, host: str) -> None:
+    def port(self) -> Optional[int]:
+    def port(self, port: int) -> None:
+    def to_url(self) -> URL:
+    def from_url(cls, url: Union[str, URL]) -> "ReferenceConfig":
+class ServiceConfig(AbstractConfig):
+    def __init__(
+    def service_handler(self) -> RpcServiceHandler:
+    def service_handler(self, service_handler: RpcServiceHandler) -> None:
+    def host(self) -> str:
+    def host(self, host: str) -> None:
+    def port(self) -> int:
+    def port(self, port: int) -> None:
+    def protocol(self) -> str:
+    def protocol(self, protocol: str) -> None:
+    def to_url(self) -> URL:
+class RegistryConfig(AbstractConfig):
+    def __init__(
+    def protocol(self) -> str:
+    def protocol(self, protocol: str) -> None:
+    def host(self) -> str:
+    def host(self, host: str) -> None:
+    def port(self) -> int:
+    def port(self, port: int) -> None:
+    def username(self) -> Optional[str]:
+    def username(self, username: str) -> None:
+    def password(self) -> Optional[str]:
+    def password(self, password: str) -> None:
+    def load_balance(self) -> Optional[str]:
+    def load_balance(self, load_balance: str) -> None:
+    def group(self) -> Optional[str]:
+    def group(self, group: str) -> None:
+    def version(self) -> Optional[str]:
+    def version(self, version: str) -> None:
+    def to_url(self) -> URL:
+    def from_url(cls, url: Union[str, URL]) -> "RegistryConfig":
+class LoggerConfig(AbstractConfig):
+    class ConsoleConfig:
+    class FileConfig:
+    def __init__(
+    def level(self) -> str:
+    def level(self, level: str) -> None:
+    def global_formatter(self) -> Optional[str]:
+    def is_console_enabled(self) -> bool:
+    def enable_console(self) -> None:
+    def disable_console(self) -> None:
+    def console_config(self) -> ConsoleConfig:
+    def set_console(self, console_config: ConsoleConfig):
+    def is_file_enabled(self) -> bool:
+    def enable_file(self) -> None:
+    def disable_file(self) -> None:
+    def file_config(self) -> FileConfig:
+    def set_file(self, file_config: FileConfig) -> None:
+
+---
+File: src\dubbo\loggers.py
+Size: 7588 bytes
+Lines: 234 [structural]
+---
+import enum
+import logging
+import re
+import threading
+from dubbo.configs import LoggerConfig
+class ColorFormatter(logging.Formatter):
+    class Colors(enum.Enum):
+    def __init__(self, suffix: str = ""):
+    def format(self, record) -> str:
+class NoColorFormatter(logging.Formatter):
+    def __init__(self, suffix: str = ""):
+    def format(self, record) -> str:
+class _LoggerFactory:
+    def set_config(cls, config):
+    def _refresh_config(cls) -> None:
+    def _update_logger(cls, logger: logging.Logger, name: str) -> logging.Logger:
+    def _get_console_handler(cls, name: str) -> logging.StreamHandler:
+    def _get_file_handler(cls, name: str) -> logging.FileHandler:
+    def get_logger(cls, name=DEFAULT_LOGGER_NAME) -> logging.Logger:
+
+---
+File: src\dubbo\node.py
+Size: 1884 bytes
+Lines: 58
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import abc
+
+from dubbo.url import URL
+
+__all__ = ["Node"]
+
+
+class Node(abc.ABC):
+    """
+    Abstract base class for a Node.
+    """
+
+    @abc.abstractmethod
+    def get_url(self) -> URL:
+        """
+        Get the URL of the node.
+
+        :return: The URL of the node.
+        :rtype: URL
+        :raises NotImplementedError: If the method is not implemented.
+        """
+        raise NotImplementedError("get_url() is not implemented.")
+
+    @abc.abstractmethod
+    def is_available(self) -> bool:
+        """
+        Check if the node is available.
+
+        :return: True if the node is available, False otherwise.
+        :rtype: bool
+        :raises NotImplementedError: If the method is not implemented.
+        """
+        raise NotImplementedError("is_available() is not implemented.")
+
+    @abc.abstractmethod
+    def destroy(self) -> None:
+        """
+        Destroy the node.
+
+        :raises NotImplementedError: If the method is not implemented.
+        """
+        raise NotImplementedError("destroy() is not implemented.")
+
+
+---
+File: src\dubbo\types.py
+Size: 1874 bytes
+Lines: 60
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import enum
+from dataclasses import dataclass
+from typing import Any, Callable
+
+__all__ = [
+    "SerializingFunction",
+    "DeserializingFunction",
+    "RpcType",
+    "RpcTypes",
+]
+
+SerializingFunction = Callable[..., bytes]
+DeserializingFunction = Callable[[bytes], Any]
+
+
+@dataclass
+class RpcType:
+    """
+    RpcType
+    """
+
+    name: str
+    client_stream: bool
+    server_stream: bool
+
+
+@enum.unique
+class RpcTypes(enum.Enum):
+    UNARY = RpcType("Unary", False, False)
+    CLIENT_STREAM = RpcType("ClientStream", True, False)
+    SERVER_STREAM = RpcType("ServerStream", False, True)
+    BI_STREAM = RpcType("BiStream", True, True)
+
+    @classmethod
+    def from_name(cls, name: str) -> RpcType:
+        """
+        Get RpcType by name. Case-insensitive.
+        :param name: RpcType name
+        :return: RpcType
+        """
+        for item in cls:
+            # ignore case
+            if item.value.name.lower() == name.lower():
+                return item.value
+        raise ValueError(f"Unknown RpcType name: {name}")
+
+
+---
+File: src\dubbo\url.py
+Size: 10701 bytes
+Lines: 362 [structural]
+---
+import copy
+from typing import Any, Optional
+from urllib import parse
+from urllib.parse import urlencode, urlunparse
+from dubbo.constants import common_constants
+def create_url(url: str, encoded: bool = False) -> "URL":
+class URL:
+    def __init__(
+    def scheme(self) -> str:
+    def scheme(self, value: str):
+    def host(self) -> str:
+    def host(self, value: str):
+    def port(self) -> Optional[int]:
+    def port(self, value: int):
+    def location(self) -> str:
+    def location(self, value: str):
+    def username(self) -> str:
+    def username(self, value: str):
+    def password(self) -> str:
+    def password(self, value: str):
+    def path(self) -> str:
+    def path(self, value: str):
+    def parameters(self) -> dict[str, str]:
+    def attributes(self) -> dict[str, Any]:
+    def to_str(
+    def copy(self) -> "URL":
+    def deepcopy(self) -> "URL":
+    def __eq__(self, other: Any) -> bool:
+    def __copy__(self) -> "URL":
+    def __deepcopy__(self, memo) -> "URL":
+    def __str__(self) -> str:
+    def __repr__(self) -> str:
+
+---
+File: src\dubbo\utils.py
+Size: 12796 bytes
+Lines: 387 [structural]
+---
+import inspect
+import os
+import socket
+from collections.abc import Callable
+from typing import Any, Optional
+import psutil
+class EventHelper:
+    def is_set(event) -> bool:
+    def set(event) -> bool:
+    def clear(event) -> bool:
+class FutureHelper:
+    def done(future) -> bool:
+    def set_result(future, result):
+    def set_exception(future, exception):
+class NetworkUtils:
+    def is_address_reachable(ip: str, timeout: int = 0) -> bool:
+    def is_loopback_address(ip: str) -> bool:
+    def get_local_address() -> Optional[str]:
+class CpuUtils:
+    def get_cpu_count(logical=True) -> int:
+    def get_total_cpu_usage(interval=1) -> float:
+    def get_per_cpu_usage(interval=1) -> list[float]:
+    def get_load_avg() -> tuple[float, float, float]:
+    def get_cpu_stats():
+    def get_cpu_freq():
+class FunctionHelper:
+    def is_callable(callable_func: Callable) -> bool:
+    def has_args(func: Callable) -> bool:
+    def has_kwargs(func: Callable) -> bool:
+    def call_func(func: Callable, args_and_kwargs: Any = None) -> Any:
+
+---
+File: src\dubbo\cluster\__init__.py
+Size: 911 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import Cluster, Directory, LoadBalance
+
+__all__ = ["Cluster", "Directory", "LoadBalance"]
+
+
+---
+File: src\dubbo\compression\__init__.py
+Size: 1010 bytes
+Lines: 22
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import Compressor, Decompressor
+from .bzip2s import Bzip2
+from .gzips import Gzip
+from .identities import Identity
+
+__all__ = ["Compressor", "Decompressor", "Identity", "Gzip", "Bzip2"]
+
+
+---
+File: src\dubbo\constants\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: src\dubbo\extension\__init__.py
+Size: 989 bytes
+Lines: 21
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from dubbo.extension.extension_loader import ExtensionError, ExtensionLoader as _ExtensionLoader
+
+__all__ = ["ExtensionError", "extensionLoader"]
+
+extensionLoader = _ExtensionLoader()
+
+
+---
+File: src\dubbo\loadbalance\__init__.py
+Size: 911 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import AbstractLoadBalance, LoadBalance
+
+__all__ = ["AbstractLoadBalance", "LoadBalance"]
+
+
+---
+File: src\dubbo\protocol\__init__.py
+Size: 925 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import Invocation, Invoker, Protocol, Result
+
+__all__ = ["Invocation", "Result", "Invoker", "Protocol"]
+
+
+---
+File: src\dubbo\proxy\__init__.py
+Size: 909 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import RpcCallable, RpcCallableFactory
+
+__all__ = ["RpcCallable", "RpcCallableFactory"]
+
+
+---
+File: src\dubbo\registry\__init__.py
+Size: 931 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import NotifyListener, Registry, RegistryFactory
+
+__all__ = ["Registry", "RegistryFactory", "NotifyListener"]
+
+
+---
+File: src\dubbo\remoting\__init__.py
+Size: 903 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import Client, Server, Transporter
+
+__all__ = ["Client", "Server", "Transporter"]
+
+
+---
+File: src\dubbo\serialization\__init__.py
+Size: 1235 bytes
+Lines: 30
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import Deserializer, SerializationError, Serializer, ensure_bytes
+from .custom_serializers import CustomDeserializer, CustomSerializer
+from .direct_serializers import DirectDeserializer, DirectSerializer
+
+__all__ = [
+    "Serializer",
+    "Deserializer",
+    "SerializationError",
+    "ensure_bytes",
+    "DirectSerializer",
+    "DirectDeserializer",
+    "CustomSerializer",
+    "CustomDeserializer",
+]
+
+
+---
+File: src\dubbo\cluster\_interfaces.py
+Size: 2350 bytes
+Lines: 75
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import abc
+from typing import Optional
+
+from dubbo.node import Node
+from dubbo.protocol import Invocation, Invoker
+
+__all__ = ["Directory", "LoadBalance", "Cluster"]
+
+
+class Directory(Node, abc.ABC):
+    """
+    Directory interface.
+    """
+
+    @abc.abstractmethod
+    def get_list(self, invocation: Invocation) -> list[Invoker]:
+        """
+        List the directory.
+        :param invocation: The invocation.
+        :type invocation: Invocation
+        :return: The list of invokers.
+        :rtype: List
+        """
+        raise NotImplementedError()
+
+
+class LoadBalance(abc.ABC):
+    """
+    The load balance interface.
+    """
+
+    @abc.abstractmethod
+    def select(self, invokers: list[Invoker], invocation: Invocation) -> Optional[Invoker]:
+        """
+        Select an invoker from the list.
+        :param invokers: The invokers.
+        :type invokers: List[Invoker]
+        :param invocation: The invocation.
+        :type invocation: Invocation
+        :return: The selected invoker. If no invoker is selected, return None.
+        :rtype: Optional[Invoker]
+        """
+        raise NotImplementedError()
+
+
+class Cluster(abc.ABC):
+    """
+    Cluster interface.
+    """
+
+    @abc.abstractmethod
+    def join(self, directory: Directory) -> Invoker:
+        """
+        Join the cluster.
+        :param directory: The directory.
+        :type directory: Directory
+        :return: The cluster invoker.
+        :rtype: Invoker
+        """
+        raise NotImplementedError()
+
+
+---
+File: src\dubbo\compression\_interfaces.py
+Size: 2037 bytes
+Lines: 69
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import abc
+
+__all__ = ["MessageEncoding", "Compressor", "Decompressor"]
+
+
+class MessageEncoding(abc.ABC):
+    """
+    The message encoding interface.
+    """
+
+    @classmethod
+    @abc.abstractmethod
+    def get_message_encoding(cls) -> str:
+        """
+        Get message encoding of current compression
+        :return: The message encoding.
+        :rtype: str
+        """
+        raise NotImplementedError()
+
+
+class Compressor(MessageEncoding, abc.ABC):
+    """
+    The compression interface.
+    """
+
+    @abc.abstractmethod
+    def compress(self, data: bytes) -> bytes:
+        """
+        Compress the data.
+        :param data: The data to compress.
+        :type data: bytes
+        :return: The compressed data.
+        :rtype: bytes
+        """
+        raise NotImplementedError()
+
+
+class Decompressor(MessageEncoding, abc.ABC):
+    """
+    The decompressor interface.
+    """
+
+    @abc.abstractmethod
+    def decompress(self, data: bytes) -> bytes:
+        """
+        Decompress the data.
+        :param data: The data to decompress.
+        :type data: bytes
+        :return: The decompressed data.
+        :rtype: bytes
+        """
+        raise NotImplementedError()
+
+
+---
+File: src\dubbo\loadbalance\_interfaces.py
+Size: 2527 bytes
+Lines: 72
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import abc
+from typing import Optional
+
+from dubbo.common import URL
+from dubbo.protocol import Invocation, Invoker
+
+
+class LoadBalance(abc.ABC):
+    """
+    The load balance interface.
+    """
+
+    @abc.abstractmethod
+    def select(self, invokers: list[Invoker], url: URL, invocation: Invocation) -> Optional[Invoker]:
+        """
+        Select an invoker from the list.
+        :param invokers: The invokers.
+        :type invokers: List[Invoker]
+        :param url: The URL.
+        :type url: URL
+        :param invocation: The invocation.
+        :type invocation: Invocation
+        :return: The selected invoker. If no invoker is selected, return None.
+        :rtype: Optional[Invoker]
+        """
+        raise NotImplementedError()
+
+
+class AbstractLoadBalance(LoadBalance, abc.ABC):
+    """
+    The abstract load balance.
+    """
+
+    def select(self, invokers: list[Invoker], url: URL, invocation: Invocation) -> Optional[Invoker]:
+        if not invokers:
+            return None
+
+        if len(invokers) == 1:
+            return invokers[0]
+
+        return self.do_select(invokers, url, invocation)
+
+    @abc.abstractmethod
+    def do_select(self, invokers: list[Invoker], url: URL, invocation: Invocation) -> Optional[Invoker]:
+        """
+        Do select an invoker from the list.
+        :param invokers: The invokers.
+        :type invokers: List[Invoker]
+        :param url: The URL.
+        :type url: URL
+        :param invocation: The invocation.
+        :type invocation: Invocation
+        :return: The selected invoker. If no invoker is selected, return None.
+        :rtype: Optional[Invoker]
+        """
+        raise NotImplementedError()
+
+
+---
+File: src\dubbo\protocol\_interfaces.py
+Size: 3266 bytes
+Lines: 123 [structural]
+---
+import abc
+from typing import Any
+from dubbo.node import Node
+from dubbo.url import URL
+class Invocation(abc.ABC):
+    def get_service_name(self) -> str:
+    def get_method_name(self) -> str:
+    def get_argument(self) -> Any:
+class Result(abc.ABC):
+    def set_value(self, value: Any) -> None:
+    def value(self) -> Any:
+    def set_exception(self, exception: Exception) -> None:
+    def exception(self) -> Exception:
+class Invoker(Node, abc.ABC):
+    def invoke(self, invocation: Invocation) -> Result:
+class Protocol(abc.ABC):
+    def export(self, url: URL):
+    def refer(self, url: URL) -> Invoker:
+
+---
+File: src\dubbo\proxy\_interfaces.py
+Size: 1886 bytes
+Lines: 56
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import abc
+
+from dubbo.protocol import Invoker
+from dubbo.proxy.handlers import RpcServiceHandler
+from dubbo.url import URL
+
+__all__ = ["RpcCallable", "RpcCallableFactory"]
+
+
+class RpcCallable(abc.ABC):
+    @abc.abstractmethod
+    def __call__(self, *args, **kwargs):
+        """
+        call the rpc service
+        """
+        raise NotImplementedError()
+
+
+class RpcCallableFactory(abc.ABC):
+    @abc.abstractmethod
+    def get_callable(self, invoker: Invoker, url: URL) -> RpcCallable:
+        """
+        get the rpc proxy
+        :param invoker: the invoker.
+        :type invoker: Invoker
+        :param url: the url.
+        :type url: URL
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def get_invoker(self, service_handler: RpcServiceHandler, url: URL) -> Invoker:
+        """
+        get the rpc invoker
+        :param service_handler: the service handler.
+        :type service_handler: RpcServiceHandler
+        :param url: the url.
+        :type url: URL
+        """
+        raise NotImplementedError()
+
+
+---
+File: src\dubbo\registry\_interfaces.py
+Size: 3136 bytes
+Lines: 105 [structural]
+---
+import abc
+from dubbo.node import Node
+from dubbo.url import URL
+class NotifyListener(abc.ABC):
+    def notify(self, urls: list[URL]) -> None:
+class Registry(Node, abc.ABC):
+    def register(self, url: URL) -> None:
+    def unregister(self, url: URL) -> None:
+    def subscribe(self, url: URL, listener: NotifyListener) -> None:
+    def unsubscribe(self, url: URL, listener: NotifyListener) -> None:
+    def lookup(self, url: URL) -> None:
+class RegistryFactory(abc.ABC):
+    def get_registry(self, url: URL) -> Registry:
+
+---
+File: src\dubbo\remoting\_interfaces.py
+Size: 2655 bytes
+Lines: 108 [structural]
+---
+import abc
+from dubbo.url import URL
+class Client(abc.ABC):
+    def __init__(self, url: URL):
+    def is_connected(self) -> bool:
+    def is_closed(self) -> bool:
+    def connect(self):
+    def close(self):
+class Server:
+    def is_exported(self) -> bool:
+    def is_closed(self) -> bool:
+    def export(self):
+    def close(self):
+class Transporter(abc.ABC):
+    def connect(self, url: URL) -> Client:
+    def bind(self, url: URL) -> Server:
+
+---
+File: src\dubbo\serialization\_interfaces.py
+Size: 3006 bytes
+Lines: 91 [structural]
+---
+import abc
+from typing import Any, Union
+class SerializationError(Exception):
+    def __init__(self, message: str):
+    def __str__(self):
+def ensure_bytes(obj: Union[bytes, bytearray, memoryview]) -> bytes:
+class Serializer(abc.ABC):
+    def serialize(self, *args, **kwargs) -> bytes:
+class Deserializer(abc.ABC):
+    def deserialize(self, data: bytes) -> Any:
+
+---
+File: src\dubbo\compression\bzip2s.py
+Size: 1805 bytes
+Lines: 56
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import bz2
+
+from dubbo.compression import Compressor, Decompressor
+
+
+class Bzip2(Compressor, Decompressor):
+    """
+    The BZIP2 compression and decompressor.
+    """
+
+    _MESSAGE_ENCODING = "bzip2"
+
+    @classmethod
+    def get_message_encoding(cls) -> str:
+        """
+        Get message encoding of current compression
+        :return: The message encoding.
+        :rtype: str
+        """
+        return cls._MESSAGE_ENCODING
+
+    def compress(self, data: bytes) -> bytes:
+        """
+        Compress the data.
+        :param data: The data to compress.
+        :type data: bytes
+        :return: The compressed data.
+        :rtype: bytes
+        """
+        return bz2.compress(data)
+
+    def decompress(self, data: bytes) -> bytes:
+        """
+        Decompress the data.
+        :param data: The data to decompress.
+        :type data: bytes
+        :return: The decompressed data.
+        :rtype: bytes
+        """
+        return bz2.decompress(data)
+
+
+---
+File: src\dubbo\proxy\callables.py
+Size: 2501 bytes
+Lines: 70
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from typing import Any
+
+from dubbo.classes import MethodDescriptor
+from dubbo.constants import common_constants
+from dubbo.protocol import Invoker
+from dubbo.protocol.invocation import RpcInvocation
+from dubbo.proxy import RpcCallable, RpcCallableFactory
+from dubbo.url import URL
+
+__all__ = ["MultipleRpcCallable", "DefaultRpcCallableFactory"]
+
+from dubbo.proxy.handlers import RpcServiceHandler
+
+
+class MultipleRpcCallable(RpcCallable):
+    """
+    The RpcCallable class.
+    """
+
+    def __init__(self, invoker: Invoker, url: URL):
+        self._invoker = invoker
+        self._url = url
+
+        self._method_model: MethodDescriptor = url.attributes[common_constants.METHOD_DESCRIPTOR_KEY]
+
+        self._service_name = url.path
+        self._method_name = self._method_model.get_method_name()
+
+    def _create_invocation(self, argument: Any) -> RpcInvocation:
+        return RpcInvocation(
+            self._service_name,
+            self._method_name,
+            argument,
+            attributes={common_constants.METHOD_DESCRIPTOR_KEY: self._method_model},
+        )
+
+    def __call__(self, *args, **kwargs) -> Any:
+        # Create a new RpcInvocation
+        invocation = self._create_invocation((args, kwargs))
+        # Do invoke.
+        result = self._invoker.invoke(invocation)
+        return result.value()
+
+
+class DefaultRpcCallableFactory(RpcCallableFactory):
+    """
+    The RpcCallableFactory class.
+    """
+
+    def get_callable(self, invoker: Invoker, url: URL) -> RpcCallable:
+        return MultipleRpcCallable(invoker, url)
+
+    def get_invoker(self, service_handler: RpcServiceHandler, url: URL) -> Invoker:
+        pass
+
+
+---
+File: src\dubbo\constants\common_constants.py
+Size: 1776 bytes
+Lines: 68
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+DUBBO_VALUE = "dubbo"
+
+REFER_KEY = "refer"
+EXPORT_KEY = "export"
+
+PROTOCOL_KEY = "protocol"
+TRIPLE = "triple"
+TRIPLE_SHORT = "tri"
+
+SIDE_KEY = "side"
+SERVER_VALUE = "server"
+CLIENT_VALUE = "client"
+
+METHOD_KEY = "method"
+SERVICE_KEY = "service"
+
+SERVICE_HANDLER_KEY = "service-handler"
+
+GROUP_KEY = "group"
+
+LOCAL_HOST_KEY = "localhost"
+LOCAL_HOST_VALUE = "127.0.0.1"
+DEFAULT_PORT = 50051
+
+SSL_ENABLED_KEY = "ssl-enabled"
+
+SERIALIZATION_KEY = "serialization"
+SERIALIZER_KEY = "serializer"
+DESERIALIZER_KEY = "deserializer"
+
+
+COMPRESSION_KEY = "compression"
+COMPRESSOR_KEY = "compressor"
+DECOMPRESSOR_KEY = "decompressor"
+
+
+TRANSPORTER_KEY = "transporter"
+TRANSPORTER_DEFAULT_VALUE = "aio"
+
+TRUE_VALUE = "true"
+FALSE_VALUE = "false"
+
+RPC_TYPE_KEY = "rpc-type"
+
+METHOD_DESCRIPTOR_KEY = "method-descriptor"
+
+LOADBALANCE_KEY = "loadbalance"
+
+PATH_SEPARATOR = "/"
+PROTOCOL_SEPARATOR = "://"
+ANY_VALUE = "*"
+COMMA_SEPARATOR = ","
+
+
+---
+File: src\dubbo\constants\config_constants.py
+Size: 1019 bytes
+Lines: 26
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ENVIRONMENT = "environment"
+TEST_ENVIRONMENT = "test"
+DEVELOPMENT_ENVIRONMENT = "develop"
+PRODUCTION_ENVIRONMENT = "product"
+
+VERSION = "version"
+GROUP = "group"
+
+TRANSPORT = "transport"
+AIO_TRANSPORT = "aio"
+
+
+---
+File: src\dubbo\serialization\custom_serializers.py
+Size: 3094 bytes
+Lines: 87 [structural]
+---
+from typing import Any
+from dubbo.serialization import (
+from dubbo.types import DeserializingFunction, SerializingFunction
+from dubbo.utils import FunctionHelper
+class CustomSerializer(Serializer):
+    def __init__(self, serializer: SerializingFunction):
+    def serialize(self, *args, **kwargs) -> bytes:
+class CustomDeserializer(Deserializer):
+    def __init__(self, deserializer: DeserializingFunction):
+    def deserialize(self, data: bytes) -> Any:
+
+---
+File: src\dubbo\serialization\direct_serializers.py
+Size: 2437 bytes
+Lines: 58
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from typing import Any
+
+from dubbo.classes import SingletonBase
+from dubbo.serialization import Deserializer, Serializer, ensure_bytes
+
+__all__ = ["DirectSerializer", "DirectDeserializer"]
+
+
+class DirectSerializer(Serializer, SingletonBase):
+    """
+    Direct serializer that does not perform any serialization. This serializer only checks if the given object is of
+    type bytes, bytearray, or memoryview and ensures it is returned as a bytes object. If the object is not of the
+    expected types, a SerializationError is raised. This serializer is a singleton.
+    """
+
+    def serialize(self, *args, **kwargs) -> bytes:
+        """
+        Serialize an object to bytes. we only return the first argument as bytes.
+        :param args: The arguments to serialize.
+        :param kwargs: The keyword arguments to serialize.
+        :return: The serialized bytes.
+        :rtype: bytes
+        :raises SerializationError: If the object is not of type bytes, bytearray, or memoryview.
+        """
+        return ensure_bytes(args[0]) if args else b""
+
+
+class DirectDeserializer(Deserializer):
+    """
+    Direct deserializer that does not perform any serialization. This deserializer only returns the given bytes object
+    """
+
+    def deserialize(self, data: bytes) -> Any:
+        """
+        Deserialize bytes to an object.
+        :param data: The bytes to deserialize.
+        :type data: bytes
+        :return: The deserialized object.
+        :rtype: Any
+        :raises SerializationError: If the object is not of type bytes, bytearray, or memoryview.
+        """
+        return data
+
+
+---
+File: src\dubbo\cluster\directories.py
+Size: 2196 bytes
+Lines: 66
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from dubbo.cluster import Directory
+from dubbo.protocol import Invoker, Protocol
+from dubbo.registry import NotifyListener, Registry
+from dubbo.url import URL
+
+
+class RegistryDirectory(Directory, NotifyListener):
+    """
+    The registry directory.
+    """
+
+    def __init__(self, registry: Registry, protocol: Protocol, url: URL):
+        self._registry = registry
+        self._protocol = protocol
+
+        self._url = url
+
+        self._invokers: dict[str, Invoker] = {}
+
+        # subscribe
+        self._registry.subscribe(url, self)
+
+    def get_list(self, invocation) -> list[Invoker]:
+        return list(self._invokers.values())
+
+    def notify(self, urls: list[URL]) -> None:
+        old_invokers = self._invokers
+        self._invokers = {}
+
+        # create new invokers
+        for url in urls:
+            k = str(url)
+            if k in old_invokers:
+                self._invokers[k] = old_invokers[k]
+                del old_invokers[k]
+            else:
+                self._invokers[k] = self._protocol.refer(url)
+
+        # destroy old invokers
+        for invoker in old_invokers.values():
+            invoker.destroy()
+
+    def get_url(self) -> URL:
+        return self._url
+
+    def is_available(self) -> bool:
+        return self._registry.is_available()
+
+    def destroy(self) -> None:
+        self._registry.destroy()
+
+
+---
+File: src\dubbo\extension\extension_loader.py
+Size: 3329 bytes
+Lines: 91 [structural]
+---
+import importlib
+from typing import Any
+from dubbo.classes import SingletonBase
+from dubbo.extension import registries as registries_module
+class ExtensionError(Exception):
+    def __init__(self, message: str):
+class ExtensionLoader(SingletonBase):
+    def __init__(self):
+    def get_extension(self, interface: Any, impl_name: str) -> Any:
+
+---
+File: src\dubbo\cluster\failfast_cluster.py
+Size: 2545 bytes
+Lines: 70
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from dubbo.cluster import Cluster, Directory, LoadBalance
+from dubbo.cluster.loadbalances import CpuLoadBalance
+from dubbo.constants import common_constants
+from dubbo.extension import extensionLoader
+from dubbo.protocol import Invoker, Result
+from dubbo.protocol.triple.exceptions import RpcError
+from dubbo.url import URL
+
+
+class FailfastInvoker(Invoker):
+    """
+    FailfastInvoker
+    """
+
+    def __init__(self, directory, url: URL):
+        self._directory = directory
+
+        self._load_balance = extensionLoader.get_extension(
+            LoadBalance, url.parameters.get(common_constants.LOADBALANCE_KEY, "random")
+        )()
+
+        if isinstance(self._load_balance, CpuLoadBalance):
+            self._load_balance.set_monitor(directory)
+
+    def invoke(self, invocation) -> Result:
+        # get the invokers
+        invokers = self._directory.get_list(invocation)
+        if not invokers:
+            raise RpcError("No provider available for the service")
+
+        # select the invoker
+        invoker = self._load_balance.select(invokers, invocation)
+
+        # invoke the invoker
+        return invoker.invoke(invocation)
+
+    def get_url(self) -> URL:
+        return self._directory.get_url()
+
+    def is_available(self) -> bool:
+        return self._directory.is_available()
+
+    def destroy(self):
+        self._directory.destroy()
+
+
+class FailfastCluster(Cluster):
+    """
+    Execute exactly once, which means this policy will throw an exception immediately in case of an invocation error.
+    Usually used for non-idempotent write operations
+    """
+
+    def join(self, directory: Directory) -> Invoker:
+        return FailfastInvoker(directory, directory.get_url())
+
+
+---
+File: src\dubbo\compression\gzips.py
+Size: 1827 bytes
+Lines: 58
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import gzip
+
+from dubbo.compression import Compressor, Decompressor
+
+__all__ = ["Gzip"]
+
+
+class Gzip(Compressor, Decompressor):
+    """
+    The GZIP compression and decompressor.
+    """
+
+    _MESSAGE_ENCODING = "gzip"
+
+    @classmethod
+    def get_message_encoding(cls) -> str:
+        """
+        Get message encoding of current compression
+        :return: The message encoding.
+        :rtype: str
+        """
+        return cls._MESSAGE_ENCODING
+
+    def compress(self, data: bytes) -> bytes:
+        """
+        Compress the data.
+        :param data: The data to compress.
+        :type data: bytes
+        :return: The compressed data.
+        :rtype: bytes
+        """
+        return gzip.compress(data)
+
+    def decompress(self, data: bytes) -> bytes:
+        """
+        Decompress the data.
+        :param data: The data to decompress.
+        :type data: bytes
+        :return: The decompressed data.
+        :rtype: bytes
+        """
+        return gzip.decompress(data)
+
+
+---
+File: src\dubbo\proxy\handlers.py
+Size: 7988 bytes
+Lines: 216 [structural]
+---
+from typing import Callable, Optional
+from dubbo.classes import MethodDescriptor
+from dubbo.types import (
+class RpcMethodHandler:
+    def __init__(self, method_descriptor: MethodDescriptor):
+    def method_descriptor(self) -> MethodDescriptor:
+    def unary(
+    def client_stream(
+    def server_stream(
+    def bi_stream(
+class RpcServiceHandler:
+    def __init__(self, service_name: str, method_handlers: list[RpcMethodHandler]):
+    def service_name(self) -> str:
+    def method_handlers(self) -> dict[str, RpcMethodHandler]:
+
+---
+File: src\dubbo\compression\identities.py
+Size: 1896 bytes
+Lines: 57
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from dubbo.classes import SingletonBase
+from dubbo.compression import Compressor, Decompressor
+
+__all__ = ["Identity"]
+
+
+class Identity(Compressor, Decompressor, SingletonBase):
+    """
+    The identity compression and decompressor.It does not compress or decompress the data.
+    """
+
+    _MESSAGE_ENCODING = "identity"
+
+    @classmethod
+    def get_message_encoding(cls) -> str:
+        """
+        Get message encoding of current compression
+        :return: The message encoding.
+        :rtype: str
+        """
+        return cls._MESSAGE_ENCODING
+
+    def compress(self, data: bytes) -> bytes:
+        """
+        Compress the data.
+        :param data: The data to compress.
+        :type data: bytes
+        :return: The compressed data.
+        :rtype: bytes
+        """
+        return data
+
+    def decompress(self, data: bytes) -> bytes:
+        """
+        Decompress the data.
+        :param data: The data to decompress.
+        :type data: bytes
+        :return: The decompressed data.
+        :rtype: bytes
+        """
+        return data
+
+
+---
+File: src\dubbo\protocol\invocation.py
+Size: 2741 bytes
+Lines: 81 [structural]
+---
+from typing import Any, Optional
+from ._interfaces import Invocation
+class RpcInvocation(Invocation):
+    def __init__(
+    def add_attachment(self, key: str, value: str) -> None:
+    def get_attachment(self, key: str) -> Optional[str]:
+    def add_attribute(self, key: str, value: Any) -> None:
+    def get_attribute(self, key: str) -> Optional[Any]:
+    def get_service_name(self) -> str:
+    def get_method_name(self) -> str:
+    def get_argument(self) -> Any:
+
+---
+File: src\dubbo\cluster\loadbalances.py
+Size: 3577 bytes
+Lines: 101 [structural]
+---
+import abc
+import random
+from typing import Optional
+from dubbo.cluster import LoadBalance
+from dubbo.cluster.monitor.cpu import CpuMonitor
+from dubbo.protocol import Invocation, Invoker
+class AbstractLoadBalance(LoadBalance, abc.ABC):
+    def select(self, invokers: list[Invoker], invocation: Invocation) -> Optional[Invoker]:
+    def do_select(self, invokers: list[Invoker], invocation: Invocation) -> Optional[Invoker]:
+class RandomLoadBalance(AbstractLoadBalance):
+    def do_select(self, invokers: list[Invoker], invocation: Invocation) -> Optional[Invoker]:
+class CpuLoadBalance(AbstractLoadBalance):
+    def __init__(self):
+    def set_monitor(self, monitor: CpuMonitor) -> None:
+    def do_select(self, invokers: list[Invoker], invocation: Invocation) -> Optional[Invoker]:
+
+---
+File: src\dubbo\constants\logger_constants.py
+Size: 2459 bytes
+Lines: 83 [structural]
+---
+import enum
+import os
+class FileRotateType(enum.Enum):
+
+---
+File: src\dubbo\registry\protocol.py
+Size: 2602 bytes
+Lines: 67
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from dubbo.cluster.directories import RegistryDirectory
+from dubbo.cluster.failfast_cluster import FailfastCluster
+from dubbo.cluster.monitor.cpu import CpuInnerRpcHandler, CpuMonitor
+from dubbo.configs import RegistryConfig
+from dubbo.constants import common_constants
+from dubbo.extension import extensionLoader
+from dubbo.protocol import Invoker, Protocol
+from dubbo.registry import RegistryFactory
+from dubbo.url import URL
+
+__all__ = ["RegistryProtocol"]
+
+
+class RegistryProtocol(Protocol):
+    """
+    Registry protocol.
+    """
+
+    def __init__(self, config: RegistryConfig, protocol: Protocol):
+        self._config = config
+        self._protocol = protocol
+
+        self._factory: RegistryFactory = extensionLoader.get_extension(RegistryFactory, self._config.protocol)()
+
+    def export(self, url: URL):
+        # get the server registry
+        registry = self._factory.get_registry(url)
+
+        ref_url: URL = url.attributes[common_constants.EXPORT_KEY]
+        registry.register(ref_url)
+
+        # add cpu handler
+        ref_url.attributes[common_constants.SERVICE_HANDLER_KEY] = [
+            ref_url.attributes[common_constants.SERVICE_HANDLER_KEY],
+            CpuInnerRpcHandler.get_service_handler(),
+        ]
+
+        # continue the export process
+        self._protocol.export(ref_url)
+
+    def refer(self, url: URL) -> Invoker:
+        registry = self._factory.get_registry(url)
+
+        # create the directory
+        if url.parameters.get(common_constants.LOADBALANCE_KEY) == "cpu":
+            directory = CpuMonitor(registry, self._protocol, url)
+        else:
+            directory = RegistryDirectory(registry, self._protocol, url)
+
+        # continue the refer process
+        return FailfastCluster().join(directory)
+
+
+---
+File: src\dubbo\extension\registries.py
+Size: 2976 bytes
+Lines: 105 [structural]
+---
+from dataclasses import dataclass
+from typing import Any
+from dubbo.cluster import LoadBalance
+from dubbo.compression import Compressor, Decompressor
+from dubbo.protocol import Protocol
+from dubbo.registry import RegistryFactory
+from dubbo.remoting import Transporter
+class ExtendedRegistry:
+
+---
+File: src\dubbo\constants\registry_constants.py
+Size: 985 bytes
+Lines: 24
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+REGISTRY_KEY = "registry"
+DYNAMIC_KEY = "dynamic"
+CATEGORY_KEY = "category"
+PROVIDERS_CATEGORY = "providers"
+CONSUMERS_CATEGORY = "consumers"
+
+
+LOAD_BALANCE_KEY = "loadbalance"
+
+
+---
+File: src\dubbo\cluster\monitor\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: src\dubbo\protocol\triple\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: src\dubbo\registry\zookeeper\__init__.py
+Size: 1077 bytes
+Lines: 31
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import (
+    ChildrenListener,
+    DataListener,
+    StateListener,
+    ZookeeperClient,
+    ZookeeperTransport,
+)
+
+__all__ = [
+    "ChildrenListener",
+    "DataListener",
+    "StateListener",
+    "ZookeeperClient",
+    "ZookeeperTransport",
+]
+
+
+---
+File: src\dubbo\remoting\aio\__init__.py
+Size: 953 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import ConnectionStateListener, EmptyConnectionStateListener
+
+__all__ = ["ConnectionStateListener", "EmptyConnectionStateListener"]
+
+
+---
+File: src\dubbo\registry\zookeeper\_interfaces.py
+Size: 7758 bytes
+Lines: 274 [structural]
+---
+import abc
+import enum
+from dubbo.url import URL
+class StateListener(abc.ABC):
+    class State(enum.Enum):
+    def state_changed(self, state: "StateListener.State") -> None:
+class DataListener(abc.ABC):
+    class EventType(enum.Enum):
+    def data_changed(self, path: str, data: bytes, event_type: "DataListener.EventType") -> None:
+class ChildrenListener(abc.ABC):
+    def children_changed(self, path: str, children: list) -> None:
+class ZookeeperClient(abc.ABC):
+    def __init__(self, url: URL):
+    def start(self) -> None:
+    def stop(self) -> None:
+    def is_connected(self) -> bool:
+    def create(self, path: str, data: bytes = b"", ephemeral=False) -> None:
+    def create_or_update(self, path: str, data: bytes, ephemeral=False) -> None:
+    def check_exist(self, path: str) -> bool:
+    def get_data(self, path: str) -> bytes:
+    def get_children(self, path: str) -> list:
+    def delete(self, path: str) -> None:
+    def add_state_listener(self, listener: StateListener) -> None:
+    def remove_state_listener(self, listener: StateListener) -> None:
+    def add_data_listener(self, path: str, listener: DataListener) -> None:
+    def remove_data_listener(self, listener: DataListener) -> None:
+    def add_children_listener(self, path: str, listener: ChildrenListener) -> None:
+    def remove_children_listener(self, listener: ChildrenListener) -> None:
+class ZookeeperTransport(abc.ABC):
+    def connect(self, url: URL) -> ZookeeperClient:
+
+---
+File: src\dubbo\remoting\aio\_interfaces.py
+Size: 1643 bytes
+Lines: 50
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import abc
+
+__all__ = ["ConnectionStateListener", "EmptyConnectionStateListener"]
+
+
+class ConnectionStateListener(abc.ABC):
+    """
+    Connection state listener. It is used to listen to the connection state.
+    """
+
+    @abc.abstractmethod
+    async def connection_made(self):
+        """
+        Called when the connection is first established.
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    async def connection_lost(self, exc):
+        """
+        Called when the connection is lost.
+        """
+        raise NotImplementedError()
+
+
+class EmptyConnectionStateListener(ConnectionStateListener):
+    """
+    An empty connection state listener. It does nothing.
+    """
+
+    async def connection_made(self):
+        pass
+
+    async def connection_lost(self, exc):
+        pass
+
+
+---
+File: src\dubbo\remoting\aio\aio_transporter.py
+Size: 8919 bytes
+Lines: 282 [structural]
+---
+import asyncio
+import concurrent
+import threading
+from typing import Union
+from dubbo.constants import common_constants
+from dubbo.loggers import loggerFactory
+from dubbo.remoting._interfaces import Client, Server, Transporter
+from dubbo.remoting.aio import ConnectionStateListener, constants as aio_constants
+from dubbo.remoting.aio.event_loop import EventLoop
+from dubbo.remoting.aio.exceptions import RemotingError
+from dubbo.url import URL
+from dubbo.utils import FutureHelper
+class AioClient(Client, ConnectionStateListener):
+    def __init__(self, url: URL):
+    def is_connected(self) -> bool:
+    def is_closed(self) -> bool:
+    def connect(self) -> None:
+    async def _do_connect(self, future: Union[concurrent.futures.Future, asyncio.Future]):
+    def close(self) -> None:
+    async def connection_made(self):
+    async def connection_lost(self, exc):
+class AioServer(Server):
+    def __init__(self, url: URL):
+    def is_exported(self) -> bool:
+    def is_closed(self) -> bool:
+    def export(self):
+        async def _inner_operation(_future: concurrent.futures.Future):
+    def close(self):
+class AioTransporter(Transporter):
+    def connect(self, url: URL) -> Client:
+    def bind(self, url: URL) -> Server:
+
+---
+File: src\dubbo\protocol\triple\coders.py
+Size: 8807 bytes
+Lines: 256 [structural]
+---
+import abc
+import struct
+from typing import Optional
+from dubbo.compression import Compressor, Decompressor
+from dubbo.protocol.triple.exceptions import RpcError
+class TriEncoder:
+    def __init__(self, compressor: Optional[Compressor]):
+    def compressor(self) -> Optional[Compressor]:
+    def compressor(self, value: Compressor) -> None:
+    def encode(self, message: bytes, compress_flag: int) -> bytes:
+class TriDecoder:
+    def __init__(
+    def decode(self, data: bytes) -> None:
+    def close(self) -> None:
+    def _do_decode(self) -> None:
+    def _has_enough_bytes(self) -> bool:
+    def _process_header(self) -> None:
+    def _process_payload(self) -> None:
+    class Listener(abc.ABC):
+        def on_message(self, message: bytes):
+        def close(self):
+
+---
+File: src\dubbo\protocol\triple\constants.py
+Size: 3833 bytes
+Lines: 125 [structural]
+---
+import enum
+class GRpcCode(enum.Enum):
+    def from_code(cls, code: int) -> "GRpcCode":
+class TripleHeaderName(enum.Enum):
+class TripleHeaderValue(enum.Enum):
+
+---
+File: src\dubbo\remoting\aio\constants.py
+Size: 1034 bytes
+Lines: 28
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+__all__ = ["STREAM_HANDLER_KEY"]
+
+STREAM_HANDLER_KEY = "stream-handler"
+
+LISTENER_FACTORY_KEY = "listener-factory"
+
+CLOSE_FUTURE_KEY = "close-future"
+
+HEARTBEAT_KEY = "heartbeat"
+DEFAULT_HEARTBEAT = 6
+
+RECONNECT_TIMES = 3
+
+
+---
+File: src\dubbo\cluster\monitor\cpu.py
+Size: 5610 bytes
+Lines: 165 [structural]
+---
+import threading
+from dubbo.cluster.directories import RegistryDirectory
+from dubbo.loggers import loggerFactory
+from dubbo.protocol import Invoker, Protocol
+from dubbo.protocol.invocation import RpcInvocation
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from dubbo.registry import Registry
+from dubbo.url import URL
+from dubbo.utils import CpuUtils
+class CpuMonitor(RegistryDirectory):
+    def __init__(self, registry: Registry, protocol: Protocol, url: URL):
+    def start(self) -> None:
+    def stop(self) -> None:
+    def _monitor_cpu(self) -> None:
+    def get_cpu_usage(self, invokers: list[Invoker]) -> dict[Invoker, float]:
+    def _remove_cpu_usage(self, invoker: Invoker) -> None:
+class CpuInnerRpcHandler:
+    def get_service_handler() -> RpcServiceHandler:
+    def get_cpu_usage(interval) -> bytes:
+
+---
+File: src\dubbo\remoting\aio\event_loop.py
+Size: 5688 bytes
+Lines: 176 [structural]
+---
+import asyncio
+import threading
+import uuid
+from typing import Optional
+from dubbo.loggers import loggerFactory
+def _try_use_uvloop() -> None:
+    import asyncio
+    import os
+        import uvloop
+class EventLoop:
+    def __init__(self, in_other_tread: bool = True):
+    def loop(self):
+    def thread(self) -> Optional[threading.Thread]:
+    def check_thread(self) -> bool:
+    def started(self) -> bool:
+    def stopped(self) -> bool:
+    def start(self) -> None:
+    def _start(self) -> None:
+    def _start_in_thread(self) -> None:
+    def stop(self, wait: bool = False) -> None:
+    async def _stop(self, signal: threading.Event) -> None:
+
+---
+File: src\dubbo\protocol\triple\exceptions.py
+Size: 1452 bytes
+Lines: 44
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+__all__ = ["RpcError", "StatusRpcError"]
+
+
+class RpcError(Exception):
+    """
+    The RPC exception.
+    """
+
+    def __init__(self, message: str):
+        self.message = f"RPC Invocation failed: {message}"
+        super().__init__(self.message)
+
+    def __str__(self):
+        return self.message
+
+
+class StatusRpcError(Exception):
+    """
+    The status RPC exception.
+    """
+
+    def __init__(self, status):
+        self.status = status
+        self.message = f"RPC Invocation failed: {status.code} {status.description}"
+        super().__init__(status, self.message)
+
+    def __str__(self):
+        return self.message
+
+
+---
+File: src\dubbo\remoting\aio\exceptions.py
+Size: 1418 bytes
+Lines: 46
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+class RemotingError(Exception):
+    """
+    The base exception class for remoting.
+    """
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
+class ProtocolError(RemotingError):
+    """
+    The exception class for protocol errors.
+    """
+
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+class StreamError(RemotingError):
+    """
+    The exception class for stream errors.
+    """
+
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+---
+File: src\dubbo\protocol\triple\invoker.py
+Size: 7692 bytes
+Lines: 201 [structural]
+---
+import concurrent
+from collections.abc import Iterator
+from dubbo.classes import MethodDescriptor
+from dubbo.compression import Compressor, Identity
+from dubbo.constants import common_constants
+from dubbo.extension import ExtensionError, extensionLoader
+from dubbo.loggers import loggerFactory
+from dubbo.protocol import Invoker, Result
+from dubbo.protocol.invocation import Invocation, RpcInvocation
+from dubbo.protocol.triple.call import TripleClientCall
+from dubbo.protocol.triple.call.client_call import (
+from dubbo.protocol.triple.constants import TripleHeaderName, TripleHeaderValue
+from dubbo.protocol.triple.metadata import RequestMetadata
+from dubbo.protocol.triple.results import TriResult
+from dubbo.protocol.triple.streams import (
+from dubbo.remoting import Client
+from dubbo.remoting.aio.exceptions import RemotingError
+from dubbo.remoting.aio.http2.stream_handler import StreamClientMultiplexHandler
+from dubbo.serialization import (
+from dubbo.url import URL
+from dubbo.utils import FunctionHelper
+class TripleInvoker(Invoker):
+    def __init__(self, url: URL, client: Client, stream_multiplexer: StreamClientMultiplexHandler):
+    def invoke(self, invocation: RpcInvocation) -> Result:
+    def _create_metadata(self, invocation: Invocation) -> RequestMetadata:
+    def get_url(self) -> URL:
+    def is_available(self) -> bool:
+    def destroy(self) -> None:
+
+---
+File: src\dubbo\registry\zookeeper\kazoo_transport.py
+Size: 15038 bytes
+Lines: 413 [structural]
+---
+import abc
+import threading
+from typing import Union
+from kazoo.client import KazooClient
+from kazoo.protocol.states import EventType, KazooState, WatchedEvent, ZnodeStat
+from dubbo.loggers import loggerFactory
+from dubbo.url import URL
+from ._interfaces import (
+class AbstractListenerAdapter(abc.ABC):
+    def __init__(self, listener: LISTENER_TYPE):
+    def add(self, listener: LISTENER_TYPE) -> None:
+    def remove(self, listener: LISTENER_TYPE) -> None:
+class AbstractListenerAdapterFactory(abc.ABC):
+    def __init__(self, client: KazooClient):
+    def create(self, path: str, listener) -> None:
+    def remove(self, listener) -> None:
+    def do_create(self, path: str, listener) -> AbstractListenerAdapter:
+class StateListenerAdapter(AbstractListenerAdapter):
+    def __init__(self, listener: StateListener):
+    def __call__(self, state: KazooState):
+class DataListenerAdapter(AbstractListenerAdapter):
+    def __init__(self, path: str, listener: DataListener):
+    def __call__(self, data: bytes, stat: ZnodeStat, event: WatchedEvent):
+class ChildrenListenerAdapter(AbstractListenerAdapter):
+    def __init__(self, path: str, listener: ChildrenListener):
+    def __call__(self, children: list[str]):
+class DataListenerAdapterFactory(AbstractListenerAdapterFactory):
+    def do_create(self, path: str, listener: DataListener) -> AbstractListenerAdapter:
+class ChildrenListenerAdapterFactory(AbstractListenerAdapterFactory):
+    def do_create(self, path: str, listener: ChildrenListener) -> AbstractListenerAdapter:
+class KazooZookeeperClient(ZookeeperClient):
+    def __init__(self, url: URL):
+    def start(self) -> None:
+    def stop(self) -> None:
+    def is_connected(self) -> bool:
+    def create(self, path: str, data: bytes = b"", ephemeral=False) -> None:
+    def create_or_update(self, path: str, data: bytes, ephemeral=False) -> None:
+    def check_exist(self, path: str) -> bool:
+    def get_data(self, path: str) -> bytes:
+    def get_children(self, path: str) -> list:
+    def delete(self, path: str) -> None:
+    def add_state_listener(self, listener: StateListener) -> None:
+    def remove_state_listener(self, listener: StateListener) -> None:
+    def add_data_listener(self, path: str, listener: DataListener) -> None:
+    def remove_data_listener(self, listener: DataListener) -> None:
+    def add_children_listener(self, path: str, listener: ChildrenListener) -> None:
+    def remove_children_listener(self, listener: ChildrenListener) -> None:
+class KazooZookeeperTransport(ZookeeperTransport):
+    def __init__(self):
+    def connect(self, url: URL) -> ZookeeperClient:
+
+---
+File: src\dubbo\protocol\triple\metadata.py
+Size: 3419 bytes
+Lines: 89 [structural]
+---
+from typing import Any, Optional
+from dubbo.compression import Compressor, Identity
+from dubbo.protocol.triple.constants import TripleHeaderName, TripleHeaderValue
+from dubbo.remoting.aio.http2.headers import Http2Headers, HttpMethod
+class RequestMetadata:
+    def __init__(self):
+    def to_headers(self) -> Http2Headers:
+def set_if_not_none(headers: Http2Headers, key: str, value: Optional[str]) -> None:
+
+---
+File: src\dubbo\protocol\triple\protocol.py
+Size: 3799 bytes
+Lines: 99 [structural]
+---
+import functools
+import uuid
+from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
+from dubbo.constants import common_constants
+from dubbo.extension import extensionLoader
+from dubbo.loggers import loggerFactory
+from dubbo.protocol import Invoker, Protocol
+from dubbo.protocol.triple.invoker import TripleInvoker
+from dubbo.protocol.triple.stream.server_stream import ServerTransportListener
+from dubbo.proxy.handlers import RpcServiceHandler
+from dubbo.remoting import Server, Transporter
+from dubbo.remoting.aio import constants as aio_constants
+from dubbo.remoting.aio.http2.protocol import Http2ClientProtocol, Http2ServerProtocol
+from dubbo.remoting.aio.http2.stream_handler import (
+from dubbo.url import URL
+class TripleProtocol(Protocol):
+    def __init__(self):
+    def export(self, url: URL):
+    def refer(self, url: URL) -> Invoker:
+
+---
+File: src\dubbo\protocol\triple\results.py
+Size: 1586 bytes
+Lines: 54
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from typing import Any
+
+from dubbo.protocol import Result
+
+
+class TriResult(Result):
+    """
+    The triple result.
+    """
+
+    __slots__ = ["_future"]
+
+    def __init__(self, future):
+        self._future = future
+
+    def set_value(self, value: Any) -> None:
+        """
+        Set the value.
+        """
+        self._future.set_result(value)
+
+    def value(self) -> Any:
+        """
+        Get the value.
+        """
+        return self._future.result()
+
+    def set_exception(self, exception: Exception) -> None:
+        """
+        Set the exception.
+        """
+        self._future.set_exception(exception)
+
+    def exception(self) -> Exception:
+        """
+        Get the exception.
+        """
+        return self._future.exception()
+
+
+---
+File: src\dubbo\protocol\triple\status.py
+Size: 5043 bytes
+Lines: 152 [structural]
+---
+from typing import Optional, Union
+from dubbo.protocol.triple.constants import GRpcCode
+from dubbo.protocol.triple.exceptions import StatusRpcError
+from dubbo.remoting.aio.http2.registries import HttpStatus
+class TriRpcStatus:
+    def __init__(
+    def code(self) -> GRpcCode:
+    def description(self) -> Optional[str]:
+    def cause(self) -> Optional[Exception]:
+    def with_description(self, description: str) -> "TriRpcStatus":
+    def with_cause(self, cause: Exception) -> "TriRpcStatus":
+    def append_description(self, description: str) -> None:
+    def as_exception(self) -> Exception:
+    def limit_desc(description: str, limit: int = 1024) -> str:
+    def from_rpc_code(cls, code: Union[int, GRpcCode]):
+    def from_http_code(cls, code: Union[int, HttpStatus]):
+    def __repr__(self):
+
+---
+File: src\dubbo\protocol\triple\streams.py
+Size: 9528 bytes
+Lines: 284 [structural]
+---
+import queue
+import threading
+from typing import Any, Optional, Union
+from dubbo.classes import EOF, ReadStream, ReadWriteStream, WriteStream
+from dubbo.protocol.triple.call import ClientCall, ServerCall
+from dubbo.protocol.triple.constants import GRpcCode
+from dubbo.protocol.triple.exceptions import RpcError
+from dubbo.protocol.triple.status import TriRpcStatus
+class TriReadStream(ReadStream):
+    def __init__(self):
+    def put(self, data: Any) -> None:
+    def put_eof(self) -> None:
+    def put_exception(self, e: Exception) -> None:
+    def read(self, timeout: Optional[int] = None) -> Any:
+    def __iter__(self):
+    def __next__(self):
+class TriClientWriteStream(WriteStream):
+    def __init__(self, call: Optional[ClientCall] = None):
+    def set_call(self, call: ClientCall):
+    def can_write_more(self) -> bool:
+    def write(self, *args, **kwargs) -> None:
+    def done_writing(self, **kwargs) -> None:
+class TriServerWriteStream(WriteStream):
+    def __init__(self, call: ServerCall):
+    def can_write_more(self) -> bool:
+    def write(self, *args, **kwargs) -> None:
+    def done_writing(self, **kwargs) -> None:
+class TriReadWriteStream(ReadWriteStream):
+    def __init__(
+    def can_write_more(self) -> bool:
+    def can_read_more(self) -> bool:
+    def read(self, timeout: Optional[int] = None) -> Any:
+    def write(self, *args, **kwargs) -> None:
+    def done_writing(self, **kwargs) -> None:
+    def __iter__(self):
+    def __next__(self):
+
+---
+File: src\dubbo\registry\zookeeper\zk_registry.py
+Size: 7156 bytes
+Lines: 197 [structural]
+---
+from dubbo.constants import common_constants, registry_constants
+from dubbo.loggers import loggerFactory
+from dubbo.registry import NotifyListener, Registry, RegistryFactory
+from dubbo.registry.zookeeper import ChildrenListener, StateListener, ZookeeperTransport
+from dubbo.registry.zookeeper.kazoo_transport import KazooZookeeperTransport
+from dubbo.url import URL, create_url
+class _DefaultStateListener(StateListener):
+    def state_changed(self, state: "StateListener.State") -> None:
+class _DefaultChildrenListener(ChildrenListener):
+    def __init__(self, listener: NotifyListener):
+    def children_changed(self, path: str, children: list[str]) -> None:
+class ZookeeperRegistry(Registry):
+    def __init__(self, url: URL, zk_transport: ZookeeperTransport):
+    def root_dir(self) -> str:
+    def root_path(self) -> str:
+    def register(self, url: URL) -> None:
+    def unregister(self, url: URL) -> None:
+    def subscribe(self, url: URL, listener: NotifyListener) -> None:
+    def unsubscribe(self, url: URL, listener: NotifyListener) -> None:
+    def lookup(self, url: URL):
+    def get_service_path(self, url: URL) -> str:
+    def get_category_path(self, url: URL) -> str:
+    def get_categories_path(self, url: URL) -> list[str]:
+    def to_url_path(self, url: URL) -> str:
+    def get_url(self) -> URL:
+    def is_available(self) -> bool:
+    def destroy(self) -> None:
+    def check_destroy(self) -> None:
+class ZookeeperRegistryFactory(RegistryFactory):
+    def __init__(self):
+    def get_registry(self, url: URL) -> Registry:
+
+---
+File: src\dubbo\protocol\triple\call\__init__.py
+Size: 954 bytes
+Lines: 20
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import ClientCall, ServerCall
+from .client_call import TripleClientCall
+
+__all__ = ["ClientCall", "ServerCall", "TripleClientCall"]
+
+
+---
+File: src\dubbo\protocol\triple\stream\__init__.py
+Size: 899 bytes
+Lines: 19
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from ._interfaces import ClientStream, ServerStream
+
+__all__ = ["ClientStream", "ServerStream"]
+
+
+---
+File: src\dubbo\remoting\aio\http2\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: src\dubbo\protocol\triple\call\_interfaces.py
+Size: 4244 bytes
+Lines: 143 [structural]
+---
+import abc
+from typing import Any
+from dubbo.protocol.triple.metadata import RequestMetadata
+from dubbo.protocol.triple.status import TriRpcStatus
+class ClientCall(abc.ABC):
+    def start(self, metadata: RequestMetadata) -> None:
+    def send_message(self, message: Any, last: bool) -> None:
+    def cancel_by_local(self, e: Exception) -> None:
+    class Listener(abc.ABC):
+        def on_message(self, message: Any) -> None:
+        def on_close(self, status: TriRpcStatus, trailers: dict[str, Any]) -> None:
+class ServerCall(abc.ABC):
+    def send_message(self, message: Any) -> None:
+    def complete(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+    class Listener(abc.ABC):
+        def on_message(self, message: Any, last: bool) -> None:
+        def on_close(self, status: TriRpcStatus) -> None:
+
+---
+File: src\dubbo\protocol\triple\stream\_interfaces.py
+Size: 5475 bytes
+Lines: 165 [structural]
+---
+import abc
+from typing import Any
+from dubbo.protocol.triple.status import TriRpcStatus
+from dubbo.remoting.aio.http2.headers import Http2Headers
+class Stream(abc.ABC):
+    def send_headers(self, headers: Http2Headers) -> None:
+    def cancel_by_local(self, status: TriRpcStatus) -> None:
+    class Listener(abc.ABC):
+        def on_message(self, data: bytes) -> None:
+        def on_cancel_by_remote(self, status: TriRpcStatus) -> None:
+class ClientStream(Stream, abc.ABC):
+    def send_message(self, data: bytes, compress_flag: int, last: bool) -> None:
+    class Listener(Stream.Listener, abc.ABC):
+        def on_complete(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+class ServerStream(Stream, abc.ABC):
+    def set_compression(self, compression: str) -> None:
+    def send_message(self, data: bytes, compress_flag: bool) -> None:
+    def complete(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+    class Listener(Stream.Listener, abc.ABC):
+        def on_headers(self, headers: dict[str, Any]) -> None:
+        def on_complete(self) -> None:
+
+---
+File: src\dubbo\protocol\triple\call\client_call.py
+Size: 7072 bytes
+Lines: 197 [structural]
+---
+from typing import Any, Optional
+from dubbo.compression import Compressor, Identity
+from dubbo.loggers import loggerFactory
+from dubbo.protocol.triple.call import ClientCall
+from dubbo.protocol.triple.constants import GRpcCode
+from dubbo.protocol.triple.metadata import RequestMetadata
+from dubbo.protocol.triple.status import TriRpcStatus
+from dubbo.protocol.triple.stream import ClientStream
+from dubbo.protocol.triple.stream.client_stream import TriClientStream
+from dubbo.remoting.aio.http2.stream_handler import StreamClientMultiplexHandler
+from dubbo.serialization import Deserializer, SerializationError, Serializer
+from dubbo.utils import FunctionHelper
+class TripleClientCall(ClientCall, ClientStream.Listener):
+    def __init__(
+    def start(self, metadata: RequestMetadata) -> None:
+    def send_message(self, message: Any, last: bool) -> None:
+    def cancel_by_local(self, e: Exception) -> None:
+    def on_message(self, data: bytes) -> None:
+    def on_complete(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+    def on_cancel_by_remote(self, status: TriRpcStatus) -> None:
+class FutureToClientCallListenerAdapter(ClientCall.Listener):
+    def __init__(self, future):
+    def on_message(self, message: Any) -> None:
+    def on_close(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+class ReadStreamToClientCallListenerAdapter(ClientCall.Listener):
+    def __init__(self, read_stream):
+    def on_message(self, message: Any) -> None:
+    def on_close(self, status: TriRpcStatus, trailers: dict[str, Any]) -> None:
+
+---
+File: src\dubbo\protocol\triple\stream\client_stream.py
+Size: 10827 bytes
+Lines: 300 [structural]
+---
+from typing import Optional
+from dubbo.compression import Compressor, Decompressor
+from dubbo.compression.identities import Identity
+from dubbo.extension import ExtensionError, extensionLoader
+from dubbo.protocol.triple.coders import TriDecoder, TriEncoder
+from dubbo.protocol.triple.constants import (
+from dubbo.protocol.triple.status import TriRpcStatus
+from dubbo.protocol.triple.stream import ClientStream
+from dubbo.remoting.aio.http2.headers import Http2Headers
+from dubbo.remoting.aio.http2.registries import Http2ErrorCode
+from dubbo.remoting.aio.http2.stream import Http2Stream
+class TriClientStream(ClientStream):
+    def __init__(
+    def transport_listener(self) -> "ClientTransportListener":
+    def bind(self, stream: Http2Stream) -> None:
+    def send_headers(self, headers: Http2Headers) -> None:
+    def send_message(self, data: bytes, compress_flag: int, last: bool) -> None:
+    def cancel_by_local(self, status: TriRpcStatus) -> None:
+class ClientTransportListener(Http2Stream.Listener, TriDecoder.Listener):
+    def __init__(self, listener: ClientStream.Listener):
+    def rst(self) -> bool:
+    def rst(self, value: bool) -> None:
+    def on_headers(self, headers: Http2Headers, end_stream: bool) -> None:
+    def on_data(self, data: bytes, end_stream: bool) -> None:
+    def cancel_by_remote(self, error_code: Http2ErrorCode) -> None:
+    def _on_headers_received(self, headers: Http2Headers) -> None:
+    def _validate_headers(self, headers: Http2Headers) -> None:
+    def _on_trailers_received(self, trailers: Http2Headers) -> None:
+    def _get_status_from_trailers(self, trailers: Http2Headers) -> TriRpcStatus:
+    def _handle_transport_error(self, transport_error: TriRpcStatus) -> None:
+    def on_message(self, message: bytes) -> None:
+    def close(self) -> None:
+
+---
+File: src\dubbo\remoting\aio\http2\controllers.py
+Size: 14714 bytes
+Lines: 389 [structural]
+---
+import abc
+import asyncio
+import threading
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from typing import Optional
+from h2.connection import H2Connection
+from dubbo.loggers import loggerFactory
+from dubbo.remoting.aio.http2.frames import (
+from dubbo.remoting.aio.http2.registries import Http2FrameType
+from dubbo.remoting.aio.http2.stream import DefaultHttp2Stream, Http2Stream
+from dubbo.utils import EventHelper
+class Controller(abc.ABC):
+    def __init__(self, loop: asyncio.AbstractEventLoop):
+    def start(self) -> None:
+    async def _run(self) -> None:
+    def close(self) -> None:
+class RemoteFlowController(Controller):
+    class Item:
+    def __init__(
+    def write_data(self, stream: Http2Stream, frame: DataFrame, event: Optional[asyncio.Event]) -> None:
+    def release_flow_control(self, frame: WindowUpdateFrame) -> None:
+    async def _run(self) -> None:
+class FrameInboundController(Controller):
+    def __init__(
+        from dubbo.remoting.aio.http2.protocol import AbstractHttp2Protocol
+    def write_frame(self, frame: UserActionFrames) -> None:
+    def ack_frame(self, frame: UserActionFrames) -> None:
+        async def _inner_operation(_frame: UserActionFrames):
+    async def _run(self) -> None:
+    def _handle_frame(self, frame: UserActionFrames):
+class FrameOutboundController(Controller):
+    def __init__(self, stream: DefaultHttp2Stream, loop: asyncio.AbstractEventLoop, protocol):
+        from dubbo.remoting.aio.http2.protocol import AbstractHttp2Protocol
+    def write_headers(self, frame: HeadersFrame) -> None:
+        def _inner_operation(_frame: HeadersFrame):
+    def write_data(self, frame: DataFrame) -> None:
+    def write_rst(self, frame: UserActionFrames) -> None:
+        def _inner_operation(_frame: UserActionFrames):
+    async def _run(self) -> None:
+
+---
+File: src\dubbo\remoting\aio\http2\frames.py
+Size: 5751 bytes
+Lines: 200 [structural]
+---
+from typing import Union
+from dubbo.remoting.aio.http2.headers import Http2Headers
+from dubbo.remoting.aio.http2.registries import Http2ErrorCode, Http2FrameType
+class Http2Frame:
+    def __init__(
+    def __repr__(self) -> str:
+class HeadersFrame(Http2Frame):
+    def __init__(
+    def __repr__(self) -> str:
+class DataFrame(Http2Frame):
+    def __init__(
+    def __repr__(self) -> str:
+class WindowUpdateFrame(Http2Frame):
+    def __init__(
+    def __repr__(self) -> str:
+class RstStreamFrame(Http2Frame):
+    def __init__(
+    def __repr__(self) -> str:
+class PingFrame(Http2Frame):
+    def __init__(self, data: bytes, ack: bool = False):
+    def __repr__(self) -> str:
+
+---
+File: src\dubbo\remoting\aio\http2\headers.py
+Size: 5143 bytes
+Lines: 167 [structural]
+---
+import enum
+from collections import OrderedDict
+from typing import Optional, Union
+class PseudoHeaderName(enum.Enum):
+    def to_list(cls) -> list[str]:
+class HttpMethod(enum.Enum):
+class Http2Headers:
+    def __init__(self):
+    def _init(self):
+    def add(self, name: str, value: str) -> None:
+    def get(self, name: str, default: Optional[str] = None) -> Optional[str]:
+    def method(self) -> Optional[str]:
+    def method(self, value: Union[HttpMethod, str]) -> None:
+    def scheme(self) -> Optional[str]:
+    def scheme(self, value: str) -> None:
+    def authority(self) -> Optional[str]:
+    def authority(self, value: str) -> None:
+    def path(self) -> Optional[str]:
+    def path(self, value: str) -> None:
+    def status(self) -> Optional[str]:
+    def status(self, value: str) -> None:
+    def to_list(self) -> list[tuple[str, str]]:
+    def to_dict(self) -> OrderedDict[str, str]:
+    def __repr__(self) -> str:
+    def from_list(cls, headers: list[tuple[str, str]]) -> "Http2Headers":
+
+---
+File: src\dubbo\remoting\aio\http2\protocol.py
+Size: 13296 bytes
+Lines: 368 [structural]
+---
+import abc
+import asyncio
+import struct
+import time
+from typing import Optional
+from h2.config import H2Configuration
+from h2.connection import H2Connection
+from dubbo.constants import common_constants
+from dubbo.loggers import loggerFactory
+from dubbo.remoting.aio import ConnectionStateListener, EmptyConnectionStateListener, constants as h2_constants
+from dubbo.remoting.aio.exceptions import ProtocolError
+from dubbo.remoting.aio.http2.stream_handler import StreamServerMultiplexHandler
+from dubbo.remoting.aio.http2.controllers import RemoteFlowController
+from dubbo.remoting.aio.http2.frames import (
+from dubbo.remoting.aio.http2.registries import Http2FrameType
+from dubbo.remoting.aio.http2.stream import Http2Stream
+from dubbo.remoting.aio.http2.utils import Http2EventUtils
+from dubbo.url import URL
+from dubbo.utils import EventHelper, FutureHelper
+class AbstractHttp2Protocol(asyncio.Protocol, abc.ABC):
+    def __init__(self, url: URL, h2_config: H2Configuration):
+    def last_read(self) -> float:
+    def _update_last_read(self) -> None:
+    def last_write(self) -> float:
+    def _update_last_write(self) -> None:
+    def connection_made(self, transport: asyncio.Transport):
+    def get_next_stream_id(self, future) -> None:
+        def _inner_operation(_future):
+    def send_frame(
+    def _send_headers_frame(
+    def _send_reset_frame(self, stream_id: int, error_code: int, event: Optional[asyncio.Event] = None) -> None:
+    def _send_ping_frame(self, data: bytes = DEFAULT_PING_DATA) -> None:
+    def _flush(self) -> None:
+    def data_received(self, data):
+    def _do_other_frame(self, frame: Http2Frame):
+    def ack_received_data(self, stream_id: int, ack_length: int) -> None:
+    def close(self):
+    def connection_lost(self, exc):
+class Http2ClientProtocol(AbstractHttp2Protocol):
+    def __init__(
+    def connection_made(self, transport: asyncio.Transport):
+    def _do_other_frame(self, frame: Http2Frame):
+    async def _heartbeat_loop(self):
+    def connection_lost(self, exc):
+class Http2ServerProtocol(AbstractHttp2Protocol):
+    def __init__(self, url: URL):
+
+---
+File: src\dubbo\remoting\aio\http2\registries.py
+Size: 10095 bytes
+Lines: 298 [structural]
+---
+import enum
+from typing import Optional, Union
+class Http2FrameType(enum.Enum):
+class Http2ErrorCode(enum.Enum):
+    def get(cls, code: int):
+class Http2Settings:
+    class Http2Setting:
+        def __init__(self, code: int, initial_value: Optional[int] = None):
+class HttpStatus(enum.Enum):
+    def from_code(cls, code: int) -> "HttpStatus":
+    def is_1xx(status: Union["HttpStatus", int]) -> bool:
+    def is_2xx(status: Union["HttpStatus", int]) -> bool:
+    def is_3xx(status: Union["HttpStatus", int]) -> bool:
+    def is_4xx(status: Union["HttpStatus", int]) -> bool:
+    def is_5xx(status: Union["HttpStatus", int]) -> bool:
+
+---
+File: src\dubbo\protocol\triple\call\server_call.py
+Size: 7848 bytes
+Lines: 232 [structural]
+---
+import abc
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Callable
+from dubbo.classes import ReadWriteStream
+from dubbo.loggers import loggerFactory
+from dubbo.protocol.triple.call import ServerCall
+from dubbo.protocol.triple.constants import (
+from dubbo.protocol.triple.status import TriRpcStatus
+from dubbo.protocol.triple.stream import ServerStream
+from dubbo.protocol.triple.streams import (
+from dubbo.proxy.handlers import RpcMethodHandler
+from dubbo.remoting.aio.http2.headers import Http2Headers
+from dubbo.remoting.aio.http2.registries import HttpStatus
+from dubbo.serialization import (
+from dubbo.types import RpcType, RpcTypes
+from dubbo.utils import FunctionHelper
+class TripleServerCall(ServerCall, ServerStream.Listener):
+    def __init__(
+    def send_message(self, message: Any) -> None:
+    def complete(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+    def on_headers(self, headers: dict[str, Any]) -> None:
+    def on_message(self, data: bytes) -> None:
+    def on_complete(self) -> None:
+    def on_cancel_by_remote(self, status: TriRpcStatus) -> None:
+class MethodRunner(abc.ABC):
+    def run(self) -> None:
+    def handle_result(self, result: Any) -> None:
+    def handle_exception(self, e: Exception) -> None:
+class DefaultMethodRunner(MethodRunner):
+    def __init__(
+    def run(self) -> None:
+    def handle_result(self, result: Any) -> None:
+    def handle_exception(self, e: Exception) -> None:
+class MethodRunnerFactory:
+    def create(method_handler: RpcMethodHandler, read_write_stream: ReadWriteStream) -> MethodRunner:
+
+---
+File: src\dubbo\protocol\triple\stream\server_stream.py
+Size: 11936 bytes
+Lines: 315 [structural]
+---
+import logging
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Optional
+from dubbo.compression import Decompressor
+from dubbo.compression.identities import Identity
+from dubbo.extension import ExtensionError, extensionLoader
+from dubbo.loggers import loggerFactory
+from dubbo.protocol.triple.call.server_call import TripleServerCall
+from dubbo.protocol.triple.coders import TriDecoder, TriEncoder
+from dubbo.protocol.triple.constants import (
+from dubbo.protocol.triple.status import TriRpcStatus
+from dubbo.protocol.triple.stream import ServerStream
+from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
+from dubbo.remoting.aio.http2.headers import Http2Headers, HttpMethod
+from dubbo.remoting.aio.http2.registries import Http2ErrorCode, HttpStatus
+from dubbo.remoting.aio.http2.stream import Http2Stream
+class TripleServerStream(ServerStream):
+    def __init__(self, stream: Http2Stream):
+    def rst(self) -> bool:
+    def rst(self, value: bool) -> None:
+    def headers_sent(self) -> bool:
+    def trailers_sent(self) -> bool:
+    def set_compression(self, compression: str) -> None:
+    def send_headers(self, headers: Http2Headers) -> None:
+    def send_message(self, data: bytes, compress_flag: bool) -> None:
+    def complete(self, status: TriRpcStatus, attachments: dict[str, Any]) -> None:
+    def cancel_by_local(self, status: TriRpcStatus) -> None:
+class ServerTransportListener(Http2Stream.Listener):
+    def __init__(
+    def on_headers(self, headers: Http2Headers, end_stream: bool) -> None:
+    def _get_handler(self, service_name: str, method_name: str) -> Optional[RpcMethodHandler]:
+    def on_data(self, data: bytes, end_stream: bool) -> None:
+    def cancel_by_remote(self, error_code: Http2ErrorCode) -> None:
+    def _response_plain_text_error(self, code: int, status: TriRpcStatus) -> None:
+    def _response_error(self, status: TriRpcStatus) -> None:
+    class ServerDecoderListener(TriDecoder.Listener):
+        def __init__(self, listener: ServerStream.Listener):
+        def on_message(self, message: bytes) -> None:
+        def close(self):
+
+---
+File: src\dubbo\remoting\aio\http2\stream.py
+Size: 9406 bytes
+Lines: 277 [structural]
+---
+import abc
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
+from dubbo.remoting.aio.exceptions import StreamError
+from dubbo.remoting.aio.http2.frames import (
+from dubbo.remoting.aio.http2.headers import Http2Headers
+from dubbo.remoting.aio.http2.registries import Http2ErrorCode
+class Http2Stream(abc.ABC):
+    def __init__(self, stream_id: int, listener: "Http2Stream.Listener"):
+    def id(self) -> int:
+    def id(self, stream_id: int) -> None:
+    def listener(self) -> "Http2Stream.Listener":
+    def local_closed(self) -> bool:
+    def remote_closed(self) -> bool:
+    def close_local(self) -> None:
+    def close_remote(self) -> None:
+    def send_headers(self, headers: Http2Headers, end_stream: bool = False) -> None:
+    def send_data(self, data: bytes, end_stream: bool = False) -> None:
+    def cancel_by_local(self, error_code: Http2ErrorCode) -> None:
+    class Listener(abc.ABC):
+        def __init__(self):
+        def bind(self, stream: "Http2Stream") -> None:
+        def stream(self) -> "Http2Stream":
+        def on_headers(self, headers: Http2Headers, end_stream: bool) -> None:
+        def on_data(self, data: bytes, end_stream: bool) -> None:
+        def cancel_by_remote(self, error_code: Http2ErrorCode) -> None:
+class DefaultHttp2Stream(Http2Stream):
+    def __init__(
+        from dubbo.remoting.aio.http2.controllers import (
+    def close_local(self) -> None:
+    def close_remote(self) -> None:
+    def send_headers(self, headers: Http2Headers, end_stream: bool = False) -> None:
+    def send_data(self, data: bytes, end_stream: bool = False) -> None:
+    def cancel_by_local(self, error_code: Http2ErrorCode) -> None:
+    def receive_frame(self, frame: UserActionFrames) -> None:
+
+---
+File: src\dubbo\remoting\aio\http2\stream_handler.py
+Size: 6233 bytes
+Lines: 174 [structural]
+---
+import asyncio
+import uuid
+from concurrent.futures import ThreadPoolExecutor
+from typing import Callable, Optional
+from dubbo.loggers import loggerFactory
+from dubbo.remoting.aio.http2.frames import UserActionFrames
+from dubbo.remoting.aio.http2.registries import Http2FrameType
+from dubbo.remoting.aio.http2.stream import DefaultHttp2Stream, Http2Stream
+class StreamMultiplexHandler:
+    def __init__(self):
+        from dubbo.remoting.aio.http2.protocol import AbstractHttp2Protocol
+    def do_init(self, loop: asyncio.AbstractEventLoop, protocol) -> None:
+    def put_stream(self, stream_id: int, stream: DefaultHttp2Stream) -> None:
+    def get_stream(self, stream_id: int) -> Optional[DefaultHttp2Stream]:
+    def remove_stream(self, stream_id: int) -> None:
+    def handle_frame(self, frame: UserActionFrames) -> None:
+    def destroy(self) -> None:
+class StreamClientMultiplexHandler(StreamMultiplexHandler):
+    def create(self, listener: Http2Stream.Listener) -> DefaultHttp2Stream:
+class StreamServerMultiplexHandler(StreamMultiplexHandler):
+    def __init__(
+    def register(self, stream_id: int) -> DefaultHttp2Stream:
+    def handle_frame(self, frame: UserActionFrames) -> None:
+
+---
+File: src\dubbo\remoting\aio\http2\utils.py
+Size: 3050 bytes
+Lines: 82 [structural]
+---
+from typing import Union
+import h2.events as h2_event
+from dubbo.remoting.aio.http2.frames import (
+from dubbo.remoting.aio.http2.headers import Http2Headers
+from dubbo.remoting.aio.http2.registries import Http2ErrorCode
+class Http2EventUtils:
+    def convert_to_frame(
+
+---
+File: samples\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\helloworld\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\llm\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\proto\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\registry\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\serialization\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\stream\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\llm\chat.proto
+Size: 385 bytes
+Lines: 21
+---
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_outer_classname = "ChatProto";
+
+package org.apache.dubbo.samples.llm.api;
+
+message ChatRequest {
+  string role = 1;
+  string content = 2;
+}
+
+message ChatReply {
+  string think = 1;
+  string answer = 2;
+}
+
+service DeepSeekAiService {
+  // chat
+  rpc chat(ChatRequest) returns (stream ChatReply);
+}
+
+
+---
+File: samples\llm\chat_pb2.py
+Size: 1695 bytes
+Lines: 32
+---
+# -*- coding: utf-8 -*-
+# Generated by the protocol buffer compiler.  DO NOT EDIT!
+# source: chat.proto
+# Protobuf Python Version: 4.25.3
+"""Generated protocol buffer code."""
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import descriptor_pool as _descriptor_pool
+from google.protobuf import symbol_database as _symbol_database
+from google.protobuf.internal import builder as _builder
+# @@protoc_insertion_point(imports)
+
+_sym_db = _symbol_database.Default()
+
+
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n\nchat.proto\x12 org.apache.dubbo.samples.llm.api",\n\x0b\x43hatRequest\x12\x0c\n\x04role\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t"*\n\tChatReply\x12\r\n\x05think\x18\x01 \x01(\t\x12\x0e\n\x06\x61nswer\x18\x02 \x01(\t2y\n\x11\x44\x65\x65pSeekAiService\x12\x64\n\x04\x63hat\x12-.org.apache.dubbo.samples.llm.api.ChatRequest\x1a+.org.apache.dubbo.samples.llm.api.ChatReply0\x01\x42\rB\tChatProtoP\x01\x62\x06proto3'
+)
+
+_globals = globals()
+_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "chat_pb2", _globals)
+if _descriptor._USE_C_DESCRIPTORS == False:
+    _globals["DESCRIPTOR"]._options = None
+    _globals["DESCRIPTOR"]._serialized_options = b"B\tChatProtoP\001"
+    _globals["_CHATREQUEST"]._serialized_start = 48
+    _globals["_CHATREQUEST"]._serialized_end = 92
+    _globals["_CHATREPLY"]._serialized_start = 94
+    _globals["_CHATREPLY"]._serialized_end = 136
+    _globals["_DEEPSEEKAISERVICE"]._serialized_start = 138
+    _globals["_DEEPSEEKAISERVICE"]._serialized_end = 259
+# @@protoc_insertion_point(module_scope)
+
+
+---
+File: samples\helloworld\client.py
+Size: 1465 bytes
+Lines: 36
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ReferenceConfig
+
+
+class UnaryServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.unary = client.unary(method_name="unary")
+
+    def say_hello(self, message: bytes) -> bytes:
+        return self.unary(message)
+
+
+if __name__ == "__main__":
+    # Create a client
+    reference_config = ReferenceConfig.from_url("tri://127.0.0.1:50051/org.apache.dubbo.samples.HelloWorld")
+    dubbo_client = dubbo.Client(reference_config)
+    unary_service_stub = UnaryServiceStub(dubbo_client)
+
+    # Call the remote method
+    result = unary_service_stub.say_hello(b"Hello from client")
+    print(result)
+
+
+---
+File: samples\proto\greeter.proto
+Size: 541 bytes
+Lines: 28
+---
+syntax = "proto3";
+
+package org.apache.dubbo.samples.proto;
+
+message GreeterRequest {
+  string name = 1;
+}
+
+message GreeterReply {
+  string message = 1;
+}
+
+service Greeter{
+
+  // unary
+  rpc sayHello(GreeterRequest) returns (GreeterReply);
+
+  // client stream
+  rpc clientStream(stream GreeterRequest) returns (GreeterReply);
+
+  // server stream
+  rpc serverStream(GreeterRequest) returns (stream GreeterReply);
+
+  // bi-directional stream
+  rpc biStream(stream GreeterRequest) returns (stream GreeterReply);
+
+
+}
+
+
+---
+File: samples\proto\greeter_pb2.py
+Size: 2120 bytes
+Lines: 40
+---
+# -*- coding: utf-8 -*-
+# Generated by the protocol buffer compiler.  DO NOT EDIT!
+# NO CHECKED-IN PROTOBUF GENCODE
+# source: greeter.proto
+# Protobuf Python Version: 5.27.0
+"""Generated protocol buffer code."""
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import descriptor_pool as _descriptor_pool
+from google.protobuf import runtime_version as _runtime_version
+from google.protobuf import symbol_database as _symbol_database
+from google.protobuf.internal import builder as _builder
+_runtime_version.ValidateProtobufRuntimeVersion(
+    _runtime_version.Domain.PUBLIC,
+    5,
+    27,
+    0,
+    '',
+    'greeter.proto'
+)
+# @@protoc_insertion_point(imports)
+
+_sym_db = _symbol_database.Default()
+
+
+
+
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rgreeter.proto\x12\x1eorg.apache.dubbo.samples.proto\"\x1e\n\x0eGreeterRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x1f\n\x0cGreeterReply\x12\x0f\n\x07message\x18\x01 \x01(\t2\xc1\x03\n\x07Greeter\x12h\n\x08sayHello\x12..org.apache.dubbo.samples.proto.GreeterRequest\x1a,.org.apache.dubbo.samples.proto.GreeterReply\x12n\n\x0c\x63lientStream\x12..org.apache.dubbo.samples.proto.GreeterRequest\x1a,.org.apache.dubbo.samples.proto.GreeterReply(\x01\x12n\n\x0cserverStream\x12..org.apache.dubbo.samples.proto.GreeterRequest\x1a,.org.apache.dubbo.samples.proto.GreeterReply0\x01\x12l\n\x08\x62iStream\x12..org.apache.dubbo.samples.proto.GreeterRequest\x1a,.org.apache.dubbo.samples.proto.GreeterReply(\x01\x30\x01\x62\x06proto3')
+
+_globals = globals()
+_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'greeter_pb2', _globals)
+if not _descriptor._USE_C_DESCRIPTORS:
+  DESCRIPTOR._loaded_options = None
+  _globals['_GREETERREQUEST']._serialized_start=49
+  _globals['_GREETERREQUEST']._serialized_end=79
+  _globals['_GREETERREPLY']._serialized_start=81
+  _globals['_GREETERREPLY']._serialized_end=112
+  _globals['_GREETER']._serialized_start=115
+  _globals['_GREETER']._serialized_end=564
+# @@protoc_insertion_point(module_scope)
+
+
+---
+File: samples\registry\zookeeper\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\serialization\json\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\serialization\protobuf\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\stream\bidi_stream\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\stream\client_stream\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\stream\server_stream\__init__.py
+Size: 798 bytes
+Lines: 15
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+---
+File: samples\registry\zookeeper\client.py
+Size: 1793 bytes
+Lines: 45
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import dubbo
+from dubbo.configs import ReferenceConfig, RegistryConfig
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.unary = client.unary(
+            method_name="sayHello",
+            request_serializer=greeter_pb2.GreeterRequest.SerializeToString,
+            response_deserializer=greeter_pb2.GreeterReply.FromString,
+        )
+
+    def say_hello(self, request):
+        return self.unary(request)
+
+
+if __name__ == "__main__":
+    registry_config = RegistryConfig.from_url("zookeeper://127.0.0.1:2181")
+    bootstrap = dubbo.Dubbo(registry_config=registry_config)
+
+    reference_config = ReferenceConfig(protocol="tri", service="org.apache.dubbo.samples.data.Greeter")
+    dubbo_client = bootstrap.create_client(reference_config)
+
+    stub = GreeterServiceStub(dubbo_client)
+
+    result = stub.say_hello(greeter_pb2.GreeterRequest(name="dubbo-python"))
+
+    print(result.message)
+
+
+---
+File: samples\serialization\json\client.py
+Size: 1779 bytes
+Lines: 50
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import orjson
+
+import dubbo
+from dubbo.configs import ReferenceConfig
+
+
+def request_serializer(name: str, age: int) -> bytes:
+    return orjson.dumps({"name": name, "age": age})
+
+
+def response_deserializer(data: bytes) -> str:
+    json_dict = orjson.loads(data)
+    return json_dict["message"]
+
+
+class GreeterServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.unary = client.unary(
+            method_name="unary",
+            request_serializer=request_serializer,
+            response_deserializer=response_deserializer,
+        )
+
+    def say_hello(self, name: str, age: int):
+        return self.unary(name, age)
+
+
+if __name__ == "__main__":
+    reference_config = ReferenceConfig.from_url("tri://127.0.0.1:50051/org.apache.dubbo.samples.serialization.json")
+    dubbo_client = dubbo.Client(reference_config)
+
+    stub = GreeterServiceStub(dubbo_client)
+    result = stub.say_hello("dubbo-python", 18)
+    print(result)
+
+
+---
+File: samples\serialization\protobuf\client.py
+Size: 1647 bytes
+Lines: 39
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ReferenceConfig
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.unary = client.unary(
+            method_name="sayHello",
+            request_serializer=greeter_pb2.GreeterRequest.SerializeToString,
+            response_deserializer=greeter_pb2.GreeterReply.FromString,
+        )
+
+    def say_hello(self, request):
+        return self.unary(request)
+
+
+if __name__ == "__main__":
+    reference_config = ReferenceConfig.from_url("tri://127.0.0.1:50051/org.apache.dubbo.samples.data.Greeter")
+    dubbo_client = dubbo.Client(reference_config)
+
+    stub = GreeterServiceStub(dubbo_client)
+    result = stub.say_hello(greeter_pb2.GreeterRequest(name="Dubbo-python"))
+    print(f"Received reply: {result.message}")
+
+
+---
+File: samples\stream\bidi_stream\client.py
+Size: 2622 bytes
+Lines: 65
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import dubbo
+from dubbo.classes import EOF
+from dubbo.configs import ReferenceConfig
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.bidi_stream = client.bi_stream(
+            method_name="biStream",
+            request_serializer=greeter_pb2.GreeterRequest.SerializeToString,
+            response_deserializer=greeter_pb2.GreeterReply.FromString,
+        )
+
+    def bi_stream(self, *args):
+        return self.bidi_stream(args)
+
+
+if __name__ == "__main__":
+    # Create a reference config
+    reference_config = ReferenceConfig.from_url("tri://127.0.0.1:50051/org.apache.dubbo.samples.data.Greeter")
+    dubbo_client = dubbo.Client(reference_config)
+    stub = GreeterServiceStub(dubbo_client)
+
+    stream = stub.bi_stream()
+    # use write method to send message
+    stream.write(greeter_pb2.GreeterRequest(name="jock"))
+
+    # use read method to receive message
+    print(f"Received response: {stream.read().message}")
+
+    # continue to send message
+    stream.write(greeter_pb2.GreeterRequest(name="jane"))
+    stream.write(greeter_pb2.GreeterRequest(name="alice"))
+    stream.write(greeter_pb2.GreeterRequest(name="dave"))
+    # done_writing method must be called to notify the server that the client has finished writing
+    stream.done_writing()
+
+    # use read method to receive message
+    # If no message arrives within the specified time, returns None
+    # If the server has finished sending messages and the client has received all messages, returns EOF
+    while True:
+        i = stream.read(timeout=0.5)
+        if i is EOF:
+            break
+        elif i is None:
+            print("No message received")
+            continue
+        print(f"Received response: {i.message}")
+
+
+---
+File: samples\stream\client_stream\client.py
+Size: 1946 bytes
+Lines: 46
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ReferenceConfig
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.unary_stream = client.client_stream(
+            method_name="clientStream",
+            request_serializer=greeter_pb2.GreeterRequest.SerializeToString,
+            response_deserializer=greeter_pb2.GreeterReply.FromString,
+        )
+
+    def client_stream(self, request_iterator):
+        return self.unary_stream(request_iterator)
+
+
+if __name__ == "__main__":
+    reference_config = ReferenceConfig.from_url("tri://127.0.0.1:50051/org.apache.dubbo.samples.data.Greeter")
+    dubbo_client = dubbo.Client(reference_config)
+    stub = GreeterServiceStub(dubbo_client)
+
+    # use iterator to send multiple requests
+    def request_generator():
+        for i in ["hello", "world", "from", "dubbo-python"]:
+            yield greeter_pb2.GreeterRequest(name=str(i))
+
+    # call the remote method and return a read_stream
+    stream = stub.client_stream(request_generator())
+    # use read method to get the response
+    print(stream.read())
+
+
+---
+File: samples\stream\server_stream\client.py
+Size: 1722 bytes
+Lines: 41
+---
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import dubbo
+from dubbo.configs import ReferenceConfig
+from samples.proto import greeter_pb2
+
+
+class GreeterServiceStub:
+    def __init__(self, client: dubbo.Client):
+        self.stream_unary = client.server_stream(
+            method_name="serverStream",
+            request_serializer=greeter_pb2.GreeterRequest.SerializeToString,
+            response_deserializer=greeter_pb2.GreeterReply.FromString,
+        )
+
+    def server_stream(self, values):
+        return self.stream_unary(values)
+
+
+if __name__ == "__main__":
+    reference_config = ReferenceConfig.from_url("tri://127.0.0.1:50051/org.apache.dubbo.samples.data.Greeter")
+    dubbo_client = dubbo.Client(reference_config)
+    stub = GreeterServiceStub(dubbo_client)
+
+    stream = stub.server_stream(greeter_pb2.GreeterRequest(name="hello world from dubbo-python"))
+
+    for i in stream:
+        print(f"Received response: {i.message}")
+

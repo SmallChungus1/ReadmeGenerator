@@ -1,0 +1,1815 @@
+Tokens: 16242
+Repo: sindresorhus/got
+Commit: aa2b3bb4ff6eada5fc766024b3b6a0c58efffb28
+Timestamp: 2026-04-12T23:33:00.790690
+
+--- Repository Structure ---
+.
+├── .editorconfig
+├── .gitattributes
+├── .gitignore
+├── .npmrc
+├── benchmark
+│   ├── index.ts
+│   └── server.ts
+├── documentation
+│   ├── examples
+│   │   ├── advanced-creation.js
+│   │   ├── gh-got.js
+│   │   ├── h2c.js
+│   │   ├── pagination.js
+│   │   ├── runkit-example.js
+│   │   └── uppercase-headers.js
+│   └── migration-guides
+├── media
+│   └── logo.ai
+├── package.json
+├── source
+│   ├── as-promise
+│   │   ├── index.ts
+│   │   └── types.ts
+│   ├── core
+│   │   ├── calculate-retry-delay.ts
+│   │   ├── diagnostics-channel.ts
+│   │   ├── errors.ts
+│   │   ├── index.ts
+│   │   ├── options.ts
+│   │   ├── parse-link-header.ts
+│   │   ├── response.ts
+│   │   ├── timed-out.ts
+│   │   └── utils
+│   │       ├── defer-to-connect.ts
+│   │       ├── get-body-size.ts
+│   │       ├── is-client-request.ts
+│   │       ├── is-unix-socket-url.ts
+│   │       ├── options-to-url.ts
+│   │       ├── proxy-events.ts
+│   │       ├── strip-url-auth.ts
+│   │       ├── timer.ts
+│   │       ├── unhandle.ts
+│   │       └── weakable-map.ts
+│   ├── create.ts
+│   ├── index.ts
+│   └── types.ts
+└── tsconfig.json
+
+--- Summary Report ---
+Total files scanned: 38
+Files included: 36
+Files skipped by rule: 0
+Files skipped by size: 2
+Files skipped by budget: 0
+Files with structural extraction: 12
+Files with dependency extraction: 0
+Detected languages count: 4
+Top 15 largest included files:
+  71006 bytes - source\core\index.ts
+  12452 bytes - source\types.ts
+  9747 bytes - source\create.ts
+  9609 bytes - source\as-promise\index.ts
+  6564 bytes - source\core\utils\timer.ts
+  5715 bytes - source\core\errors.ts
+  5475 bytes - source\core\timed-out.ts
+  5467 bytes - benchmark\index.ts
+  5457 bytes - source\core\response.ts
+  3970 bytes - documentation\examples\advanced-creation.js
+  3576 bytes - package.json
+  3466 bytes - source\core\diagnostics-channel.ts
+  1743 bytes - documentation\examples\gh-got.js
+  1691 bytes - documentation\examples\pagination.js
+  1628 bytes - source\core\utils\options-to-url.ts
+-----------------------
+
+---
+File: package.json
+Size: 3576 bytes
+Lines: 154
+---
+{
+	"name": "got",
+	"version": "15.0.1",
+	"description": "Human-friendly and powerful HTTP request library for Node.js",
+	"license": "MIT",
+	"repository": "sindresorhus/got",
+	"funding": "https://github.com/sindresorhus/got?sponsor=1",
+	"type": "module",
+	"exports": {
+		"types": "./dist/source/index.d.ts",
+		"default": "./dist/source/index.js"
+	},
+	"sideEffects": false,
+	"engines": {
+		"node": ">=22"
+	},
+	"scripts": {
+		"test": "xo && tsc --noEmit && NODE_OPTIONS='--import=tsx/esm' ava",
+		"test:coverage": "xo && tsc --noEmit && NODE_OPTIONS='--import=tsx/esm' c8 ava",
+		"release": "np",
+		"build": "del-cli dist && tsc",
+		"prepare": "npm run build"
+	},
+	"files": [
+		"dist/source"
+	],
+	"keywords": [
+		"http",
+		"https",
+		"http2",
+		"get",
+		"got",
+		"url",
+		"uri",
+		"request",
+		"simple",
+		"curl",
+		"wget",
+		"fetch",
+		"net",
+		"network",
+		"gzip",
+		"brotli",
+		"zstd",
+		"zstandard",
+		"requests",
+		"human-friendly",
+		"axios",
+		"superagent",
+		"node-fetch",
+		"ky"
+	],
+	"dependencies": {
+		"@sindresorhus/is": "^7.2.0",
+		"byte-counter": "^0.1.0",
+		"cacheable-lookup": "^7.0.0",
+		"cacheable-request": "^13.0.18",
+		"chunk-data": "^0.1.0",
+		"decompress-response": "^10.0.0",
+		"http2-wrapper": "^2.2.1",
+		"keyv": "^5.6.0",
+		"lowercase-keys": "^4.0.1",
+		"responselike": "^4.0.2",
+		"type-fest": "^5.4.4",
+		"uint8array-extras": "^1.5.0"
+	},
+	"devDependencies": {
+		"@hapi/bourne": "^3.0.0",
+		"@sindresorhus/tsconfig": "^8.1.0",
+		"@sinonjs/fake-timers": "^15.1.0",
+		"@types/benchmark": "^2.1.5",
+		"@types/express": "^5.0.6",
+		"@types/node": "^25.3.0",
+		"@types/pem": "^1.14.4",
+		"@types/readable-stream": "^4.0.23",
+		"@types/request": "^2.48.13",
+		"@types/sinon": "^21.0.0",
+		"@types/sinonjs__fake-timers": "^15.0.1",
+		"ava": "^6.4.1",
+		"axios": "^1.13.5",
+		"benchmark": "^2.1.4",
+		"bluebird": "^3.7.2",
+		"body-parser": "^2.2.2",
+		"c8": "^10.1.3",
+		"create-cert": "^1.0.6",
+		"create-test-server": "^3.0.1",
+		"del-cli": "^7.0.0",
+		"delay": "^7.0.0",
+		"expect-type": "^1.3.0",
+		"express": "^5.2.1",
+		"get-stream": "^9.0.1",
+		"node-fetch": "^3.3.2",
+		"np": "^11.0.2",
+		"p-event": "^7.1.0",
+		"pem": "^1.14.8",
+		"pify": "^6.1.0",
+		"quick-lru": "^7.3.0",
+		"readable-stream": "^4.7.0",
+		"request": "^2.88.2",
+		"sinon": "^21.0.1",
+		"slow-stream": "0.0.4",
+		"tempy": "^3.2.0",
+		"then-busboy": "^5.2.1",
+		"tough-cookie": "^6.0.0",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3",
+		"xo": "^1.2.3"
+	},
+	"ava": {
+		"files": [
+			"test/*",
+			"!test/*.types.ts"
+		],
+		"timeout": "10m",
+		"extensions": {
+			"ts": "module"
+		},
+		"workerThreads": false
+	},
+	"c8": {
+		"reporter": [
+			"text",
+			"html",
+			"lcov"
+		],
+		"exclude": [
+			"test/**",
+			"dist/**"
+		]
+	},
+	"xo": {
+		"ignores": [
+			"documentation/examples/*"
+		],
+		"rules": {
+			"@typescript-eslint/no-empty-function": "off",
+			"n/no-deprecated-api": "off",
+			"@typescript-eslint/no-implicit-any-catch": "off",
+			"ava/assertion-arguments": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/await-thenable": "off",
+			"@typescript-eslint/no-redundant-type-constituents": "off",
+			"@typescript-eslint/no-unsafe-argument": "off",
+			"@typescript-eslint/promise-function-async": "off",
+			"no-lone-blocks": "off",
+			"unicorn/no-await-expression-member": "off",
+			"unicorn/prefer-event-target": "off"
+		}
+	},
+	"runkitExampleFilename": "./documentation/examples/runkit-example.js"
+}
+
+
+---
+File: .editorconfig
+Size: 175 bytes
+Lines: 12
+---
+root = true
+
+[*]
+indent_style = tab
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.yml]
+indent_style = space
+indent_size = 2
+
+
+---
+File: .gitattributes
+Size: 31 bytes
+Lines: 2
+---
+* text=auto eol=lf
+*.ai binary
+
+
+---
+File: .gitignore
+Size: 54 bytes
+Lines: 6
+---
+node_modules
+yarn.lock
+coverage
+.nyc_output
+dist
+*.0x
+
+
+---
+File: .npmrc
+Size: 19 bytes
+Lines: 1
+---
+package-lock=false
+
+
+---
+File: tsconfig.json
+Size: 297 bytes
+Lines: 18
+---
+{
+	"extends": "@sindresorhus/tsconfig",
+	"compilerOptions": {
+		"outDir": "dist",
+		"target": "es2024", // Node.js 22
+		"lib": [
+			"es2024",
+			"esnext.array"
+		],
+		"noPropertyAccessFromIndexSignature": false,
+		"isolatedModules": true
+	},
+	"include": [
+		"source",
+		"test",
+		"benchmark"
+	]
+}
+
+
+---
+File: benchmark\index.ts
+Size: 5467 bytes
+Lines: 208 [structural]
+---
+import https from 'node:https';
+import Benchmark from 'benchmark';
+import fetch from 'node-fetch';
+import request from 'request';
+import got from '../source/index.js';
+import Request from '../source/core/index.js';
+import Options, {type OptionsInit} from '../source/core/options.js';
+const httpsAgent = new https.Agent({
+const url = new URL('https://127.0.0.1:8081');
+const urlString = url.toString();
+const gotOptions: OptionsInit = {
+const normalizedGotOptions = new Options(url, gotOptions);
+const requestOptions = {
+const fetchOptions = {
+const httpsOptions = {
+const suite = new Benchmark.Suite();
+	async fn(deferred: {resolve: () => void}) {
+	async fn(deferred: {resolve: () => void}) {
+		got.stream(url, gotOptions).resume().once('end', () => {
+	async fn(deferred: {resolve: () => void}) {
+		const stream = new Request(url, gotOptions);
+		stream.resume().once('end', () => {
+	async fn(deferred: {resolve: () => void}) {
+		const stream = new Request(undefined, undefined, normalizedGotOptions);
+		stream.resume().once('end', () => {
+	fn(deferred: {resolve: () => void}) {
+		request(urlString, requestOptions, (error: Error) => {
+	fn(deferred: {resolve: () => void}) {
+		const stream = request(urlString, requestOptions);
+		stream.once('end', () => {
+	async fn(deferred: {resolve: () => void}) {
+		const response = await fetch(urlString, fetchOptions);
+	async fn(deferred: {resolve: () => void}) {
+		const {body} = await fetch(urlString, fetchOptions);
+		body!.once('end', () => {
+	async fn(deferred: {resolve: () => void}) {
+	async fn(deferred: {resolve: () => void}) {
+	fn(deferred: {resolve: () => void}) {
+		https.request(urlString, httpsOptions, response => {
+			response.once('end', () => {
+}).on('cycle', (event: Benchmark.Event) => {
+const internalBenchmark = (): void => {
+	const internalSuite = new Benchmark.Suite();
+		fn() {
+	}).on('cycle', (event: Benchmark.Event) => {
+
+---
+File: source\index.ts
+Size: 905 bytes
+Lines: 27
+---
+import create from './create.js';
+import type {InstanceDefaults} from './types.js';
+import Options from './core/options.js';
+
+const defaults: InstanceDefaults = {
+	options: new Options(),
+	handlers: [],
+	mutableDefaults: false,
+};
+
+const got = create(defaults);
+
+export default got;
+
+export {default as Options} from './core/options.js';
+export * from './core/options.js';
+export * from './core/response.js';
+export type {default as Request} from './core/index.js';
+export * from './core/index.js';
+export * from './core/errors.js';
+export * from './core/diagnostics-channel.js';
+export type {Delays} from './core/timed-out.js';
+export {default as calculateRetryDelay} from './core/calculate-retry-delay.js';
+export type * from './as-promise/types.js';
+export type * from './types.js';
+export {default as create} from './create.js';
+export {default as parseLinkHeader} from './core/parse-link-header.js';
+
+
+---
+File: benchmark\server.ts
+Size: 433 bytes
+Lines: 13
+---
+import type {AddressInfo} from 'node:net';
+import https from 'node:https';
+// @ts-expect-error No types
+import createCert from 'create-cert';
+
+const keys = await createCert({days: 365, commonName: 'localhost'});
+
+const server = https.createServer(keys, (_request, response) => {
+	response.end('ok');
+}).listen(8080, () => {
+	const {port} = server.address() as AddressInfo;
+	console.log(`Listening at https://localhost:${port}`);
+});
+
+
+---
+File: source\as-promise\index.ts
+Size: 9609 bytes
+Lines: 292 [structural]
+---
+import {EventEmitter} from 'node:events';
+import is from '@sindresorhus/is';
+import {
+import Request, {normalizeError} from '../core/index.js';
+import {
+import proxyEvents from '../core/utils/proxy-events.js';
+import {
+import type Options from '../core/options.js';
+import {type RequestPromise} from './types.js';
+const compressedEncodings = new Set(['gzip', 'deflate', 'br', 'zstd']);
+const proxiedRequestEvents = [
+export default function asPromise<T>(firstRequest?: Request): RequestPromise<T> {
+	let globalRequest: Request;
+	let globalResponse: Response;
+	const emitter = new EventEmitter();
+	let promiseSettled = false;
+	const promise = new Promise<T>((resolve, reject) => {
+		const makeRequest = (retryCount: number, defaultOptions?: Options): void => {
+			const request = firstRequest ?? new Request(undefined, undefined, defaultOptions);
+			request.once('response', (response: Response) => {
+				void (async () => {
+					const contentEncoding = (response.headers['content-encoding'] ?? '').toLowerCase();
+					const isCompressed = compressedEncodings.has(contentEncoding);
+					const {options} = request;
+						const hooks = options.hooks.afterResponse;
+							const previousUrl = options.url ? new URL(options.url) : undefined;
+							const previousState = previousUrl ? snapshotCrossOriginState(options) : undefined;
+							const requestOptions = response.request.options;
+							const responseSnapshot = response;
+							response = await requestOptions.trackStateMutations(async changedState => hook(responseSnapshot, async (updatedOptions): RequestPromise<Response> => {
+								const preserveHooks = updatedOptions.preserveHooks ?? false;
+								const reusesRequestOptions = updatedOptions === requestOptions;
+								const hasExplicitBody = reusesRequestOptions
+									const nextUrl = reusesRequestOptions
+			let handledFinalError = false;
+			const onError = (error: RequestError) => {
+				const {options} = request;
+					const {response} = error;
+			const previousBody = request.options?.body;
+			request.once('retry', (newRetryCount: number, error: RequestError) => {
+				const newBody = request.options.body;
+	const shortcut = <T>(promiseToAwait: RequestPromise, responseType: Options['responseType']): RequestPromise<T> => {
+		const newPromise = (async () => {
+			const {options} = globalResponse.request;
+				const text = decodeUint8Array(globalResponse.rawBody, options.encoding);
+			const {headers} = globalRequest.options;
+
+---
+File: source\core\index.ts
+Size: 71006 bytes
+Lines: 2218 [structural]
+---
+import process from 'node:process';
+import {Buffer} from 'node:buffer';
+import {Duplex, type Readable} from 'node:stream';
+import {addAbortListener} from 'node:events';
+import http, {ServerResponse, type ClientRequest, type RequestOptions} from 'node:http';
+import type {Socket} from 'node:net';
+import {byteLength} from 'byte-counter';
+import {chunk} from 'chunk-data';
+import {concatUint8Arrays, stringToBase64, stringToUint8Array} from 'uint8array-extras';
+import CacheableRequest, {
+import decompressResponse from 'decompress-response';
+import type {KeyvStoreAdapter} from 'keyv';
+import type KeyvType from 'keyv';
+import is, {isBuffer} from '@sindresorhus/is';
+import type ResponseLike from 'responselike';
+import timer, {type ClientRequestWithTimings, type Timings, type IncomingMessageWithTimings} from './utils/timer.js';
+import getBodySize from './utils/get-body-size.js';
+import proxyEvents from './utils/proxy-events.js';
+import timedOut, {TimeoutError as TimedOutTimeoutError} from './timed-out.js';
+import stripUrlAuth from './utils/strip-url-auth.js';
+import WeakableMap from './utils/weakable-map.js';
+import calculateRetryDelay from './calculate-retry-delay.js';
+import Options, {
+import {
+import isClientRequest from './utils/is-client-request.js';
+import {getUnixSocketPath} from './utils/is-unix-socket-url.js';
+import {
+import {
+type Error = NodeJS.ErrnoException;
+export type Progress = {
+const supportsBrotli = is.string(process.versions.brotli);
+const supportsZstd = is.string(process.versions.zstd);
+const methodsWithoutBody: ReadonlySet<string> = new Set(['GET', 'HEAD']);
+export type GotEventFunction<T> =
+export type RequestEvents<T> = {
+type StorageAdapter = KeyvStoreAdapter | KeyvType | Map<unknown, unknown>;
+const cacheableStore = new WeakableMap<string | StorageAdapter, CacheableRequestFunction>();
+const redirectCodes: ReadonlySet<number> = new Set([301, 302, 303, 307, 308]);
+export {crossOriginStripHeaders} from './options.js';
+const transientWriteErrorCodes: ReadonlySet<string> = new Set(['EPIPE', 'ECONNRESET']);
+const omittedPipedHeaders = new Set([
+const errorsProcessedByHooks = new WeakSet<Error>();
+const proxiedRequestEvents = [
+const noop = (): void => {};
+const isTransientWriteError = (error: Error): boolean => {
+	const {code} = error;
+const getConnectionListedHeaders = (headers: Record<string, string | string[] | undefined>): Set<string> => {
+	const connectionListedHeaders = new Set<string>();
+		const normalizedHeader = header.toLowerCase();
+		const connectionHeaderValues = Array.isArray(connectionHeader) ? connectionHeader : [connectionHeader];
+				const normalizedToken = token.trim().toLowerCase();
+export const normalizeError = (error: unknown): Error => {
+		const errorLike = error as Partial<Error & {code?: string; input?: string}>;
+		const message = typeof errorLike.message === 'string' ? errorLike.message : 'Non-error object thrown';
+		const normalizedError = new globalThis.Error(message, {cause: error}) as Error & {code?: string; input?: string};
+type UrlType = ConstructorParameters<typeof Options>[0];
+type OptionsType = ConstructorParameters<typeof Options>[1];
+type DefaultsType = ConstructorParameters<typeof Options>[2];
+const getSanitizedUrl = (options?: Options): string => options?.url ? stripUrlAuth(options.url) : '';
+const makeProgress = (transferred: number, total?: number): Progress => {
+	let percent = 0;
+export default class Request extends Duplex implements RequestEvents<Request> {
+	constructor(url: UrlType, options?: OptionsType, defaults?: DefaultsType) {
+		this.on('pipe', (source: NodeJS.ReadableStream & {headers?: Record<string, string | string[] | undefined>}) => {
+				const connectionListedHeaders = getConnectionListedHeaders(source.headers);
+					const normalizedHeader = header.toLowerCase();
+		this.on('newListener', event => {
+			const {options} = error as OptionsError;
+			this.flush = async () => {
+				this.flush = async () => {};
+				process.nextTick(() => {
+						const normalizedError = normalizeError(error);
+						const requestError = normalizedError instanceof RequestError ? normalizedError : new RequestError(normalizedError.message, normalizedError, this);
+		const {body} = this.options;
+			const abort = () => {
+				const abortListenerDisposer = addAbortListener(this.options.signal, abort);
+	async flush() {
+	_beforeError(error: Error): void {
+		const {response, options} = this;
+		const attemptCount = this.retryCount + (error.name === 'RetryError' ? 0 : 1);
+		const typedError = error as RequestError;
+		void (async () => {
+				const success = await this._setRawBody(response);
+				let backoff: number;
+					let retryAfter;
+					const retryOptions = options.retry as RetryOptions;
+					const computedValue = calculateRetryDelay({
+					const normalizedError = normalizeError(error_);
+					await new Promise<void>(resolve => {
+						const timeout = setTimeout(resolve, backoff);
+						this._stopRetry = () => {
+					const bodyBeforeHooks = this.options.body;
+						const normalizedError = normalizeError(error_);
+					const bodyAfterHooks = this.options.body;
+					const bodyWasReassigned = bodyBeforeHooks !== bodyAfterHooks;
+							const oldBody = bodyBeforeHooks;
+						const normalizedError = normalizeError(error_);
+					this.emit('retry', this.retryCount + 1, error, (updatedOptions?: OptionsInit) => {
+						const request = new Request(options.url, updatedOptions, options);
+						process.nextTick(() => {
+	override _read(): void {
+		const {response} = this;
+			let data;
+						const decodedChunk = typeof data === 'string' ? data : this._incrementalDecode.decoder.decode(data, {stream: true});
+				const progress = this.downloadProgress;
+	override _write(chunk: unknown, encoding: BufferEncoding | undefined, callback: (error?: Error | null) => void): void { // eslint-disable-line @typescript-eslint/no-restricted-types
+		const write = (): void => {
+	override _final(callback: (error?: Error | null) => void): void { // eslint-disable-line @typescript-eslint/no-restricted-types
+		const endRequest = (): void => {
+			const request = this._request;
+			request.end((error?: Error | null) => { // eslint-disable-line @typescript-eslint/no-restricted-types
+	override _destroy(error: Error | null, callback: (error: Error | null) => void): void { // eslint-disable-line @typescript-eslint/no-restricted-types
+		this.flush = async () => {};
+			const {body} = this.options;
+		const timings = (this._request as ClientRequestWithTimings)?.timings;
+			const processedByHooks = error instanceof Error && errorsProcessedByHooks.has(error);
+	override pipe<T extends NodeJS.WritableStream>(destination: T, options?: {end?: boolean}): T {
+	override unpipe<T extends NodeJS.WritableStream>(destination: T): this {
+	private _shouldIncrementallyDecodeBody(): boolean {
+		const {responseType, encoding} = this.options;
+	private _checkContentLengthMismatch(): boolean {
+			const actualSize = this._compressedBytesCount ?? this._downloadedSize;
+	private async _finalizeBody(): Promise<void> {
+		const {options} = this;
+		const headers = options.getInternalHeaders();
+		const isForm = !is.undefined(options.form);
+		const isJSON = !is.undefined(options.json);
+		const isBody = !is.undefined(options.body);
+		const cannotHaveBody = methodsWithoutBody.has(options.method) && !(options.method === 'GET' && options.allowGetBody);
+			const noContentType = !is.string(headers['content-type']);
+					const response = new Response(options.body);
+				const {form} = options;
+				const {json} = options;
+			const uploadBodySize = getBodySize(options.body, headers);
+	private async _onResponseBase(response: IncomingMessageWithTimings): Promise<void> {
+		const {options} = this;
+		const {url} = options;
+		const nativeResponse = response as IncomingMessageWithTimings & {fromCache?: boolean};
+		const statusCode = response.statusCode!;
+		const {method} = options;
+		const redirectLocationHeader = response.headers.location;
+		const redirectLocation = Array.isArray(redirectLocationHeader) ? redirectLocationHeader[0] : redirectLocationHeader;
+		const isRedirect = Boolean(redirectLocation && redirectCodes.has(statusCode));
+		const hasNoBody = method === 'HEAD'
+		const prepareResponse = (response: PlainResponse): PlainResponse => {
+		let typedResponse = prepareResponse(response as PlainResponse);
+		const shouldFollowRedirect = isRedirect && (typeof options.followRedirect === 'function' ? options.followRedirect(typedResponse) : options.followRedirect);
+				nativeResponse.on('data', (chunk: Uint8Array) => {
+		response.once('error', (error: Error) => {
+		response.once('aborted', () => {
+		const noPipeCookieJarRawBodyPromise = this._noPipe
+		const rawCookies = response.headers['set-cookie'];
+			let promises: Array<Promise<unknown>> = rawCookies.map(async (rawCookie: string) => (options.cookieJar as PromiseCookieJar).setCookie(rawCookie, url!.toString()));
+				promises = promises.map(async promise => {
+			const updatedOptions = new Options(undefined, undefined, this.options);
+				const redirectBuffer = Buffer.from(redirectLocation, 'binary').toString();
+				const redirectUrl = new URL(redirectBuffer, url);
+				const currentUnixSocketPath = getUnixSocketPath(url as URL);
+				const redirectUnixSocketPath = getUnixSocketPath(redirectUrl);
+				const isDifferentOrigin = redirectUrl.origin !== (url as URL).origin
+				const serverRequestedGet = statusCode === 303 && updatedOptions.method !== 'GET' && updatedOptions.method !== 'HEAD';
+				const crossOriginRequestedGet = isDifferentOrigin
+				const canRewrite = statusCode !== 307 && statusCode !== 308;
+				const userRequestedGet = updatedOptions.methodRewriting && canRewrite;
+				const shouldDropBody = serverRequestedGet || crossOriginRequestedGet || userRequestedGet;
+				const preHookState = isDifferentOrigin
+				const changedState = await updatedOptions.trackStateMutations(async changedState => {
+					const state = preHookState!;
+					const hookUrl = updatedOptions.url;
+		const wasDecompressed = response !== nativeResponse;
+			const contentLengthHeader = nativeResponse.headers['content-length'];
+				const expectedLength = Number(contentLengthHeader);
+		let responseEndHandled = false;
+		const handleResponseEnd = () => {
+		response.on('readable', () => {
+		this.on('resume', () => {
+		this.on('pause', () => {
+			const captureFromResponse = response.readableEnded || noPipeCookieJarRawBodyPromise !== undefined;
+			const success = noPipeCookieJarRawBodyPromise
+					const value = response.headers[key];
+	private async _setRawBody(from: Readable = this): Promise<boolean> {
+			const fromArray = await from.toArray();
+			const hasNonStringChunk = fromArray.some(chunk => typeof chunk !== 'string');
+			const rawBody = hasNonStringChunk
+				? concatUint8Arrays((fromArray as Array<string | Uint8Array>).map(chunk => typeof chunk === 'string' ? stringToUint8Array(chunk) : chunk))
+			const shouldUseIncrementalDecodedBody = from === this && this._incrementalDecode !== undefined;
+						const {decoder, chunks} = this._incrementalDecode!;
+						const finalDecodedChunk = decoder.decode();
+	private async _onResponse(response: IncomingMessageWithTimings): Promise<void> {
+	private _onRequest(request: ClientRequest): void {
+		const {options} = this;
+		const {timeout, url} = options;
+			request.once('socket', (socket: Socket) => {
+		let lastRequestError: Error | undefined;
+		const responseEventName = options.cache ? 'cacheableResponse' : 'response';
+		request.once(responseEventName, (response: IncomingMessageWithTimings) => {
+		const emitRequestError = (error: Error): void => {
+			const wrappedError = error instanceof TimedOutTimeoutError ? new TimeoutError(error, this.timings!, this) : new RequestError(error.message, error, this);
+		request.once('error', (error: Error) => {
+				queueMicrotask(() => {
+			request.once('close', () => {
+	private _isRequestStale(request: ClientRequest): boolean {
+	private async _asyncWrite(chunk: any, request: Request | ClientRequest = this): Promise<void> {
+		return new Promise((resolve, reject) => {
+				super.write(chunk, error => {
+			this._writeRequest(chunk, undefined, error => {
+	private _sendBody() {
+		const {body} = this.options;
+		const currentRequest = this.redirectUrls.length === 0 ? this : this._request ?? this;
+			const typedArray = body as ArrayBufferView;
+			const uint8View = new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength);
+			(async () => {
+				const isInitialRequest = currentRequest === this;
+			const cannotHaveBody = methodsWithoutBody.has(this.options.method) && !(this.options.method === 'GET' && this.options.allowGetBody);
+	private _writeBodyInChunks(buffer: Uint8Array, currentRequest: Request | ClientRequest) {
+		const isInitialRequest = currentRequest === this;
+		(async () => {
+			let request: ClientRequest | undefined;
+				const activeRequest = request;
+				const normalizedError = normalizeError(error);
+						const initialRequest = request;
+						let didFinalize = false;
+						const finalizeIfStale = () => {
+	private _finalizeStaleChunkedWrite(request: ClientRequest, isInitialRequest: boolean) {
+	private _emitUploadComplete(request: ClientRequest) {
+	private async _endWritableRequest(request: ClientRequest): Promise<void> {
+		await new Promise<void>((resolve, reject) => {
+			request.end((error?: Error | null) => { // eslint-disable-line @typescript-eslint/no-restricted-types
+	private _stripCrossOriginState(options: Options, urlToClear: URL, bodyAlreadyDropped: boolean) {
+	private _stripUnchangedCrossOriginState(options: Options, urlToClear: URL, bodyAlreadyDropped: boolean, state: {
+		const headers = options.getInternalHeaders();
+	private _dropBody(updatedOptions: Options) {
+		const {body} = this.options;
+		const hadOptionBody = !is.undefined(body) || !is.undefined(this.options.json) || !is.undefined(this.options.form);
+			const iterableBody = body as Iterator<unknown> | AsyncIterator<unknown>;
+					const result = iterableBody.return();
+	private readonly _onBodyError = (error: Error): void => {
+			this.flush = async () => {
+				this.flush = async () => {};
+	private async _writeChunksToRequest(buffer: Uint8Array, request: ClientRequest): Promise<void> {
+		const chunkSize = 65_536; // 64 KB
+		const isStale = () => this._isRequestStale(request);
+			await new Promise<void>((resolve, reject) => {
+				this._writeRequest(part, undefined, error => {
+	private _prepareCache(cache: string | StorageAdapter) {
+		const cacheableRequest = new CacheableRequest(
+			((requestOptions: RequestOptions, handler?: (response: IncomingMessageWithTimings) => void): ClientRequest => {
+				const wrappedHandler = handler
+					? (response: IncomingMessageWithTimings) => {
+						const {beforeCacheHooks, gotRequest} = requestOptions as any;
+								const result = hook(response);
+							const normalizedError = normalizeError(error);
+				const result = (requestOptions as any)._request(requestOptions, wrappedHandler);
+					result.once = (event: string, handler: (reason: unknown) => void) => {
+							(async () => {
+							(async () => {
+									const request = (await result) as ClientRequest;
+	private async _createCacheableRequest(url: URL, options: RequestOptions): Promise<ClientRequest | ResponseLike> {
+		return new Promise<ClientRequest | ResponseLike>((resolve, reject) => {
+			let request: ClientRequest | Promise<ClientRequest>;
+			const cacheRequest = cacheableStore.get((options as any).cache)!(options as CacheableOptions, (response: any) => {
+				void (async () => {
+						const fix = () => {
+			cacheRequest.once('request', (requestOrPromise: ClientRequest | Promise<ClientRequest>) => {
+	private async _makeRequest(): Promise<void> {
+		const {options} = this;
+		const headers = options.getInternalHeaders();
+		const {username, password} = options;
+		const cookieJar = options.cookieJar as PromiseCookieJar | undefined;
+			const encodings = ['gzip', 'deflate'];
+			const credentials = stringToBase64(`${username}:${password}`);
+			const cookieString = await cookieJar.getCookieString(options.url!.toString());
+		let request: ReturnType<Options['getRequestFunction']> | undefined;
+			const result = await hook(options as NormalizedOptions, {retryCount: this.retryCount});
+				request = () => result;
+		const url = options.url as URL;
+		const function_ = options.cache ? this._createCacheableRequest : request;
+			let requestOrResponse = function_!(url, this._requestOptions);
+				this.once('finish', () => {
+	private async _error(error: RequestError): Promise<void> {
+				const hooks = this.options.hooks.beforeError;
+			const normalizedError = normalizeError(error_);
+			process.nextTick(() => {
+	private _writeRequest(chunk: any, encoding: BufferEncoding | undefined, callback: (error?: Error | null) => void, request: ClientRequest | undefined = this._request): void { // eslint-disable-line @typescript-eslint/no-restricted-types
+		request.write(chunk, encoding as any, (error?: Error | null) => { // eslint-disable-line @typescript-eslint/no-restricted-types
+				const bytes = typeof chunk === 'string' ? Buffer.from(chunk, encoding) : chunk;
+				const progress = this.uploadProgress;
+	get ip(): string | undefined {
+	get isAborted(): boolean {
+	get socket(): Socket | undefined {
+	get downloadProgress(): Progress {
+	get uploadProgress(): Progress {
+	get timings(): Timings | undefined {
+	get isFromCache(): boolean | undefined {
+	get reusedSocket(): boolean | undefined {
+	get isReadonly(): boolean {
+
+---
+File: source\create.ts
+Size: 9747 bytes
+Lines: 334 [structural]
+---
+import {setTimeout as delay} from 'node:timers/promises';
+import is, {assert} from '@sindresorhus/is';
+import asPromise from './as-promise/index.js';
+import type {
+import Request from './core/index.js';
+import type {Response} from './core/response.js';
+import Options, {
+import type {RequestPromise} from './as-promise/types.js';
+const isGotInstance = (value: Got | ExtendOptions): value is Got => is.function(value);
+const aliases: readonly HTTPAlias[] = [
+const optionsObjectUrlErrorMessage = 'The `url` option is not supported in options objects. Pass it as the first argument instead.';
+const assertNoUrlInOptionsObject = (options: Record<string, unknown>): void => {
+const cloneWithProperty = <Value extends Record<string, unknown>>(value: Value, property: string, propertyValue: unknown): Value => {
+	const clone = Object.create(Object.getPrototypeOf(value), Object.getOwnPropertyDescriptors(value)) as Value;
+const create = (defaults: InstanceDefaults): Got => {
+	const makeRequest = (url: string | URL | OptionsInit | undefined, options: OptionsInit | undefined, defaultOptions: Options, isStream: boolean): GotReturn => {
+		const requestUrl = isStream && is.plainObject(url) ? cloneWithProperty(url, 'isStream', true) : url;
+		const requestOptions = isStream && !is.plainObject(url) && options ? cloneWithProperty(options, 'isStream', true) : options;
+		const request = new Request(requestUrl, requestOptions, defaultOptions);
+		let promise: RequestPromise | undefined;
+		const lastHandler = (normalized: Options): GotReturn => {
+			const shouldReturnStream = normalized?.isStream ?? isStream;
+		let iteration = 0;
+		const iterateHandlers = (newOptions: Options): GotReturn => {
+			const handler = defaults.handlers[iteration++] ?? lastHandler;
+			const result = handler(newOptions, iterateHandlers) as GotReturn;
+					const descriptors = Object.getOwnPropertyDescriptors(promise);
+	const got: Got = ((url: string | URL | OptionsInit | undefined, options?: OptionsInit, defaultOptions: Options = defaults.options): GotReturn =>
+	got.extend = (...instancesOrOptions) => {
+		const options = new Options(undefined, undefined, defaults.options);
+		const handlers = [...defaults.handlers];
+		let mutableDefaults: boolean | undefined;
+	const paginateEach = (async function * <T, R>(url: string | URL, options?: OptionsWithPagination<T, R>): AsyncIterableIterator<T> {
+		let normalizedOptions = new Options(url, options as OptionsInit, defaults.options);
+		const {pagination} = normalizedOptions;
+		const allItems: T[] = [];
+		let {countLimit} = pagination;
+		let numberOfRequests = 0;
+			const response = (await got(undefined, undefined, normalizedOptions)) as Response;
+			const parsed: unknown[] = await pagination.transform(response);
+			const currentItems: T[] = [];
+			const requestOptions = response.request.options;
+			const previousUrl = requestOptions.url ? new URL(requestOptions.url) : undefined;
+			const previousState = previousUrl ? snapshotCrossOriginState(requestOptions) : undefined;
+			const [optionsToMerge, changedState] = await requestOptions.trackStateMutations(async changedState => [
+					const nextUrl = normalizedOptions.url as URL | undefined;
+				const hasExplicitBody = (Object.hasOwn(optionsToMerge, 'body') && optionsToMerge.body !== undefined)
+					const nextUrl = applyUrlOverride(normalizedOptions, optionsToMerge.url, optionsToMerge);
+	got.paginate.all = (async <T, R>(url: string | URL, options?: OptionsWithPagination<T, R>) => Array.fromAsync(paginateEach<T, R>(url, options))) as GotPaginate['all'];
+	got.stream = ((url: string | URL, options?: StreamOptions) =>
+		got[method] = ((url: string | URL, options?: Options): GotReturn => got(url, {...options, method})) as GotRequestFunction;
+		got.stream[method] = ((url: string | URL, options?: StreamOptions) =>
+export default create;
+
+---
+File: source\types.ts
+Size: 12452 bytes
+Lines: 341 [structural]
+---
+import type {Spread} from 'type-fest';
+import type {RequestPromise} from './as-promise/types.js';
+import type {Response} from './core/response.js';
+import type Options from './core/options.js';
+import {type PaginationOptions, type OptionsInit} from './core/options.js';
+import type Request from './core/index.js';
+type Except<ObjectType, KeysType extends keyof ObjectType> = Pick<ObjectType, Exclude<keyof ObjectType, KeysType>>;
+type Merge<FirstType, SecondType> = Except<FirstType, Extract<keyof FirstType, keyof SecondType>> & SecondType;
+export type InstanceDefaults = {
+export type GotReturn = Request | RequestPromise;
+export type HandlerFunction = <T extends GotReturn>(options: Options, next: (options: Options) => T) => T | Promise<T>;
+export type ExtendOptions = {
+export type StreamOptions = Except<OptionsInit, 'url'>;
+export type StrictOptions = Except<StreamOptions, 'responseType' | 'resolveBodyOnly'>;
+export type OptionsWithPagination<T = unknown, R = unknown> = Merge<StreamOptions, {pagination?: PaginationOptions<T, R>}>;
+export type GotPaginate = {
+export type OptionsOfTextResponseBody = Merge<StrictOptions, {responseType?: 'text'}>;
+export type OptionsOfTextResponseBodyOnly = Merge<StrictOptions, {resolveBodyOnly: true; responseType?: 'text'}>;
+export type OptionsOfTextResponseBodyWrapped = Merge<StrictOptions, {resolveBodyOnly: false; responseType?: 'text'}>;
+export type OptionsOfJSONResponseBody = Merge<StrictOptions, {responseType?: 'json'}>; // eslint-disable-line @typescript-eslint/naming-convention
+export type OptionsOfJSONResponseBodyOnly = Merge<StrictOptions, {resolveBodyOnly: true; responseType?: 'json'}>; // eslint-disable-line @typescript-eslint/naming-convention
+export type OptionsOfJSONResponseBodyWrapped = Merge<StrictOptions, {resolveBodyOnly: false; responseType?: 'json'}>; // eslint-disable-line @typescript-eslint/naming-convention
+export type OptionsOfBufferResponseBody = Merge<StrictOptions, {responseType?: 'buffer'}>;
+export type OptionsOfBufferResponseBodyOnly = Merge<StrictOptions, {resolveBodyOnly: true; responseType?: 'buffer'}>;
+export type OptionsOfBufferResponseBodyWrapped = Merge<StrictOptions, {resolveBodyOnly: false; responseType?: 'buffer'}>;
+export type OptionsOfUnknownResponseBody = StrictOptions;
+export type OptionsOfUnknownResponseBodyOnly = Merge<StrictOptions, {resolveBodyOnly: true}>;
+export type OptionsOfUnknownResponseBodyWrapped = Merge<StrictOptions, {resolveBodyOnly: false}>;
+type DefaultResponseBodyType<U extends ExtendOptions> =
+type GotResponseResult<U extends ExtendOptions, BodyType> = U['resolveBodyOnly'] extends true
+export type GotRequestFunction<U extends ExtendOptions = Record<string, unknown>> = {
+export type HTTPAlias =
+type GotStreamFunction =
+export type GotStream = GotStreamFunction & Record<HTTPAlias, GotStreamFunction>;
+export type Got<GotOptions extends ExtendOptions = ExtendOptions> = {
+export type ExtractExtendOptions<T> = T extends Got<infer GotOptions>
+export type MergeExtendsConfig<Value extends Array<Got | ExtendOptions>> =
+
+---
+File: documentation\examples\advanced-creation.js
+Size: 3970 bytes
+Lines: 164 [structural]
+---
+import process from 'node:process';
+import crypto from 'node:crypto';
+import got from '../../dist/source/index.js';
+const logger = got.extend({
+		(options, next) => {
+const controlRedirects = got.extend({
+			(options, response) => {
+				const {origin} = response.request.options.url;
+const limitDownloadUpload = got.extend({
+		(options, next) => {
+			const {downloadLimit, uploadLimit} = options.context;
+			let controller;
+			let {signal} = options;
+			const promiseOrStream = next(options);
+				promiseOrStream.on('downloadProgress', progress => {
+						const error = new Error(`Exceeded the download limit of ${downloadLimit} bytes`);
+				promiseOrStream.on('uploadProgress', progress => {
+						const error = new Error(`Exceeded the upload limit of ${uploadLimit} bytes`);
+const noUserAgent = got.extend({
+const httpbin = got.extend({
+const getMessageSignature = (data, secret) => crypto.createHmac('sha256', secret).update(data).digest('hex').toUpperCase();
+const signRequest = got.extend({
+			options => {
+				const secret = options.context.secret ?? process.env.SECRET;
+const merged = got.extend(
+const {headers} = await merged.post('anything', {
+const MEGABYTE = 1_048_576;
+
+---
+File: source\core\calculate-retry-delay.ts
+Size: 1123 bytes
+Lines: 42
+---
+import type {RetryFunction} from './options.js';
+
+type Returns<T extends (...arguments_: any) => unknown, V> = (...arguments_: Parameters<T>) => V;
+
+const calculateRetryDelay: Returns<RetryFunction, number> = ({
+	attemptCount,
+	retryOptions,
+	error,
+	retryAfter,
+	computedValue,
+}) => {
+	if (error.name === 'RetryError') {
+		return 1;
+	}
+
+	if (attemptCount > retryOptions.limit) {
+		return 0;
+	}
+
+	const hasMethod = retryOptions.methods.includes(error.options.method);
+	const hasErrorCode = retryOptions.errorCodes.includes(error.code);
+	const hasStatusCode = error.response && retryOptions.statusCodes.includes(error.response.statusCode);
+	if (!hasMethod || (!hasErrorCode && !hasStatusCode)) {
+		return 0;
+	}
+
+	if (error.response) {
+		if (retryAfter) {
+			// In this case `computedValue` is `options.request.timeout`
+			return retryAfter > computedValue ? 0 : retryAfter;
+		}
+
+		if (error.response.statusCode === 413) {
+			return 0;
+		}
+	}
+
+	const noise = Math.random() * retryOptions.noise;
+	return Math.min(((2 ** (attemptCount - 1)) * 1000), retryOptions.backoffLimit) + noise;
+};
+
+export default calculateRetryDelay;
+
+
+---
+File: source\core\diagnostics-channel.ts
+Size: 3466 bytes
+Lines: 139 [structural]
+---
+import {randomUUID} from 'node:crypto';
+import diagnosticsChannel from 'node:diagnostics_channel';
+import type {Timings} from './utils/timer.js';
+import type {RequestError} from './errors.js';
+const channels = {
+export type RequestId = string;
+export type DiagnosticRequestCreate = {
+export type DiagnosticRequestStart = {
+export type DiagnosticResponseStart = {
+export type DiagnosticResponseEnd = {
+export type DiagnosticRequestRetry = {
+export type DiagnosticRequestError = {
+export type DiagnosticResponseRedirect = {
+export function generateRequestId(): RequestId {
+const publishToChannel = (channel: diagnosticsChannel.Channel, message: unknown): void => {
+export function publishRequestCreate(message: DiagnosticRequestCreate): void {
+export function publishRequestStart(message: DiagnosticRequestStart): void {
+export function publishResponseStart(message: DiagnosticResponseStart): void {
+export function publishResponseEnd(message: DiagnosticResponseEnd): void {
+export function publishRetry(message: DiagnosticRequestRetry): void {
+export function publishError(message: DiagnosticRequestError): void {
+export function publishRedirect(message: DiagnosticResponseRedirect): void {
+
+---
+File: source\core\errors.ts
+Size: 5715 bytes
+Lines: 192 [structural]
+---
+import is from '@sindresorhus/is';
+import stripUrlAuth from './utils/strip-url-auth.js';
+import type {Timings} from './utils/timer.js';
+import type Options from './options.js';
+import type {TimeoutError as TimedOutTimeoutError} from './timed-out.js';
+import type {PlainResponse, Response} from './response.js';
+import type Request from './index.js';
+type Error = NodeJS.ErrnoException;
+function isRequest(x: unknown): x is Request {
+export class RequestError<T = unknown> extends Error {
+	constructor(message: string, error: Partial<Error & {code?: string}>, self: Request | Options) {
+			const indexOfMessage = this.stack.indexOf(this.message) + this.message.length;
+			const thisStackTrace = this.stack.slice(indexOfMessage).split('\n').toReversed();
+			const errorStackTrace = error.stack.slice(error.stack.indexOf(error.message!) + error.message!.length).split('\n').toReversed();
+export class MaxRedirectsError extends RequestError {
+	constructor(request: Request) {
+export class HTTPError<T = unknown> extends RequestError<T> {
+	constructor(response: PlainResponse) {
+export class CacheError extends RequestError {
+	constructor(error: Error, request: Request) {
+export class UploadError extends RequestError {
+	constructor(error: Error, request: Request) {
+export class TimeoutError extends RequestError {
+	constructor(error: TimedOutTimeoutError, timings: Timings, request: Request) {
+export class ReadError extends RequestError {
+	constructor(error: Error, request: Request) {
+export class RetryError extends RequestError {
+	constructor(request: Request) {
+export class AbortError extends RequestError {
+	constructor(request: Request) {
+
+---
+File: documentation\examples\gh-got.js
+Size: 1743 bytes
+Lines: 78
+---
+import process from 'node:process';
+import got from '../../dist/source/index.js';
+
+const packageJson = {
+	name: 'gh-got',
+	version: '12.0.0',
+};
+
+const getRateLimit = headers => ({
+	limit: Number.parseInt(headers['x-ratelimit-limit'], 10),
+	remaining: Number.parseInt(headers['x-ratelimit-remaining'], 10),
+	reset: new Date(Number.parseInt(headers['x-ratelimit-reset'], 10) * 1000),
+});
+
+const instance = got.extend({
+	prefixUrl: 'https://api.github.com',
+	headers: {
+		accept: 'application/vnd.github.v3+json',
+		'user-agent': `${packageJson.name}/${packageJson.version}`,
+	},
+	responseType: 'json',
+	context: {
+		token: process.env.GITHUB_TOKEN,
+	},
+	hooks: {
+		init: [
+			(raw, options) => {
+				if ('token' in raw) {
+					options.context.token = raw.token;
+					delete raw.token;
+				}
+			},
+		],
+	},
+	handlers: [
+		(options, next) => {
+			// Authorization
+			const {token} = options.context;
+			if (token && !options.headers.authorization) {
+				options.headers.authorization = `token ${token}`;
+			}
+
+			// Don't touch streams
+			if (options.isStream) {
+				return next(options);
+			}
+
+			// Magic begins
+			return (async () => {
+				try {
+					const response = await next(options);
+
+					// Rate limit for the Response object
+					response.rateLimit = getRateLimit(response.headers);
+
+					return response;
+				} catch (error) {
+					const {response} = error;
+
+					// Nicer errors
+					if (response && response.body) {
+						error.name = 'GitHubError';
+						error.message = `${response.body.message} (${response.statusCode} status code)`;
+					}
+
+					// Rate limit for errors
+					if (response) {
+						error.rateLimit = getRateLimit(response.headers);
+					}
+
+					throw error;
+				}
+			})();
+		},
+	],
+});
+
+export default instance;
+
+
+---
+File: documentation\examples\h2c.js
+Size: 1062 bytes
+Lines: 55
+---
+import http2 from 'http2-wrapper';
+import got from '../../dist/source/index.js';
+
+let sessions = {};
+const getSession = ({origin}) => {
+	if (sessions[origin] && !sessions[origin].destroyed) {
+		return sessions[origin];
+	}
+
+	const session = http2.connect(origin);
+	session.once('error', () => {
+		delete sessions[origin];
+	});
+
+	sessions[origin] = session;
+
+	return session;
+};
+
+const closeSessions = () => {
+	for (const key in sessions) {
+		if (!Object.hasOwn(sessions, key)) {
+			continue;
+		}
+
+		sessions[key].close();
+	}
+
+	sessions = {};
+};
+
+const instance = got.extend({
+	hooks: {
+		beforeRequest: [
+			options => {
+				options.h2session = getSession(options.url);
+				options.http2 = true;
+				options.request = http2.request;
+			},
+		],
+	},
+});
+
+const server = http2.createServer((request, response) => {
+	response.end('{}');
+});
+
+server.listen(async () => {
+	const url = `http://localhost:${server.address().port}`;
+	const {body, headers} = await instance(url, {context: {h2c: true}});
+	console.log(headers, body);
+
+	closeSessions();
+	server.close();
+});
+
+
+---
+File: documentation\examples\pagination.js
+Size: 1691 bytes
+Lines: 57
+---
+import Bourne from '@hapi/bourne';
+import got from '../../dist/source/index.js';
+
+const max = Date.now() - (1000 * 86_400 * 7);
+
+const iterator = got.paginate('https://api.github.com/repos/sindresorhus/got/commits', {
+	pagination: {
+		paginate({response, currentItems}) {
+			// If there are no more data, finish.
+			if (currentItems.length === 0) {
+				return false;
+			}
+
+			// Get the current page number.
+			const {searchParams} = response.request.options;
+			const previousPage = Number(searchParams.get('page') ?? 1);
+
+			// Update the page number by one.
+			return {
+				searchParams: {
+					page: previousPage + 1,
+				},
+			};
+		},
+		// Using `Bourne` to prevent prototype pollution.
+		transform: response => Bourne.parse(response.body),
+		filter({item}) {
+			// Check if the commit time exceeds our range.
+			const date = new Date(item.commit.committer.date);
+			const end = date.getTime() - max >= 0;
+
+			return end;
+		},
+		shouldContinue({item}) {
+			// Check if the commit time exceeds our range.
+			const date = new Date(item.commit.committer.date);
+			const end = date.getTime() - max >= 0;
+
+			return end;
+		},
+		// We want only 50 results.
+		countLimit: 50,
+		// Wait 1s before making another request to prevent API rate limiting.
+		backoff: 1000,
+		// It is a good practice to set an upper limit of how many requests can be made.
+		// This way we can avoid infinite loops.
+		requestLimit: 10,
+		// In this case, we don't need to store all the items we receive.
+		// They are processed immediately.
+		stackAllItems: false,
+	},
+});
+
+console.log('Last 50 commits from now to week ago:');
+for await (const item of iterator) {
+	console.log(item.commit.message.split('\n')[0]);
+}
+
+
+---
+File: source\core\parse-link-header.ts
+Size: 1314 bytes
+Lines: 44
+---
+export default function parseLinkHeader(link: string) {
+	const parsed = [];
+
+	const items = link.split(',');
+
+	for (const item of items) {
+		// https://tools.ietf.org/html/rfc5988#section-5
+		const [rawUriReference, ...rawLinkParameters] = item.split(';') as [string, ...string[]];
+		const trimmedUriReference = rawUriReference.trim();
+
+		// eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
+		if (trimmedUriReference[0] !== '<' || trimmedUriReference.at(-1) !== '>') {
+			throw new Error(`Invalid format of the Link header reference: ${trimmedUriReference}`);
+		}
+
+		const reference = trimmedUriReference.slice(1, -1);
+		const parameters: Record<string, string> = {};
+
+		if (rawLinkParameters.length === 0) {
+			throw new Error(`Unexpected end of Link header parameters: ${rawLinkParameters.join(';')}`);
+		}
+
+		for (const rawParameter of rawLinkParameters) {
+			const trimmedRawParameter = rawParameter.trim();
+			const center = trimmedRawParameter.indexOf('=');
+
+			if (center === -1) {
+				throw new Error(`Failed to parse Link header: ${link}`);
+			}
+
+			const name = trimmedRawParameter.slice(0, center).trim();
+			const value = trimmedRawParameter.slice(center + 1).trim();
+
+			parameters[name] = value;
+		}
+
+		parsed.push({
+			reference,
+			parameters,
+		});
+	}
+
+	return parsed;
+}
+
+
+---
+File: source\core\response.ts
+Size: 5457 bytes
+Lines: 191 [structural]
+---
+import {Buffer} from 'node:buffer';
+import type {IncomingMessageWithTimings, Timings} from './utils/timer.js';
+import {RequestError} from './errors.js';
+import stripUrlAuth from './utils/strip-url-auth.js';
+import type {ParseJsonFunction, ResponseType} from './options.js';
+import type Request from './index.js';
+const decodedBodyCache = new WeakMap<PlainResponse, string>();
+const textDecoder = new TextDecoder();
+export const isUtf8Encoding = (encoding?: BufferEncoding): boolean => encoding === undefined || encoding.toLowerCase().replace('-', '') === 'utf8';
+export const decodeUint8Array = (data: Uint8Array, encoding?: BufferEncoding): string => {
+export type PlainResponse = {
+export type Response<T = unknown> = {
+export const isResponseOk = (response: PlainResponse): boolean => {
+	const {statusCode} = response;
+	const {followRedirect} = response.request.options;
+	const shouldFollow = typeof followRedirect === 'function' ? followRedirect(response) : followRedirect;
+	const limitStatusCode = shouldFollow ? 299 : 399;
+export class ParseError extends RequestError {
+	constructor(error: Error, response: Response) {
+		const {options} = response.request;
+export const cacheDecodedBody = (response: PlainResponse, decodedBody: string): void => {
+export const parseBody = (response: Response, responseType: ResponseType, parseJson: ParseJsonFunction, encoding?: BufferEncoding): unknown => {
+	const {rawBody} = response;
+	const cachedDecodedBody = decodedBodyCache.get(response);
+			const text = cachedDecodedBody ?? decodeUint8Array(rawBody, encoding);
+
+---
+File: documentation\examples\runkit-example.js
+Size: 221 bytes
+Lines: 8
+---
+import got from 'got';
+
+const issUrl = 'http://api.open-notify.org/iss-now.json';
+
+const {iss_position: issPosition} = await got(issUrl).json();
+
+console.log(issPosition);
+//=> {latitude: '20.4956', longitude: '42.2216'}
+
+
+---
+File: source\core\timed-out.ts
+Size: 5475 bytes
+Lines: 201 [structural]
+---
+import net from 'node:net';
+import type {ClientRequest, IncomingMessage} from 'node:http';
+import unhandler from './utils/unhandle.js';
+const reentry: unique symbol = Symbol('reentry');
+const noop = (): void => {};
+type TimedOutOptions = {
+export type Delays = {
+export type ErrorCode =
+export class TimeoutError extends Error {
+	constructor(threshold: number, event: string) {
+export default function timedOut(request: ClientRequest, delays: Delays, options: TimedOutOptions): () => void {
+	const cancelers: Array<typeof noop> = [];
+	const {once, unhandleAll} = unhandler();
+	const handled = new Set<string>();
+	const addTimeout = (delay: number, callback: (delay: number, event: string) => void, event: string): (typeof noop) => {
+		const timeout = setTimeout(callback, delay, delay, event) as unknown as NodeJS.Timeout;
+		const cancel = (): void => {
+	const {host, hostname} = options;
+	const timeoutHandler = (delay: number, event: string): void => {
+		setTimeout(() => {
+	const cancelTimeouts = (): void => {
+	request.once('error', error => {
+		const cancelTimeout = addTimeout(delays.request, timeoutHandler, 'request');
+		once(request, 'response', (response: IncomingMessage): void => {
+		const {socket} = delays;
+		const socketTimeoutHandler = (): void => {
+		cancelers.push(() => {
+	const hasLookup = delays.lookup !== undefined;
+	const hasConnect = delays.connect !== undefined;
+	const hasSecureConnect = delays.secureConnect !== undefined;
+	const hasSend = delays.send !== undefined;
+		once(request, 'socket', (socket: net.Socket): void => {
+			const {socketPath} = request as ClientRequest & {socketPath?: string};
+				const hasPath = Boolean(socketPath ?? (net.isIP(hostname ?? host ?? '') !== 0));
+					const cancelTimeout = addTimeout(delays.lookup!, timeoutHandler, 'lookup');
+					const timeConnect = (): (() => void) => addTimeout(delays.connect!, timeoutHandler, 'connect');
+						once(socket, 'lookup', (error: Error): void => {
+					once(socket, 'connect', (): void => {
+						const cancelTimeout = addTimeout(delays.secureConnect!, timeoutHandler, 'secureConnect');
+				const timeRequest = (): (() => void) => addTimeout(delays.send!, timeoutHandler, 'send');
+					once(socket, 'connect', (): void => {
+		once(request, 'upload-complete', (): void => {
+			const cancelTimeout = addTimeout(delays.response!, timeoutHandler, 'response');
+		once(request, 'response', (response: IncomingMessage): void => {
+			const cancelTimeout = addTimeout(delays.read!, timeoutHandler, 'read');
+	interface ClientRequest {
+
+---
+File: source\as-promise\types.ts
+Size: 1459 bytes
+Lines: 30
+---
+import {type RequestEvents} from '../core/index.js';
+import type {Response} from '../core/response.js';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- Internal recursive shape requires interface; public API remains a type alias.
+interface RequestPromiseShape<T extends Response | Response['body'] = Response['body']> extends RequestEvents<RequestPromise<T>> {
+	/**
+	A shortcut method that gives a Promise returning a JSON object.
+
+	It is semantically the same as setting `options.resolveBodyOnly` to `true` and `options.responseType` to `'json'`.
+	*/
+	json: <ReturnType>() => RequestPromise<ReturnType>;
+
+	/**
+	A shortcut method that gives a Promise returning a [Uint8Array](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array).
+
+	It is semantically the same as setting `options.resolveBodyOnly` to `true` and `options.responseType` to `'buffer'`.
+	*/
+	buffer: () => RequestPromise<Uint8Array<ArrayBuffer>>;
+
+	/**
+	A shortcut method that gives a Promise returning a string.
+
+	It is semantically the same as setting `options.resolveBodyOnly` to `true` and `options.responseType` to `'text'`.
+	*/
+	text: () => RequestPromise<string>;
+}
+
+// This is intentionally a type alias to keep structural typing predictable.
+// Augmenting it via interface merging is not supported.
+export type RequestPromise<T extends Response | Response['body'] = Response['body']> = Promise<T> & RequestPromiseShape<T>;
+
+
+---
+File: documentation\examples\uppercase-headers.js
+Size: 1587 bytes
+Lines: 82 [structural]
+---
+import http from 'node:http';
+import got from '../../dist/source/index.js';
+class WrappedAgent {
+	constructor(agent) {
+	addRequest(request, options) {
+	get keepAlive() {
+	get maxSockets() {
+	get options() {
+	get defaultPort() {
+	get protocol() {
+class TransformHeadersAgent extends WrappedAgent {
+	addRequest(request, options) {
+		const headers = request.getHeaderNames();
+	transformHeader(header) {
+		return header.split('-').map(part => part[0].toUpperCase() + part.slice(1)).join('-');
+const agent = new http.Agent({
+const wrappedAgent = new TransformHeadersAgent(agent);
+const main = async () => {
+	const headers = await got(`http://localhost:${server.address().port}`, {
+const server = http.createServer((request, response) => {
+	const {rawHeaders} = request;
+	const headers = {};
+	for (let i = 0; i < rawHeaders.length; i += 2) {
+
+---
+File: source\core\utils\defer-to-connect.ts
+Size: 1206 bytes
+Lines: 44
+---
+import type {Socket} from 'node:net';
+import type {TLSSocket} from 'node:tls';
+
+type Listeners = {
+	connect?: () => void;
+	secureConnect?: () => void;
+	close?: (hadError: boolean) => void;
+};
+
+function isTlsSocket(socket: Socket | TLSSocket): socket is TLSSocket {
+	return 'encrypted' in socket;
+}
+
+const deferToConnect = (socket: TLSSocket | Socket, fn: Listeners | (() => void)): void => {
+	const listeners = typeof fn === 'function' ? {connect: fn} : fn;
+
+	const onConnect = () => {
+		listeners.connect?.();
+
+		if (isTlsSocket(socket) && listeners.secureConnect) {
+			if (socket.authorized) {
+				listeners.secureConnect();
+			} else {
+				// Wait for secureConnect event (even if authorization fails, we need the timing)
+				socket.once('secureConnect', listeners.secureConnect);
+			}
+		}
+
+		if (listeners.close) {
+			socket.once('close', listeners.close);
+		}
+	};
+
+	if (socket.writable && !socket.connecting) {
+		onConnect();
+	} else if (socket.connecting) {
+		socket.once('connect', onConnect);
+	} else if (socket.destroyed && listeners.close) {
+		const hadError = '_hadError' in socket ? Boolean((socket as any)._hadError) : false;
+		listeners.close(hadError);
+	}
+};
+
+export default deferToConnect;
+
+
+---
+File: source\core\utils\get-body-size.ts
+Size: 601 bytes
+Lines: 27
+---
+import type {ClientRequestArgs} from 'node:http';
+import is from '@sindresorhus/is';
+import {stringToUint8Array} from 'uint8array-extras';
+
+export default function getBodySize(body: unknown, headers: ClientRequestArgs['headers']): number | undefined {
+	if (headers && 'content-length' in headers) {
+		return Number(headers['content-length']);
+	}
+
+	if (!body) {
+		return 0;
+	}
+
+	if (is.string(body)) {
+		return stringToUint8Array(body).byteLength;
+	}
+
+	if (is.buffer(body)) {
+		return body.length;
+	}
+
+	if (is.typedArray(body)) {
+		return (body as ArrayBufferView).byteLength;
+	}
+
+	return undefined;
+}
+
+
+---
+File: source\core\utils\is-client-request.ts
+Size: 322 bytes
+Lines: 8
+---
+import type {Writable, Readable} from 'node:stream';
+import type {ClientRequest} from 'node:http';
+
+function isClientRequest(clientRequest: Writable | Readable): clientRequest is ClientRequest {
+	return (clientRequest as Writable).writable && !(clientRequest as Writable).writableEnded;
+}
+
+export default isClientRequest;
+
+
+---
+File: source\core\utils\is-unix-socket-url.ts
+Size: 595 bytes
+Lines: 27
+---
+
+export default function isUnixSocketUrl(url: URL) {
+	return url.protocol === 'unix:' || url.hostname === 'unix';
+}
+
+/**
+Extract the socket path from a UNIX socket URL.
+
+@example
+```
+getUnixSocketPath(new URL('http://unix/foo:/path'));
+//=> '/foo'
+
+getUnixSocketPath(new URL('unix:/foo:/path'));
+//=> '/foo'
+
+getUnixSocketPath(new URL('http://example.com'));
+//=> undefined
+```
+*/
+export function getUnixSocketPath(url: URL): string | undefined {
+	if (!isUnixSocketUrl(url)) {
+		return undefined;
+	}
+
+	return /^(?<socketPath>[^:]+):/v.exec(`${url.pathname}${url.search}`)?.groups?.socketPath;
+}
+
+
+---
+File: source\core\utils\options-to-url.ts
+Size: 1628 bytes
+Lines: 71
+---
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export type URLOptions = {
+	href?: string;
+	protocol?: string;
+	host?: string;
+	hostname?: string;
+	port?: string | number;
+	pathname?: string;
+	search?: string;
+	searchParams?: unknown;
+	path?: string;
+};
+
+const keys: Array<Exclude<keyof URLOptions, 'searchParams' | 'path'>> = [
+	'protocol',
+	'host',
+	'hostname',
+	'port',
+	'pathname',
+	'search',
+];
+
+export default function optionsToUrl(origin: string, options: URLOptions): URL {
+	if (options.path) {
+		if (options.pathname) {
+			throw new TypeError('Parameters `path` and `pathname` are mutually exclusive.');
+		}
+
+		if (options.search) {
+			throw new TypeError('Parameters `path` and `search` are mutually exclusive.');
+		}
+
+		if (options.searchParams) {
+			throw new TypeError('Parameters `path` and `searchParams` are mutually exclusive.');
+		}
+	}
+
+	if (options.search && options.searchParams) {
+		throw new TypeError('Parameters `search` and `searchParams` are mutually exclusive.');
+	}
+
+	if (!origin) {
+		if (!options.protocol) {
+			throw new TypeError('No URL protocol specified');
+		}
+
+		origin = `${options.protocol}//${options.hostname ?? options.host ?? ''}`;
+	}
+
+	const url = new URL(origin);
+
+	if (options.path) {
+		const searchIndex = options.path.indexOf('?');
+		if (searchIndex === -1) {
+			options.pathname = options.path;
+		} else {
+			options.pathname = options.path.slice(0, searchIndex);
+			options.search = options.path.slice(searchIndex + 1);
+		}
+
+		delete options.path;
+	}
+
+	for (const key of keys) {
+		if (options[key]) {
+			url[key] = options[key].toString();
+		}
+	}
+
+	return url;
+}
+
+
+---
+File: source\core\utils\proxy-events.ts
+Size: 569 bytes
+Lines: 20
+---
+import type {EventEmitter} from 'node:events';
+
+export default function proxyEvents(from: EventEmitter, to: EventEmitter, events: readonly string[]): () => void {
+	const eventFunctions = new Map<string, (...arguments_: unknown[]) => void>();
+
+	for (const event of events) {
+		const eventFunction = (...arguments_: unknown[]) => {
+			to.emit(event, ...arguments_);
+		};
+
+		eventFunctions.set(event, eventFunction);
+		from.on(event, eventFunction);
+	}
+
+	return () => {
+		for (const [event, eventFunction] of eventFunctions) {
+			from.off(event, eventFunction);
+		}
+	};
+}
+
+
+---
+File: source\core\utils\strip-url-auth.ts
+Size: 258 bytes
+Lines: 9
+---
+/*
+Returns the URL as a string with `username` and `password` stripped.
+*/
+export default function stripUrlAuth(url: URL | string): string {
+	const sanitized = new URL(url);
+	sanitized.username = '';
+	sanitized.password = '';
+	return sanitized.toString();
+}
+
+
+---
+File: source\core\utils\timer.ts
+Size: 6564 bytes
+Lines: 231 [structural]
+---
+import {errorMonitor} from 'node:events';
+import {types} from 'node:util';
+import type {ClientRequest, IncomingMessage} from 'node:http';
+import type {Socket} from 'node:net';
+import deferToConnect from './defer-to-connect.js';
+export type Timings = {
+export type ClientRequestWithTimings = ClientRequest & {
+export type IncomingMessageWithTimings = IncomingMessage & {
+type SocketWithConnectionTimings = Socket & {
+const timer = (request: ClientRequestWithTimings): Timings => {
+	const timings: Timings = {
+	const handleError = (origin: ClientRequest | IncomingMessage) => {
+		origin.once(errorMonitor, () => {
+	const onAbort = () => {
+	const onSocket = (socket: SocketWithConnectionTimings) => {
+		const socketAlreadyConnected = socket.writable && !socket.connecting;
+		const lookupListener = () => {
+			connect() {
+			secureConnect() {
+	const onUpload = () => {
+		const secureOrConnect = timings.secureConnect ?? timings.connect;
+	request.prependOnceListener('response', (response: IncomingMessageWithTimings) => {
+		response.prependOnceListener('end', () => {
+export default timer;
+
+---
+File: source\core\utils\unhandle.ts
+Size: 1020 bytes
+Lines: 39
+---
+import type {EventEmitter} from 'node:events';
+
+type Origin = EventEmitter;
+type Event = string | symbol;
+type AnyFunction = (...arguments_: any[]) => void;
+
+type Handler = {
+	origin: Origin;
+	event: Event;
+	fn: AnyFunction;
+};
+
+type Unhandler = {
+	once: (origin: Origin, event: Event, function_: AnyFunction) => void;
+	unhandleAll: () => void;
+};
+
+// When attaching listeners, it's very easy to forget about them.
+// Especially if you do error handling and set timeouts.
+// So instead of checking if it's proper to throw an error on every timeout ever,
+// use this simple tool which will remove all listeners you have attached.
+export default function unhandle(): Unhandler {
+	const handlers: Handler[] = [];
+
+	return {
+		once(origin: Origin, event: Event, function_: AnyFunction) {
+			origin.once(event, function_);
+			handlers.push({origin, event, fn: function_});
+		},
+
+		unhandleAll() {
+			for (const {origin, event, fn} of handlers) {
+				origin.removeListener(event, fn);
+			}
+
+			handlers.length = 0;
+		},
+	};
+}
+
+
+---
+File: source\core\utils\weakable-map.ts
+Size: 640 bytes
+Lines: 28
+---
+export default class WeakableMap<K, V> {
+	weakMap = new WeakMap<Record<string, unknown>, V>();
+	map = new Map<K, V>();
+
+	set(key: K, value: V): void {
+		if (typeof key === 'object') {
+			this.weakMap.set(key as unknown as Record<string, unknown>, value);
+		} else {
+			this.map.set(key, value);
+		}
+	}
+
+	get(key: K): V | undefined {
+		if (typeof key === 'object') {
+			return this.weakMap.get(key as unknown as Record<string, unknown>);
+		}
+
+		return this.map.get(key);
+	}
+
+	has(key: K): boolean {
+		if (typeof key === 'object') {
+			return this.weakMap.has(key as unknown as Record<string, unknown>);
+		}
+
+		return this.map.has(key);
+	}
+}
+
